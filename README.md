@@ -1,6 +1,8 @@
 # scrutiny
 WebUI for smartd S.M.A.R.T monitoring
 
+> NOTE: Scrutiny is a Work-in-Progress and still has some rough edges.
+
 [![](docs/dashboard.png)](https://imgur.com/a/5k8qMzS)
 
 # Introduction
