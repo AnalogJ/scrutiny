@@ -1,0 +1,83 @@
+.rich-text {
+
+    table {
+        width: 100%;
+        border-spacing: 0;
+
+        thead {
+
+            tr {
+
+                th {
+                    padding: 16px;
+                    border-bottom-width: 2px;
+                    text-align: left;
+                    font-weight: 500;
+
+                    &:first-child {
+                        padding-left: 24px;
+                    }
+
+                    &:last-child {
+                        padding-right: 24px;
+                    }
+                }
+            }
+        }
+
+        tbody {
+
+            tr {
+
+                td {
+                    padding: 16px;
+                    border-bottom-width: 1px;
+                    text-align: left;
+
+                    &:first-child {
+                        padding-left: 24px;
+                    }
+
+                    &:last-child {
+                        padding-right: 24px;
+                    }
+                }
+
+                &:last-child {
+
+                    td {
+                        border-bottom: none;
+                    }
+                }
+            }
+        }
+
+        tfoot {
+
+            tr {
+
+                th {
+                    padding: 16px;
+                    border-top-width: 2px;
+                    text-align: left;
+                    font-weight: 500;
+
+                    &:first-child {
+                        padding-left: 24px;
+                    }
+
+                    &:last-child {
+                        padding-right: 24px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+}

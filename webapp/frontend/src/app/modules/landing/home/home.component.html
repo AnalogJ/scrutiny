@@ -1,0 +1,21 @@
+<div class="flex flex-col items-center justify-center w-full h-full cool-gray-900">
+    <div class="flex flex-col items-center max-w-lg rich-text">
+        <img class="w-20"
+             src="assets/images/logo/scrutiny-logo-white.svg">
+        <h2>Landing Module</h2>
+        <p>
+            This can be the landing or the welcome page of your application. If you have an SSR (Server Side Rendering) setup, or if you don't need to have Search engine
+            visibility and optimizations, you can even use this page as your primary landing page.
+        </p>
+        <p>
+            This is a separate "module", it has its own directory and routing setup and also it's completely separated from the actual application. This is also a simple example of
+            multiple applications setup. You can have different entry points and essentially have different applications within the same codebase.
+        </p>
+        <a class="mt-10 no-underline"
+           mat-raised-button
+           [color]="'primary'"
+           [routerLink]="'/apps/analytics-dashboard'">
+            Launch the App
+        </a>
+    </div>
+</div>

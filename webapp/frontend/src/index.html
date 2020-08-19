@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>scrutiny</title>
+        <base href="/">
+
+        <meta name="viewport"
+              content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0">
+
+        <!-- Favicon -->
+        <link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
+        <link rel="icon" type="image/png" sizes="192x192"  href="android-icon-192x192.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+        <link rel="manifest" href="manifest.json">
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="ms-icon-144x144.png">
+        <meta name="theme-color" content="#ffffff">
+
+
+        <!-- Fonts -->
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,500,700,900&display=swap"
+              rel="stylesheet">
+
+        <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono:400,400i,500,600,700&display=swap"
+              rel="stylesheet">
+
+        <link href="assets/fonts/inter/inter.css"
+              rel="stylesheet">
+
+        <!-- Icon Fonts -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block"
+              rel="stylesheet">
+
+        <!-- Splash screen styles -->
+        <style>
+            body treo-splash-screen {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #1A202E;
+                color: #FBFDFE;
+                z-index: 999999;
+                pointer-events: none;
+                opacity: 1;
+                visibility: visible;
+                transition: opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            body treo-splash-screen img {
+                width: 120px;
+                max-width: 120px;
+            }
+
+            body treo-splash-screen .spinner {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-top: 40px;
+                width: 56px;
+            }
+
+            body treo-splash-screen .spinner > div {
+                width: 12px;
+                height: 12px;
+                background-color: #F50057;
+                border-radius: 100%;
+                display: inline-block;
+                -webkit-animation: treo-bouncedelay 1s infinite ease-in-out both;
+                animation: treo-bouncedelay 1s infinite ease-in-out both;
+            }
+
+            body treo-splash-screen .spinner .bounce1 {
+                -webkit-animation-delay: -0.32s;
+                animation-delay: -0.32s;
+            }
+
+            body treo-splash-screen .spinner .bounce2 {
+                -webkit-animation-delay: -0.16s;
+                animation-delay: -0.16s;
+            }
+
+            @-webkit-keyframes treo-bouncedelay {
+                0%, 80%, 100% {
+                    -webkit-transform: scale(0)
+                }
+                40% {
+                    -webkit-transform: scale(1.0)
+                }
+            }
+
+            @keyframes treo-bouncedelay {
+                0%, 80%, 100% {
+                    -webkit-transform: scale(0);
+                    transform: scale(0);
+                }
+                40% {
+                    -webkit-transform: scale(1.0);
+                    transform: scale(1.0);
+                }
+            }
+
+            body:not(.treo-splash-screen-hidden) {
+                overflow: hidden;
+            }
+
+            body.treo-splash-screen-hidden treo-splash-screen {
+                visibility: hidden;
+                opacity: 0;
+            }
+        </style>
+
+    </head>
+
+    <body class="treo-theme-light">
+
+        <!-- Splash screen -->
+        <treo-splash-screen>
+            <img src="assets/images/logo/scrutiny-logo-white.svg"
+                 alt="Scrutiny logo">
+            <div class="spinner">
+                <div class="bounce1"></div>
+                <div class="bounce2"></div>
+                <div class="bounce3"></div>
+            </div>
+        </treo-splash-screen>
+
+        <!-- App root -->
+        <app-root></app-root>
+
+    </body>
+
+</html>

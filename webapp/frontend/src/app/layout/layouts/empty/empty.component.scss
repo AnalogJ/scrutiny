@@ -1,0 +1,39 @@
+@import 'treo';
+
+empty-layout {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+
+    // Container
+    > .container {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        width: 100%;
+
+        // Content
+        > .content {
+            display: flex;
+            flex-direction: column;
+            flex: 1 0 auto;
+
+            > *:not(router-outlet) {
+                position: relative;
+                display: flex;
+                flex: 1 0 auto;
+                flex-wrap: wrap;
+                width: 100%;
+                min-width: 100%;
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+}

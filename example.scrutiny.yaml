@@ -1,0 +1,54 @@
+# Commented Scrutiny Configuration File
+#
+# The default location for this file is ~/scrutiny.yaml.
+# In some cases to improve clarity default values are specified,
+# uncommented. Other example values are commented out.
+#
+# When this file is parsed by Scrutiny, all configuration file keys are
+# lowercased automatically. As such, Configuration keys are case-insensitive,
+# and should be lowercase in this file to be consistent with usage.
+
+
+######################################################################
+# Version
+#
+# version specifies the version of this configuration file schema, not
+# the scrutiny binary. There is only 1 version available at the moment
+version: 1
+
+web:
+  listen:
+    port: 8080
+    host: 0.0.0.0
+  database:
+    # can also set absolute path here
+    location: ./scrutiny.db
+  src:
+    frontend:
+      path: ./dist
+
+disks:
+  include:
+    # - /dev/sda
+  exclude:
+    # - /dev/sdb
+
+notify:
+  metric:
+    script: 'notify-metrics.sh'
+  long:
+    script: 'notify-long-test.sh'
+  short:
+    script: 'notify-short-test.sh'
+
+
+collect:
+  metric:
+    enable: true
+    command: '-a -o on -S on'
+  long:
+    enable: false
+    command: ''
+  short:
+    enable: false
+    command: ''

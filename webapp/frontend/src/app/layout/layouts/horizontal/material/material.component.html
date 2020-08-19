@@ -1,0 +1,67 @@
+<!-- Navigation -->
+<treo-vertical-navigation class="bg-cool-gray-900 theme-dark"
+                         *ngIf="isScreenSmall"
+                         [appearance]="'classic'"
+                         [mode]="'over'"
+                         [name]="'mainNavigation'"
+                         [navigation]="data.navigation.default"
+                         [opened]="false">
+
+    <div treoVerticalNavigationContentHeader>
+        <a class="logo" routerLink="/dashboard">
+            <img src="assets/images/logo/scrutiny-logo-white-text.png">
+        </a>
+    </div>
+
+</treo-vertical-navigation>
+
+<!-- Wrapper -->
+<div class="wrapper">
+
+    <!-- Header -->
+    <div class="header">
+
+        <!-- Header container -->
+        <div class="container">
+
+            <!-- Top bar -->
+            <div class="top-bar">
+
+                <!-- Logo -->
+                <a class="logo"
+                     routerLink="/dashboard"
+                     *ngIf="!isScreenSmall">
+                    <img class="logo-text"
+                         src="assets/images/logo/scrutiny-logo-dark-text.png">
+                    <img class="logo-text-on-dark"
+                         src="assets/images/logo/scrutiny-logo-white-text.png">
+                </a>
+
+                <!-- Spacer -->
+                <div class="spacer"></div>
+
+
+                <!-- Shortcuts -->
+<!--                <shortcuts [shortcuts]="data.shortcuts"></shortcuts>-->
+
+                <!-- Notifications -->
+<!--                <notifications [notifications]="data.notifications"></notifications>-->
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+        <!-- *ngIf="true" hack is required here for router-outlet to work correctly. Otherwise,
+             it won't register the changes on the layout and won't update the view. -->
+        <router-outlet *ngIf="true"></router-outlet>
+
+    </div>
+
+</div>

@@ -1,0 +1,28 @@
+// -----------------------------------------------------------------------------------------------------
+// @ Mixins
+// -----------------------------------------------------------------------------------------------------
+
+///
+/// Wrap the mixin content with the given media breakpoint.
+/// If breakpoint name does not exist on the breakpoints list,
+/// apply the given name as a media rule.
+///
+/// @access public
+/// @param {String} $breakpoint - Name of the breakpoint or a media rule
+///
+@mixin treo-breakpoint($breakpoint) {
+
+    $mediaQuery: map-get($treo-breakpoints, $breakpoint);
+
+    @if ($mediaQuery != null) {
+
+        @media #{$mediaQuery} {
+            @content
+        }
+    } @else {
+
+        @media #{$breakpoint} {
+            @content
+        }
+    }
+}

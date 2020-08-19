@@ -1,0 +1,24 @@
+// -----------------------------------------------------------------------------------------------------
+// @ Mixins
+// -----------------------------------------------------------------------------------------------------
+
+///
+/// Correctly sets the icon size
+///
+/// @access public
+/// @param {String} $size - Size of the icon (px)
+/// @param {Boolean} $important - Set the '!important' tag on the rules
+///
+@mixin treo-icon-size($size, $important: false) {
+    width: #{($size) + 'px'} if($important, !important, null);
+    height: #{($size) + 'px'} if($important, !important, null);
+    min-width: #{($size) + 'px'} if($important, !important, null);
+    min-height: #{($size) + 'px'} if($important, !important, null);
+    font-size: #{($size) + 'px'} if($important, !important, null);
+    line-height: #{($size) + 'px'} if($important, !important, null);
+
+    svg {
+        width: #{($size) + 'px'} if($important, !important, null);
+        height: #{($size) + 'px'} if($important, !important, null);
+    }
+}

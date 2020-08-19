@@ -1,0 +1,173 @@
+// -----------------------------------------------------------------------------------------------------
+// @ Highlight.js color scheme overrides
+// -----------------------------------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+    $foreground: map-get($theme, foreground);
+    $is-dark: map-get($theme, is-dark);
+
+    // DARK COLOR SCHEME
+    @if ($is-dark) {
+
+        code,
+        pre {
+
+            .hljs-built_in,
+            .hljs-selector-tag,
+            .hljs-section,
+            .hljs-link {
+                color: #8BE9FD;
+            }
+
+            .hljs-keyword {
+                color: #FF79C6;
+            }
+
+            .hljs,
+            .hljs-subst {
+                color: #F8F8F2;
+            }
+
+            .hljs-title {
+                color: #50FA7B;
+            }
+
+            .hljs-meta,
+            .hljs-type,
+            .hljs-symbol,
+            .hljs-bullet,
+            .hljs-addition,
+            .hljs-variable,
+            .hljs-template-tag,
+            .hljs-template-variable {
+                color: #F1FA8C;
+            }
+
+            .hljs-name {
+                color: #80DEEA;
+            }
+
+            .hljs-attr {
+                color: #E1BEE7;
+            }
+
+            .hljs-string {
+                color: #A5D6A7;
+            }
+
+            .hljs-comment,
+            .hljs-quote,
+            .hljs-deletion {
+                color: #6272A4;
+            }
+
+            .hljs-keyword,
+            .hljs-selector-tag,
+            .hljs-literal,
+            .hljs-title,
+            .hljs-section,
+            .hljs-doctag,
+            .hljs-type,
+            .hljs-name,
+            .hljs-strong {
+                font-weight: 700;
+            }
+
+            .hljs-literal,
+            .hljs-number {
+                color: #BD93F9;
+            }
+
+            .hljs-emphasis {
+                font-style: italic;
+            }
+        }
+    }
+        // LIGHT COLOR SCHEME
+    @else {
+
+        code[class*='language-'],
+        pre[class*='language-'] {
+
+            .hljs-comment,
+            .hljs-quote {
+                color: #A0A1A7;
+                font-style: italic;
+            }
+
+            .hljs-doctag,
+            .hljs-keyword,
+            .hljs-formula {
+                color: #A626A4;
+            }
+
+            .hljs-name {
+                color: #7986CB;
+            }
+
+            .hljs-tag {
+                color: #B9BBD2;
+            }
+
+            .hljs-section,
+            .hljs-selector-tag,
+            .hljs-deletion,
+            .hljs-subst {
+                color: #E45649;
+            }
+
+            .hljs-literal {
+                color: #0184BB;
+            }
+
+            .hljs-string,
+            .hljs-regexp,
+            .hljs-addition,
+            .hljs-attribute,
+            .hljs-meta-string {
+                color: #50A14F;
+            }
+
+            .hljs-built_in,
+            .hljs-class .hljs-title {
+                color: #C18401;
+            }
+
+            .hljs-attr,
+            .hljs-variable,
+            .hljs-template-variable,
+            .hljs-type,
+            .hljs-selector-class,
+            .hljs-selector-attr,
+            .hljs-selector-pseudo,
+            .hljs-number {
+                color: #BA68C8;
+            }
+
+            .hljs-symbol,
+            .hljs-bullet,
+            .hljs-link,
+            .hljs-meta,
+            .hljs-selector-id,
+            .hljs-title {
+                color: #4078F2;
+            }
+
+            .hljs-emphasis {
+                font-style: italic;
+            }
+
+            .hljs-strong {
+                font-weight: 700;
+            }
+
+            .hljs-link {
+                text-decoration: underline;
+            }
+        }
+    }
+}

@@ -1,0 +1,68 @@
+// @formatter:off
+
+// -----------------------------------------------------------------------------------------------------
+// @ Treo themes map. Do NOT rename the '$treo-themes' variable!!!
+//   This file meant to be imported more than once by @treo, do NOT put anything heavy here!
+//   The map contains Angular Material themes that will be generated for your app.
+//
+// @ Each key represents a class name that can be added to the 'body' tag to enable the theme globally.
+//   If added to other elements, themes will be applied to that element's scope only.
+//   Keys must start with 'treo-theme-'.
+//
+// @ Each value is an Angular Material theme, generated and modified by using 'treo-light-theme' or
+//   'treo-dark-theme' functions which uses 'mat-light-theme' and 'mat-dark-theme' functions respectively
+//   to generate the themes.
+//
+// @ 'treo-palette' values are coming from '$treo-color' map which can be found in
+//   '@treo/styles/utilities/_colors.scss'.
+// -----------------------------------------------------------------------------------------------------
+$treo-themes: (
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ User themes - Add/Remove/Modify these for your own likings and needs
+    // -----------------------------------------------------------------------------------------------------
+
+    // Dark theme
+    'treo-theme-dark': treo-dark-theme(
+            treo-palette('teal'),
+            treo-palette('pink', 500),
+            treo-palette('red', 400)
+    ),
+
+    // Light theme
+    'treo-theme-light': treo-light-theme(
+            treo-palette('indigo', 600),
+            treo-palette('cool-gray', 800),
+            treo-palette('red', 700)
+    ),
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Dark & Light themes - DO NOT REMOVE
+    //   These are generic themes which are useful if you want to adjust the theming of certain container
+    //   or an element independently from the app's global theme.
+    //
+    // @ Example: If you want to have a dark toolbar in your light themed app, adding '.theme-dark' class
+    //   to the toolbar will apply a dark theme to every element that stays inside it without needing any
+    //   extra work. Without the '.theme-dark' class, adding just a dark background color won't automatically
+    //   make the toolbar elements colored correctly, which will break the styling of the toolbar.
+    //
+    // @ Important note: '.theme-light' classes will always override '.theme-dark' classes because how CSS
+    //   works. Since 'theme-light' definition comes after the 'theme-dark' definition, CSS classes and
+    //   helpers will also be generated with that order which will cause that behavior. To overcome this
+    //   issue, never nest '.theme-light' and '.theme-dark' classes. Use them as siblings!
+    // -----------------------------------------------------------------------------------------------------
+
+    // Dark theme - DO NOT REMOVE
+    'theme-dark': treo-dark-theme(
+            treo-palette('white'),
+            treo-palette('gray', 800),
+            treo-palette('red', 800)
+    ),
+
+    // Light theme - DO NOT REMOVE
+    'theme-light': treo-light-theme(
+            treo-palette('black'),
+            treo-palette('gray', 800),
+            treo-palette('red', 800)
+    )
+);

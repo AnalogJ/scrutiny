@@ -1,0 +1,17 @@
+// -----------------------------------------------------------------------------------------------------
+// @ Apply Angular Material theme and generate Treo color classes for the theme
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+    // Generate Angular Material theme
+    @include angular-material-theme($theme);
+
+    // Generate Treo color classes for the theme
+    @include treo-color-classes(
+            (
+                primary: map-get($theme, primary),
+                accent: map-get($theme, accent),
+                warn: map-get($theme, warn)
+            )
+    );
+}

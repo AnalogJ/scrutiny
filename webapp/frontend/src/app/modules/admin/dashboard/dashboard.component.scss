@@ -1,0 +1,22 @@
+@import 'treo';
+
+example {
+
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+    $background: map-get($theme, background);
+    $foreground: map-get($theme, foreground);
+    $primary: map-get($theme, primary);
+    $accent: map-get($theme, accent);
+    $warn: map-get($theme, warn);
+    $is-dark: map-get($theme, is-dark);
+
+    example {
+
+    }
+}

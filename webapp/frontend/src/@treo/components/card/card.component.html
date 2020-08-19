@@ -1,0 +1,29 @@
+<!-- Flippable card -->
+<ng-container *ngIf="flippable">
+
+    <!-- Front -->
+    <div class="treo-card-front">
+        <ng-content select="[treoCardFront]"></ng-content>
+    </div>
+
+    <!-- Back -->
+    <div class="treo-card-back">
+        <ng-content select="[treoCardBack]"></ng-content>
+    </div>
+
+</ng-container>
+
+<!-- Normal card -->
+<ng-container *ngIf="!flippable">
+
+    <!-- Content -->
+    <ng-content></ng-content>
+
+    <!-- Expansion -->
+    <div class="treo-card-expansion"
+         *ngIf="expanded"
+         [@expandCollapse]>
+        <ng-content select="[treoCardExpansion]"></ng-content>
+    </div>
+
+</ng-container>

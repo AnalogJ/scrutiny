@@ -1,0 +1,146 @@
+<div class="flex flex-col flex-auto w-full p-8 xs:p-2">
+
+    <div class="flex flex-wrap w-full">
+
+        <div class="flex items-center justify-between w-full my-4 px-4 xs:pr-0">
+            <div class="mr-6">
+                <h2 class="m-0">Dashboard</h2>
+                <div class="text-secondary tracking-tight">Drive health at a glance</div>
+            </div>
+            <!-- Action buttons -->
+            <div class="flex items-center">
+                <button class="xs:hidden"
+                        mat-stroked-button>
+                    <mat-icon class="icon-size-20"
+                              [svgIcon]="'save'"></mat-icon>
+                    <span class="ml-2">Export</span>
+                </button>
+                <button class="ml-2 xs:hidden"
+                        mat-stroked-button>
+                    <mat-icon class="icon-size-20 rotate-90 mirror"
+                              [svgIcon]="'tune'"></mat-icon>
+                    <span class="ml-2">Settings</span>
+                </button>
+
+                <!-- Actions menu (visible on xs) -->
+                <div class="hidden xs:flex">
+                    <button [matMenuTriggerFor]="actionsMenu"
+                            mat-icon-button>
+                        <mat-icon [svgIcon]="'more_vert'"></mat-icon>
+                    </button>
+                    <mat-menu #actionsMenu="matMenu">
+                        <button mat-menu-item>
+                            <mat-icon class="icon-size-20"
+                                      [svgIcon]="'save'"></mat-icon>
+                            <span class="ml-2">Export</span>
+                        </button>
+                        <button mat-menu-item>
+                            <mat-icon class="icon-size-20 rotate-90 mirror"
+                                      [svgIcon]="'tune'"></mat-icon>
+                            <span class="ml-2">Settings</span>
+                        </button>
+                    </mat-menu>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap w-full">
+
+            <div *ngFor="let disk of data.data " class="flex flex-auto w-1/2 min-w-80 p-4">
+                <div [ngClass]="{'border-green': disk.smart_results[0]?.smart_status == 'passed', 'border-red': disk.smart_results[0]?.smart_status == 'failed'}"
+                    class="relative flex flex-col flex-auto p-6 pr-3 pb-3 bg-card rounded border-l-4 shadow-md overflow-hidden">
+                    <div class="absolute bottom-0 right-0 w-24 h-24 -m-6">
+                        <mat-icon class="icon-size-96 opacity-12 text-green"
+                                  *ngIf="disk.smart_results[0]?.smart_status == 'passed'"
+                                  [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+                        <mat-icon class="icon-size-96 opacity-12 text-red"
+                                  *ngIf="disk.smart_results[0]?.smart_status == 'failed'"
+                                  [svgIcon]="'heroicons_outline:exclamation-circle'"></mat-icon>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="flex flex-col">
+                            <a [routerLink]="'/device/'+ disk.wwn"
+                               class="font-bold text-md text-secondary uppercase tracking-wider">/dev/{{disk.device_name}} - {{disk.model_name}}</a>
+                            <div class="text-green font-medium text-sm">
+                                Last Updated on {{disk.smart_results[0]?.date | date:'MMMM dd, yyyy' }}
+                            </div>
+                        </div>
+                        <div class="ml-auto" *ngIf="disk.smart_results">
+                            <button mat-icon-button
+                                    [matMenuTriggerFor]="previousStatementMenu">
+                                <mat-icon [svgIcon]="'more_vert'"></mat-icon>
+                            </button>
+                            <mat-menu #previousStatementMenu="matMenu">
+                                <a mat-menu-item [routerLink]="'/device/'+ disk.wwn">
+                                    <span class="flex items-center">
+                                        <mat-icon class="icon-size-20 mr-3"
+                                                  [svgIcon]="'payment'"></mat-icon>
+                                        <span>View Details</span>
+                                    </span>
+                                </a>
+                            </mat-menu>
+                        </div>
+                    </div>
+                    <div class="flex flex-row flex-wrap mt-4 -mx-6">
+                        <div class="flex flex-col mx-6 my-3 xs:w-full">
+                            <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">S.M.A.R.T</div>
+                            <div class="mt-2 font-medium text-3xl leading-none">{{ disk.smart_results[0]?.smart_status | titlecase}}</div>
+                        </div>
+                        <div class="flex flex-col mx-6 my-3 xs:w-full">
+                            <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Temperature</div>
+                            <div class="mt-2 font-medium text-3xl leading-none">{{ disk.smart_results[0]?.temp }}°C</div>
+                        </div>
+                        <div class="flex flex-col mx-6 my-3 xs:w-full">
+                            <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Capacity</div>
+                            <div class="mt-2 font-medium text-3xl leading-none">{{ disk.capacity | fileSize}}</div>
+                        </div>
+                        <div class="flex flex-col mx-6 my-3 xs:w-full">
+                            <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Powered On</div>
+                            <div class="mt-2 font-medium text-3xl leading-none">{{ humanizeHours(disk.smart_results[0]?.power_on_hours) }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drive Temperatures -->
+        <div class="flex flex-auto w-full min-w-80 h-90 p-4">
+            <div class="flex flex-col flex-auto bg-card shadow-md rounded overflow-hidden">
+                <div class="flex flex-col p-6 pr-4 pb-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <div class="font-bold text-md text-secondary uppercase tracking-wider mr-4">Temperature</div>
+                            <div class="text-sm text-hint font-medium">Temperature history for each device </div>
+                        </div>
+                        <div>
+                            <button class="h-8 min-h-8 px-2"
+                                    mat-button
+                                    [matMenuTriggerFor]="accountBalanceMenu">
+                                <span class="font-medium text-sm text-hint">12 months</span>
+                            </button>
+                            <mat-menu #accountBalanceMenu="matMenu">
+                                <button mat-menu-item>3 months</button>
+                                <button mat-menu-item>6 months</button>
+                                <button mat-menu-item>9 months</button>
+                                <button mat-menu-item>12 months</button>
+                            </mat-menu>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="flex flex-col flex-auto">
+                    <apx-chart class="flex-auto w-full h-full"
+                               [chart]="temperatureOptions.chart"
+                               [colors]="temperatureOptions.colors"
+                               [fill]="temperatureOptions.fill"
+                               [series]="temperatureOptions.series"
+                               [stroke]="temperatureOptions.stroke"
+                               [tooltip]="temperatureOptions.tooltip"
+                               [xaxis]="temperatureOptions.xaxis"></apx-chart>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

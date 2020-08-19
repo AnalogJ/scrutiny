@@ -1,0 +1,25 @@
+// -----------------------------------------------------------------------------------------------------
+// @ Mixins
+// -----------------------------------------------------------------------------------------------------
+
+///
+/// Adds an elevation from pre-defined elevations map. Elevation values are the same
+/// as default TailwindCSS elevations to keep things consistent.
+///
+/// @access public
+/// @param {String} $elevation - The amount of the elevation that the element will have
+/// @param {Boolean} $important - Whether to add an !important tag to the shadow rule
+/// @param {Color} $color - Color of the shadow
+///
+@mixin treo-elevation($elevation: 'default', $important: false, $color: rgb(0, 0, 0)) {
+
+    // Get the shadow value
+    $shadow: map-get($treo-elevations, $elevation);
+
+    // Throw an error if the shadow does not exist
+    @if ($shadow == null) {
+        @error 'Elevation `' + $elevation + '` does not exists!';
+    }
+
+    box-shadow: #{$shadow} if($important, !important, null);
+}

@@ -1,0 +1,85 @@
+@import 'treo';
+
+treo-card {
+    position: relative;
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    @include treo-elevation('md');
+
+    // Flippable
+    &.treo-card-flippable {
+        border-radius: 0;
+        overflow: visible;
+        transform-style: preserve-3d;
+        transition: transform 1s;
+        @include treo-elevation('none');
+
+        &.treo-card-flipped {
+
+            .treo-card-front {
+                visibility: hidden;
+                opacity: 0;
+                transform: rotateY(180deg);
+            }
+
+            .treo-card-back {
+                visibility: visible;
+                opacity: 1;
+                transform: rotateY(360deg);
+            }
+        }
+
+        .treo-card-front,
+        .treo-card-back {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            z-index: 10;
+            border-radius: 8px;
+            transition: transform 0.5s ease-out 0s, visibility 0s ease-in 0.2s, opacity 0s ease-in 0.2s;
+            backface-visibility: hidden;
+            @include treo-elevation('md');
+        }
+
+        .treo-card-front {
+            position: relative;
+            opacity: 1;
+            visibility: visible;
+            transform: rotateY(0deg);
+            overflow: hidden;
+        }
+
+        .treo-card-back {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: rotateY(180deg);
+            overflow: hidden auto;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+    $background: map-get($theme, background);
+
+    treo-card {
+        background: map-get($background, card);
+
+        &.treo-card-flippable {
+            background: transparent;
+
+            .treo-card-front,
+            .treo-card-back {
+                background: map-get($background, card);
+            }
+        }
+    }
+}

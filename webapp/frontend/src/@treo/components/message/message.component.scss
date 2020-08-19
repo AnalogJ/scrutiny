@@ -1,0 +1,592 @@
+@import 'treo';
+
+treo-message {
+    display: block;
+
+    // Show icon
+    &.treo-message-show-icon {
+
+        .treo-message-container {
+            padding-left: 56px;
+        }
+    }
+
+    // Dismissible
+    &.treo-message-dismissible {
+
+        .treo-message-container {
+            padding-right: 56px;
+        }
+    }
+
+    // Common
+    .treo-message-container {
+        position: relative;
+        display: flex;
+        min-height: 64px;
+        padding: 16px 24px;
+        font-size: 14px;
+        line-height: 1;
+
+        // Icon
+        .treo-message-icon {
+            position: absolute;
+            top: 20px;
+            left: 17px;
+
+            .treo-message-custom-icon,
+            .treo-message-default-icon {
+                display: none;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+
+                &:not(:empty) {
+                    display: flex;
+                }
+            }
+
+            .treo-message-custom-icon {
+                display: none;
+
+                &:not(:empty) {
+                    display: flex;
+
+                    + .treo-message-default-icon {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        // Content
+        .treo-message-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 1;
+
+            // Title
+            .treo-message-title {
+                display: none;
+                font-size: 15px;
+                font-weight: 600;
+                line-height: 1.2;
+
+                &:not(:empty) {
+                    display: block;
+                }
+
+                p {
+                    line-height: 1.625;
+                }
+            }
+
+            // Message
+            .treo-message-message {
+                display: none;
+
+                &:not(:empty) {
+                    display: block;
+                }
+
+                p {
+                    line-height: 1.625;
+                }
+            }
+        }
+
+        // Dismiss button
+        .treo-message-dismiss-button {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px !important;
+            min-width: 32px !important;
+            height: 32px !important;
+            min-height: 32px !important;
+            line-height: 32px !important;
+            margin-left: auto;
+
+            .mat-icon {
+                @include treo-icon-size(20);
+            }
+        }
+    }
+
+    // Dismissible
+    &:not(.treo-message-dismissible) {
+
+        .treo-message-container {
+
+            .treo-message-dismiss-button {
+                display: none !important;
+            }
+        }
+    }
+
+    // Border
+    &.treo-message-appearance-border {
+
+        .treo-message-container {
+            overflow: hidden;
+            border-left-width: 4px;
+            border-radius: 4px;
+            @include treo-elevation('xl');
+        }
+    }
+
+    // Fill
+    &.treo-message-appearance-fill {
+
+        .treo-message-container {
+            border-radius: 4px;
+        }
+    }
+
+    // Outline
+    &.treo-message-appearance-outline {
+
+        .treo-message-container {
+            overflow: hidden;
+            border-radius: 4px;
+
+            &:before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 6px;
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+    $background: map-get($theme, background);
+    $foreground: map-get($theme, foreground);
+    $primary: map-get($theme, primary);
+    $accent: map-get($theme, accent);
+    $warn: map-get($theme, warn);
+    $is-dark: map-get($theme, is-dark);
+
+    treo-message {
+
+        .treo-message-container {
+
+            // Icon
+            .mat-icon {
+                color: currentColor;
+            }
+        }
+
+        // Border
+        &.treo-message-appearance-border {
+
+            .treo-message-container {
+                background: map-get($background, card);
+
+                .treo-message-message {
+                    color: map-get($foreground, secondary-text);
+                }
+            }
+
+            // Primary
+            &.treo-message-type-primary {
+
+                .treo-message-container {
+                    border-left-color: map-get($primary, default);
+
+                    .treo-message-title,
+                    .treo-message-icon {
+                        color: map-get($primary, default);
+                    }
+                }
+            }
+
+            // Accent
+            &.treo-message-type-accent {
+
+                .treo-message-container {
+                    border-left-color: map-get($accent, default);
+
+                    .treo-message-title,
+                    .treo-message-icon {
+                        color: map-get($accent, default);
+                    }
+                }
+            }
+
+            // Warn
+            &.treo-message-type-warn {
+
+                .treo-message-container {
+                    border-left-color: map-get($warn, default);
+
+                    .treo-message-title,
+                    .treo-message-icon {
+                        color: map-get($warn, default);
+                    }
+                }
+            }
+
+            // Basic
+            &.treo-message-type-basic {
+
+                .treo-message-container {
+                    border-left-color: treo-color('cool-gray', 600);
+
+                    .treo-message-title,
+                    .treo-message-icon {
+                        color: treo-color('cool-gray', 600);
+                    }
+                }
+            }
+
+            // Info
+            &.treo-message-type-info {
+
+                .treo-message-container {
+                    border-left-color: treo-color('blue', 600);
+
+                    .treo-message-title,
+                    .treo-message-icon {
+                        color: treo-color('blue', 700);
+                    }
+                }
+            }
+
+            // Success
+            &.treo-message-type-success {
+
+                .treo-message-container {
+                    border-left-color: treo-color('green', 500);
+
+                    .treo-message-title,
+                    .treo-message-icon {
+                        color: treo-color('green', 500);
+                    }
+                }
+            }
+
+            // Warning
+            &.treo-message-type-warning {
+
+                .treo-message-container {
+                    border-left-color: treo-color('yellow', 400);
+
+                    .treo-message-title,
+                    .treo-message-icon {
+                        color: treo-color('yellow', 400);
+                    }
+                }
+            }
+
+            // Error
+            &.treo-message-type-error {
+
+                .treo-message-container {
+                    border-left-color: treo-color('red', 600);
+
+                    .treo-message-title,
+                    .treo-message-icon {
+                        color: treo-color('red', 700);
+                    }
+                }
+            }
+        }
+
+        // Fill
+        &.treo-message-appearance-fill {
+
+            // Primary
+            &.treo-message-type-primary {
+
+                .treo-message-container {
+                    background: map-get($primary, default);
+                    color: map-get($primary, default-contrast);
+
+                    code {
+                        background: map-get($primary, 600);
+                        color: map-get($primary, '600-contrast');
+                    }
+                }
+            }
+
+            // Accent
+            &.treo-message-type-accent {
+
+                .treo-message-container {
+                    background: map-get($accent, default);
+                    color: map-get($accent, default-contrast);
+
+                    code {
+                        background: map-get($accent, 600);
+                        color: map-get($accent, '600-contrast');
+                    }
+                }
+            }
+
+            // Warn
+            &.treo-message-type-warn {
+
+                .treo-message-container {
+                    background: map-get($warn, default);
+                    color: map-get($warn, default-contrast);
+
+                    code {
+                        background: map-get($warn, 800);
+                        color: map-get($warn, '800-contrast');
+                    }
+                }
+            }
+
+            // Basic
+            &.treo-message-type-basic {
+
+                .treo-message-container {
+                    background: treo-color('cool-gray', 500);
+                    color: treo-color('cool-gray', 50);
+
+                    code {
+                        background: treo-color('cool-gray', 600);
+                        color: treo-color('cool-gray', 50);
+                    }
+                }
+            }
+
+            // Info
+            &.treo-message-type-info {
+
+                .treo-message-container {
+                    background: treo-color('blue', 600);
+                    color: treo-color('blue', 50);
+
+                    code {
+                        background: treo-color('blue', 800);
+                        color: treo-color('blue', 50);
+                    }
+                }
+            }
+
+            // Success
+            &.treo-message-type-success {
+
+                .treo-message-container {
+                    background: treo-color('green', 500);
+                    color: treo-color('green', 50);
+
+                    code {
+                        background: treo-color('green', 600);
+                        color: treo-color('green', 50);
+                    }
+                }
+            }
+
+            // Warning
+            &.treo-message-type-warning {
+
+                .treo-message-container {
+                    background: treo-color('yellow', 400);
+                    color: treo-color('yellow', 50);
+
+                    code {
+                        background: treo-color('yellow', 600);
+                        color: treo-color('yellow', 50);
+                    }
+                }
+            }
+
+            // Error
+            &.treo-message-type-error {
+
+                .treo-message-container {
+                    background: treo-color('red', 600);
+                    color: treo-color('red', 50);
+
+                    code {
+                        background: treo-color('red', 800);
+                        color: treo-color('red', 50);
+                    }
+                }
+            }
+        }
+
+        // Outline
+        &.treo-message-appearance-outline {
+
+            // Primary
+            &.treo-message-type-primary {
+
+                .treo-message-container {
+                    @if ($is-dark) {
+                        background: transparent;
+                        color: map-get($primary, 300);
+                        box-shadow: inset 0 0 0 1px map-get($primary, 300);
+                    } @else {
+                        background: map-get($primary, 50);
+                        color: map-get($primary, 800);
+                        box-shadow: inset 0 0 0 1px map-get($primary, 400);
+                    }
+
+                    code {
+                        background: map-get($primary, 200);
+                        color: map-get($primary, 800);
+                    }
+                }
+            }
+
+            // Accent
+            &.treo-message-type-accent {
+
+                .treo-message-container {
+                    @if ($is-dark) {
+                        background: transparent;
+                        color: map-get($accent, 300);
+                        box-shadow: inset 0 0 0 1px map-get($accent, 300);
+                    } @else {
+                        background: map-get($accent, 50);
+                        color: map-get($accent, 800);
+                        box-shadow: inset 0 0 0 1px map-get($accent, 400);
+                    }
+
+                    code {
+                        background: map-get($accent, 200);
+                        color: map-get($accent, 800);
+                    }
+                }
+            }
+
+            // Warn
+            &.treo-message-type-warn {
+
+                .treo-message-container {
+                    @if ($is-dark) {
+                        background: transparent;
+                        color: map-get($warn, 300);
+                        box-shadow: inset 0 0 0 1px map-get($warn, 300);
+                    } @else {
+                        background: map-get($warn, 50);
+                        color: map-get($warn, 800);
+                        box-shadow: inset 0 0 0 1px map-get($warn, 400);
+                    }
+
+                    code {
+                        background: map-get($warn, 200);
+                        color: map-get($warn, 800);
+                    }
+                }
+            }
+
+            // Basic
+            &.treo-message-type-basic {
+
+                .treo-message-container {
+                    @if ($is-dark) {
+                        background: transparent;
+                        color: treo-color('cool-gray', 300);
+                        box-shadow: inset 0 0 0 1px treo-color('cool-gray', 300);
+                    } @else {
+                        background: treo-color('cool-gray', 50);
+                        color: treo-color('cool-gray', 800);
+                        box-shadow: inset 0 0 0 1px treo-color('cool-gray', 400);
+                    }
+
+                    code {
+                        background: treo-color('cool-gray', 200);
+                        color: treo-color('cool-gray', 800);
+                    }
+                }
+            }
+
+            // Info
+            &.treo-message-type-info {
+
+                .treo-message-container {
+                    @if ($is-dark) {
+                        background: transparent;
+                        color: treo-color('blue', 300);
+                        box-shadow: inset 0 0 0 1px treo-color('blue', 300);
+                    } @else {
+                        background: treo-color('blue', 50);
+                        color: treo-color('blue', 800);
+                        box-shadow: inset 0 0 0 1px treo-color('blue', 400);
+                    }
+
+                    code {
+                        background: treo-color('blue', 200);
+                        color: treo-color('blue', 800);
+                    }
+                }
+            }
+
+            // Success
+            &.treo-message-type-success {
+
+                .treo-message-container {
+                    @if ($is-dark) {
+                        background: transparent;
+                        color: treo-color('green', 300);
+                        box-shadow: inset 0 0 0 1px treo-color('green', 300);
+                    } @else {
+                        background: treo-color('green', 50);
+                        color: treo-color('green', 800);
+                        box-shadow: inset 0 0 0 1px treo-color('green', 400);
+                    }
+
+                    code {
+                        background: treo-color('green', 200);
+                        color: treo-color('green', 800);
+                    }
+                }
+            }
+
+            // Warning
+            &.treo-message-type-warning {
+
+                .treo-message-container {
+                    @if ($is-dark) {
+                        background: transparent;
+                        color: treo-color('yellow', 300);
+                        box-shadow: inset 0 0 0 1px treo-color('yellow', 300);
+                    } @else {
+                        background: treo-color('yellow', 50);
+                        color: treo-color('yellow', 800);
+                        box-shadow: inset 0 0 0 1px treo-color('yellow', 400);
+                    }
+
+                    code {
+                        background: treo-color('yellow', 200);
+                        color: treo-color('yellow', 800);
+                    }
+                }
+            }
+
+            // Error
+            &.treo-message-type-error {
+
+                .treo-message-container {
+                    @if ($is-dark) {
+                        background: transparent;
+                        color: treo-color('red', 500);
+                        box-shadow: inset 0 0 0 1px treo-color('red', 500);
+                    } @else {
+                        background: treo-color('red', 50);
+                        color: treo-color('red', 800);
+                        box-shadow: inset 0 0 0 1px treo-color('red', 400);
+                    }
+
+                    code {
+                        background: treo-color('red', 200);
+                        color: treo-color('red', 800);
+                    }
+                }
+            }
+        }
+    }
+}

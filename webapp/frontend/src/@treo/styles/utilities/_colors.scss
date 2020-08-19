@@ -1,0 +1,304 @@
+// -----------------------------------------------------------------------------------------------------
+// @ Functions
+// -----------------------------------------------------------------------------------------------------
+
+///
+/// Get color from treo color maps
+///
+/// @access public
+/// @param {String} $color - Desired color
+/// @param {String|Number} $hue - Desired hue
+/// @param {Number} $opacity - Desired opacity
+///
+@function treo-color($color, $hue: 500, $opacity: 1) {
+
+    // Get the color palette
+    $palette: map-get($treo-colors, $color);
+
+    // Make sure the palette is available
+    @if ($palette == null) {
+        @error "Color '#{$color}' is not available!";
+    }
+
+    // Get the color
+    $color: map-get($palette, $hue);
+
+    // Make sure the hue is available
+    @if ($color == null) {
+        @error "Hue '#{$hue}' is not available!";
+    }
+
+    // Apply the opacity if possible
+    @if (type-of($color) == color) {
+        $color: rgba($color, $opacity);
+    }
+
+    // Return the color
+    @return $color;
+}
+
+///
+/// Get contrast color from treo color maps
+///
+/// @access public
+/// @param {String} $contrast - Desired contrast
+/// @param {String|Number} $hue - Desired hue
+/// @param {Number} $opacity - Desired opacity
+///
+@function treo-contrast($contrast, $hue: 500, $opacity: 1) {
+
+    // Get the color palette
+    $palette: map-get($treo-colors, $contrast);
+
+    // Make sure the palette is available
+    @if ($palette == null) {
+        @error "Contrast '#{$contrast}' is not available!";
+    }
+
+    // Get the contrast
+    $contrast: map-get(map-get($palette, contrast), $hue);
+
+    // Make sure the hue is available
+    @if ($contrast == null) {
+        @error "Hue '#{$hue}' is not available!";
+    }
+
+    // Apply the opacity if possible
+    @if (type-of($contrast) == color) {
+        $color: rgba($contrast, $opacity);
+    }
+
+    // Return the contrast
+    @return $contrast;
+}
+
+///
+/// Modify the Angular Material theme object to soften foreground colors
+/// on light themes and increase contrast on dark themes
+///
+/// @access private
+/// @param {Map} $theme - Angular Material theme map
+///
+@function _treo-modify-angular-material-theme-colors($theme) {
+
+    // Store the is-dark for convenience
+    $is-dark: map-get($theme, is-dark);
+
+    // Generate the modified foreground palette based on
+    // Angular Material's mat-xxx-theme-foreground map
+    $foreground: (
+        base: if($is-dark, white, black),
+        divider: if($is-dark, rgba(treo-color('cool-gray', 100), 0.12), treo-color('cool-gray', 200)),
+        dividers: if($is-dark, rgba(treo-color('cool-gray', 100), 0.12), treo-color('cool-gray', 200)),
+        disabled: if($is-dark, treo-color('cool-gray', 600), treo-color('cool-gray', 400)),
+        disabled-button: if($is-dark, treo-color('cool-gray', 800), treo-color('cool-gray', 400)),
+        disabled-text: if($is-dark, treo-color('cool-gray', 600), treo-color('cool-gray', 400)),
+        elevation: black,
+        hint-text: if($is-dark, treo-color('cool-gray', 500), treo-color('cool-gray', 400)),
+        secondary-text: if($is-dark, treo-color('cool-gray', 400), treo-color('cool-gray', 500)),
+        icon: if($is-dark, treo-color('cool-gray', 100), treo-color('cool-gray', 500)),
+        icons: if($is-dark, treo-color('cool-gray', 100), treo-color('cool-gray', 500)),
+        text: if($is-dark, white, treo-color('cool-gray', 800)),
+        slider-min: if($is-dark, white, treo-color('cool-gray', 800)),
+        slider-off: if($is-dark, treo-color('cool-gray', 500), treo-color('cool-gray', 300)),
+        slider-off-active: if($is-dark, treo-color('cool-gray', 400), treo-color('cool-gray', 400)),
+    );
+
+    // Generate the modified background palette based on
+    // Angular Material's mat-xxx-theme-background map
+    $background: (
+        status-bar: if($is-dark, treo-color('cool-gray', 900), treo-color('cool-gray', 300)),
+        app-bar: if($is-dark, treo-color('cool-gray', 900), white),
+        background: if($is-dark, treo-color('cool-gray', 900), treo-color('cool-gray', 100)),
+        hover: if($is-dark, rgba(255, 255, 255, 0.05), rgba(treo-color('cool-gray', 400), 0.12)),
+        card: if($is-dark, treo-color('cool-gray', 800), white),
+        dialog: if($is-dark, treo-color('cool-gray', 800), white),
+        disabled-button: if($is-dark, rgba(treo-color('cool-gray', 900), 0.38), rgba(treo-color('cool-gray', 400), 0.38)),
+        raised-button: if($is-dark, treo-color('cool-gray', 900), white),
+        focused-button: if($is-dark, treo-color('cool-gray', 200), treo-color('cool-gray', 500)),
+        selected-button: if($is-dark, rgba(255, 255, 255, 0.05), treo-color('cool-gray', 200)),
+        selected-disabled-button: if($is-dark, treo-color('cool-gray', 800), treo-color('cool-gray', 200)),
+        disabled-button-toggle: if($is-dark, treo-color('cool-gray', 900), treo-color('cool-gray', 300)),
+        unselected-chip: if($is-dark, treo-color('cool-gray', 600), treo-color('cool-gray', 200)),
+        disabled-list-option: if($is-dark, treo-color('cool-gray', 200), treo-color('cool-gray', 300)),
+        tooltip: if($is-dark, treo-color('cool-gray', 500), treo-color('cool-gray', 800)),
+    );
+
+    // Store the modified theme.
+    //
+    // Since modifications only being done on 'foreground'
+    // and 'background' palettes, add them from above but
+    // keep everything else original
+    $modified-theme: (
+        primary: map-get($theme, primary),
+        accent: map-get($theme, accent),
+        warn: map-get($theme, warn),
+        is-dark: map-get($theme, is-dark),
+        foreground: $foreground,
+        background: $background
+    );
+
+    // Return the modified theme
+    @return $modified-theme;
+}
+
+///
+/// Generate an Angular Material light theme
+/// and modify it before returning
+///
+/// @access public
+/// @param {Map} $primary-palette - Desired primary palette
+/// @param {Map} $accent-palette - Desired accent palette
+/// @param {Map} $warn-palette - Desired warn palette
+///
+@function treo-light-theme($primary-palette, $accent-palette, $warn-palette) {
+
+    // Generate the Angular Material theme
+    $angular-material-theme: mat-light-theme($primary-palette, $accent-palette, $warn-palette);
+
+    // Modify and return the theme
+    @return _treo-modify-angular-material-theme-colors($angular-material-theme);
+}
+
+///
+/// Generate an Angular Material dark theme
+/// and modify it before returning
+///
+/// @access public
+/// @param {Map} $primary-palette - Desired primary palette
+/// @param {Map} $accent-palette - Desired accent palette
+/// @param {Map} $warn-palette - Desired warn palette
+///
+@function treo-dark-theme($primary-palette, $accent-palette, $warn-palette) {
+
+    // Generate the Angular Material theme
+    $angular-material-theme: mat-dark-theme($primary-palette, $accent-palette, $warn-palette);
+
+    // Modify and return the theme
+    @return _treo-modify-angular-material-theme-colors($angular-material-theme);
+}
+
+///
+/// Generate an Angular Material compatible palette
+///
+/// @access public
+/// @param {Map} $palette - Name of the palette
+/// @param {Map} $default - Default hue
+/// @param {Map} $lighter - Lighter hue
+/// @param {Map} $darker - Darker hue
+/// @param {Map} $text - Text color
+///
+@function treo-palette($palette, $default: 500, $lighter: 100, $darker: 700, $text: $default) {
+    @return mat-palette(map-get($treo-colors, $palette), $default, $lighter, $darker, $text);
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Mixins
+// -----------------------------------------------------------------------------------------------------
+
+///
+/// Generate color classes
+///
+/// @access private
+/// @param {String} $color-name - Name of the color
+/// @param {Color} $color - Color
+/// @param {Color} $contrast-color - Contrasting color of the Color
+/// @param {String} $hue-value - Hue value of the Color
+///
+@mixin _generate-color-classes($color-name, $color, $contrast-color, $hue-value) {
+
+    // Text color
+    .text-#{$color-name}#{$hue-value} {
+        color: $color !important;
+    }
+
+    // Background color
+    .bg-#{$color-name}#{$hue-value} {
+        background: $color !important;
+    }
+
+    // Background and text color
+    .#{$color-name}#{$hue-value} {
+        background: $color !important;
+        color: $contrast-color !important;
+
+        // Icon
+        .mat-icon {
+            color: $contrast-color !important;
+        }
+
+        // Text
+        &.text-secondary,
+        .text-secondary {
+            color: rgba($contrast-color, 0.6) !important;
+        }
+
+        &.text-hint,
+        .text-hint {
+            color: rgba($contrast-color, 0.38) !important;
+        }
+
+        &.text-disabled,
+        .text-disabled {
+            color: rgba($contrast-color, 0.38) !important;
+        }
+
+        &.divider,
+        .divider {
+            color: rgba($contrast-color, 0.12) !important;
+        }
+    }
+
+    // Border color
+    .border-#{$color-name}#{$hue-value} {
+        border-color: $color !important;
+    }
+
+    .hover\:border-#{$color-name}#{$hue-value}:hover {
+        border-color: $color !important;
+    }
+
+    .focus\:border-#{$color-name}#{$hue-value}:focus {
+        border-color: $color !important;
+    }
+
+    .active\:border-#{$color-name}#{$hue-value}:active {
+        border-color: $color !important;
+    }
+}
+
+///
+/// Generate helper classes for 'primary', 'accent' and 'warn' colors
+///
+/// @access public
+/// @param {Map} $palettes - Palettes to generate classes for
+///
+@mixin treo-color-classes($palettes) {
+
+    // Go through each palette
+    @each $palette-name, $palette in $palettes {
+
+        // Get each hue value
+        @each $hue in (100, 200, 300, 400, 500, 600, 700, 800, 900) {
+
+            // Get color and contrast
+            $color: map-get($palette, $hue);
+            $contrast: map-get($palette, '#{$hue}-contrast');
+
+            // If both color and its contrasting color exist, generate the color classes...
+            @if ($color != null and $contrast != null) {
+
+                // Generate color classes
+                @include _generate-color-classes($palette-name, $color, $contrast, '-#{$hue}');
+
+                // If the hue equals to 500, generate color classes one more time,
+                // but without the hue value suffix
+                @if ($hue == 500) {
+
+                    // Generate color classes
+                    @include _generate-color-classes($palette-name, $color, $contrast, '');
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,53 @@
+input {
+
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+    $foreground: map-get($theme, foreground);
+
+    input,
+    textarea {
+        background: transparent;
+
+        // Placeholder color
+        &::placeholder {
+            color: map-get($foreground, hint-text);
+        }
+
+        &::-moz-placeholder {
+            color: map-get($foreground, hint-text);
+        }
+
+        &::-webkit-input-placeholder {
+            color: map-get($foreground, hint-text);
+        }
+
+        &:-ms-input-placeholder {
+            color: map-get($foreground, hint-text);
+        }
+
+        &:-webkit-autofill {
+            -webkit-transition: 'background-color 9999s ease-out';
+            -webkit-transition-delay: 9999s;
+        }
+
+        &:-webkit-autofill:hover {
+            -webkit-transition: 'background-color 9999s ease-out';
+            -webkit-transition-delay: 9999s;
+        }
+
+        &:-webkit-autofill:focus {
+            -webkit-transition: 'background-color 9999s ease-out';
+            -webkit-transition-delay: 9999s;
+        }
+
+        &:-webkit-autofill:active {
+            -webkit-transition: 'background-color 9999s ease-out';
+            -webkit-transition-delay: 9999s;
+        }
+    }
+}

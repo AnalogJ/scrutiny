@@ -1,0 +1,12 @@
+/**
+ * This file is being used by injecting custom TailwindCSS variants.
+ *
+ * These variants are different because these will not generate any
+ * CSS rules, but they will generate SCSS variables from your Tailwind
+ * config file.
+ *
+ * The generated output will be used by Treo.
+ * Do NOT modify or use this file to generate your own variants.
+ */
+
+@variants export-boxShadow, export-colors, export-fontFamily, export-screens {}

@@ -1,0 +1,9 @@
+<ng-content></ng-content>
+
+<!-- @formatter:off -->
+<ng-template let-highlightedCode="highlightedCode" let-lang="lang">
+<div class="treo-highlight treo-highlight-code-container">
+<pre [ngClass]="'language-' + lang"><code [ngClass]="'language-' + lang" [innerHTML]="highlightedCode"></code></pre>
+</div>
+</ng-template>
+<!-- @formatter:on -->

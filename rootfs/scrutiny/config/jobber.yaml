@@ -1,0 +1,30 @@
+version: 1.4
+
+prefs:
+  logPath: /scrutiny/jobber/log.log
+  runLog:
+    type: file
+    path: /scrutiny/jobber/runlog
+    maxFileLen: 100m
+    maxHistories: 2
+
+resultSinks:
+  - &filesystemSink
+    type: filesystem
+    path: /scrutiny/jobber
+    data:
+      - stdout
+      - stderr
+    maxAgeDays: 10
+
+jobs:
+  MetricsJob:
+    cmd: /scrutiny/bin/scrutiny-collector-metrics run --api-endpoint ${SCRUTINY_API_ENDPOINT:-http://localhost:8080}
+    # run daily at midnight.
+    time: '0 0 * * *'
+    onError: Backoff
+    notifyOnSuccess:
+      - *filesystemSink
+    notifyOnFailure:
+      - *filesystemSink
+

@@ -1,0 +1,32 @@
+// -----------------------------------------------------------------------------------------------------
+// @ This file meant to be imported only once!
+//   Use treo.scss to access to the Angular Material and Treo utilities
+// -----------------------------------------------------------------------------------------------------
+
+// 1. Utilities
+@import 'treo';
+
+// 2. Vendors
+@import 'vendors/normalize';
+@import 'vendors/angular-material';
+
+// 3. Base
+@import 'base/preflight';
+@import 'base/typography';
+@import 'base/colors';
+@import 'base/theming';
+
+// 4. Layout
+@import 'layout/content';
+
+// 5. Components
+@import 'components/card';
+@import 'components/input';
+@import 'components/table';
+
+// 6. Overrides
+@import 'overrides/angular-material';
+@import 'overrides/fullcalendar';
+@import 'overrides/highlightjs';
+@import 'overrides/perfect-scrollbar';
+@import 'overrides/quill';

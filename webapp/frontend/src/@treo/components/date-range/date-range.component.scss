@@ -1,0 +1,351 @@
+@import 'treo';
+
+// Variables
+$body-cell-padding: 2px;
+
+treo-date-range {
+    display: flex;
+
+    .range {
+        display: flex;
+        align-items: center;
+        height: 48px;
+        min-height: 48px;
+        max-height: 48px;
+        cursor: pointer;
+
+        .start,
+        .end {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            padding: 0 16px;
+            border-radius: 5px;
+            border-width: 1px;
+            line-height: 1;
+
+            .date {
+                white-space: nowrap;
+
+                + .time {
+                    margin-left: 8px;
+                }
+            }
+
+            .time {
+                white-space: nowrap;
+            }
+        }
+
+        .separator {
+            margin: 0 12px;
+
+            @include treo-breakpoint('xs') {
+                margin: 0 2px;
+            }
+        }
+    }
+}
+
+.treo-date-range-panel {
+    border-radius: 4px;
+    padding: 24px;
+
+    .start,
+    .end {
+        display: flex;
+        flex-direction: column;
+
+        .month {
+            max-width: 196px;
+            min-width: 196px;
+            width: 196px;
+
+            .month-header {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 32px;
+                margin-bottom: 16px;
+
+                .previous-button,
+                .next-button {
+                    position: absolute;
+                    width: 24px !important;
+                    height: 24px !important;
+                    min-height: 24px !important;
+                    max-height: 24px !important;
+                    line-height: 24px !important;
+
+                    .mat-icon {
+                        @include treo-icon-size(20);
+                    }
+                }
+
+                .previous-button {
+                    left: 0;
+                }
+
+                .next-button {
+                    right: 0;
+                }
+
+                .month-label {
+                    font-weight: 500;
+                }
+            }
+
+            mat-month-view {
+                display: flex;
+                min-height: 188px;
+
+                .mat-calendar-table {
+                    width: 100%;
+                    border-collapse: collapse;
+
+                    tbody {
+
+                        tr {
+
+                            &[aria-hidden=true] {
+                                display: none !important;
+                            }
+
+                            &:first-child {
+
+                                td:first-child {
+
+                                    &[aria-hidden=true] {
+                                        visibility: hidden;
+                                        pointer-events: none;
+                                        opacity: 0;
+                                    }
+                                }
+                            }
+
+                            td.mat-calendar-body-cell {
+                                width: 28px !important;
+                                height: 28px !important;
+                                padding: $body-cell-padding !important;
+
+                                &.treo-date-range {
+                                    position: relative;
+
+                                    &:before {
+                                        content: '';
+                                        position: absolute;
+                                        top: $body-cell-padding;
+                                        right: 0;
+                                        bottom: $body-cell-padding;
+                                        left: 0;
+                                    }
+
+                                    &.treo-date-range-start {
+
+                                        &:before {
+                                            left: $body-cell-padding;
+                                            border-radius: 999px 0 0 999px;
+                                        }
+
+                                        &.treo-date-range-end,
+                                        &:last-child {
+
+                                            &:before {
+                                                right: $body-cell-padding;
+                                                border-radius: 999px;
+                                            }
+                                        }
+                                    }
+
+                                    &.treo-date-range-end {
+
+                                        &:before {
+                                            right: $body-cell-padding;
+                                            border-radius: 0 999px 999px 0;
+                                        }
+
+                                        &:first-child {
+
+                                            &:before {
+                                                left: $body-cell-padding;
+                                                border-radius: 999px;
+                                            }
+                                        }
+                                    }
+
+                                    &:first-child {
+
+                                        &:before {
+                                            border-radius: 999px 0 0 999px;
+                                        }
+                                    }
+
+                                    &:last-child {
+
+                                        &:before {
+                                            border-radius: 0 999px 999px 0;
+                                        }
+                                    }
+                                }
+
+                                .mat-calendar-body-cell-content {
+                                    position: relative;
+                                    top: 0;
+                                    left: 0;
+                                    width: 24px;
+                                    height: 24px;
+                                    font-size: 12px;
+                                }
+                            }
+
+                            td.mat-calendar-body-label {
+
+                                + td.mat-calendar-body-cell {
+
+                                    &.treo-date-range {
+
+                                        &:before {
+                                            border-radius: 999px 0 0 999px;
+                                        }
+
+                                        &.treo-date-range-start {
+
+                                            &.treo-date-range-end {
+                                                border-radius: 999px;
+                                            }
+                                        }
+
+                                        &.treo-date-range-end {
+
+                                            &:before {
+                                                left: $body-cell-padding;
+                                                border-radius: 999px;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .time {
+            width: 100%;
+            max-width: 196px;
+        }
+    }
+
+    .start {
+        align-items: flex-start;
+        margin-right: 20px;
+
+        .month {
+
+            .month-label {
+                margin-left: 8px;
+            }
+        }
+    }
+
+    .end {
+        align-items: flex-end;
+        margin-left: 20px;
+
+        .month {
+
+            .month-label {
+                margin-right: 8px;
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+    $background: map-get($theme, background);
+    $foreground: map-get($theme, foreground);
+    $primary: map-get($theme, primary);
+    $is-dark: map-get($theme, is-dark);
+
+    treo-date-range {
+
+        .range {
+
+            .start,
+            .end {
+                @if ($is-dark) {
+                    background-color: rgba(0, 0, 0, 0.05);
+                    border-color: treo-color('cool-gray', 500);
+                } @else {
+                    background-color: treo-color('cool-gray', 50);
+                    border-color: treo-color('cool-gray', 300);
+                }
+            }
+        }
+    }
+
+    .treo-date-range-panel {
+        background: map-get($background, card);
+        @include treo-elevation('2xl');
+
+        .start,
+        .end {
+
+            .month {
+
+                .month-header {
+
+                    .month-label {
+                        color: map-get($foreground, secondary-text);
+                    }
+                }
+
+                mat-month-view {
+
+                    .mat-calendar-table {
+
+                        tbody {
+
+                            tr {
+
+                                td,
+                                td:hover {
+
+                                    &.treo-date-range {
+
+                                        &:before {
+                                            background-color: map-get($primary, 200);
+                                        }
+
+                                        .mat-calendar-body-cell-content {
+                                            background-color: transparent;
+                                        }
+                                    }
+
+                                    &.treo-date-range-start,
+                                    &.treo-date-range-end {
+
+                                        .mat-calendar-body-cell-content {
+                                            background-color: map-get($primary, default);
+                                            color: map-get($primary, default-contrast);
+                                        }
+                                    }
+
+                                    .mat-calendar-body-today {
+                                        border: none;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

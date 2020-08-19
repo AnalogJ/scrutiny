@@ -1,0 +1,90 @@
+<div class="range"
+     (click)="openPickerPanel()"
+     #pickerPanelOrigin>
+
+    <div class="start">
+        <div class="date">{{range.startDate}}</div>
+        <div class="time"
+             *ngIf="range.startTime">{{range.startTime}}</div>
+    </div>
+
+    <div class="separator">-</div>
+
+    <div class="end">
+        <div class="date">{{range.endDate}}</div>
+        <div class="time"
+             *ngIf="range.endTime">{{range.endTime}}</div>
+    </div>
+
+</div>
+
+<ng-template #pickerPanel>
+
+    <!-- Start -->
+    <div class="start">
+
+        <div class="month">
+            <div class="month-header">
+                <button class="previous-button"
+                        mat-icon-button
+                        (click)="prev()"
+                        tabindex="1">
+                    <mat-icon [svgIcon]="'chevron_left'"></mat-icon>
+                </button>
+                <div class="month-label">{{getMonthLabel(1)}}</div>
+            </div>
+            <mat-month-view [(activeDate)]="activeDates.month1"
+                            [dateFilter]="dateFilter()"
+                            [dateClass]="dateClass()"
+                            (click)="$event.stopImmediatePropagation()"
+                            (selectedChange)="onSelectedDateChange($event)"
+                            #matMonthView1>
+            </mat-month-view>
+        </div>
+
+        <mat-form-field class="treo-mat-no-subscript time start-time"
+                        *ngIf="timeRange">
+            <input matInput
+                   [autocomplete]="'off'"
+                   [formControl]="startTimeFormControl"
+                   (blur)="updateStartTime($event)"
+                   tabindex="3">
+            <mat-label>Start time</mat-label>
+        </mat-form-field>
+
+    </div>
+
+    <!-- End -->
+    <div class="end">
+
+        <div class="month">
+            <div class="month-header">
+                <div class="month-label">{{getMonthLabel(2)}}</div>
+                <button class="next-button"
+                        mat-icon-button
+                        (click)="next()"
+                        tabindex="2">
+                    <mat-icon [svgIcon]="'chevron_right'"></mat-icon>
+                </button>
+            </div>
+            <mat-month-view [(activeDate)]="activeDates.month2"
+                            [dateFilter]="dateFilter()"
+                            [dateClass]="dateClass()"
+                            (click)="$event.stopImmediatePropagation()"
+                            (selectedChange)="onSelectedDateChange($event)"
+                            #matMonthView2>
+            </mat-month-view>
+        </div>
+
+        <mat-form-field class="treo-mat-no-subscript time end-time"
+                        *ngIf="timeRange">
+            <input matInput
+                   [formControl]="endTimeFormControl"
+                   (blur)="updateEndTime($event)"
+                   tabindex="4">
+            <mat-label>End time</mat-label>
+        </mat-form-field>
+
+    </div>
+
+</ng-template>

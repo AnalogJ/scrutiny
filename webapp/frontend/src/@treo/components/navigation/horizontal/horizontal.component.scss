@@ -1,0 +1,234 @@
+@import 'treo';
+
+// Root navigation specific
+treo-horizontal-navigation {
+
+    .treo-horizontal-navigation-wrapper {
+        display: flex;
+        align-items: center;
+
+        // Basic, Branch
+        treo-horizontal-navigation-basic-item,
+        treo-horizontal-navigation-branch-item {
+
+            .treo-horizontal-navigation-item-wrapper {
+                border-radius: 4px;
+                overflow: hidden;
+
+                .treo-horizontal-navigation-item {
+                    padding: 0 16px;
+                    cursor: pointer;
+                    user-select: none;
+
+                    .treo-horizontal-navigation-item-icon {
+                        margin-right: 12px;
+                    }
+                }
+            }
+        }
+
+        // Spacer
+        treo-horizontal-navigation-spacer-item {
+            margin: 12px 0;
+        }
+    }
+}
+
+// Menu panel specific
+.treo-horizontal-navigation-menu-panel {
+
+    .treo-horizontal-navigation-menu-item {
+        height: auto;
+        min-height: 0;
+        line-height: normal;
+        white-space: normal;
+
+        // Basic, Branch
+        treo-horizontal-navigation-basic-item,
+        treo-horizontal-navigation-branch-item,
+        treo-horizontal-navigation-divider-item {
+            display: flex;
+            flex: 1 1 auto;
+        }
+
+        // Divider
+        treo-horizontal-navigation-divider-item {
+            margin: 8px -16px;
+
+            .treo-horizontal-navigation-item-wrapper {
+                height: 1px;
+                box-shadow: 0 1px 0 0;
+            }
+        }
+    }
+}
+
+// Navigation menu item common
+.treo-horizontal-navigation-menu-item {
+
+    .treo-horizontal-navigation-item-wrapper {
+        width: 100%;
+
+        &.treo-horizontal-navigation-item-has-subtitle {
+
+            .treo-horizontal-navigation-item {
+                min-height: 56px;
+            }
+        }
+
+        .treo-horizontal-navigation-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 48px;
+            width: 100%;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+
+            .treo-horizontal-navigation-item-title-wrapper {
+
+                .treo-horizontal-navigation-item-subtitle {
+                    font-size: 12px;
+                }
+            }
+
+            .treo-horizontal-navigation-item-badge {
+                margin-left: auto;
+
+                .treo-horizontal-navigation-item-badge-content {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 10px;
+                    font-weight: 700;
+                    white-space: nowrap;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+
+                    // Rectangle
+                    &.treo-horizontal-navigation-item-badge-style-rectangle {
+                        width: auto;
+                        min-width: 24px;
+                        height: 20px;
+                        line-height: normal;
+                        padding: 0 6px;
+                        border-radius: 4px;
+                    }
+
+                    // Rounded
+                    &.treo-horizontal-navigation-item-badge-style-rounded {
+                        width: auto;
+                        min-width: 24px;
+                        height: 20px;
+                        line-height: normal;
+                        padding: 0 10px;
+                        border-radius: 12px;
+                    }
+
+                    // Simple
+                    &.treo-horizontal-navigation-item-badge-style-simple {
+                        width: auto;
+                        font-size: 11px;
+                        background-color: transparent !important;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+    $background: map-get($theme, background);
+    $primary: map-get($theme, primary);
+    $is-dark: map-get($theme, is-dark);
+
+    // Root navigation specific
+    treo-horizontal-navigation {
+
+        .treo-horizontal-navigation-wrapper {
+
+            // Basic, Branch
+            treo-horizontal-navigation-basic-item,
+            treo-horizontal-navigation-branch-item {
+
+                @include treo-breakpoint('gt-xs') {
+
+                    &:hover {
+
+                        .treo-horizontal-navigation-item-wrapper {
+                            background: map-get($background, hover);
+                        }
+                    }
+                }
+            }
+
+            // Basic - When item active (current link)
+            treo-horizontal-navigation-basic-item {
+
+                .treo-horizontal-navigation-item-active {
+
+                    .treo-horizontal-navigation-item-title {
+                        color: map-get($primary, default) !important;
+                    }
+
+                    .treo-horizontal-navigation-item-subtitle {
+                        @if ($is-dark) {
+                            color: map-get($primary, 600) !important;
+                        } @else {
+                            color: map-get($primary, 400) !important;
+                        }
+                    }
+
+                    .treo-horizontal-navigation-item-icon {
+                        color: map-get($primary, default) !important;
+                    }
+                }
+            }
+
+            // Branch - When menu open
+            treo-horizontal-navigation-branch-item {
+
+                .treo-horizontal-navigation-menu-active {
+
+                    .treo-horizontal-navigation-item-wrapper {
+                        background: map-get($background, hover);
+                    }
+                }
+            }
+        }
+    }
+
+    // Navigation menu item common
+    .treo-horizontal-navigation-menu-item {
+
+        // Basic - When item active (current link)
+        treo-horizontal-navigation-basic-item {
+
+            .treo-horizontal-navigation-item-active {
+
+                .treo-horizontal-navigation-item-title {
+                    color: map-get($primary, default) !important;
+                }
+
+                .treo-horizontal-navigation-item-subtitle {
+                    @if ($is-dark) {
+                        color: map-get($primary, 600) !important;
+                    } @else {
+                        color: map-get($primary, 400) !important;
+                    }
+                }
+
+                .treo-horizontal-navigation-item-icon {
+                    color: map-get($primary, default) !important;
+                }
+            }
+        }
+    }
+}

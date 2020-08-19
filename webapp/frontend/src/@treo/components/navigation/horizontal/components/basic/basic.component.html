@@ -1,0 +1,92 @@
+<!-- Item wrapper -->
+<div class="treo-horizontal-navigation-item-wrapper"
+     [class.treo-horizontal-navigation-item-has-subtitle]="!!item.subtitle"
+     [ngClass]="item.classes">
+
+    <!-- Item with an internal link -->
+    <div class="treo-horizontal-navigation-item"
+         *ngIf="item.link && !item.externalLink && !item.function && !item.disabled"
+         [routerLink]="[item.link]"
+         [routerLinkActive]="'treo-horizontal-navigation-item-active'"
+         [routerLinkActiveOptions]="{exact: item.exactMatch || false}">
+        <ng-container *ngTemplateOutlet="itemTemplate"></ng-container>
+    </div>
+
+    <!-- Item with an external link -->
+    <a class="treo-horizontal-navigation-item"
+       *ngIf="item.link && item.externalLink && !item.function && !item.disabled"
+       [href]="item.link">
+        <ng-container *ngTemplateOutlet="itemTemplate"></ng-container>
+    </a>
+
+    <!-- Item with a function -->
+    <div class="treo-horizontal-navigation-item"
+         *ngIf="!item.link && item.function && !item.disabled"
+         (click)="item.function(item)">
+        <ng-container *ngTemplateOutlet="itemTemplate"></ng-container>
+    </div>
+
+    <!-- Item with an internal link and function -->
+    <div class="treo-horizontal-navigation-item"
+         *ngIf="item.link && !item.externalLink && item.function && !item.disabled"
+         [routerLink]="[item.link]"
+         [routerLinkActive]="'treo-horizontal-navigation-item-active'"
+         [routerLinkActiveOptions]="{exact: item.exactMatch || false}"
+         (click)="item.function(item)">
+        <ng-container *ngTemplateOutlet="itemTemplate"></ng-container>
+    </div>
+
+    <!-- Item with an external link and function -->
+    <a class="treo-horizontal-navigation-item"
+       *ngIf="item.link && item.externalLink && item.function && !item.disabled"
+       [href]="item.link"
+       (click)="item.function(item)"
+       mat-menu-item>
+        <ng-container *ngTemplateOutlet="itemTemplate"></ng-container>
+    </a>
+
+    <!-- Item with a no link and no function -->
+    <div class="treo-horizontal-navigation-item"
+         *ngIf="!item.link && !item.function && !item.disabled">
+        <ng-container *ngTemplateOutlet="itemTemplate"></ng-container>
+    </div>
+
+    <!-- Item is disabled -->
+    <div class="treo-horizontal-navigation-item treo-horizontal-navigation-item-disabled"
+         *ngIf="item.disabled">
+        <ng-container *ngTemplateOutlet="itemTemplate"></ng-container>
+    </div>
+
+</div>
+
+<!-- Item template -->
+<ng-template #itemTemplate>
+
+    <!-- Icon -->
+    <mat-icon class="treo-horizontal-navigation-item-icon"
+              [ngClass]="item.iconClasses"
+              *ngIf="item.icon"
+              [svgIcon]="item.icon"></mat-icon>
+
+    <!-- Title & Subtitle -->
+    <div class="treo-horizontal-navigation-item-title-wrapper">
+        <div class="treo-horizontal-navigation-item-title">{{item.title}}</div>
+        <div class="treo-horizontal-navigation-item-subtitle text-hint"
+             *ngIf="item.subtitle">
+            {{item.subtitle}}
+        </div>
+    </div>
+
+    <!-- Badge -->
+    <div class="treo-horizontal-navigation-item-badge"
+         *ngIf="item.badge">
+        <div class="treo-horizontal-navigation-item-badge-content"
+             [ngClass]="[(item.badge.style != undefined ? 'treo-horizontal-navigation-item-badge-style-' + item.badge.style : ''),
+                             (item.badge.background != undefined && !item.badge.background.startsWith('#') ? item.badge.background : ''),
+                             (item.badge.color != undefined && !item.badge.color.startsWith('#') ? item.badge.color : '')]"
+             [ngStyle]="{'background-color': item.badge.background, 'color': item.badge.color}">
+            {{item.badge.title}}
+        </div>
+    </div>
+
+</ng-template>

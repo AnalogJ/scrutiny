@@ -1,0 +1,793 @@
+@import 'treo';
+
+$treo-vertical-navigation-width: 280;
+
+treo-vertical-navigation {
+    position: sticky;
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    top: 0;
+    width: #{$treo-vertical-navigation-width}px;
+    min-width: #{$treo-vertical-navigation-width}px;
+    max-width: #{$treo-vertical-navigation-width}px;
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+    z-index: 200;
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Navigation Drawer
+    // -----------------------------------------------------------------------------------------------------
+
+    // Animations
+    &.treo-vertical-navigation-animations-enabled {
+        transition-duration: 400ms;
+        transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+        transition-property: visibility, margin-left, margin-right, transform, width, max-width, min-width;
+
+        // Wrapper
+        .treo-vertical-navigation-wrapper {
+            transition-duration: 400ms;
+            transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition-property: width, max-width, min-width;
+        }
+    }
+
+    // Over mode
+    &.treo-vertical-navigation-mode-over {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+    }
+
+    // Left position
+    &.treo-vertical-navigation-position-left {
+
+        // Side mode
+        &.treo-vertical-navigation-mode-side {
+            margin-left: -#{$treo-vertical-navigation-width}px;
+
+            &.treo-vertical-navigation-opened {
+                margin-left: 0;
+            }
+        }
+
+        // Over mode
+        &.treo-vertical-navigation-mode-over {
+            left: 0;
+            transform: translate3d(-100%, 0, 0);
+
+            &.treo-vertical-navigation-opened {
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        // Wrapper
+        .treo-vertical-navigation-wrapper {
+            left: 0;
+        }
+    }
+
+    // Right position
+    &.treo-vertical-navigation-position-right {
+
+        // Side mode
+        &.treo-vertical-navigation-mode-side {
+            margin-right: -#{$treo-vertical-navigation-width}px;
+
+            &.treo-vertical-navigation-opened {
+                margin-right: 0;
+            }
+        }
+
+        // Over mode
+        &.treo-vertical-navigation-mode-over {
+            right: 0;
+            transform: translate3d(100%, 0, 0);
+
+            &.treo-vertical-navigation-opened {
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        // Wrapper
+        .treo-vertical-navigation-wrapper {
+            right: 0;
+        }
+    }
+
+    // Wrapper
+    .treo-vertical-navigation-wrapper {
+        position: absolute;
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        border-right-width: 1px;
+        overflow: hidden;
+        z-index: 10;
+
+        // Header
+        .treo-vertical-navigation-header {
+
+        }
+
+        // Content
+        .treo-vertical-navigation-content {
+            flex: 1 1 auto;
+            overflow-x: hidden;
+            overflow-y: auto;
+
+            // Divider
+            > treo-vertical-navigation-divider-item {
+                margin: 24px 0;
+            }
+
+            // Group
+            > treo-vertical-navigation-group-item {
+                margin-top: 24px;
+            }
+        }
+
+        // Footer
+        .treo-vertical-navigation-footer {
+
+        }
+    }
+
+    // Aside wrapper
+    .treo-vertical-navigation-aside-wrapper {
+        position: absolute;
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        top: 0;
+        bottom: 0;
+        left: #{$treo-vertical-navigation-width}px;
+        width: #{$treo-vertical-navigation-width}px;
+        height: 100%;
+        z-index: 5;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        transition-duration: 400ms;
+        transition-property: left, right;
+        transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+
+        > treo-vertical-navigation-aside-item {
+            padding: 24px 0;
+
+            // First item of the aside
+            > .treo-vertical-navigation-item-wrapper {
+                display: none !important;
+            }
+        }
+    }
+
+    &.treo-vertical-navigation-position-right {
+
+        .treo-vertical-navigation-aside-wrapper {
+            left: auto;
+            right: #{$treo-vertical-navigation-width}px;
+        }
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Navigation Items
+    // -----------------------------------------------------------------------------------------------------
+
+    // Navigation items common
+    treo-vertical-navigation-aside-item,
+    treo-vertical-navigation-basic-item,
+    treo-vertical-navigation-collapsable-item,
+    treo-vertical-navigation-divider-item,
+    treo-vertical-navigation-group-item,
+    treo-vertical-navigation-spacer-item {
+        display: flex;
+        flex-direction: column;
+        flex: 1 0 auto;
+        user-select: none;
+
+        .treo-vertical-navigation-item-wrapper {
+
+            .treo-vertical-navigation-item {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                padding: 12px 24px;
+                font-size: 13px;
+                font-weight: 500;
+                line-height: 20px;
+                text-decoration: none;
+                transition: background-color 375ms cubic-bezier(0.25, 0.8, 0.25, 1);
+
+                .treo-vertical-navigation-item-icon {
+                    margin-right: 16px;
+                    transition: color 375ms cubic-bezier(0.25, 0.8, 0.25, 1);
+                }
+
+                .treo-vertical-navigation-item-title-wrapper {
+
+                    .treo-vertical-navigation-item-title {
+                        transition: color 375ms cubic-bezier(0.25, 0.8, 0.25, 1);
+                    }
+
+                    .treo-vertical-navigation-item-subtitle {
+                        font-size: 11px;
+                        line-height: 1.5;
+                        transition: color 375ms cubic-bezier(0.25, 0.8, 0.25, 1);
+                    }
+                }
+
+                .treo-vertical-navigation-item-badge {
+                    margin-left: auto;
+
+                    .treo-vertical-navigation-item-badge-content {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-weight: 700;
+                        white-space: nowrap;
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+
+                        // Rectangle
+                        &.treo-vertical-navigation-item-badge-style-rectangle {
+                            width: auto;
+                            min-width: 24px;
+                            height: 20px;
+                            line-height: normal;
+                            padding: 0 6px;
+                            border-radius: 4px;
+                        }
+
+                        // Rounded
+                        &.treo-vertical-navigation-item-badge-style-rounded {
+                            width: auto;
+                            min-width: 24px;
+                            height: 20px;
+                            line-height: normal;
+                            padding: 0 10px;
+                            border-radius: 12px;
+                        }
+
+                        // Simple
+                        &.treo-vertical-navigation-item-badge-style-simple {
+                            width: auto;
+                            font-size: 11px;
+                            background-color: transparent !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    treo-vertical-navigation-aside-item,
+    treo-vertical-navigation-basic-item,
+    treo-vertical-navigation-collapsable-item {
+
+        .treo-vertical-navigation-item {
+            cursor: pointer;
+        }
+    }
+
+    // Aside
+    treo-vertical-navigation-aside-item {
+
+    }
+
+    // Basic
+    treo-vertical-navigation-basic-item {
+
+    }
+
+    // Collapsable
+    treo-vertical-navigation-collapsable-item {
+
+        > .treo-vertical-navigation-item-wrapper {
+
+            .treo-vertical-navigation-item {
+
+                .treo-vertical-navigation-item-badge {
+
+                    + .treo-vertical-navigation-item-arrow {
+                        margin-left: 8px;
+                    }
+                }
+
+                .treo-vertical-navigation-item-arrow {
+                    height: 20px;
+                    line-height: 20px;
+                    margin-left: auto;
+                    transition: transform 300ms cubic-bezier(0.25, 0.8, 0.25, 1),
+                    color 375ms cubic-bezier(0.25, 0.8, 0.25, 1);
+                }
+            }
+        }
+
+        &.treo-vertical-navigation-item-expanded {
+
+            > .treo-vertical-navigation-item-wrapper {
+
+                .treo-vertical-navigation-item {
+
+                    .treo-vertical-navigation-item-arrow {
+                        transform: rotate(90deg);
+                    }
+                }
+            }
+        }
+
+        > .treo-vertical-navigation-item-children {
+
+            > *:last-child {
+                padding-bottom: 6px;
+
+                > .treo-vertical-navigation-item-children {
+
+                    > *:last-child {
+                        padding-bottom: 0;
+                    }
+                }
+            }
+
+            .treo-vertical-navigation-item {
+                padding: 10px 24px;
+            }
+        }
+
+        // 1st level
+        .treo-vertical-navigation-item-children {
+            overflow: hidden;
+
+            .treo-vertical-navigation-item {
+                padding-left: 64px;
+            }
+
+            // 2nd level
+            .treo-vertical-navigation-item-children {
+
+                .treo-vertical-navigation-item {
+                    padding-left: 80px;
+                }
+
+                // 3rd level
+                .treo-vertical-navigation-item-children {
+
+                    .treo-vertical-navigation-item {
+                        padding-left: 96px;
+                    }
+
+                    // 4th level
+                    .treo-vertical-navigation-item-children {
+
+                        .treo-vertical-navigation-item {
+                            padding-left: 112px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Divider
+    treo-vertical-navigation-divider-item {
+        margin: 12px 0;
+
+        .treo-vertical-navigation-item-wrapper {
+            height: 1px;
+            box-shadow: 0 1px 0 0;
+        }
+    }
+
+    // Group
+    treo-vertical-navigation-group-item {
+
+        > .treo-vertical-navigation-item-wrapper {
+
+            .treo-vertical-navigation-item {
+
+                .treo-vertical-navigation-item-badge,
+                .treo-vertical-navigation-item-icon {
+                    display: none !important;
+                }
+
+                .treo-vertical-navigation-item-title {
+                    font-size: 12px;
+                    font-weight: 600;
+                    letter-spacing: 0.05em;
+                    text-transform: uppercase;
+                }
+            }
+        }
+    }
+
+    // Spacer
+    treo-vertical-navigation-spacer-item {
+        margin: 6px 0;
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ [inner]
+    // -----------------------------------------------------------------------------------------------------
+    &.treo-vertical-navigation-inner {
+        position: relative;
+        width: auto;
+        min-width: 0;
+        max-width: none;
+        height: auto;
+        min-height: 0;
+        max-height: none;
+        box-shadow: none;
+
+        .treo-vertical-navigation-wrapper {
+            position: relative;
+            overflow: visible;
+            height: auto;
+
+            .treo-vertical-navigation-content {
+                overflow: visible !important;
+            }
+        }
+    }
+}
+
+// Overlay
+.treo-vertical-navigation-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 170;
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+
+    + .treo-vertical-navigation-aside-overlay {
+        background-color: transparent;
+    }
+}
+
+// Aside overlay
+.treo-vertical-navigation-aside-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 169;
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+    $background: map-get($theme, background);
+    $foreground: map-get($theme, foreground);
+    $primary: map-get($theme, primary);
+    $is-dark: map-get($theme, is-dark);
+
+    treo-vertical-navigation {
+
+        // Wrapper
+        .treo-vertical-navigation-wrapper {
+            background: inherit;
+        }
+
+        // Aside wrapper
+        .treo-vertical-navigation-aside-wrapper {
+            background: inherit;
+        }
+
+        // Navigation items common
+        .treo-vertical-navigation-item {
+            color: currentColor;
+
+            // Normal state
+            .treo-vertical-navigation-item-icon {
+                color: treo-color('cool-gray', 400);
+            }
+
+            .treo-vertical-navigation-item-title {
+                @if ($is-dark) {
+                    color: treo-color('cool-gray', 300);
+                } @else {
+                    color: treo-color('cool-gray', 600);
+                }
+            }
+
+            .treo-vertical-navigation-item-subtitle {
+                @if ($is-dark) {
+                    color: treo-color('cool-gray', 400);
+                } @else {
+                    color: treo-color('cool-gray', 500);
+                }
+            }
+
+            // Active state
+            &.treo-vertical-navigation-item-active:not(.treo-vertical-navigation-item-disabled) {
+                @if ($is-dark) {
+                    background-color: rgba(0, 0, 0, 0.25);
+                } @else {
+                    background-color: treo-color('cool-gray', 100);
+                }
+
+                .treo-vertical-navigation-item-icon {
+                    @if ($is-dark) {
+                        color: treo-color('cool-gray', 100);
+                    } @else {
+                        color: treo-color('cool-gray', 500);
+                    }
+                }
+
+                .treo-vertical-navigation-item-title {
+                    @if ($is-dark) {
+                        color: treo-color('cool-gray', 50);
+                    } @else {
+                        color: treo-color('cool-gray', 900);
+                    }
+                }
+
+                .treo-vertical-navigation-item-subtitle {
+                    @if ($is-dark) {
+                        color: treo-color('cool-gray', 300);
+                    } @else {
+                        color: treo-color('cool-gray', 700);
+                    }
+                }
+            }
+
+            // Disabled state
+            &.treo-vertical-navigation-item-disabled {
+                cursor: default;
+
+                .treo-vertical-navigation-item-icon,
+                .treo-vertical-navigation-item-title,
+                .treo-vertical-navigation-item-subtitle,
+                .treo-vertical-navigation-item-arrow {
+                    @if ($is-dark) {
+                        color: treo-color('cool-gray', 600);
+                    } @else {
+                        color: treo-color('cool-gray', 300);
+                    }
+                }
+            }
+        }
+
+        // Aside, Basic, Collapsable
+        treo-vertical-navigation-aside-item,
+        treo-vertical-navigation-basic-item,
+        treo-vertical-navigation-collapsable-item {
+
+            > .treo-vertical-navigation-item-wrapper {
+
+                .treo-vertical-navigation-item {
+
+                    // Hover state
+                    &:hover:not(.treo-vertical-navigation-item-active):not(.treo-vertical-navigation-item-disabled) {
+                        @if ($is-dark) {
+                            background-color: rgba(0, 0, 0, 0.25);
+                        } @else {
+                            background-color: treo-color('gray', 50);
+                        }
+
+                        .treo-vertical-navigation-item-icon {
+                            @if ($is-dark) {
+                                color: treo-color('cool-gray', 100);
+                            } @else {
+                                color: treo-color('cool-gray', 500);
+                            }
+                        }
+
+                        .treo-vertical-navigation-item-title,
+                        .treo-vertical-navigation-item-arrow {
+                            @if ($is-dark) {
+                                color: treo-color('cool-gray', 50);
+                            } @else {
+                                color: treo-color('cool-gray', 900);
+                            }
+                        }
+
+                        .treo-vertical-navigation-item-subtitle {
+                            @if ($is-dark) {
+                                color: treo-color('cool-gray', 300);
+                            } @else {
+                                color: treo-color('cool-gray', 700);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Collapsable - Expanded state
+        treo-vertical-navigation-collapsable-item {
+
+            &.treo-vertical-navigation-item-expanded {
+
+                > .treo-vertical-navigation-item-wrapper {
+
+                    .treo-vertical-navigation-item {
+
+                        .treo-vertical-navigation-item-icon {
+                            @if ($is-dark) {
+                                color: treo-color('cool-gray', 100);
+                            } @else {
+                                color: treo-color('cool-gray', 500);
+                            }
+                        }
+
+                        .treo-vertical-navigation-item-title,
+                        .treo-vertical-navigation-item-arrow {
+                            @if ($is-dark) {
+                                color: treo-color('cool-gray', 50);
+                            } @else {
+                                color: treo-color('cool-gray', 900);
+                            }
+                        }
+
+                        .treo-vertical-navigation-item-subtitle {
+                            @if ($is-dark) {
+                                color: treo-color('cool-gray', 300);
+                            } @else {
+                                color: treo-color('cool-gray', 700);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Group - Normal state
+        treo-vertical-navigation-group-item {
+
+            > .treo-vertical-navigation-item-wrapper {
+
+                .treo-vertical-navigation-item {
+
+                    .treo-vertical-navigation-item-icon {
+                        color: treo-color('cool-gray', 400);
+                    }
+
+                    .treo-vertical-navigation-item-title {
+                        @if ($is-dark) {
+                            color: map-get($primary, 400);
+                        } @else {
+                            color: map-get($primary, 600);
+                        }
+                    }
+
+                    .treo-vertical-navigation-item-subtitle {
+                        color: treo-color('cool-gray', 500);
+                    }
+                }
+            }
+        }
+
+        // DARK THEME
+        &.theme-dark {
+
+            // Navigation items common
+            .treo-vertical-navigation-item {
+
+                .treo-vertical-navigation-item-title {
+                    color: treo-color('cool-gray', 300);
+                }
+
+                .treo-vertical-navigation-item-subtitle {
+                    color: treo-color('cool-gray', 400);
+                }
+
+                // Active state
+                &.treo-vertical-navigation-item-active:not(.treo-vertical-navigation-item-disabled) {
+                    background-color: rgba(0, 0, 0, 0.25);
+
+                    .treo-vertical-navigation-item-icon {
+                        color: treo-color('cool-gray', 100);
+                    }
+
+                    .treo-vertical-navigation-item-title {
+                        color: treo-color('cool-gray', 50);
+                    }
+
+                    .treo-vertical-navigation-item-subtitle {
+                        color: treo-color('cool-gray', 300);
+                    }
+                }
+
+                // Disabled state
+                &.treo-vertical-navigation-item-disabled {
+                    cursor: default;
+
+                    .treo-vertical-navigation-item-icon,
+                    .treo-vertical-navigation-item-title,
+                    .treo-vertical-navigation-item-subtitle,
+                    .treo-vertical-navigation-item-arrow {
+                        color: treo-color('cool-gray', 600);
+                    }
+                }
+            }
+
+            // Aside, Basic, Collapsable
+            treo-vertical-navigation-aside-item,
+            treo-vertical-navigation-basic-item,
+            treo-vertical-navigation-collapsable-item {
+
+                > .treo-vertical-navigation-item-wrapper {
+
+                    .treo-vertical-navigation-item {
+
+                        // Hover state
+                        &:hover:not(.treo-vertical-navigation-item-active):not(.treo-vertical-navigation-item-disabled) {
+                            background-color: rgba(0, 0, 0, 0.25);
+
+                            .treo-vertical-navigation-item-icon {
+                                color: treo-color('cool-gray', 100);
+                            }
+
+                            .treo-vertical-navigation-item-title,
+                            .treo-vertical-navigation-item-arrow {
+                                color: treo-color('cool-gray', 50);
+                            }
+
+                            .treo-vertical-navigation-item-subtitle {
+                                color: treo-color('cool-gray', 300);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Collapsable - Expanded state
+            treo-vertical-navigation-collapsable-item {
+
+                &.treo-vertical-navigation-item-expanded {
+
+                    > .treo-vertical-navigation-item-wrapper {
+
+                        .treo-vertical-navigation-item {
+
+                            .treo-vertical-navigation-item-icon {
+                                color: treo-color('cool-gray', 100);
+                            }
+
+                            .treo-vertical-navigation-item-title,
+                            .treo-vertical-navigation-item-arrow {
+                                color: treo-color('cool-gray', 50);
+                            }
+
+                            .treo-vertical-navigation-item-subtitle {
+                                color: treo-color('cool-gray', 300);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Group - Normal state
+            treo-vertical-navigation-group-item {
+
+                > .treo-vertical-navigation-item-wrapper {
+
+                    .treo-vertical-navigation-item {
+
+                        .treo-vertical-navigation-item-title {
+                            color: map-get($primary, 400);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

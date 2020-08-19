@@ -1,0 +1,20 @@
+// -----------------------------------------------------------------------------------------------------
+// @ You can use this file to import styles from third party libraries.
+//
+// @ It's important to put them here because anything imported from this file can be overridden by
+//   Treo which allows having out-of-the-box support for certain libraries. They can also be
+//   overridden from 'styles.scss' file which allows you to override and make any third party library
+//   that Treo doesn't support out-of-the-box visually compatible with your application.
+// -----------------------------------------------------------------------------------------------------
+
+// FullCalendar
+@import '~@fullcalendar/core/main.css';
+@import '~@fullcalendar/daygrid/main.css';
+@import '~@fullcalendar/timegrid/main.css';
+@import '~@fullcalendar/list/main.css';
+
+// Perfect scrollbar
+@import '~perfect-scrollbar/css/perfect-scrollbar.css';
+
+// Quill
+@import '~quill/dist/quill.snow.css';

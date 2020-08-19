@@ -1,0 +1,259 @@
+@import 'treo';
+
+material-layout {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+
+    > treo-vertical-navigation {
+
+        .treo-vertical-navigation-content-header {
+
+            .logo {
+                display: flex;
+                align-items: center;
+                height: 80px;
+                min-height: 80px;
+                max-height: 80px;
+                padding: 24px 32px 0 32px;
+
+                img {
+                    max-width: 96px;
+                }
+            }
+        }
+    }
+
+    > .wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1 1 auto;
+        min-width: 0;
+
+        > .header {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            overflow: hidden;
+            z-index: 49;
+
+            .container {
+                position: relative;
+                max-width: 1440px;
+                width: calc(100% - 64px);
+                margin: 48px 32px 0 32px;
+                padding: 16px 0 12px 0;
+                border-bottom-width: 1px;
+                border-radius: 12px 12px 0 0;
+                box-shadow: 0 0 25px 0 rgba(0, 0, 0, 0.1), 0 0 10px 0 rgba(0, 0, 0, 0.04);
+                overflow: hidden;
+
+                @include treo-breakpoint('lt-md') {
+                    margin-top: 32px;
+                    padding: 12px 0;
+                }
+
+                @include treo-breakpoint('xs') {
+                    width: 100%;
+                    margin: 0;
+                    padding: 0;
+                    border-radius: 0;
+                    box-shadow: none;
+                }
+
+                .top-bar,
+                .bottom-bar {
+                    display: flex;
+                    flex: 1 1 auto;
+                    align-items: center;
+                    height: 64px;
+                    max-height: 64px;
+                    min-height: 64px;
+                }
+
+                .top-bar {
+                    position: relative;
+                    padding: 0 24px;
+
+                    @include treo-breakpoint('lt-md') {
+                        padding: 0 16px;
+                    }
+                }
+
+                .bottom-bar {
+                    padding: 0 16px;
+                }
+
+                .logo {
+                    display: flex;
+                    align-items: center;
+                    margin: 0 8px;
+
+                    img {
+                        width: 150px;
+                        min-width: 100px;
+                        max-width: 175px;
+                    }
+                }
+
+                .navigation-toggle-button {
+                    margin-right: 8px;
+                }
+
+                .spacer {
+                    display: flex;
+                    flex: 1 1 auto;
+                    height: 1px;
+                }
+
+                search {
+                    margin-right: 8px;
+                }
+
+                shortcuts {
+                    margin-right: 8px;
+                }
+
+                messages {
+                    margin-right: 8px;
+                }
+
+                notifications {
+                    margin-right: 8px;
+                }
+            }
+        }
+
+        > .content {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            max-width: 1440px;
+            width: calc(100% - 64px);
+            margin: 0 32px;
+            box-shadow: 0 0 25px 0 rgba(0, 0, 0, 0.1), 0 0 10px 0 rgba(0, 0, 0, 0.04);
+
+            @include treo-breakpoint('xs') {
+                width: 100%;
+                margin: 0;
+                box-shadow: none;
+            }
+
+            > *:not(router-outlet) {
+                position: relative;
+                display: flex;
+                flex: 1 1 auto;
+            }
+        }
+
+        > .footer {
+            display: flex;
+            flex: 1 1 auto;
+            align-items: center;
+            justify-content: flex-start;
+            max-width: 1440px;
+            width: calc(100% - 64px);
+            height: 80px;
+            max-height: 80px;
+            min-height: 80px;
+            margin: 0 32px;
+            padding: 0 24px;
+            z-index: 49;
+            border-top-width: 1px;
+            box-shadow: 0 0 25px 0 rgba(0, 0, 0, 0.1), 0 0 10px 0 rgba(0, 0, 0, 0.04);
+
+            @include treo-breakpoint('xs') {
+                width: 100%;
+                margin: 0;
+                box-shadow: none;
+            }
+
+            @include treo-breakpoint('xs') {
+                height: 56px;
+                max-height: 56px;
+                min-height: 56px;
+            }
+        }
+    }
+
+    &.fixed-header {
+
+        > .wrapper {
+
+            > .header {
+                position: sticky;
+                top: 0;
+            }
+        }
+    }
+
+    &.fixed-footer {
+
+        > .wrapper {
+
+            > .footer {
+                position: sticky;
+                bottom: 0;
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+    $background: map-get($theme, background);
+    $foreground: map-get($theme, foreground);
+    $primary: map-get($theme, primary);
+    $is-dark: map-get($theme, is-dark);
+
+    material-layout {
+
+        > .wrapper {
+            @if ($is-dark) {
+                background: map-get($background, card);
+            } @else {
+                background: treo-color('cool-gray', 200);
+            }
+
+            > .header {
+                background: map-get($primary, 700);
+
+                .container {
+                    background: map-get($background, card);
+
+                    .logo {
+
+                        .logo-text {
+                            @if ($is-dark) {
+                                display: none;
+                            }
+                        }
+
+                        .logo-text-on-dark {
+                            @if (not $is-dark) {
+                                display: none;
+                            }
+                        }
+                    }
+                }
+            }
+
+            > .content {
+                background: map-get($background, background);
+            }
+
+            > .footer {
+                @if (not $is-dark) {
+                    background: map-get($background, card);
+                }
+                color: map-get($foreground, secondary-text);
+            }
+        }
+    }
+}

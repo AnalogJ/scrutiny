@@ -1,0 +1,319 @@
+<div class="flex flex-col flex-auto w-full p-8 xs:p-2">
+
+    <div class="flex flex-wrap w-full">
+
+        <div class="flex items-center justify-between w-full my-4 px-4 xs:pr-0">
+            <div class="mr-6">
+                <h2 class="m-0">Drive Details</h2>
+                <div class="text-secondary tracking-tight">Dive into S.M.A.R.T data</div>
+            </div>
+            <!-- Action buttons -->
+            <div class="flex items-center">
+                <button class="xs:hidden"
+                        mat-stroked-button>
+                    <mat-icon class="icon-size-20"
+                              [svgIcon]="'save'"></mat-icon>
+                    <span class="ml-2">Export</span>
+                </button>
+                <button class="ml-2 xs:hidden"
+                        mat-stroked-button>
+                    <mat-icon class="icon-size-20 rotate-90 mirror"
+                              [svgIcon]="'tune'"></mat-icon>
+                    <span class="ml-2">Settings</span>
+                </button>
+
+                <!-- Actions menu (visible on xs) -->
+                <div class="hidden xs:flex">
+                    <button [matMenuTriggerFor]="actionsMenu"
+                            mat-icon-button>
+                        <mat-icon [svgIcon]="'more_vert'"></mat-icon>
+                    </button>
+                    <mat-menu #actionsMenu="matMenu">
+                        <button mat-menu-item>
+                            <mat-icon class="icon-size-20"
+                                      [svgIcon]="'save'"></mat-icon>
+                            <span class="ml-2">Export</span>
+                        </button>
+                        <button mat-menu-item>
+                            <mat-icon class="icon-size-20 rotate-90 mirror"
+                                      [svgIcon]="'tune'"></mat-icon>
+                            <span class="ml-2">Settings</span>
+                        </button>
+                    </mat-menu>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Card -->
+        <treo-card class="flex flex-col max-w-80 w-full mt-8 p-4 pt-6 filter-list">
+            <div class="flex items-center justify-between">
+                <div class="text-2xl font-semibold leading-tight">/dev/{{data.data.device_name}}</div>
+            </div>
+            <div class="flex flex-col my-2">
+                <div *ngIf="data.data.manufacturer" class="my-2">
+                    <div>{{data.data.manufacturer}}</div>
+                    <div class="text-secondary text-md">Model Family</div>
+                </div>
+                <div class="my-2">
+                    <div>{{data.data.model_name}}</div>
+                    <div class="text-secondary text-md">Device Model</div>
+                </div>
+                <div class="my-2">
+                    <div>{{data.data.serial_number}}</div>
+                    <div class="text-secondary text-md">Serial Number</div>
+                </div>
+                <div class="my-2">
+                    <div>{{data.data.wwn}}</div>
+                    <div class="text-secondary text-md">LU WWN Device Id</div>
+                </div>
+                <div class="my-2">
+                    <div>{{data.data.firmware}}</div>
+                    <div class="text-secondary text-md">Firmware Version</div>
+                </div>
+                <div class="my-2">
+                    <div>{{data.data.capacity | fileSize}}</div>
+                    <div class="text-secondary text-md">Capacity</div>
+                </div>
+                <div *ngIf="data.data.rotational_speed" class="my-2">
+                    <div>{{data.data.rotational_speed}} RPM</div>
+                    <div class="text-secondary text-md">Rotation Rate</div>
+                </div>
+                <div class="my-2">
+                    <div>{{data.data.smart_results[0]?.power_cycle_count}}</div>
+                    <div class="text-secondary text-md">Power Cycle Count</div>
+                </div>
+                <div class="my-2">
+                    <div matTooltip="{{data.data.smart_results[0]?.power_on_hours}} hours">{{humanizeHours(data.data.smart_results[0]?.power_on_hours)}}</div>
+                    <div class="text-secondary text-md">Powered On</div>
+                </div>
+                <div class="my-2">
+                    <div>{{data.data.smart_results[0]?.temp}}°C</div>
+                    <div class="text-secondary text-md">Temperature</div>
+                </div>
+            </div>
+        </treo-card>
+
+        <!-- S.M.A.R.T. Data table -->
+        <div class="flex flex-auto w-1/3 p-8 lt-xl:w-full">
+            <div class="flex flex-col flex-auto bg-card shadow-md rounded ">
+                <div class="p-6">
+                    <div class="font-bold text-md text-secondary uppercase tracking-wider">S.M.A.R.T Attributes</div>
+                    <div class="text-sm text-hint font-medium">{{this.smartAttributeDataSource.data.length}} visible, {{this.data.data.smart_results[0]?.smart_attributes.length - this.smartAttributeDataSource.data.length}} hidden</div>
+                </div>
+                <div class="overflow-auto">
+                    <table class="w-full bg-transparent"
+                           mat-table
+                           matSort
+                           [dataSource]="smartAttributeDataSource"
+                           [trackBy]="trackByFn"
+                           #smartAttributeTable>
+
+                        <!-- Status -->
+                        <ng-container matColumnDef="status">
+                            <th class="bg-cool-gray-50 dark:bg-cool-gray-700 border-t"
+                                mat-header-cell
+                                mat-sort-header
+                                *matHeaderCellDef>
+                                <span class="whitespace-no-wrap">
+                                    Status
+                                </span>
+                            </th>
+                            <td mat-cell
+                                *matCellDef="let attribute">
+                                <span class="inline-flex items-center font-bold text-xs px-2 py-2px rounded-full tracking-wide uppercase"
+                                      [ngClass]="{'red-200': attribute.status === 'failed',
+                                      'green-200': attribute.status === 'passed',
+                                      'yellow-200': attribute.status === 'warn'
+                                      }">
+                                    <span class="w-2 h-2 rounded-full mr-2"
+                                          [ngClass]="{'bg-red': attribute.status === 'failed',
+                                      'bg-green': attribute.status === 'passed',
+                                      'bg-yellow': attribute.status === 'warn'}"></span>
+                                    <span class="pr-2px leading-relaxed whitespace-no-wrap" matTooltip="{{attribute.status_reason}}">{{attribute.status}}</span>
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- ID -->
+                        <ng-container matColumnDef="id">
+                            <th class="bg-cool-gray-50 dark:bg-cool-gray-700 border-t"
+                                mat-header-cell
+                                mat-sort-header
+                                *matHeaderCellDef>
+                                <span class="whitespace-no-wrap">
+                                    ID
+                                </span>
+                            </th>
+                            <td mat-cell
+                                *matCellDef="let attribute">
+                                <span class="pr-6 font-medium text-sm text-secondary whitespace-no-wrap">
+                                    {{attribute.attribute_id}} ({{toHex(attribute.attribute_id)}})
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Name -->
+                        <ng-container matColumnDef="name">
+                            <th class="bg-cool-gray-50 dark:bg-cool-gray-700 border-t"
+                                mat-header-cell
+                                mat-sort-header
+                                *matHeaderCellDef>
+                                <span class="whitespace-no-wrap">
+                                    Name
+                                </span>
+                            </th>
+                            <td mat-cell
+                                *matCellDef="let attribute">
+                                <span class="pr-6 whitespace-no-wrap" matTooltip="{{data.lookup[attribute.attribute_id]?.description}}">
+                                    {{attribute.name}} <mat-icon class="icon-size-10" [svgIcon]="'info'"></mat-icon>
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Value -->
+                        <ng-container matColumnDef="value">
+                            <th class="bg-cool-gray-50 dark:bg-cool-gray-700 border-t"
+                                mat-header-cell
+                                mat-sort-header
+                                *matHeaderCellDef>
+                                <span class="whitespace-no-wrap">
+                                    Value
+                                </span>
+                            </th>
+                            <td mat-cell
+                                *matCellDef="let attribute">
+                                <span class="pr-6 whitespace-no-wrap" matTooltip="{{data.lookup[attribute.attribute_id].display_type}}">
+                                    {{extractAttributeValue(data.lookup[attribute.attribute_id], attribute)}}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Worst -->
+                        <ng-container matColumnDef="worst">
+                            <th class="bg-cool-gray-50 dark:bg-cool-gray-700 border-t"
+                                mat-header-cell
+                                mat-sort-header
+                                *matHeaderCellDef>
+                                <span class="whitespace-no-wrap">
+                                    Worst
+                                </span>
+                            </th>
+                            <td mat-cell
+                                *matCellDef="let attribute">
+                                <span class="pr-6 whitespace-no-wrap">
+                                    {{attribute.worst}}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Threshold -->
+                        <ng-container matColumnDef="thresh">
+                            <th class="bg-cool-gray-50 dark:bg-cool-gray-700 border-t"
+                                mat-header-cell
+                                mat-sort-header
+                                *matHeaderCellDef>
+                                <span class="whitespace-no-wrap">
+                                    Threshold
+                                </span>
+                            </th>
+                            <td mat-cell
+                                *matCellDef="let attribute">
+                                <span class="pr-6 whitespace-no-wrap">
+                                    {{attribute.thresh}}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Ideal -->
+                        <ng-container matColumnDef="ideal">
+                            <th class="bg-cool-gray-50 dark:bg-cool-gray-700 border-t"
+                                mat-header-cell
+                                mat-sort-header
+                                *matHeaderCellDef>
+                                <span class="whitespace-no-wrap">
+                                    Ideal
+                                </span>
+                            </th>
+                            <td mat-cell
+                                *matCellDef="let attribute">
+                                <span class="pr-6 font-medium whitespace-no-wrap">
+                                    {{data.lookup[attribute.attribute_id]?.display_type == "raw" ? data.lookup[attribute.attribute_id]?.ideal : '' }}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Observed Failure Rate -->
+                        <ng-container matColumnDef="failure">
+                            <th class="bg-cool-gray-50 dark:bg-cool-gray-700 border-t"
+                                mat-header-cell
+                                mat-sort-header
+                                *matHeaderCellDef>
+                                <span class="whitespace-no-wrap">
+                                    Failure Rate <mat-icon [svgIcon]="'info'"></mat-icon>
+                                </span>
+                            </th>
+                            <td mat-cell
+                                *matCellDef="let attribute">
+                                <span class="pr-6 font-medium whitespace-no-wrap">
+                                    {{attribute.failure_rate | percent}}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- History -->
+                        <ng-container matColumnDef="history">
+                            <th class="bg-cool-gray-50 dark:bg-cool-gray-700 border-t"
+                                mat-header-cell
+                                mat-sort-header
+                                *matHeaderCellDef>
+                                <span class="whitespace-no-wrap">
+                                    History
+                                </span>
+                            </th>
+                            <td mat-cell
+                                *matCellDef="let attribute">
+
+                                <span class="font-medium whitespace-no-wrap">
+                                    <apx-chart
+                                        [series]="attribute.chartData"
+                                        [chart]="commonSparklineOptions.chart"
+                                        [tooltip]="commonSparklineOptions.tooltip"
+                                        [stroke]="commonSparklineOptions.stroke"
+                                        [annotations]="attribute.chartDataReferenceLine"
+                                    ></apx-chart>
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Footer -->
+                        <ng-container matColumnDef="recentOrdersTableFooter">
+                            <td class="px-3 border-none"
+                                mat-footer-cell
+                                *matFooterCellDef
+                                colspan="6">
+                                <button mat-button
+                                        (click)="toggleOnlyCritical()"
+                                        [color]="'primary'">
+                                    <span *ngIf="onlyCritical">Show all attributes</span>
+                                    <span *ngIf="!onlyCritical">Show critical attributes</span>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row
+                            *matHeaderRowDef="smartAttributeTableColumns"></tr>
+                        <tr class="attribute-row h-16"
+                            mat-row
+                            [ngClass]="{'yellow-50': data.lookup[row.attribute_id]?.critical}"
+                            *matRowDef="let row; columns: smartAttributeTableColumns;"></tr>
+                        <tr class="h-16"
+                            mat-footer-row
+                            *matFooterRowDef="['recentOrdersTableFooter']"></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

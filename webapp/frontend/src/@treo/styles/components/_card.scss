@@ -1,0 +1,378 @@
+// -----------------------------------------------------------------------------------------------------
+// @ Extended styles for treo-card
+// -----------------------------------------------------------------------------------------------------
+treo-card {
+
+    &.auth-card {
+        margin: 8px;
+
+        @include treo-breakpoint('xs') {
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        // Classic style
+        &.classic {
+
+            .content-container {
+                display: none !important;
+            }
+        }
+
+        // Modern style
+        &.modern,
+        &.modern-alt {
+            max-width: 1200px;
+            width: calc(100% - 16px);
+
+            @include treo-breakpoint('lt-md') {
+                width: auto;
+            }
+
+            .form-container {
+
+                @include treo-breakpoint('gt-sm') {
+                    padding: 64px;
+                }
+            }
+        }
+
+        &.modern-alt {
+
+            .form-container {
+                order: 2;
+            }
+
+            .content-container {
+                order: 1;
+            }
+        }
+
+        // Fullscreen style
+        &.fullscreen,
+        &.fullscreen-alt {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            box-shadow: none;
+            border-radius: 0;
+
+            @include treo-breakpoint('lt-md') {
+                justify-content: center;
+            }
+
+            .form-container {
+                width: 45%;
+
+                @include treo-breakpoint('lt-md') {
+                    width: auto;
+                    padding: 40px;
+                }
+
+                .form {
+                    margin: auto 32px auto auto;
+
+                    @include treo-breakpoint('lt-md') {
+                        margin: 0;
+                    }
+                }
+            }
+        }
+
+        &.fullscreen-alt {
+
+            .form-container {
+                order: 2;
+
+                .form {
+                    margin: auto auto auto 32px;
+
+                    @include treo-breakpoint('lt-md') {
+                        margin: 0;
+                    }
+                }
+            }
+
+            .content-container {
+                order: 1;
+            }
+        }
+
+        // Form container
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            order: 1;
+            padding: 48px;
+
+            @include treo-breakpoint('xs') {
+                padding: 40px;
+            }
+
+            .form {
+                width: 100%;
+                min-width: 320px;
+                max-width: 320px;
+
+                @include treo-breakpoint('xs') {
+                    max-width: 0;
+                }
+
+                .logo {
+                    width: 48px;
+                }
+
+                .title {
+                    margin: 32px 0 0 0;
+                    font-size: 30px;
+                    font-weight: 800;
+                    letter-spacing: -0.022em;
+                    line-height: 1.25;
+                }
+
+                .subtitle {
+                    display: flex;
+                    align-items: baseline;
+                    margin-top: 2px;
+                    font-weight: 500;
+
+                    .link {
+                        margin-left: 4px;
+                    }
+                }
+
+                treo-message {
+                    margin-top: 32px;
+                    margin-bottom: -16px;
+                }
+
+                form {
+                    margin-top: 32px;
+
+                    .mat-form-field {
+                        width: 100%;
+                    }
+                }
+
+                .field-footer {
+                    display: flex;
+                    align-items: baseline;
+                    justify-content: space-between;
+                    margin: 6px 0 12px 0;
+
+                    .link {
+                        font-size: 13px;
+                        font-weight: 500;
+                    }
+                }
+
+                .submit-button {
+                    width: 100%;
+                    margin-top: 12px;
+                }
+
+                .sso {
+                    display: flex;
+                    flex-direction: column;
+
+                    .separator {
+                        position: relative;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex: 1 1 auto;
+                        margin: 32px 0;
+
+                        &:before,
+                        &:after {
+                            content: '';
+                            display: flex;
+                            flex: 1 1 auto;
+                            height: 1px;
+                        }
+
+                        &:before {
+                            margin-right: 8px;
+                        }
+
+                        &:after {
+                            margin-left: 8px;
+                        }
+                    }
+
+                    .buttons {
+                        display: flex;
+                        align-items: center;
+
+                        button {
+                            flex: 1 1 auto;
+                            margin-right: 8px;
+
+                            &:last-child {
+                                margin-right: 0;
+                            }
+
+                            .mat-icon {
+                                @include treo-icon-size(20);
+                            }
+                        }
+                    }
+                }
+
+                .form-footer {
+                    width: 100%;
+                    margin-top: 32px;
+                    font-size: 13px;
+                    font-weight: 500;
+
+                    .link {
+                        margin-left: 4px;
+                    }
+                }
+            }
+        }
+
+        // Content container
+        .content-container {
+            position: relative;
+            display: flex;
+            flex: 1 1 auto;
+            align-items: center;
+            justify-content: center;
+            order: 2;
+            overflow: hidden;
+
+            @include treo-breakpoint('lt-md') {
+                display: none;
+            }
+
+            .background {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 900px;
+                pointer-events: none;
+
+                path {
+                    opacity: 0.1;
+                }
+            }
+
+            .content {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                max-width: 480px;
+                width: 100%;
+                margin: 64px;
+
+                .title {
+                    display: flex;
+                    flex-direction: column;
+
+                    span {
+                        font-size: 40px;
+                        font-weight: 700;
+                        line-height: 1.2;
+                    }
+                }
+
+                .description {
+                    margin-top: 12px;
+                    font-size: 15px;
+                }
+
+                .learn-more-button {
+                    width: 160px;
+                    margin-top: 40px;
+                }
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+    $foreground: map-get($theme, foreground);
+    $is-dark: map-get($theme, is-dark);
+
+    treo-card {
+
+        &.auth-card {
+
+            @include treo-breakpoint('xs') {
+                background: transparent;
+            }
+
+            // Fullscreen style
+            &.fullscreen,
+            &.fullscreen-alt {
+
+                @include treo-breakpoint('lt-md') {
+                    background: transparent;
+                }
+            }
+
+            .form-container {
+
+                .form {
+
+                    .form-footer {
+
+                        span {
+                            color: map-get($foreground, secondary-text);
+                        }
+                    }
+
+                    .sso {
+
+                        .separator {
+                            color: map-get($foreground, secondary-text);
+
+                            &:before,
+                            &:after {
+                                background: map-get($foreground, divider);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Content container
+            .content-container {
+                @if ($is-dark) {
+                    background: treo-color('cool-gray', 700);
+                } @else {
+                    background: treo-color('indigo', 700);
+                }
+                color: white;
+
+                .background {
+
+                    path {
+                        @if ($is-dark) {
+                            fill: treo-color('cool-gray', 900);
+                        } @else {
+                            fill: treo-color('indigo', 100);
+                        }
+                    }
+                }
+
+                .content {
+
+                    .description {
+                        opacity: 0.7;
+                    }
+                }
+            }
+        }
+    }
+}

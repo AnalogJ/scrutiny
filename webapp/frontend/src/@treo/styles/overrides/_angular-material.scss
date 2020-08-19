@@ -1,0 +1,1346 @@
+// -----------------------------------------------------------------------------------------------------
+// @ Angular Material styles, overrides and extensions
+// -----------------------------------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------------------------------
+// @ Accordion
+// -----------------------------------------------------------------------------------------------------
+.mat-accordion {
+
+    .mat-expansion-panel {
+        margin-bottom: 24px;
+        border-radius: 8px !important;
+        transition: box-shadow 225ms cubic-bezier(0.4, 0.0, 0.2, 1);
+        @include treo-elevation('default', true);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        &.mat-expanded,
+        &:hover {
+            @include treo-elevation('lg', true);
+        }
+
+        .mat-expansion-panel-header {
+            font-size: 14px;
+
+            &[aria-disabled=true] {
+
+                .mat-expansion-panel-header-description {
+                    margin-right: 28px;
+                }
+            }
+
+            .mat-expansion-indicator {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 12px;
+                height: 12px;
+
+                // Do not override the border color of the expansion panel indicator
+                &:after {
+                    border-color: currentColor !important;
+                }
+            }
+        }
+
+        .mat-expansion-panel-body {
+            line-height: 1.7;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Buttons
+// -----------------------------------------------------------------------------------------------------
+.mat-button,
+.mat-fab,
+.mat-flat-button,
+.mat-icon-button,
+.mat-mini-fab,
+.mat-raised-button,
+.mat-stroked-button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
+    line-height: 1 !important;
+
+    .mat-button-wrapper {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+
+    // Large button
+    &.treo-mat-button-large {
+        height: 48px;
+        min-height: 48px;
+        max-height: 48px;
+    }
+}
+
+.mat-fab {
+    max-height: 56px;
+}
+
+// Target all buttons
+.mat-button,
+.mat-fab,
+.mat-flat-button,
+.mat-icon-button,
+.mat-fab,
+.mat-mini-fab,
+.mat-raised-button,
+.mat-stroked-button {
+
+    // mat-progress-spinner inside buttons
+    .mat-progress-spinner {
+
+        &.mat-progress-spinner-indeterminate-animation[mode=indeterminate] {
+
+            circle {
+                stroke: currentColor;
+                animation-duration: 6000ms;
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Button Toggle
+// -----------------------------------------------------------------------------------------------------
+.mat-button-toggle-group {
+
+    &.mat-button-toggle-group-appearance-standard {
+
+        .mat-button-toggle + .mat-button-toggle {
+            background-clip: padding-box;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Checkbox
+// -----------------------------------------------------------------------------------------------------
+.mat-checkbox {
+    display: inline-flex;
+
+    // Allow multiline text
+    .mat-checkbox-layout {
+        white-space: normal;
+
+        .mat-checkbox-inner-container {
+            display: inline-flex;
+            align-items: center;
+            margin: 0 8px 0 0;
+
+            // Add a zero-width space character to trick the container
+            // into being the same height as a single line of the label
+            &:after {
+                content: '\200b';
+            }
+        }
+
+        .mat-checkbox-label {
+            line-height: inherit;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Chip
+// -----------------------------------------------------------------------------------------------------
+.mat-chip {
+    font-weight: 500 !important;
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Form fields
+// -----------------------------------------------------------------------------------------------------
+
+// Treo only uses 'fill' style form fields and therefore
+// only provides fixes and tweaks for that style
+.mat-form-field.mat-form-field-appearance-fill {
+
+    // Disable floating mat-label
+    &.mat-form-field-has-label.mat-form-field-can-float.mat-form-field-should-float {
+
+        .mat-form-field-label-wrapper {
+
+            .mat-form-field-label {
+                width: 100% !important;
+                transform: none !important;
+            }
+        }
+    }
+
+    // Remove the default arrow for native select
+    &.mat-form-field-type-mat-native-select {
+
+        .mat-form-field-infix {
+
+            select {
+                top: auto;
+                margin-top: 0;
+                margin-bottom: 0;
+                padding-top: 0;
+                padding-right: 18px;
+            }
+
+            &:after {
+                display: none;
+            }
+        }
+    }
+
+    // Adjustments for mat-label
+    &.mat-form-field-has-label {
+
+        .mat-form-field-wrapper {
+            margin-top: 24px;
+        }
+    }
+
+    // Default style tweaks and enhancements
+    .mat-form-field-wrapper {
+        margin-bottom: 16px;
+        padding-bottom: 0;
+
+        .mat-form-field-flex {
+            position: relative;
+            display: flex;
+            align-items: stretch;
+            min-height: 48px;
+            border-radius: 6px;
+            padding: 0 16px;
+            border-width: 1px;
+            @include treo-elevation('sm');
+
+            .mat-form-field-prefix {
+
+                > .mat-icon {
+                    margin-right: 12px;
+                }
+
+                > .mat-icon-button {
+                    margin: 0 4px 0 -8px;
+                }
+
+                > .mat-select {
+                    margin-right: 10px;
+                }
+
+                > .mat-datepicker-toggle {
+                    margin-left: -8px;
+                }
+
+                > *:not(.mat-icon):not(.mat-icon-button):not(.mat-select):not(.mat-datepicker-toggle) {
+                    margin-right: 12px;
+                }
+            }
+
+            .mat-form-field-suffix {
+
+                > .mat-icon {
+                    margin-left: 12px;
+                }
+
+                > .mat-icon-button {
+                    margin: 0 -8px 0 4px;
+                }
+
+                > .mat-select {
+                    margin-left: 10px;
+                }
+
+                > .mat-datepicker-toggle {
+                    margin-right: -8px;
+                }
+            }
+
+            .mat-form-field-prefix,
+            .mat-form-field-suffix {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+
+                .mat-icon-button {
+                    width: 40px;
+                    min-width: 40px;
+                    height: 40px;
+                    min-height: 40px;
+                }
+
+                // Remove the margins from the mat-icon if it's inside a button
+                // Force the icon size to 24
+                .mat-button,
+                .mat-raised-button,
+                .mat-icon-button,
+                .mat-stroked-button,
+                .mat-flat-button,
+                .mat-fab,
+                .mat-mini-fab {
+
+                    .mat-icon {
+                        margin: 0 !important;
+                        @include treo-icon-size(24);
+                    }
+                }
+
+                // Datepicker default icon size
+                .mat-datepicker-toggle-default-icon {
+                    @include treo-icon-size(24);
+                }
+
+                // Make mat-select usable as
+                // prefix and suffix
+                .mat-select {
+                    display: flex;
+                    align-items: center;
+
+                    .mat-select-trigger {
+                        display: flex;
+                        align-items: center;
+
+                        .mat-select-value {
+                            display: flex;
+                            max-width: none;
+
+                            mat-select-trigger {
+
+                                .mat-icon {
+                                    margin: 0 !important;
+                                }
+                            }
+                        }
+
+                        .mat-select-arrow-wrapper {
+                            display: flex;
+                            align-items: center;
+                            transform: none;
+                            margin-left: 4px;
+
+                            .mat-select-arrow {
+                                min-height: 0;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .mat-form-field-infix {
+                position: static;
+                display: flex;
+                align-items: center;
+                width: 88px;
+                padding: 0;
+                border: 0;
+
+                .mat-input-element {
+                    padding: 14px 0;
+                    margin-top: 0;
+                }
+
+                // Textarea
+                textarea.mat-input-element {
+                    display: flex;
+                    align-self: stretch;
+                    min-height: 36px;
+                    height: auto;
+                    margin: 10px 0;
+                    padding: 4px 6px 4px 0 !important;
+                    transform: none;
+                }
+
+                // Select
+                .mat-select {
+                    display: inline-flex;
+
+                    .mat-select-trigger {
+                        display: inline-flex;
+                        align-items: center;
+                        width: 100%;
+
+                        .mat-select-value {
+                            display: flex;
+                            position: relative;
+                            max-width: none;
+
+                            .mat-select-value-text {
+                                display: inline-flex;
+
+                                > * {
+                                    overflow: hidden;
+                                    white-space: nowrap;
+                                    text-overflow: ellipsis;
+                                }
+                            }
+                        }
+                    }
+
+                    .mat-select-arrow-wrapper {
+                        transform: translateY(0);
+
+                        .mat-select-arrow {
+                            margin: 0 0 0 8px;
+                        }
+                    }
+                }
+
+                // Chips
+                .mat-chip-list {
+                    width: 100%;
+                    margin: 0 -8px;
+
+                    .mat-chip-input {
+                        margin: 0 0 0 8px;
+                    }
+                }
+
+                .mat-form-field-label-wrapper {
+                    top: -25px;
+                    height: auto;
+                    padding-top: 0;
+                    overflow: visible;
+                    pointer-events: auto;
+
+                    .mat-form-field-label {
+                        position: relative;
+                        top: 0;
+                        margin-top: 0;
+                        backface-visibility: hidden;
+                        transition: none;
+                        font-weight: 500;
+                    }
+                }
+            }
+        }
+
+        // Remove the underline
+        .mat-form-field-underline {
+            display: none;
+        }
+
+        // Subscript tweaks
+        .mat-form-field-subscript-wrapper {
+            position: relative;
+            top: auto;
+            padding: 0;
+            margin-top: 0;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1;
+
+            > div {
+                display: contents; // Remove the div from flow to stop the subscript animation
+            }
+
+            .mat-error,
+            .mat-hint {
+                display: block;
+                margin-top: 4px;
+            }
+        }
+    }
+
+    // Adds better alignment for textarea inputs
+    &.treo-mat-textarea {
+
+        &.mat-form-field.mat-form-field-appearance-fill {
+
+            .mat-form-field-wrapper {
+
+                .mat-form-field-flex {
+
+                    .mat-form-field-prefix,
+                    .mat-form-field-suffix {
+                        align-items: flex-start;
+                    }
+
+                    .mat-form-field-prefix {
+                        padding-top: 12px;
+                    }
+
+                    .mat-form-field-suffix {
+                        padding-top: 12px;
+                    }
+                }
+            }
+        }
+    }
+
+    // Removes subscript space
+    &.treo-mat-no-subscript {
+
+        &.mat-form-field.mat-form-field-appearance-fill {
+
+            .mat-form-field-wrapper {
+                padding-bottom: 0;
+                margin-bottom: 0;
+
+                .mat-form-field-subscript-wrapper {
+                    display: none !important;
+                    height: 0 !important;
+                }
+            }
+        }
+    }
+
+    // Rounded
+    &.treo-mat-rounded {
+
+        &.mat-form-field.mat-form-field-appearance-fill {
+
+            .mat-form-field-wrapper {
+
+                .mat-form-field-flex {
+                    border-radius: 24px;
+                }
+            }
+
+            // Emphasized affix
+            &.treo-mat-emphasized-affix {
+
+                .mat-form-field-wrapper {
+
+                    .mat-form-field-flex {
+
+                        .mat-form-field-prefix {
+                            border-radius: 24px 0 0 24px;
+                        }
+
+                        .mat-form-field-suffix {
+                            border-radius: 0 24px 24px 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Dense
+    &.treo-mat-dense {
+
+        &.mat-form-field.mat-form-field-appearance-fill {
+
+            .mat-form-field-wrapper {
+
+                .mat-form-field-flex {
+                    min-height: 40px;
+
+                    .mat-form-field-prefix,
+                    .mat-form-field-suffix {
+
+                        .mat-icon-button {
+                            width: 32px;
+                            min-width: 32px;
+                            height: 32px;
+                            min-height: 32px;
+                        }
+                    }
+
+                    .mat-form-field-prefix {
+
+                        > .mat-icon-button {
+                            margin-left: -4px;
+                            margin-right: 12px;
+                        }
+                    }
+
+                    .mat-form-field-suffix {
+
+                        > .mat-icon-button {
+                            margin-left: 12px;
+                            margin-right: -4px;
+                        }
+                    }
+
+                    .mat-form-field-infix {
+
+                        .mat-input-element {
+                            padding: 11px 0;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Rounded
+        &.treo-mat-rounded {
+
+            &.mat-form-field.mat-form-field-appearance-fill {
+
+                .mat-form-field-wrapper {
+
+                    .mat-form-field-flex {
+                        border-radius: 20px;
+                    }
+                }
+            }
+
+            // Emphasized affix
+            &.treo-mat-emphasized-affix {
+
+                &.mat-form-field.mat-form-field-appearance-fill {
+
+                    .mat-form-field-wrapper {
+
+                        .mat-form-field-flex {
+
+                            .mat-form-field-prefix {
+                                border-radius: 20px 0 0 20px !important;
+                            }
+
+                            .mat-form-field-suffix {
+                                border-radius: 0 20px 20px 0 !important;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Emphasized affix
+    &.treo-mat-emphasized-affix {
+
+        .mat-form-field-wrapper {
+
+            .mat-form-field-flex {
+
+                .mat-form-field-prefix {
+                    margin: 0 16px 0 -16px;
+                    padding-left: 16px;
+                    border-radius: 6px 0 0 6px;
+                    border-right-width: 1px;
+
+                    > .mat-icon {
+                        margin-right: 16px;
+                    }
+
+                    > .mat-icon-button {
+                        margin: 0 8px 0 -8px;
+                    }
+
+                    > .mat-select {
+                        margin-right: 12px;
+                    }
+
+                    > .mat-datepicker-toggle {
+                        margin-right: 8px;
+                    }
+
+                    > *:not(.mat-icon):not(.mat-icon-button):not(.mat-select):not(.mat-datepicker-toggle) {
+                        margin-right: 16px;
+                    }
+                }
+
+                .mat-form-field-suffix {
+                    margin: 0 -16px 0 16px;
+                    padding-right: 16px;
+                    border-radius: 0 6px 6px 0;
+                    border-left-width: 1px;
+
+                    > .mat-icon {
+                        margin-left: 16px;
+                    }
+
+                    > .mat-icon-button {
+                        margin: 0 -8px 0 8px;
+                    }
+
+                    > .mat-select {
+                        margin: 0 -4px 0 16px;
+                    }
+
+                    > .mat-datepicker-toggle {
+                        margin-left: 8px;
+                    }
+
+                    > *:not(.mat-icon):not(.mat-icon-button):not(.mat-select):not(.mat-datepicker-toggle) {
+                        margin-left: 16px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Icon
+// -----------------------------------------------------------------------------------------------------
+.mat-icon {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    min-height: 24px;
+    font-size: 24px;
+    line-height: 24px;
+    -webkit-appearance: none !important;
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Inputs
+// -----------------------------------------------------------------------------------------------------
+.mat-input-element {
+
+    &::placeholder {
+        transition: none !important;
+    }
+
+    &::-moz-placeholder {
+        transition: none !important;
+    }
+
+    &::-webkit-input-placeholder {
+        transition: none !important;
+    }
+
+    &:-ms-input-placeholder {
+        transition: none !important;
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Menu
+// -----------------------------------------------------------------------------------------------------
+.mat-menu-panel {
+    min-width: 144px !important;
+
+    .mat-menu-content {
+
+        .mat-menu-item {
+            display: flex;
+            align-items: center;
+
+            &.mat-menu-item-submenu-trigger {
+                padding-right: 40px;
+            }
+
+            .mat-icon {
+                margin-right: 12px;
+            }
+        }
+
+        // Divider within mat-menu
+        mat-divider {
+            margin: 8px 0;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Paginator
+// -----------------------------------------------------------------------------------------------------
+.mat-paginator {
+
+    .mat-paginator-container {
+        padding: 8px 16px;
+
+        @include treo-breakpoint('xs') {
+            justify-content: space-between;
+        }
+
+        // Page size select
+        .mat-paginator-page-size {
+            align-items: center;
+            min-height: 40px;
+            margin: 8px;
+
+            .mat-paginator-page-size-label {
+                margin-right: 12px;
+
+                @include treo-breakpoint('xs') {
+                    display: none;
+                }
+            }
+
+            .mat-paginator-page-size-select {
+                margin: 0;
+
+                .mat-form-field-wrapper {
+                    margin-bottom: 0;
+
+                    .mat-form-field-flex {
+                        min-height: 32px;
+                        padding: 0 10px;
+                    }
+                }
+            }
+        }
+
+        // Range actions
+        .mat-paginator-range-actions {
+            margin: 8px 0;
+
+            .mat-paginator-range-label {
+                margin-right: 16px;
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Select
+// -----------------------------------------------------------------------------------------------------
+.mat-select {
+    display: inline-flex;
+
+    .mat-select-placeholder {
+        transition: none !important;
+    }
+
+    .mat-select-trigger {
+        display: inline-flex;
+        align-items: center;
+        width: 100%;
+        height: auto;
+
+        .mat-select-value {
+            display: flex;
+            position: relative;
+            max-width: none;
+
+            .mat-select-value-text {
+                display: inline-flex;
+
+                > * {
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                }
+            }
+        }
+    }
+
+    .mat-select-arrow-wrapper {
+        transform: translateY(0);
+
+        .mat-select-arrow {
+            margin: 0 4px 0 2px;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Stepper
+// -----------------------------------------------------------------------------------------------------
+.mat-step-icon {
+
+    // Do not override the mat-icon color
+    .mat-icon {
+        color: currentColor !important;
+    }
+}
+
+.mat-step-label,
+.mat-step-label-selected {
+    font-weight: 500 !important;
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Tabs
+// -----------------------------------------------------------------------------------------------------
+.mat-tab-label {
+    opacity: 0.87 !important;
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Textarea
+// -----------------------------------------------------------------------------------------------------
+textarea.mat-input-element {
+    box-sizing: content-box !important;
+}
+
+// -----------------------------------------------------------------------------------------------------
+// @ Theming overrides and fixes
+// -----------------------------------------------------------------------------------------------------
+@include treo-theme {
+
+    $background: map-get($theme, background);
+    $foreground: map-get($theme, foreground);
+    $primary: map-get($theme, primary);
+    $warn: map-get($theme, warn);
+    $is-dark: map-get($theme, is-dark);
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Accordion
+    // -----------------------------------------------------------------------------------------------------
+    .mat-accordion {
+
+        .mat-expansion-panel {
+
+            &:not(.mat-expanded) {
+
+                .mat-expansion-panel-header {
+
+                    &:not([aria-disabled=true]) {
+
+                        &.cdk-keyboard-focused,
+                        &.cdk-program-focused,
+                        &:hover {
+                            background: transparent !important;
+                        }
+                    }
+                }
+            }
+
+            .mat-expansion-panel-body {
+                color: map-get($foreground, secondary-text);
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Buttons
+    // -----------------------------------------------------------------------------------------------------
+
+    // Colored background buttons
+    .mat-flat-button,
+    .mat-raised-button,
+    .mat-fab,
+    .mat-mini-fab {
+
+        // Apply palette's contrasting color rather than main foreground color
+        @each $palette in (primary, accent, warn) {
+
+            $palette-contrast-color: map-get(map-get($theme, $palette), default-contrast);
+
+            &.mat-#{$palette}:not([disabled]) {
+
+                .mat-icon {
+                    color: $palette-contrast-color;
+                }
+            }
+        }
+
+        .mat-icon {
+            color: currentColor !important;
+        }
+
+        // Add hover and focus style on all buttons
+        .mat-button-focus-overlay {
+            @if ($is-dark) {
+                background-color: rgba(0, 0, 0, 0.05);
+            } @else {
+                background-color: rgba(treo-color('cool-gray', 400), 0.2);
+            }
+        }
+
+        // On palette colored buttons, use a darker color
+        @each $palette in (primary, accent, warn) {
+
+            &.mat-#{$palette} {
+
+                .mat-button-focus-overlay {
+                    background-color: rgba(0, 0, 0, 0.1);
+                }
+            }
+        }
+
+        &:hover,
+        &.cdk-keyboard-focused,
+        &.cdk-program-focused {
+
+            .mat-button-focus-overlay {
+                opacity: 1;
+            }
+        }
+
+        @media (hover: none) {
+
+            &:hover {
+
+                .mat-button-focus-overlay {
+                    opacity: 0 !important;
+                }
+            }
+        }
+
+        &[disabled] {
+
+            .mat-button-focus-overlay {
+                opacity: 0 !important;
+            }
+        }
+    }
+
+    // Transparent background buttons
+    .mat-button,
+    .mat-icon-button,
+    .mat-stroked-button {
+
+        // Apply palette's color rather than main foreground color
+        @each $palette in (primary, accent, warn) {
+
+            $palette-color: map-get(map-get($theme, $palette), default);
+
+            &.mat-#{$palette}:not([disabled]) {
+
+                .mat-icon {
+                    color: $palette-color;
+                }
+            }
+        }
+
+        // Add hover and focus styles
+        .mat-button-focus-overlay {
+            @if ($is-dark) {
+                background-color: rgba(0, 0, 0, 0.05) !important;
+            } @else {
+                background-color: rgba(treo-color('cool-gray', 400), 0.2) !important;
+            }
+        }
+
+        // On palette colored buttons, use a the palette color
+        @each $palette in (primary, accent, warn) {
+
+            &.mat-#{$palette} {
+
+                .mat-button-focus-overlay {
+                    background-color: rgba(map-get(map-get($theme, $palette), default), 0.1) !important;
+                }
+            }
+        }
+
+        &:hover,
+        &.cdk-keyboard-focused,
+        &.cdk-program-focused {
+
+            .mat-button-focus-overlay {
+                opacity: 1;
+            }
+        }
+
+        @media (hover: none) {
+
+            &:hover {
+
+                .mat-button-focus-overlay {
+                    opacity: 0 !important;
+                }
+            }
+        }
+
+        &[disabled] {
+
+            .mat-button-focus-overlay {
+                opacity: 0 !important;
+            }
+        }
+    }
+
+    // All buttons
+    .mat-flat-button,
+    .mat-raised-button,
+    .mat-fab,
+    .mat-mini-fab,
+    .mat-button,
+    .mat-icon-button,
+    .mat-stroked-button {
+
+        // Move mat-button-wrapper above the ripple and focus overlay
+        .mat-button-wrapper {
+            position: relative;
+            z-index: 2;
+        }
+
+        .mat-button-focus-overlay,
+        .mat-button-ripple {
+            z-index: 1;
+        }
+    }
+
+    // Stroked buttons
+    .mat-stroked-button {
+
+        // Border color
+        &:not([disabled]) {
+            @if ($is-dark) {
+                border-color: treo-color('cool-gray', 500);
+            } @else {
+                border-color: treo-color('cool-gray', 300);
+            }
+        }
+
+        &[disabled] {
+            @if ($is-dark) {
+                border-color: treo-color('cool-gray', 600);
+            } @else {
+                border-color: treo-color('cool-gray', 200);
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Drawer
+    // -----------------------------------------------------------------------------------------------------
+    .mat-drawer-backdrop.mat-drawer-shown {
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Form fields
+    // -----------------------------------------------------------------------------------------------------
+
+    .mat-form-field.mat-form-field-appearance-fill {
+
+        .mat-form-field-label {
+            color: map-get($foreground, text) !important;
+        }
+
+        .mat-hint {
+            color: map-get($foreground, hint-text);
+        }
+
+        // Border color on disabled fields
+        &.mat-form-field-disabled {
+
+            .mat-form-field-wrapper {
+
+                .mat-form-field-flex {
+                    @if ($is-dark) {
+                        border-color: treo-color('cool-gray', 700);
+                    } @else {
+                        border-color: treo-color('cool-gray', 200);
+                    }
+                }
+            }
+        }
+
+
+        // Border color on invalid fields
+        &.mat-form-field-invalid {
+
+            .mat-form-field-wrapper {
+
+                .mat-form-field-flex {
+                    border-color: map-get($warn, default);
+                }
+            }
+        }
+
+        // Background color on focused fields
+        &.mat-focused {
+
+            .mat-form-field-wrapper {
+
+                .mat-form-field-flex {
+                    background-color: map-get($background, card);
+                }
+            }
+        }
+
+        // Border color on focused and valid fields
+        &.mat-focused:not(.mat-form-field-invalid) {
+
+            .mat-form-field-wrapper {
+
+                .mat-form-field-flex {
+                    border-color: map-get($primary, default);
+                }
+            }
+        }
+
+        // Placeholder
+        &.mat-form-field-hide-placeholder {
+
+            .mat-input-element {
+
+                &::placeholder {
+                    color: map-get($foreground, hint-text) !important;
+                    -webkit-text-fill-color: currentColor !important;
+                }
+
+                &::-moz-placeholder {
+                    color: map-get($foreground, hint-text) !important;
+                    -webkit-text-fill-color: currentColor !important;
+                }
+
+                &::-webkit-input-placeholder {
+                    color: map-get($foreground, hint-text) !important;
+                    -webkit-text-fill-color: currentColor !important;
+                }
+
+                &:-ms-input-placeholder {
+                    color: map-get($foreground, hint-text) !important;
+                    -webkit-text-fill-color: currentColor !important;
+                }
+            }
+        }
+
+        // Use svg arrow for native select
+        &.mat-form-field-type-mat-native-select {
+
+            .mat-form-field-infix {
+
+                select {
+                    @if ($is-dark) {
+                        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2397a6ba' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+                    } @else {
+                        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2364748B' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+                    }
+                    background-repeat: no-repeat;
+                    background-position: right -7px center;
+                    background-size: 24px;
+                }
+            }
+        }
+
+
+        .mat-form-field-wrapper {
+
+            .mat-form-field-flex {
+                @if ($is-dark) {
+                    background-color: rgba(0, 0, 0, 0.05);
+                    border-color: treo-color('cool-gray', 500);
+                } @else {
+                    background-color: white;
+                    border-color: treo-color('cool-gray', 300);
+                }
+
+                .mat-form-field-prefix,
+                .mat-form-field-suffix {
+                    color: map-get($foreground, hint-text);
+
+                    .mat-icon,
+                    .mat-icon-button,
+                    .mat-select-value {
+                        color: map-get($foreground, hint-text);
+                    }
+                }
+            }
+        }
+
+        // Emphasized affix
+        &.treo-mat-emphasized-affix {
+
+            .mat-form-field-wrapper {
+
+                .mat-form-field-flex {
+
+                    .mat-form-field-prefix,
+                    .mat-form-field-suffix {
+                        background: map-get($background, background);
+                        @if ($is-dark) {
+                            border-color: treo-color('cool-gray', 500);
+                        } @else {
+                            border-color: treo-color('cool-gray', 300);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Inputs
+    // -----------------------------------------------------------------------------------------------------
+    .mat-input-element {
+
+        // Placeholder color
+        &::placeholder {
+            color: map-get($foreground, hint-text);
+        }
+
+        &::-moz-placeholder {
+            color: map-get($foreground, hint-text);
+        }
+
+        &::-webkit-input-placeholder {
+            color: map-get($foreground, hint-text);
+        }
+
+        &:-ms-input-placeholder {
+            color: map-get($foreground, hint-text);
+        }
+    }
+
+    // If inside an invalid form field
+    .mat-form-field-invalid {
+
+        .mat-input-element {
+
+            // Placeholder color (error)
+            &::placeholder {
+                color: map-get($warn, default);
+            }
+
+            &::-moz-placeholder {
+                color: map-get($warn, default);
+            }
+
+            &::-webkit-input-placeholder {
+                color: map-get($warn, default);
+            }
+
+            &:-ms-input-placeholder {
+                color: map-get($warn, default);
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Select
+    // -----------------------------------------------------------------------------------------------------
+    .mat-select {
+
+        // Placeholder color
+        .mat-select-placeholder {
+            color: map-get($foreground, hint-text);
+        }
+    }
+
+    // If inside an invalid form
+    .mat-form-field-invalid {
+
+        // Placeholder color (error)
+        .mat-select-placeholder {
+            color: map-get($warn, default);
+        }
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Toolbar
+    // -----------------------------------------------------------------------------------------------------
+    .mat-toolbar {
+
+        // Apply palette's contrasting color rather than main foreground color
+        @each $palette in (primary, accent, warn) {
+
+            $palette-contrast-color: map-get(map-get($theme, $palette), default-contrast);
+
+            &.mat-#{$palette} {
+
+                .mat-icon {
+                    color: $palette-contrast-color;
+                }
+
+                .text-secondary {
+                    color: rgba(rgba($palette-contrast-color, 1), 0.6);
+                }
+
+                .text-hint {
+                    color: rgba(rgba($palette-contrast-color, 1), 0.38);
+                }
+
+                .text-disabled {
+                    color: rgba(rgba($palette-contrast-color, 1), 0.38);
+                }
+
+                .divider {
+                    color: rgba($palette-contrast-color, 0.12);
+                }
+            }
+        }
+    }
+}
