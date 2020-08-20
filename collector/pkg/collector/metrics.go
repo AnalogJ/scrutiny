@@ -6,15 +6,11 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/errors"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/sirupsen/logrus"
-	"net/http"
 	"net/url"
 	"os/exec"
 	"strings"
 	"sync"
-	"time"
 )
-
-var httpClient = &http.Client{Timeout: 10 * time.Second}
 
 type MetricsCollector struct {
 	BaseCollector
@@ -44,12 +40,15 @@ func (mc *MetricsCollector) Run() error {
 	}
 
 	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
-	apiEndpoint.Path = "/api/devices"
+	apiEndpoint.Path = "/api/devices/register"
 
-	deviceRespWrapper := new(models.DeviceRespWrapper)
+	deviceRespWrapper := new(models.DeviceWrapper)
+	detectedStorageDevices, err := mc.detectStorageDevices()
 
-	fmt.Println("Getting devices")
-	err = mc.getJson(apiEndpoint.String(), &deviceRespWrapper)
+	fmt.Println("Sending detected devices to API, for filtering & validation")
+	err = mc.postJson(apiEndpoint.String(), models.DeviceWrapper{
+		Data: detectedStorageDevices,
+	}, &deviceRespWrapper)
 	if err != nil {
 		return err
 	}
