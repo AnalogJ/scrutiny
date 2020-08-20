@@ -31,7 +31,7 @@ func (ae *AppEngine) Start() error {
 		})
 
 		//TODO: notifications
-		api.GET("/devices", GetDevicesHandler)
+		api.POST("/devices/register", RegisterDevices)
 		api.GET("/summary", GetDevicesSummary)
 		api.POST("/device/:wwn/smart", UploadDeviceSmartData)
 		api.POST("/device/:wwn/selftest", UploadDeviceSelfTestData)
@@ -55,12 +55,20 @@ func (ae *AppEngine) Start() error {
 	return r.Run(fmt.Sprintf("%s:%s", ae.Config.GetString("web.listen.host"), ae.Config.GetString("web.listen.port"))) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
-// Get all active disks for processing by collectors
-func GetDevicesHandler(c *gin.Context) {
-	storageDevices, err := RetrieveStorageDevices()
-
+// filter devices that are detected by various collectors.
+func RegisterDevices(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
-	for _, dev := range storageDevices {
+
+	var collectorDeviceWrapper dbModels.DeviceWrapper
+	err := c.BindJSON(&collectorDeviceWrapper)
+	if err != nil {
+		log.Error("Cannot parse detected devices")
+		c.JSON(http.StatusOK, gin.H{"success": false})
+	}
+
+	//TODO: filter devices here (remove excludes, force includes)
+
+	for _, dev := range collectorDeviceWrapper.Data {
 		//insert devices into DB if not already there.
 		db.Where(dbModels.Device{WWN: dev.WWN}).FirstOrCreate(&dev)
 	}
@@ -70,9 +78,9 @@ func GetDevicesHandler(c *gin.Context) {
 			"success": false,
 		})
 	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"success": true,
-			"data":    storageDevices,
+		c.JSON(http.StatusOK, dbModels.DeviceWrapper{
+			Success: true,
+			Data:    collectorDeviceWrapper.Data,
 		})
 	}
 }

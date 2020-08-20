@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type DeviceRespWrapper struct {
+type DeviceWrapper struct {
 	Success bool     `json:"success"`
 	Errors  []error  `json:"errors"`
 	Data    []Device `json:"data"`
