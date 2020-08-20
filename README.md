@@ -38,6 +38,16 @@ Scrutiny is a simple but focused application, with a couple of core features:
 
 ## Docker
 
+> Until our Sponsor goal is reached, we are unable to use Docker Hub. In the meantime, Scrutiny Docker Image(s) will be
+attached to the latest [Scrutiny Github Release](https://github.com/AnalogJHQ/scrutiny/releases)
+
+Download the `docker-analogj-scrutiny-v0.1.0.tar` file, and load it into your Docker daemon:
+
+```bash
+docker load < docker-analogj-scrutiny-v0.1.0.tar
+docker images | grep analogj/scrutiny
+```
+
 If you're using Docker, getting started is as simple as running the following command:
 
 ```bash
