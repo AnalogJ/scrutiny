@@ -7,8 +7,8 @@ COPY . /go/src/github.com/analogj/scrutiny
 
 RUN go mod vendor && \
     go build -ldflags '-w -extldflags "-static"' -o scrutiny webapp/backend/cmd/scrutiny/scrutiny.go && \
-    go build -o scrutiny-collector-selftest collector/cmd/collector-selftest/collector-selftest.go && \
-    go build -o scrutiny-collector-metrics collector/cmd/collector-metrics/collector-metrics.go
+    go build -ldflags '-w -extldflags "-static"' -o scrutiny-collector-selftest collector/cmd/collector-selftest/collector-selftest.go && \
+    go build -ldflags '-w -extldflags "-static"' -o scrutiny-collector-metrics collector/cmd/collector-metrics/collector-metrics.go
 
 ########
 FROM node:lts-slim as frontendbuild
