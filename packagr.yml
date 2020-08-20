@@ -8,6 +8,7 @@ engine_cmd_compile:
   - 'chmod +x scrutiny-collector-metrics-linux-amd64'
 
 engine_cmd_test: 'go test -v -tags "static" $(go list ./... | grep -v /vendor/)'
+engine_golang_package_path: 'github.com/analogj/scrutiny'
 scm_enable_branch_cleanup: true
 scm_release_assets:
   - local_path: scrutiny-web-linux-amd64
