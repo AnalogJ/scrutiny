@@ -20,3 +20,13 @@ example {
 
     }
 }
+
+.dashboard-placeholder {
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+
+    img {
+        max-width:500px;
+    }
+}
