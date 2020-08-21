@@ -30,7 +30,7 @@ func TestFromCollectorSmartInfo(t *testing.T) {
 	//assert
 	require.NoError(t, err)
 	require.Equal(t, smartMdl.DeviceWWN, "WWN-test")
-	require.Equal(t, smartMdl.SmartStatus, "PASSED")
+	require.Equal(t, smartMdl.SmartStatus, "passed")
 
 	//check that temperature was correctly parsed
 	for _, attr := range smartMdl.SmartAttributes {
