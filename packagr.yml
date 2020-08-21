@@ -10,6 +10,7 @@ engine_version_metadata_path: 'collector/pkg/version/version.go'
 engine_cmd_test: 'go test -v -tags "static" $(go list ./... | grep -v /vendor/)'
 engine_golang_package_path: 'github.com/analogj/scrutiny'
 scm_enable_branch_cleanup: true
+engine_disable_lint: true
 scm_release_assets:
   - local_path: scrutiny-web-linux-amd64
     artifact_name: scrutiny-web-linux-amd64
