@@ -56,3 +56,7 @@ fabric.properties
 
 scrutiny.db
 /dist/
+vendor
+/scrutiny
+/scrutiny-collector-metrics-linux-amd64
+/scrutiny-web-linux-amd64
