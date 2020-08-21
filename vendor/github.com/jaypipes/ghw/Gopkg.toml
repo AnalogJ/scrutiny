@@ -1,0 +1,28 @@
+# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
+# for detailed Gopkg.toml documentation.
+
+[[constraint]]
+  name = "github.com/jaypipes/pcidb"
+  version = "0.4"
+
+[[constraint]]
+  name = "github.com/spf13/cobra"
+  version = "0.0.3"
+
+[[constraint]]
+  name = "howett.net/plist"
+  source = "github.com/DHowett/go-plist"
+  # pinning a sha since as yet no release has ever been made
+  revision = "591f970eefbbeb04d7b37f334a0c4c3256e32876"
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+  version = "0.8.0"
+
+[[constraint]]
+  name = "github.com/ghodss/yaml"
+  version = "1.0.0"
+
+[[override]]
+  name = "gopkg.in/yaml.v2"
+  version = "2.2.2"
