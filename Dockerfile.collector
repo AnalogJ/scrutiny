@@ -20,11 +20,6 @@ RUN apt install /tmp/jobber_1.4.4-1_amd64.deb
 
 RUN apt-get update && apt-get install -y smartmontools=7.0-0ubuntu1~ubuntu18.04.1
 
-ADD https://github.com/just-containers/s6-overlay/releases/download/v1.21.8.0/s6-overlay-amd64.tar.gz /tmp/
-RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C / && \
-    mkdir -p /rootfs/etc/services.d/jobber
-
-COPY /rootfs/etc/services.d/jobber /etc/services.d/jobber
 COPY /rootfs/scrutiny /scrutiny
 
 
@@ -33,4 +28,4 @@ COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-
 RUN chmod +x /scrutiny/bin/scrutiny-collector-selftest && \
     chmod +x /scrutiny/bin/scrutiny-collector-metrics
 
-CMD ["/init"]
+CMD ["/usr/lib/x86_64-linux-gnu/jobberrunner", "/scrutiny/config/jobber.yaml"]
