@@ -14,9 +14,7 @@ import (
 
 type MetricsCollector struct {
 	BaseCollector
-
 	apiEndpoint *url.URL
-	logger      *logrus.Entry
 }
 
 func CreateMetricsCollector(logger *logrus.Entry, apiEndpoint string) (MetricsCollector, error) {
@@ -27,7 +25,9 @@ func CreateMetricsCollector(logger *logrus.Entry, apiEndpoint string) (MetricsCo
 
 	sc := MetricsCollector{
 		apiEndpoint: apiEndpointUrl,
-		logger:      logger,
+		BaseCollector: BaseCollector{
+			logger: logger,
+		},
 	}
 
 	return sc, nil
@@ -44,8 +44,11 @@ func (mc *MetricsCollector) Run() error {
 
 	deviceRespWrapper := new(models.DeviceWrapper)
 	detectedStorageDevices, err := mc.detectStorageDevices()
+	if err != nil {
+		return err
+	}
 
-	fmt.Println("Sending detected devices to API, for filtering & validation")
+	mc.logger.Infoln("Sending detected devices to API, for filtering & validation")
 	err = mc.postJson(apiEndpoint.String(), models.DeviceWrapper{
 		Data: detectedStorageDevices,
 	}, &deviceRespWrapper)
@@ -54,10 +57,10 @@ func (mc *MetricsCollector) Run() error {
 	}
 
 	if !deviceRespWrapper.Success {
-		//TODO print error payload
-		fmt.Println("An error occurred while retrieving devices")
+		mc.logger.Errorln("An error occurred while retrieving filtered devices")
+		return errors.ApiServerCommunicationError("An error occurred while retrieving filtered devices")
 	} else {
-		fmt.Println(deviceRespWrapper)
+		mc.logger.Debugln(deviceRespWrapper)
 		var wg sync.WaitGroup
 
 		for _, device := range deviceRespWrapper.Data {
@@ -66,16 +69,16 @@ func (mc *MetricsCollector) Run() error {
 			go mc.Collect(&wg, device.WWN, device.DeviceName)
 		}
 
-		fmt.Println("Main: Waiting for workers to finish")
+		mc.logger.Infoln("Main: Waiting for workers to finish")
 		wg.Wait()
-		fmt.Println("Main: Completed")
+		mc.logger.Infoln("Main: Completed")
 	}
 
 	return nil
 }
 
 func (mc *MetricsCollector) Validate() error {
-	fmt.Println("Verifying required tools")
+	mc.logger.Infoln("Verifying required tools")
 	_, lookErr := exec.LookPath("smartctl")
 
 	if lookErr != nil {
@@ -87,14 +90,14 @@ func (mc *MetricsCollector) Validate() error {
 
 func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string) {
 	defer wg.Done()
-	fmt.Printf("Collecting smartctl results for %s\n", deviceName)
+	mc.logger.Infof("Collecting smartctl results for %s\n", deviceName)
 
 	result, err := mc.execCmd("smartctl", []string{"-a", "-j", fmt.Sprintf("/dev/%s", deviceName)}, "", nil)
 	resultBytes := []byte(result)
 	if err != nil {
-		fmt.Printf("error while retrieving data from smartctl %s\n", deviceName)
-		fmt.Printf("ERROR MESSAGE: %v", err)
-		fmt.Printf("RESULT: %v", result)
+		mc.logger.Errorf("error while retrieving data from smartctl %s\n", deviceName)
+		mc.logger.Errorf("ERROR MESSAGE: %v", err)
+		mc.logger.Errorf("RESULT: %v", result)
 		// TODO: error while retrieving data from smartctl.
 		// TODO: we should pass this data on to scrutiny API for recording.
 		return
@@ -105,7 +108,7 @@ func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, device
 }
 
 func (mc *MetricsCollector) Publish(deviceWWN string, payload []byte) error {
-	fmt.Printf("Publishing smartctl results for %s\n", deviceWWN)
+	mc.logger.Infof("Publishing smartctl results for %s\n", deviceWWN)
 
 	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
 	apiEndpoint.Path = fmt.Sprintf("/api/device/%s/smart", strings.ToLower(deviceWWN))

@@ -10,12 +10,14 @@
             <!-- Action buttons -->
             <div class="flex items-center">
                 <button class="xs:hidden"
+                        matTooltip="not yet implemented"
                         mat-stroked-button>
                     <mat-icon class="icon-size-20"
                               [svgIcon]="'save'"></mat-icon>
                     <span class="ml-2">Export</span>
                 </button>
                 <button class="ml-2 xs:hidden"
+                        matTooltip="not yet implemented"
                         mat-stroked-button>
                     <mat-icon class="icon-size-20 rotate-90 mirror"
                               [svgIcon]="'tune'"></mat-icon>
@@ -29,12 +31,14 @@
                         <mat-icon [svgIcon]="'more_vert'"></mat-icon>
                     </button>
                     <mat-menu #actionsMenu="matMenu">
-                        <button mat-menu-item>
+                        <button mat-menu-item
+                                matTooltip="not yet implemented">
                             <mat-icon class="icon-size-20"
                                       [svgIcon]="'save'"></mat-icon>
                             <span class="ml-2">Export</span>
                         </button>
-                        <button mat-menu-item>
+                        <button mat-menu-item
+                                matTooltip="not yet implemented">
                             <mat-icon class="icon-size-20 rotate-90 mirror"
                                       [svgIcon]="'tune'"></mat-icon>
                             <span class="ml-2">Settings</span>
@@ -249,7 +253,7 @@
                                 mat-header-cell
                                 mat-sort-header
                                 *matHeaderCellDef>
-                                <span class="whitespace-no-wrap">
+                                <span class="whitespace-no-wrap" matTooltip="Failure rate is based on data provided by BackBlaze. The current attribute value is matched against the observed failure categories and an annual failure rate is determined.">
                                     Failure Rate <mat-icon [svgIcon]="'info'"></mat-icon>
                                 </span>
                             </th>

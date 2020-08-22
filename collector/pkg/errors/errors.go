@@ -24,3 +24,10 @@ type DependencyMissingError string
 func (str DependencyMissingError) Error() string {
 	return fmt.Sprintf("DependencyMissingError: %q", string(str))
 }
+
+// Raised when there was an error communicating with API server
+type ApiServerCommunicationError string
+
+func (str ApiServerCommunicationError) Error() string {
+	return fmt.Sprintf("ApiServerCommunicationError: %q", string(str))
+}

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/analogj/scrutiny/collector/pkg/collector"
-	"github.com/analogj/scrutiny/collector/pkg/version"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
 	"github.com/sirupsen/logrus"
 	"log"
 	"os"

@@ -2,4 +2,4 @@
 
 echo "starting jobber/cron"
 
-su -c "/usr/lib/x86_64-linux-gnu/jobberrunner /scrutiny/config/jobber.yaml" root
+su -c "/usr/lib/x86_64-linux-gnu/jobberrunner /scrutiny/jobber/jobber.yaml" root

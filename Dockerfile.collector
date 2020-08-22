@@ -28,4 +28,4 @@ COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-
 RUN chmod +x /scrutiny/bin/scrutiny-collector-selftest && \
     chmod +x /scrutiny/bin/scrutiny-collector-metrics
 
-CMD ["/usr/lib/x86_64-linux-gnu/jobberrunner", "/scrutiny/config/jobber.yaml"]
+CMD ["/usr/lib/x86_64-linux-gnu/jobberrunner", "/scrutiny/jobber/jobber.yaml"]

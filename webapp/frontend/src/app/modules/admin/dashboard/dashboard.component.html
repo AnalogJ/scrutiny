@@ -11,12 +11,14 @@
                 <!-- Action buttons -->
                 <div class="flex items-center">
                     <button class="xs:hidden"
+                            matTooltip="not yet implemented"
                             mat-stroked-button>
                         <mat-icon class="icon-size-20"
                                   [svgIcon]="'save'"></mat-icon>
                         <span class="ml-2">Export</span>
                     </button>
                     <button class="ml-2 xs:hidden"
+                            matTooltip="not yet implemented"
                             mat-stroked-button>
                         <mat-icon class="icon-size-20 rotate-90 mirror"
                                   [svgIcon]="'tune'"></mat-icon>
@@ -30,12 +32,14 @@
                             <mat-icon [svgIcon]="'more_vert'"></mat-icon>
                         </button>
                         <mat-menu #actionsMenu="matMenu">
-                            <button mat-menu-item>
+                            <button mat-menu-item
+                                    matTooltip="not yet implemented">
                                 <mat-icon class="icon-size-20"
                                           [svgIcon]="'save'"></mat-icon>
                                 <span class="ml-2">Export</span>
                             </button>
-                            <button mat-menu-item>
+                            <button mat-menu-item
+                                    matTooltip="not yet implemented">
                                 <mat-icon class="icon-size-20 rotate-90 mirror"
                                           [svgIcon]="'tune'"></mat-icon>
                                 <span class="ml-2">Settings</span>
@@ -47,7 +51,7 @@
 
             <div class="flex flex-wrap w-full">
 
-                <div *ngFor="let disk of data.data " class="flex flex-auto w-1/2 min-w-80 p-4">
+                <div *ngFor="let disk of data.data " class="flex w-1/2 min-w-80 p-4">
                     <div [ngClass]="{'border-green': disk.smart_results[0]?.smart_status == 'passed', 'border-red': disk.smart_results[0]?.smart_status == 'failed'}"
                          class="relative flex flex-col flex-auto p-6 pr-3 pb-3 bg-card rounded border-l-4 shadow-md overflow-hidden">
                         <div class="absolute bottom-0 right-0 w-24 h-24 -m-6">
@@ -115,6 +119,7 @@
                             </div>
                             <div>
                                 <button class="h-8 min-h-8 px-2"
+                                        matTooltip="not yet implemented"
                                         mat-button
                                         [matMenuTriggerFor]="accountBalanceMenu">
                                     <span class="font-medium text-sm text-hint">12 months</span>

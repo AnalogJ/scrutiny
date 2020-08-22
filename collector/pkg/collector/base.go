@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/jaypipes/ghw"
+	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"os"
@@ -17,13 +17,15 @@ import (
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}
 
-type BaseCollector struct{}
+type BaseCollector struct {
+	logger *logrus.Entry
+}
 
 func (c *BaseCollector) detectStorageDevices() ([]models.Device, error) {
 
 	block, err := ghw.Block()
 	if err != nil {
-		fmt.Printf("Error getting block storage info: %v", err)
+		c.logger.Errorf("Error getting block storage info: %v", err)
 		return nil, err
 	}
 
@@ -32,31 +34,31 @@ func (c *BaseCollector) detectStorageDevices() ([]models.Device, error) {
 
 		// ignore optical drives and floppy disks
 		if disk.DriveType == ghw.DRIVE_TYPE_FDD || disk.DriveType == ghw.DRIVE_TYPE_ODD {
-			fmt.Printf(" => Ignore: Optical or floppy disk - (found %s)\n", disk.DriveType.String())
+			c.logger.Debugf(" => Ignore: Optical or floppy disk - (found %s)\n", disk.DriveType.String())
 			continue
 		}
 
 		// ignore removable disks
 		if disk.IsRemovable {
-			fmt.Printf(" => Ignore: Removable disk (%v)\n", disk.IsRemovable)
+			c.logger.Debugf(" => Ignore: Removable disk (%v)\n", disk.IsRemovable)
 			continue
 		}
 
 		// ignore virtual disks & mobile phone storage devices
 		if disk.StorageController == ghw.STORAGE_CONTROLLER_VIRTIO || disk.StorageController == ghw.STORAGE_CONTROLLER_MMC {
-			fmt.Printf(" => Ignore: Virtual/multi-media storage controller - (found %s)\n", disk.StorageController.String())
+			c.logger.Debugf(" => Ignore: Virtual/multi-media storage controller - (found %s)\n", disk.StorageController.String())
 			continue
 		}
 
 		// ignore NVMe devices (not currently supported) TBA
 		if disk.StorageController == ghw.STORAGE_CONTROLLER_NVME {
-			fmt.Printf(" => Ignore: NVMe storage controller - (found %s)\n", disk.StorageController.String())
+			c.logger.Debugf(" => Ignore: NVMe storage controller - (found %s)\n", disk.StorageController.String())
 			continue
 		}
 
 		// Skip unknown storage controllers, not usually S.M.A.R.T compatible.
 		if disk.StorageController == ghw.STORAGE_CONTROLLER_UNKNOWN {
-			fmt.Printf(" => Ignore: Unknown storage controller - (found %s)\n", disk.StorageController.String())
+			c.logger.Debugf(" => Ignore: Unknown storage controller - (found %s)\n", disk.StorageController.String())
 			continue
 		}
 
