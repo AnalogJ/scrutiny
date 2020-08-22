@@ -1,0 +1,97 @@
+{
+  "json_format_version": [
+    1,
+    0
+  ],
+  "smartctl": {
+    "version": [
+      7,
+      1
+    ],
+    "svn_revision": "5022",
+    "platform_info": "x86_64-linux-5.4.0-33-generic",
+    "build_info": "(local build)",
+    "argv": [
+      "smartctl",
+      "--all",
+      "--json",
+      "/dev/testfoobarpass"
+    ],
+    "exit_status": 0
+  },
+  "device": {
+    "name": "/dev/testfoobarpass",
+    "info_name": "/dev/testfoobarpass",
+    "type": "nvme",
+    "protocol": "NVMe"
+  },
+  "model_name": "INTEL SSDPEKNW010T8",
+  "serial_number": "BTNH93710FS91P0B",
+  "firmware_version": "002C",
+  "nvme_pci_vendor": {
+    "id": 32902,
+    "subsystem_id": 32902
+  },
+  "nvme_ieee_oui_identifier": 6083300,
+  "nvme_controller_id": 1,
+  "nvme_number_of_namespaces": 1,
+  "nvme_namespaces": [
+    {
+      "id": 1,
+      "size": {
+        "blocks": 2000409264,
+        "bytes": 1024209543168
+      },
+      "capacity": {
+        "blocks": 2000409264,
+        "bytes": 1024209543168
+      },
+      "utilization": {
+        "blocks": 2000409264,
+        "bytes": 1024209543168
+      },
+      "formatted_lba_size": 512
+    }
+  ],
+  "user_capacity": {
+    "blocks": 2000409264,
+    "bytes": 1024209543168
+  },
+  "logical_block_size": 512,
+  "local_time": {
+    "time_t": 1591790462,
+    "asctime": "Wed Jun 10 14:01:02 2020 CEST"
+  },
+  "smart_status": {
+    "passed": true,
+    "nvme": {
+      "value": 0
+    }
+  },
+  "nvme_smart_health_information_log": {
+    "critical_warning": 0,
+    "temperature": 36,
+    "available_spare": 100,
+    "available_spare_threshold": 10,
+    "percentage_used": 0,
+    "data_units_read": 9511859,
+    "data_units_written": 7773431,
+    "host_reads": 111303174,
+    "host_writes": 83170961,
+    "controller_busy_time": 3060,
+    "power_cycles": 266,
+    "power_on_hours": 2401,
+    "unsafe_shutdowns": 43,
+    "media_errors": 0,
+    "num_err_log_entries": 0,
+    "warning_temp_time": 0,
+    "critical_comp_time": 0
+  },
+  "temperature": {
+    "current": 36
+  },
+  "power_cycle_count": 266,
+  "power_on_time": {
+    "hours": 2401
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "json_format_version": [
+    1,
+    0
+  ],
+  "smartctl": {
+    "version": [
+      7,
+      0
+    ],
+    "svn_revision": "4883",
+    "platform_info": "x86_64-w64-mingw32-win7-sp1",
+    "build_info": "(sf-7.0-1)",
+    "argv": [
+      "smartctl",
+      "--all",
+      "-j",
+      "/dev/sda"
+    ],
+    "messages": [
+      {
+        "string": "Smartctl open device: /dev/sda failed: \\\\.\\PhysicalDrive0: Open failed, Error=5",
+        "severity": "error"
+      }
+    ],
+    "exit_status": 2
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "json_format_version": [
+    1,
+    0
+  ],
+  "smartctl": {
+    "version": [
+      7,
+      0
+    ],
+    "svn_revision": "4883",
+    "platform_info": "x86_64-w64-mingw32-w10-1809",
+    "build_info": "(sf-7.0-1)",
+    "argv": [
+      "smartctl",
+      "--all",
+      "-j",
+      "/dev/sdb"
+    ],
+    "exit_status": 4
+  },
+  "device": {
+    "name": "/dev/sdb",
+    "info_name": "/dev/sdb",
+    "type": "scsi",
+    "protocol": "SCSI"
+  },
+  "vendor": "Intel",
+  "product": "Raid 1 Volume",
+  "model_name": "Intel Raid 1 Volume",
+  "revision": "1.0.",
+  "scsi_version": "SPC-3",
+  "user_capacity": {
+    "blocks": 1953519616,
+    "bytes": 1000202043392
+  },
+  "logical_block_size": 512,
+  "physical_block_size": 4096,
+  "rotation_rate": 7200,
+  "serial_number": "Volume1",
+  "device_type": {
+    "scsi_value": 0,
+    "name": "disk"
+  },
+  "local_time": {
+    "time_t": 1570609867,
+    "asctime": "Wed Oct 09 10:31:07 2019 RDT"
+  },
+  "temperature": {
+    "current": 0,
+    "drive_trip": 0
+  }
+}

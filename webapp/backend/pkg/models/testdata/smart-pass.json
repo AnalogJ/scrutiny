@@ -1,0 +1,30 @@
+{
+  "json_format_version": [
+    1,
+    0
+  ],
+  "smartctl": {
+    "version": [
+      7,
+      0
+    ],
+    "svn_revision": "4883",
+    "platform_info": "x86_64-linux-5.4.6-arch3-1",
+    "build_info": "(local build)",
+    "argv": [
+      "smartctl",
+      "-jH",
+      "/dev/sdc"
+    ],
+    "exit_status": 0
+  },
+  "device": {
+    "name": "/dev/sdc",
+    "info_name": "/dev/sdc [SAT]",
+    "type": "sat",
+    "protocol": "ATA"
+  },
+  "smart_status": {
+    "passed": true
+  }
+}

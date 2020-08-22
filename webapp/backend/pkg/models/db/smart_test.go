@@ -12,7 +12,7 @@ import (
 
 func TestFromCollectorSmartInfo(t *testing.T) {
 	//setup
-	smartDataFile, err := os.Open("../testdata/smart.json")
+	smartDataFile, err := os.Open("../testdata/smart-ata.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
 
