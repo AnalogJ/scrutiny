@@ -43,7 +43,7 @@ func (mc *MetricsCollector) Run() error {
 	apiEndpoint.Path = "/api/devices/register"
 
 	deviceRespWrapper := new(models.DeviceWrapper)
-	detectedStorageDevices, err := mc.detectStorageDevices()
+	detectedStorageDevices, err := mc.DetectStorageDevices()
 	if err != nil {
 		return err
 	}
@@ -92,14 +92,18 @@ func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, device
 	defer wg.Done()
 	mc.logger.Infof("Collecting smartctl results for %s\n", deviceName)
 
-	result, err := mc.execCmd("smartctl", []string{"-a", "-j", fmt.Sprintf("/dev/%s", deviceName)}, "", nil)
+	result, err := mc.ExecCmd("smartctl", []string{"-a", "-j", fmt.Sprintf("/dev/%s", deviceName)}, "", nil)
 	resultBytes := []byte(result)
 	if err != nil {
-		mc.logger.Errorf("error while retrieving data from smartctl %s\n", deviceName)
-		mc.logger.Errorf("ERROR MESSAGE: %v", err)
-		mc.logger.Errorf("RESULT: %v", result)
-		// TODO: error while retrieving data from smartctl.
-		// TODO: we should pass this data on to scrutiny API for recording.
+		if exitError, ok := err.(*exec.ExitError); ok {
+			// smartctl command exited with an error, we should still push the data to the API server
+			mc.logger.Errorf("smartctl returned an error code (%d) while processing %s\n", exitError.ExitCode(), deviceName)
+			mc.Publish(deviceWWN, resultBytes)
+		} else {
+			mc.logger.Errorf("error while attempting to execute smartctl: %s\n", deviceName)
+			mc.logger.Errorf("ERROR MESSAGE: %v", err)
+			mc.logger.Errorf("IGNORING RESULT: %v", result)
+		}
 		return
 	} else {
 		//successful run, pass the results directly to webapp backend for parsing and processing.
