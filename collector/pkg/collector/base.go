@@ -21,7 +21,7 @@ type BaseCollector struct {
 	logger *logrus.Entry
 }
 
-func (c *BaseCollector) detectStorageDevices() ([]models.Device, error) {
+func (c *BaseCollector) DetectStorageDevices() ([]models.Device, error) {
 
 	block, err := ghw.Block()
 	if err != nil {
@@ -113,7 +113,7 @@ func (c *BaseCollector) postJson(url string, body interface{}, target interface{
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
-func (c *BaseCollector) execCmd(cmdName string, cmdArgs []string, workingDir string, environ []string) (string, error) {
+func (c *BaseCollector) ExecCmd(cmdName string, cmdArgs []string, workingDir string, environ []string) (string, error) {
 
 	cmd := exec.Command(cmdName, cmdArgs...)
 	var stdBuffer bytes.Buffer

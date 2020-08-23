@@ -6,7 +6,7 @@ engine_cmd_compile:
   - 'chmod +x scrutiny-web-linux-amd64'
   - 'GOOS=linux GOARCH=amd64 go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go'
   - 'chmod +x scrutiny-collector-metrics-linux-amd64'
-engine_version_metadata_path: 'collector/pkg/version/version.go'
+engine_version_metadata_path: 'webapp/backend/pkg/version/version.go'
 engine_cmd_test: 'go test -v -tags "static" $(go list ./... | grep -v /vendor/)'
 engine_golang_package_path: 'github.com/analogj/scrutiny'
 scm_enable_branch_cleanup: true
