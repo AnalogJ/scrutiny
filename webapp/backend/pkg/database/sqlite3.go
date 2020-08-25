@@ -20,7 +20,9 @@ func DatabaseHandler(dbPath string) gin.HandlerFunc {
 	database.AutoMigrate(&db.Device{})
 	database.AutoMigrate(&db.SelfTest{})
 	database.AutoMigrate(&db.Smart{})
-	database.AutoMigrate(&db.SmartAttribute{})
+	database.AutoMigrate(&db.SmartAtaAttribute{})
+	database.AutoMigrate(&db.SmartNvmeAttribute{})
+	database.AutoMigrate(&db.SmartScsiAttribute{})
 
 	//TODO: detrmine where we can call defer database.Close()
 	return func(c *gin.Context) {

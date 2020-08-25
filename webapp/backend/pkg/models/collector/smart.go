@@ -70,6 +70,16 @@ type SmartInfo struct {
 	SmartStatus struct {
 		Passed bool `json:"passed"`
 	} `json:"smart_status"`
+
+	PowerOnTime struct {
+		Hours int64 `json:"hours"`
+	} `json:"power_on_time"`
+	PowerCycleCount int64 `json:"power_cycle_count"`
+	Temperature     struct {
+		Current int64 `json:"current"`
+	} `json:"temperature"`
+
+	// ATA Protocol Specific Fields
 	AtaSmartData struct {
 		OfflineDataCollection struct {
 			Status struct {
@@ -134,17 +144,35 @@ type SmartInfo struct {
 			} `json:"raw"`
 		} `json:"table"`
 	} `json:"ata_smart_attributes"`
-	PowerOnTime struct {
-		Hours int64 `json:"hours"`
-	} `json:"power_on_time"`
-	PowerCycleCount int64 `json:"power_cycle_count"`
-	Temperature     struct {
-		Current int64 `json:"current"`
-	} `json:"temperature"`
 	AtaSmartErrorLog struct {
 		Summary struct {
-			Revision int `json:"revision"`
-			Count    int `json:"count"`
+			Revision    int `json:"revision"`
+			Count       int `json:"count"`
+			LoggedCount int `json:"logged_count"`
+			Table       []struct {
+				ErrorNumber         int `json:"error_number"`
+				LifetimeHours       int `json:"lifetime_hours"`
+				CompletionRegisters struct {
+					Error  int `json:"error"`
+					Status int `json:"status"`
+					Count  int `json:"count"`
+					Lba    int `json:"lba"`
+					Device int `json:"device"`
+				} `json:"completion_registers"`
+				ErrorDescription string `json:"error_description"`
+				PreviousCommands []struct {
+					Registers struct {
+						Command       int `json:"command"`
+						Features      int `json:"features"`
+						Count         int `json:"count"`
+						Lba           int `json:"lba"`
+						Device        int `json:"device"`
+						DeviceControl int `json:"device_control"`
+					} `json:"registers"`
+					PowerupMilliseconds int    `json:"powerup_milliseconds"`
+					CommandName         string `json:"command_name"`
+				} `json:"previous_commands"`
+			} `json:"table"`
 		} `json:"summary"`
 	} `json:"ata_smart_error_log"`
 	AtaSmartSelfTestLog struct {
@@ -183,4 +211,74 @@ type SmartInfo struct {
 		} `json:"flags"`
 		PowerUpScanResumeMinutes int `json:"power_up_scan_resume_minutes"`
 	} `json:"ata_smart_selective_self_test_log"`
+
+	// NVME Protocol Specific Fields
+	NvmePciVendor struct {
+		ID          int `json:"id"`
+		SubsystemID int `json:"subsystem_id"`
+	} `json:"nvme_pci_vendor"`
+	NvmeIeeeOuiIdentifier  int `json:"nvme_ieee_oui_identifier"`
+	NvmeControllerID       int `json:"nvme_controller_id"`
+	NvmeNumberOfNamespaces int `json:"nvme_number_of_namespaces"`
+	NvmeNamespaces         []struct {
+		ID   int `json:"id"`
+		Size struct {
+			Blocks int   `json:"blocks"`
+			Bytes  int64 `json:"bytes"`
+		} `json:"size"`
+		Capacity struct {
+			Blocks int   `json:"blocks"`
+			Bytes  int64 `json:"bytes"`
+		} `json:"capacity"`
+		Utilization struct {
+			Blocks int   `json:"blocks"`
+			Bytes  int64 `json:"bytes"`
+		} `json:"utilization"`
+		FormattedLbaSize int `json:"formatted_lba_size"`
+	} `json:"nvme_namespaces"`
+	NvmeSmartHealthInformationLog struct {
+		CriticalWarning         int `json:"critical_warning"`
+		Temperature             int `json:"temperature"`
+		AvailableSpare          int `json:"available_spare"`
+		AvailableSpareThreshold int `json:"available_spare_threshold"`
+		PercentageUsed          int `json:"percentage_used"`
+		DataUnitsRead           int `json:"data_units_read"`
+		DataUnitsWritten        int `json:"data_units_written"`
+		HostReads               int `json:"host_reads"`
+		HostWrites              int `json:"host_writes"`
+		ControllerBusyTime      int `json:"controller_busy_time"`
+		PowerCycles             int `json:"power_cycles"`
+		PowerOnHours            int `json:"power_on_hours"`
+		UnsafeShutdowns         int `json:"unsafe_shutdowns"`
+		MediaErrors             int `json:"media_errors"`
+		NumErrLogEntries        int `json:"num_err_log_entries"`
+		WarningTempTime         int `json:"warning_temp_time"`
+		CriticalCompTime        int `json:"critical_comp_time"`
+	} `json:"nvme_smart_health_information_log"`
+
+	// SCSI Protocol Specific Fields
+	Vendor              string `json:"vendor"`
+	Product             string `json:"product"`
+	ScsiVersion         string `json:"scsi_version"`
+	ScsiGrownDefectList int    `json:"scsi_grown_defect_list"`
+	ScsiErrorCounterLog struct {
+		Read struct {
+			ErrorsCorrectedByEccfast         int    `json:"errors_corrected_by_eccfast"`
+			ErrorsCorrectedByEccdelayed      int    `json:"errors_corrected_by_eccdelayed"`
+			ErrorsCorrectedByRereadsRewrites int    `json:"errors_corrected_by_rereads_rewrites"`
+			TotalErrorsCorrected             int    `json:"total_errors_corrected"`
+			CorrectionAlgorithmInvocations   int    `json:"correction_algorithm_invocations"`
+			GigabytesProcessed               string `json:"gigabytes_processed"`
+			TotalUncorrectedErrors           int    `json:"total_uncorrected_errors"`
+		} `json:"read"`
+		Write struct {
+			ErrorsCorrectedByEccfast         int    `json:"errors_corrected_by_eccfast"`
+			ErrorsCorrectedByEccdelayed      int    `json:"errors_corrected_by_eccdelayed"`
+			ErrorsCorrectedByRereadsRewrites int    `json:"errors_corrected_by_rereads_rewrites"`
+			TotalErrorsCorrected             int    `json:"total_errors_corrected"`
+			CorrectionAlgorithmInvocations   int    `json:"correction_algorithm_invocations"`
+			GigabytesProcessed               string `json:"gigabytes_processed"`
+			TotalUncorrectedErrors           int    `json:"total_uncorrected_errors"`
+		} `json:"write"`
+	} `json:"scsi_error_counter_log"`
 }

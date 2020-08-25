@@ -1,0 +1,88 @@
+{
+  "json_format_version": [
+    0,
+    1
+  ],
+  "smartctl": {
+    "version": [
+      6,
+      7
+    ],
+    "platform_info": "x86_64-linux-4.4.0-138-generic",
+    "build_info": "(local build)",
+    "argv": [
+      "smartctl",
+      "/dev/sdb",
+      "-ja"
+    ],
+    "exit_status": 0
+  },
+  "device": {
+    "name": "/dev/sdb",
+    "info_name": "/dev/sdb",
+    "type": "scsi",
+    "protocol": "SCSI"
+  },
+  "vendor": "SEAGATE",
+  "product": "ST1200MM0088",
+  "model_name": "SEAGATE ST1200MM0088",
+  "revision": "N004",
+  "scsi_version": "SPC-4",
+  "user_capacity": {
+    "blocks": 2344225968,
+    "bytes": 1200243695616
+  },
+  "logical_block_size": 512,
+  "rotation_rate": 10500,
+  "form_factor": {
+    "scsi_value": 3,
+    "name": "2.5 inches"
+  },
+  "serial_number": "Z4028VRY0000C810BZXB",
+  "device_type": {
+    "scsi_value": 0,
+    "name": "disk"
+  },
+  "local_time": {
+    "time_t": 1545001755,
+    "asctime": "Sun Dec 16 17:09:15 2018 CST"
+  },
+  "smart_status": {
+    "passed": true
+  },
+  "format_status": {
+    "grown_defects_during_cert": "not_available",
+    "blocks_reassigned_during_format": "not_available",
+    "total_new_block_since_format": "not_available",
+    "power_on_minutes_since_format": "not_available"
+  },
+  "temperature": {
+    "current": 31,
+    "drive_trip": 60
+  },
+  "scsi_grown_defect_list": 0,
+  "power_on_time": {
+    "hours": 5675,
+    "minutes": 39
+  },
+  "scsi_error_counter_log": {
+    "read": {
+      "errors_corrected_by_eccfast": 1410362924,
+      "errors_corrected_by_eccdelayed": 0,
+      "errors_corrected_by_rereads_rewrites": 0,
+      "total_errors_corrected": 1410362924,
+      "correction_algorithm_invocations": 0,
+      "gigabytes_processed": "386.568",
+      "total_uncorrected_errors": 0
+    },
+    "write": {
+      "errors_corrected_by_eccfast": 0,
+      "errors_corrected_by_eccdelayed": 0,
+      "errors_corrected_by_rereads_rewrites": 0,
+      "total_errors_corrected": 0,
+      "correction_algorithm_invocations": 0,
+      "gigabytes_processed": "806.827",
+      "total_uncorrected_errors": 0
+    }
+  }
+}

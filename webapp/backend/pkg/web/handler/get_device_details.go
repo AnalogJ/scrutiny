@@ -16,7 +16,9 @@ func GetDeviceDetails(c *gin.Context) {
 		Preload("SmartResults", func(db *gorm.DB) *gorm.DB {
 			return db.Order("smarts.created_at DESC").Limit(40)
 		}).
-		Preload("SmartResults.SmartAttributes").
+		Preload("SmartResults.AtaAttributes").
+		Preload("SmartResults.NvmeAttributes").
+		Preload("SmartResults.ScsiAttributes").
 		Where("wwn = ?", c.Param("wwn")).
 		First(&device)
 
