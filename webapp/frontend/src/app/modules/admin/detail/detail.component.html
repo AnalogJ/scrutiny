@@ -83,6 +83,10 @@
                     <div>{{data.data.rotational_speed}} RPM</div>
                     <div class="text-secondary text-md">Rotation Rate</div>
                 </div>
+                <div *ngIf="data.data.device_protocol" class="my-2">
+                    <div>{{data.data.device_protocol}}</div>
+                    <div class="text-secondary text-md">Protocol</div>
+                </div>
                 <div class="my-2">
                     <div>{{data.data.smart_results[0]?.power_cycle_count}}</div>
                     <div class="text-secondary text-md">Power Cycle Count</div>
@@ -103,7 +107,7 @@
             <div class="flex flex-col flex-auto bg-card shadow-md rounded ">
                 <div class="p-6">
                     <div class="font-bold text-md text-secondary uppercase tracking-wider">S.M.A.R.T Attributes</div>
-                    <div class="text-sm text-hint font-medium">{{this.smartAttributeDataSource.data.length}} visible, {{this.data.data.smart_results[0]?.smart_attributes.length - this.smartAttributeDataSource.data.length}} hidden</div>
+                    <div class="text-sm text-hint font-medium">{{this.smartAttributeDataSource.data.length}} visible, {{this.data.data.smart_results[0]?.ata_attributes.length - this.smartAttributeDataSource.data.length}} hidden</div>
                 </div>
                 <div class="overflow-auto">
                     <table class="w-full bg-transparent"
@@ -169,7 +173,7 @@
                             </th>
                             <td mat-cell
                                 *matCellDef="let attribute">
-                                <span class="pr-6 whitespace-no-wrap" matTooltip="{{data.lookup[attribute.attribute_id]?.description}}">
+                                <span class="pr-6 whitespace-no-wrap" matTooltip="{{getAttributeDescription(attribute)}}">
                                     {{attribute.name}} <mat-icon class="icon-size-10" [svgIcon]="'info'"></mat-icon>
                                 </span>
                             </td>
@@ -187,8 +191,8 @@
                             </th>
                             <td mat-cell
                                 *matCellDef="let attribute">
-                                <span class="pr-6 whitespace-no-wrap" matTooltip="{{data.lookup[attribute.attribute_id].display_type}}">
-                                    {{extractAttributeValue(data.lookup[attribute.attribute_id], attribute)}}
+                                <span class="pr-6 whitespace-no-wrap" matTooltip="{{getAttributeValueType(attribute)}}">
+                                    {{getAttributeValue(attribute)}}
                                 </span>
                             </td>
                         </ng-container>
@@ -206,7 +210,7 @@
                             <td mat-cell
                                 *matCellDef="let attribute">
                                 <span class="pr-6 whitespace-no-wrap">
-                                    {{attribute.worst}}
+                                    {{getAttributeWorst(attribute)}}
                                 </span>
                             </td>
                         </ng-container>
@@ -224,7 +228,7 @@
                             <td mat-cell
                                 *matCellDef="let attribute">
                                 <span class="pr-6 whitespace-no-wrap">
-                                    {{attribute.thresh}}
+                                    {{getAttributeThreshold(attribute)}}
                                 </span>
                             </td>
                         </ng-container>
@@ -242,7 +246,7 @@
                             <td mat-cell
                                 *matCellDef="let attribute">
                                 <span class="pr-6 font-medium whitespace-no-wrap">
-                                    {{data.lookup[attribute.attribute_id]?.display_type == "raw" ? data.lookup[attribute.attribute_id]?.ideal : '' }}
+                                    {{getAttributeIdeal(attribute) }}
                                 </span>
                             </td>
                         </ng-container>

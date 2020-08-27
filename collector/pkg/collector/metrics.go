@@ -49,6 +49,7 @@ func (mc *MetricsCollector) Run() error {
 	}
 
 	mc.logger.Infoln("Sending detected devices to API, for filtering & validation")
+	mc.logger.Debugf("Detected devices: %v", detectedStorageDevices)
 	err = mc.postJson(apiEndpoint.String(), models.DeviceWrapper{
 		Data: detectedStorageDevices,
 	}, &deviceRespWrapper)

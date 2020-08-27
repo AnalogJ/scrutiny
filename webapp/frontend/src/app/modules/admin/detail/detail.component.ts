@@ -93,8 +93,12 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // -----------------------------------------------------------------------------------------------------
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
+    getAttributeDescription(attribute_data){
+        return this.data.lookup[attribute_data.attribute_id]?.description
+    }
 
-    extractAttributeValue(attribute_metadata, attribute_data){
+    getAttributeValue(attribute_data){
+        let attribute_metadata = this.data.lookup[attribute_data.attribute_id]
         if(attribute_metadata.display_type == "raw"){
             return  attribute_data.raw_value
         }
@@ -105,6 +109,22 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
+    getAttributeValueType(attribute_data){
+        let attribute_metadata = this.data.lookup[attribute_data.attribute_id]
+        return this.data.lookup[attribute_data.attribute_id].display_type
+    }
+
+    getAttributeIdeal(attribute_data){
+        return this.data.lookup[attribute_data.attribute_id]?.display_type == "raw" ? this.data.lookup[attribute_data.attribute_id]?.ideal : ''
+    }
+
+    getAttributeWorst(attribute_data){
+        return attribute_data.worst
+    }
+    getAttributeThreshold(attribute_data){
+        return attribute_data.thresh
+    }
+
     private _generateSmartAttributeTableDataSource(smart_results){
         var smartAttributeDataSource = [];
 
@@ -113,14 +133,11 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         var latest_smart_result = smart_results[0];
-        for(let attr of latest_smart_result.smart_attributes){
-
-
-
+        for(let attr of latest_smart_result.ata_attributes){
             //chart history data
             if (!attr.chartData) {
-                var rawHistory = (attr.history || []).map(hist_attr => this.extractAttributeValue(this.data.lookup[attr.attribute_id], hist_attr)).reverse()
-                rawHistory.push(this.extractAttributeValue(this.data.lookup[attr.attribute_id], attr))
+                var rawHistory = (attr.history || []).map(hist_attr => this.getAttributeValue(hist_attr)).reverse()
+                rawHistory.push(this.getAttributeValue(attr))
                 attr.chartData = [
                     {
                         name: "chart-line-sparkline",
@@ -128,23 +145,6 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                         data: rawHistory
                     }
                 ]
-
-                // //add the reference line showing the threshold
-                // attr.chartDataReferenceLine =  {
-                //     yaxis: [
-                //         {
-                //             y: attr.thresh,
-                //             borderColor: '#f05252',
-                //             label: {
-                //                 borderColor: '#f05252',
-                //                 style: {
-                //                     color: '#fff',
-                //                     background: '#f05252'
-                //                 },
-                //             }
-                //         }
-                //     ]
-                // }
             }
             //determine when to include the attributes in table.
             if(!this.onlyCritical || this.onlyCritical && this.data.lookup[attr.attribute_id]?.critical || attr.value <= attr.thresh){

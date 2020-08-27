@@ -13,7 +13,7 @@ type AppEngine struct {
 	Config config.Interface
 }
 
-func (ae *AppEngine) Start() error {
+func (ae *AppEngine) Setup() *gin.Engine {
 	r := gin.Default()
 
 	r.Use(database.DatabaseHandler(ae.Config.GetString("web.database.location")))
@@ -46,6 +46,11 @@ func (ae *AppEngine) Start() error {
 	r.NoRoute(func(c *gin.Context) {
 		c.File(fmt.Sprintf("%s/index.html", ae.Config.GetString("web.src.frontend.path")))
 	})
+	return r
+}
+
+func (ae *AppEngine) Start() error {
+	r := ae.Setup()
 
 	return r.Run(fmt.Sprintf("%s:%s", ae.Config.GetString("web.listen.host"), ae.Config.GetString("web.listen.port")))
 }

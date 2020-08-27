@@ -51,8 +51,9 @@
 
             <div class="flex flex-wrap w-full">
 
-                <div *ngFor="let disk of data.data " class="flex w-1/2 min-w-80 p-4">
-                    <div [ngClass]="{'border-green': disk.smart_results[0]?.smart_status == 'passed', 'border-red': disk.smart_results[0]?.smart_status == 'failed'}"
+                <div *ngFor="let disk of data.data | deviceSort" class="flex w-1/2 min-w-80 p-4">
+                    <div [ngClass]="{'border-green': disk.smart_results[0]?.smart_status == 'passed',
+                                    'border-red': disk.smart_results[0]?.smart_status == 'failed' }"
                          class="relative flex flex-col flex-auto p-6 pr-3 pb-3 bg-card rounded border-l-4 shadow-md overflow-hidden">
                         <div class="absolute bottom-0 right-0 w-24 h-24 -m-6">
                             <mat-icon class="icon-size-96 opacity-12 text-green"
@@ -61,12 +62,16 @@
                             <mat-icon class="icon-size-96 opacity-12 text-red"
                                       *ngIf="disk.smart_results[0]?.smart_status == 'failed'"
                                       [svgIcon]="'heroicons_outline:exclamation-circle'"></mat-icon>
+                            <mat-icon class="icon-size-96 opacity-12 text-yellow"
+                                      *ngIf="!disk.smart_results[0]"
+                                      [svgIcon]="'heroicons_outline:question-mark-circle'"></mat-icon>
                         </div>
                         <div class="flex items-center">
                             <div class="flex flex-col">
                                 <a [routerLink]="'/device/'+ disk.wwn"
                                    class="font-bold text-md text-secondary uppercase tracking-wider">/dev/{{disk.device_name}} - {{disk.model_name}}</a>
-                                <div class="text-green font-medium text-sm">
+                                <div [ngClass]="{'text-green': disk.smart_results[0]?.smart_status == 'passed',
+                                    'text-red': disk.smart_results[0]?.smart_status == 'failed' }" class="font-medium text-sm" *ngIf="disk.smart_results[0]">
                                     Last Updated on {{disk.smart_results[0]?.date | date:'MMMM dd, yyyy' }}
                                 </div>
                             </div>
@@ -89,11 +94,13 @@
                         <div class="flex flex-row flex-wrap mt-4 -mx-6">
                             <div class="flex flex-col mx-6 my-3 xs:w-full">
                                 <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">S.M.A.R.T</div>
-                                <div class="mt-2 font-medium text-3xl leading-none">{{ disk.smart_results[0]?.smart_status | titlecase}}</div>
+                                <div class="mt-2 font-medium text-3xl leading-none" *ngIf="disk.smart_results[0]; else unknownStatus">{{ disk.smart_results[0]?.smart_status | titlecase}}</div>
+                                <ng-template #unknownStatus><div class="mt-2 font-medium text-3xl leading-none">No Data</div></ng-template>
                             </div>
                             <div class="flex flex-col mx-6 my-3 xs:w-full">
                                 <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Temperature</div>
-                                <div class="mt-2 font-medium text-3xl leading-none">{{ disk.smart_results[0]?.temp }}°C</div>
+                                <div class="mt-2 font-medium text-3xl leading-none" *ngIf="disk.smart_results[0]; else unknownTemp">{{ disk.smart_results[0]?.temp }}°C</div>
+                                <ng-template #unknownTemp><div class="mt-2 font-medium text-3xl leading-none">--</div></ng-template>
                             </div>
                             <div class="flex flex-col mx-6 my-3 xs:w-full">
                                 <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Capacity</div>

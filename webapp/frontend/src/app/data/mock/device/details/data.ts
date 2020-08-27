@@ -31,7 +31,7 @@ export const details = {
                 "temp": 35,
                 "power_on_hours": 48706,
                 "power_cycle_count": 69,
-                "smart_attributes": [
+                "ata_attributes": [
                     {
                         "ID": 2632,
                         "CreatedAt": "2020-08-14T03:41:00.763627397Z",

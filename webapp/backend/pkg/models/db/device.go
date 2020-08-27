@@ -25,20 +25,20 @@ type Device struct {
 
 	WWN string `json:"wwn" gorm:"primary_key"`
 
-	DeviceName     string `json:"device_name"`
-	Manufacturer   string `json:"manufacturer"`
-	ModelName      string `json:"model_name"`
-	InterfaceType  string `json:"interface_type"`
-	InterfaceSpeed string `json:"interface_speed"`
-	SerialNumber   string `json:"serial_number"`
-	Firmware       string `json:"firmware"`
-	RotationSpeed  int    `json:"rotational_speed"`
-	Capacity       int64  `json:"capacity"`
-	FormFactor     string `json:"form_factor"`
-	SmartSupport   bool   `json:"smart_support"`
-	DeviceProtocol string `json:"device_protocol"`
-
-	SmartResults []Smart `gorm:"foreignkey:DeviceWWN" json:"smart_results"`
+	DeviceName     string  `json:"device_name"`
+	Manufacturer   string  `json:"manufacturer"`
+	ModelName      string  `json:"model_name"`
+	InterfaceType  string  `json:"interface_type"`
+	InterfaceSpeed string  `json:"interface_speed"`
+	SerialNumber   string  `json:"serial_number"`
+	Firmware       string  `json:"firmware"`
+	RotationSpeed  int     `json:"rotational_speed"`
+	Capacity       int64   `json:"capacity"`
+	FormFactor     string  `json:"form_factor"`
+	SmartSupport   bool    `json:"smart_support"`
+	DeviceProtocol string  `json:"device_protocol"`
+	DeviceType     string  `json:"device_type"` //device type is used for querying with -d/t flag
+	SmartResults   []Smart `gorm:"foreignkey:DeviceWWN" json:"smart_results"`
 }
 
 func (dv *Device) IsAta() bool {
@@ -169,6 +169,7 @@ func (dv *Device) UpdateFromCollectorSmartInfo(info collector.SmartInfo) error {
 	dv.Capacity = info.UserCapacity.Bytes
 	dv.FormFactor = info.FormFactor.Name
 	dv.DeviceProtocol = info.Device.Protocol
+	dv.DeviceType = info.Device.Type
 	if len(info.Vendor) > 0 {
 		dv.Manufacturer = info.Vendor
 	}

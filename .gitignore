@@ -60,3 +60,4 @@ vendor
 /scrutiny
 /scrutiny-collector-metrics-linux-amd64
 /scrutiny-web-linux-amd64
+scrutiny-*.db

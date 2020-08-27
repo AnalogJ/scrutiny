@@ -51,7 +51,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 137,
@@ -64,7 +64,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 129,
@@ -77,7 +77,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 123,
@@ -90,7 +90,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 119,
@@ -103,7 +103,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 106,
@@ -116,7 +116,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 99,
@@ -129,7 +129,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 92,
@@ -142,7 +142,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 85,
@@ -155,7 +155,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 78,
@@ -168,7 +168,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 71,
@@ -181,7 +181,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 64,
@@ -194,7 +194,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 57,
@@ -207,7 +207,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 50,
@@ -220,7 +220,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 43,
@@ -233,7 +233,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 36,
@@ -246,7 +246,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 29,
@@ -259,7 +259,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 27,
@@ -272,7 +272,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 15,
@@ -285,7 +285,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 12,
@@ -298,7 +298,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 1,
@@ -311,7 +311,7 @@ export const summary = {
                     "temp": 36,
                     "power_on_hours": 13818,
                     "power_cycle_count": 13,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 }
             ]
         },
@@ -344,7 +344,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 138,
@@ -357,7 +357,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 128,
@@ -370,7 +370,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 120,
@@ -383,7 +383,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 114,
@@ -396,7 +396,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 110,
@@ -409,7 +409,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 103,
@@ -422,7 +422,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 97,
@@ -435,7 +435,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 90,
@@ -448,7 +448,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 80,
@@ -461,7 +461,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 73,
@@ -474,7 +474,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 69,
@@ -487,7 +487,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 61,
@@ -500,7 +500,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 54,
@@ -513,7 +513,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 48,
@@ -526,7 +526,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 39,
@@ -539,7 +539,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 32,
@@ -552,7 +552,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 26,
@@ -565,7 +565,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 18,
@@ -578,7 +578,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 10,
@@ -591,7 +591,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 3,
@@ -604,7 +604,7 @@ export const summary = {
                     "temp": 34,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 }
             ]
         },
@@ -637,7 +637,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 139,
@@ -650,7 +650,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 131,
@@ -663,7 +663,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 124,
@@ -676,7 +676,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 116,
@@ -689,7 +689,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 109,
@@ -702,7 +702,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 100,
@@ -715,7 +715,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 95,
@@ -728,7 +728,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 87,
@@ -741,7 +741,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 79,
@@ -754,7 +754,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 74,
@@ -767,7 +767,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 65,
@@ -780,7 +780,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 60,
@@ -793,7 +793,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 51,
@@ -806,7 +806,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 47,
@@ -819,7 +819,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 38,
@@ -832,7 +832,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 34,
@@ -845,7 +845,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 24,
@@ -858,7 +858,7 @@ export const summary = {
                     "temp": 33,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 16,
@@ -871,7 +871,7 @@ export const summary = {
                     "temp": 33,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 8,
@@ -884,7 +884,7 @@ export const summary = {
                     "temp": 33,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 2,
@@ -897,7 +897,7 @@ export const summary = {
                     "temp": 33,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 }
             ]
         },
@@ -930,7 +930,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 135,
@@ -943,7 +943,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 130,
@@ -956,7 +956,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 125,
@@ -969,7 +969,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 113,
@@ -982,7 +982,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 111,
@@ -995,7 +995,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 102,
@@ -1008,7 +1008,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 94,
@@ -1021,7 +1021,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 88,
@@ -1034,7 +1034,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 83,
@@ -1047,7 +1047,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 72,
@@ -1060,7 +1060,7 @@ export const summary = {
                     "temp": 29,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 66,
@@ -1073,7 +1073,7 @@ export const summary = {
                     "temp": 29,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 59,
@@ -1086,7 +1086,7 @@ export const summary = {
                     "temp": 29,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 55,
@@ -1099,7 +1099,7 @@ export const summary = {
                     "temp": 29,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 45,
@@ -1112,7 +1112,7 @@ export const summary = {
                     "temp": 29,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 40,
@@ -1125,7 +1125,7 @@ export const summary = {
                     "temp": 29,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 30,
@@ -1138,7 +1138,7 @@ export const summary = {
                     "temp": 29,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 23,
@@ -1151,7 +1151,7 @@ export const summary = {
                     "temp": 29,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 20,
@@ -1164,7 +1164,7 @@ export const summary = {
                     "temp": 29,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 11,
@@ -1177,7 +1177,7 @@ export const summary = {
                     "temp": 29,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 7,
@@ -1190,7 +1190,7 @@ export const summary = {
                     "temp": 29,
                     "power_on_hours": 24996,
                     "power_cycle_count": 42,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 }
             ]
         },
@@ -1223,7 +1223,7 @@ export const summary = {
                     "temp": 33,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 136,
@@ -1236,7 +1236,7 @@ export const summary = {
                     "temp": 33,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 132,
@@ -1249,7 +1249,7 @@ export const summary = {
                     "temp": 33,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 122,
@@ -1262,7 +1262,7 @@ export const summary = {
                     "temp": 33,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 118,
@@ -1275,7 +1275,7 @@ export const summary = {
                     "temp": 33,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 108,
@@ -1288,7 +1288,7 @@ export const summary = {
                     "temp": 33,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 101,
@@ -1301,7 +1301,7 @@ export const summary = {
                     "temp": 33,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 96,
@@ -1314,7 +1314,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 86,
@@ -1327,7 +1327,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 81,
@@ -1340,7 +1340,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 75,
@@ -1353,7 +1353,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 67,
@@ -1366,7 +1366,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 62,
@@ -1379,7 +1379,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 53,
@@ -1392,7 +1392,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 46,
@@ -1405,7 +1405,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 41,
@@ -1418,7 +1418,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 31,
@@ -1431,7 +1431,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 22,
@@ -1444,7 +1444,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 17,
@@ -1457,7 +1457,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 9,
@@ -1470,7 +1470,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 4,
@@ -1483,7 +1483,7 @@ export const summary = {
                     "temp": 32,
                     "power_on_hours": 3030,
                     "power_cycle_count": 9,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 }
             ]
         },
@@ -1516,7 +1516,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 134,
@@ -1529,7 +1529,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 127,
@@ -1542,7 +1542,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 121,
@@ -1555,7 +1555,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 115,
@@ -1568,7 +1568,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 107,
@@ -1581,7 +1581,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 104,
@@ -1594,7 +1594,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 93,
@@ -1607,7 +1607,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 89,
@@ -1620,7 +1620,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 82,
@@ -1633,7 +1633,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 76,
@@ -1646,7 +1646,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 68,
@@ -1659,7 +1659,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 58,
@@ -1672,7 +1672,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 52,
@@ -1685,7 +1685,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 44,
@@ -1698,7 +1698,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 37,
@@ -1711,7 +1711,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 33,
@@ -1724,7 +1724,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 25,
@@ -1737,7 +1737,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 19,
@@ -1750,7 +1750,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 13,
@@ -1763,7 +1763,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 5,
@@ -1776,7 +1776,7 @@ export const summary = {
                     "temp": 30,
                     "power_on_hours": 46949,
                     "power_cycle_count": 54,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 }
             ]
         },
@@ -1809,7 +1809,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 140,
@@ -1822,7 +1822,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 133,
@@ -1835,7 +1835,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 126,
@@ -1848,7 +1848,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 117,
@@ -1861,7 +1861,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 112,
@@ -1874,7 +1874,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 105,
@@ -1887,7 +1887,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 98,
@@ -1900,7 +1900,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 91,
@@ -1913,7 +1913,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 84,
@@ -1926,7 +1926,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 77,
@@ -1939,7 +1939,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 70,
@@ -1952,7 +1952,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 63,
@@ -1965,7 +1965,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 56,
@@ -1978,7 +1978,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 49,
@@ -1991,7 +1991,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 42,
@@ -2004,7 +2004,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 35,
@@ -2017,7 +2017,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 28,
@@ -2030,7 +2030,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 21,
@@ -2043,7 +2043,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48706,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 14,
@@ -2056,7 +2056,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48705,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 },
                 {
                     "ID": 6,
@@ -2069,7 +2069,7 @@ export const summary = {
                     "temp": 35,
                     "power_on_hours": 48705,
                     "power_cycle_count": 69,
-                    "smart_attributes": null
+                    "ata_attributes": null
                 }
             ]
         }
