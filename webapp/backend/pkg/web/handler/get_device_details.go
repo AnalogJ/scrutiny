@@ -25,5 +25,14 @@ func GetDeviceDetails(c *gin.Context) {
 	device.SquashHistory()
 	device.ApplyMetadataRules()
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": device, "lookup": metadata.AtaSmartAttributes})
+	var deviceMetadata interface{}
+	if device.IsAta() {
+		deviceMetadata = metadata.AtaMetadata
+	} else if device.IsNvme() {
+		deviceMetadata = metadata.NmveMetadata
+	} else if device.IsScsi() {
+		deviceMetadata = metadata.ScsiMetadata
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": device, "metadata": deviceMetadata})
 }

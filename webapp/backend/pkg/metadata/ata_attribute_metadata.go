@@ -4,7 +4,7 @@ const AtaSmartAttributeDisplayTypeRaw = "raw"
 const AtaSmartAttributeDisplayTypeNormalized = "normalized"
 const AtaSmartAttributeDisplayTypeTransformed = "transformed"
 
-type AtaSmartAttribute struct {
+type AtaAttributeMetadata struct {
 	ID          int64  `json:"-"`
 	DisplayName string `json:"-"`
 	Ideal       string `json:"ideal"`
@@ -28,7 +28,7 @@ type ObservedThreshold struct {
 	ErrorInterval     []float64 `json:"error_interval"`
 }
 
-var AtaSmartAttributes = map[int]AtaSmartAttribute{
+var AtaMetadata = map[int]AtaAttributeMetadata{
 	1: {
 		ID:          1,
 		DisplayName: "Read Error Rate",

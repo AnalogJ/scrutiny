@@ -149,7 +149,7 @@ func (dv *Device) ApplyMetadataRules() error {
 				dv.SmartResults[0].AtaAttributes[ndx].StatusReason = "Attribute has previously failed manufacturer SMART threshold"
 			}
 
-			if smartMetadata, ok := metadata.AtaSmartAttributes[attr.AttributeId]; ok {
+			if smartMetadata, ok := metadata.AtaMetadata[attr.AttributeId]; ok {
 				dv.SmartResults[0].AtaAttributes[ndx].MetadataObservedThresholdStatus(smartMetadata)
 			}
 

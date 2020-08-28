@@ -32,7 +32,7 @@ type SmartAtaAttribute struct {
 }
 
 // compare the attribute (raw, normalized, transformed) value to observed thresholds, and update status if necessary
-func (sa *SmartAtaAttribute) MetadataObservedThresholdStatus(smartMetadata metadata.AtaSmartAttribute) {
+func (sa *SmartAtaAttribute) MetadataObservedThresholdStatus(smartMetadata metadata.AtaAttributeMetadata) {
 	//TODO: multiple rules
 	// try to predict the failure rates for observed thresholds that have 0 failure rate and error bars.
 	// - if the attribute is critical

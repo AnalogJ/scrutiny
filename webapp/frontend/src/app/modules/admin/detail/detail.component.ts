@@ -94,35 +94,79 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
     getAttributeDescription(attribute_data){
-        return this.data.lookup[attribute_data.attribute_id]?.description
+        return this.data.metadata[attribute_data.attribute_id]?.description
     }
 
     getAttributeValue(attribute_data){
-        let attribute_metadata = this.data.lookup[attribute_data.attribute_id]
-        if(attribute_metadata.display_type == "raw"){
-            return  attribute_data.raw_value
+        if(this.isAta()) {
+            let attribute_metadata = this.data.metadata[attribute_data.attribute_id]
+            if (attribute_metadata.display_type == "raw") {
+                return attribute_data.raw_value
+            } else if (attribute_metadata.display_type == "transformed" && attribute_data.transformed_value) {
+                return attribute_data.transformed_value
+            } else {
+                return attribute_data.value
+            }
         }
-        else if(attribute_metadata.display_type == "transformed" && attribute_data.transformed_value ){
-            return attribute_data.transformed_value
-        } else {
+        else{
             return attribute_data.value
         }
     }
 
     getAttributeValueType(attribute_data){
-        let attribute_metadata = this.data.lookup[attribute_data.attribute_id]
-        return this.data.lookup[attribute_data.attribute_id].display_type
+        if(this.isAta()) {
+            let attribute_metadata = this.data.metadata[attribute_data.attribute_id]
+            return attribute_metadata.display_type
+        } else {
+            return ''
+        }
     }
 
     getAttributeIdeal(attribute_data){
-        return this.data.lookup[attribute_data.attribute_id]?.display_type == "raw" ? this.data.lookup[attribute_data.attribute_id]?.ideal : ''
+        return this.data.metadata[attribute_data.attribute_id]?.display_type == "raw" ? this.data.metadata[attribute_data.attribute_id]?.ideal : ''
     }
 
     getAttributeWorst(attribute_data){
-        return attribute_data.worst
+        return this.data.metadata[attribute_data.attribute_id]?.display_type == "normalized" ? attribute_data.worst : ''
     }
+
     getAttributeThreshold(attribute_data){
-        return attribute_data.thresh
+        if (this.data.metadata[attribute_data.attribute_id]?.display_type == "normalized"){
+            return attribute_data.thresh
+        } else {
+            // if(this.data.metadata[attribute_data.attribute_id].observed_thresholds){
+            //
+            // } else {
+            // }
+            // return ''
+            return attribute_data.thresh
+        }
+    }
+
+    getAttributeCritical(attribute_data){
+        return this.data.metadata[attribute_data.attribute_id]?.critical
+    }
+    getHiddenAttributes(){
+        let attributes_list
+        if(this.isAta()){
+            attributes_list = this.data.data.smart_results[0]?.ata_attributes
+        } else if(this.isNvme()){
+            attributes_list = this.data.data.smart_results[0]?.nvme_attributes
+        } else {
+            attributes_list = this.data.data.smart_results[0]?.scsi_attributes
+        }
+
+        return attributes_list.length - this.smartAttributeDataSource.data.length
+    }
+
+    isAta(): boolean {
+        return this.data.data.device_protocol == 'ATA'
+    }
+    isScsi(): boolean {
+        return this.data.data.device_protocol == 'SCSI'
+    }
+    isNvme(): boolean {
+        return this.data.data.device_protocol == 'NVMe'
     }
 
     private _generateSmartAttributeTableDataSource(smart_results){
@@ -131,9 +175,22 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         if(smart_results.length == 0){
             return smartAttributeDataSource
         }
-
         var latest_smart_result = smart_results[0];
-        for(let attr of latest_smart_result.ata_attributes){
+        let attributes_list = []
+        if(this.isScsi()) {
+            this.smartAttributeTableColumns = ['name', 'value', 'history'];
+            attributes_list = latest_smart_result.scsi_attributes
+        } else if(this.isNvme()){
+            this.smartAttributeTableColumns = ['name', 'value', 'history'];
+            attributes_list = latest_smart_result.nvme_attributes
+        } else {
+            //ATA
+            attributes_list = latest_smart_result.ata_attributes
+            this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh','ideal', 'failure', 'history'];
+        }
+
+
+        for(let attr of attributes_list){
             //chart history data
             if (!attr.chartData) {
                 var rawHistory = (attr.history || []).map(hist_attr => this.getAttributeValue(hist_attr)).reverse()
@@ -141,13 +198,13 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                 attr.chartData = [
                     {
                         name: "chart-line-sparkline",
-                        // data: Array.from({length: 40}, () => Math.floor(Math.random() * 40))
                         data: rawHistory
                     }
                 ]
             }
             //determine when to include the attributes in table.
-            if(!this.onlyCritical || this.onlyCritical && this.data.lookup[attr.attribute_id]?.critical || attr.value <= attr.thresh){
+
+            if(!this.onlyCritical || this.onlyCritical && this.data.metadata[attr.attribute_id]?.critical || attr.value < attr.thresh){
                 smartAttributeDataSource.push(attr)
             }
         }

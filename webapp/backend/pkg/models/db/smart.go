@@ -70,7 +70,7 @@ func (sm *Smart) ProcessAtaSmartInfo(info collector.SmartInfo) {
 		}
 
 		//now that we've parsed the data from the smartctl response, lets match it against our metadata rules and add additional Scrutiny specific data.
-		if smartMetadata, ok := metadata.AtaSmartAttributes[collectorAttr.ID]; ok {
+		if smartMetadata, ok := metadata.AtaMetadata[collectorAttr.ID]; ok {
 			attrModel.Name = smartMetadata.DisplayName
 			if smartMetadata.Transform != nil {
 				attrModel.TransformedValue = smartMetadata.Transform(attrModel.Value, attrModel.RawValue, attrModel.RawString)
