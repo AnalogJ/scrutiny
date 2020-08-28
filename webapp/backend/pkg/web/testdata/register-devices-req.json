@@ -1,0 +1,102 @@
+{
+  "data": [
+    {
+      "wwn": "0x5002538e40a22954",
+      "device_name": "sda",
+      "manufacturer": "ATA",
+      "model_name": "Samsung_SSD_860_EVO_500GB",
+      "interface_type": "SCSI",
+      "interface_speed": "",
+      "serial_number": "S3YZNB0KBXXXXXX",
+      "firmware": "",
+      "rotational_speed": 0,
+      "capacity": 500107862016,
+      "form_factor": "",
+      "smart_support": false
+    },
+    {
+      "wwn": "0x5000cca264eb01d7",
+      "device_name": "sdb",
+      "manufacturer": "ATA",
+      "model_name": "WDC_WD140EDFZ-11A0VA0",
+      "interface_type": "SCSI",
+      "interface_speed": "",
+      "serial_number": "9RK1XXXXX",
+      "firmware": "",
+      "rotational_speed": 0,
+      "capacity": 14000519643136,
+      "form_factor": "",
+      "smart_support": false
+    },
+    {
+      "wwn": "0x5000cca264ec3183",
+      "device_name": "sdc",
+      "manufacturer": "ATA",
+      "model_name": "WDC_WD140EDFZ-11A0VA0",
+      "interface_type": "SCSI",
+      "interface_speed": "",
+      "serial_number": "9RK4XXXXX",
+      "firmware": "",
+      "rotational_speed": 0,
+      "capacity": 14000519643136,
+      "form_factor": "",
+      "smart_support": false
+    },
+    {
+      "wwn": "0x5000cca252c859cc",
+      "device_name": "sdd",
+      "manufacturer": "ATA",
+      "model_name": "WDC_WD80EFAX-68LHPN0",
+      "interface_type": "SCSI",
+      "interface_speed": "",
+      "serial_number": "7SGLXXXXX",
+      "firmware": "",
+      "rotational_speed": 0,
+      "capacity": 8001563222016,
+      "form_factor": "",
+      "smart_support": false
+    },
+    {
+      "wwn": "0x5000cca264ebc248",
+      "device_name": "sde",
+      "manufacturer": "ATA",
+      "model_name": "WDC_WD140EDFZ-11A0VA0",
+      "interface_type": "SCSI",
+      "interface_speed": "",
+      "serial_number": "9RK3XXXXX",
+      "firmware": "",
+      "rotational_speed": 0,
+      "capacity": 14000519643136,
+      "form_factor": "",
+      "smart_support": false
+    },
+    {
+      "wwn": "0x50014ee20b2a72a9",
+      "device_name": "sdf",
+      "manufacturer": "ATA",
+      "model_name": "WDC_WD60EFRX-68MYMN1",
+      "interface_type": "SCSI",
+      "interface_speed": "",
+      "serial_number": "WD-WXL1HXXXXX",
+      "firmware": "",
+      "rotational_speed": 0,
+      "capacity": 6001175126016,
+      "form_factor": "",
+      "smart_support": false
+    },
+    {
+      "wwn": "0x5000c500673e6b5f",
+      "device_name": "sdg",
+      "manufacturer": "ATA",
+      "model_name": "ST6000DX000-1H217Z",
+      "interface_type": "SCSI",
+      "interface_speed": "",
+      "serial_number": "Z4DXXXXX",
+      "firmware": "",
+      "rotational_speed": 0,
+      "capacity": 6001175126016,
+      "form_factor": "",
+      "smart_support": false
+    }
+  ]
+}

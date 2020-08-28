@@ -16,12 +16,23 @@ func GetDeviceDetails(c *gin.Context) {
 		Preload("SmartResults", func(db *gorm.DB) *gorm.DB {
 			return db.Order("smarts.created_at DESC").Limit(40)
 		}).
-		Preload("SmartResults.SmartAttributes").
+		Preload("SmartResults.AtaAttributes").
+		Preload("SmartResults.NvmeAttributes").
+		Preload("SmartResults.ScsiAttributes").
 		Where("wwn = ?", c.Param("wwn")).
 		First(&device)
 
 	device.SquashHistory()
 	device.ApplyMetadataRules()
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": device, "lookup": metadata.AtaSmartAttributes})
+	var deviceMetadata interface{}
+	if device.IsAta() {
+		deviceMetadata = metadata.AtaMetadata
+	} else if device.IsNvme() {
+		deviceMetadata = metadata.NmveMetadata
+	} else if device.IsScsi() {
+		deviceMetadata = metadata.ScsiMetadata
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": device, "metadata": deviceMetadata})
 }

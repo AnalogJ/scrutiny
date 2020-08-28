@@ -49,6 +49,7 @@ func (mc *MetricsCollector) Run() error {
 	}
 
 	mc.logger.Infoln("Sending detected devices to API, for filtering & validation")
+	mc.logger.Debugf("Detected devices: %v", detectedStorageDevices)
 	err = mc.postJson(apiEndpoint.String(), models.DeviceWrapper{
 		Data: detectedStorageDevices,
 	}, &deviceRespWrapper)
@@ -98,6 +99,7 @@ func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, device
 		if exitError, ok := err.(*exec.ExitError); ok {
 			// smartctl command exited with an error, we should still push the data to the API server
 			mc.logger.Errorf("smartctl returned an error code (%d) while processing %s\n", exitError.ExitCode(), deviceName)
+			mc.LogSmartctlExitCode(exitError.ExitCode())
 			mc.Publish(deviceWWN, resultBytes)
 		} else {
 			mc.logger.Errorf("error while attempting to execute smartctl: %s\n", deviceName)
