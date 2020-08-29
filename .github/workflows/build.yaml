@@ -37,6 +37,7 @@ jobs:
             ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-amd64
 
       - name: Build Docker
+        container: docker:19.03.2
         run: |
           docker build -t analogj/scrutiny .
           docker save -o docker-analogj-scrutiny-latest.tar analogj/scrutiny:latest
