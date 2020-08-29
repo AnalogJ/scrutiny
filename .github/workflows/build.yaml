@@ -1,4 +1,4 @@
-name: Greet Everyone
+name: CI
 # This workflow is triggered on pushes to the repository.
 on: [push]
 
@@ -6,7 +6,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    container: golang:1.13golang:1.13
+    container: golang:1.13
     steps:
       - name: Download dependencies
         run: go mod vendor
