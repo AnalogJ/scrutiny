@@ -50,60 +50,61 @@
 
 
         <!-- Card -->
-        <treo-card class="flex flex-col max-w-80 w-full mt-8 p-4 pt-6 filter-list">
-            <div class="flex items-center justify-between">
-                <div class="text-2xl font-semibold leading-tight">/dev/{{data.data.device_name}}</div>
-            </div>
-            <div class="flex flex-col my-2">
-                <div *ngIf="data.data.manufacturer" class="my-2">
-                    <div>{{data.data.manufacturer}}</div>
-                    <div class="text-secondary text-md">Model Family</div>
+        <div class="flex flex-auto w-1/4 p-4 lt-md:w-full">
+            <treo-card class="flex flex-auto p-4 pt-6 flex-col flex-auto filter-list">
+                <div class="flex items-center justify-between">
+                    <div class="text-2xl font-semibold leading-tight">/dev/{{data.data.device_name}}</div>
                 </div>
-                <div class="my-2">
-                    <div>{{data.data.model_name}}</div>
-                    <div class="text-secondary text-md">Device Model</div>
+                <div class="flex flex-col my-2 grid grid-cols-2">
+                    <div *ngIf="data.data.manufacturer" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{data.data.manufacturer}}</div>
+                        <div class="text-secondary text-md">Model Family</div>
+                    </div>
+                    <div class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{data.data.model_name}}</div>
+                        <div class="text-secondary text-md">Device Model</div>
+                    </div>
+                    <div class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{data.data.serial_number}}</div>
+                        <div class="text-secondary text-md">Serial Number</div>
+                    </div>
+                    <div class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{data.data.wwn}}</div>
+                        <div class="text-secondary text-md">LU WWN Device Id</div>
+                    </div>
+                    <div class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{data.data.firmware}}</div>
+                        <div class="text-secondary text-md">Firmware Version</div>
+                    </div>
+                    <div class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{data.data.capacity | fileSize}}</div>
+                        <div class="text-secondary text-md">Capacity</div>
+                    </div>
+                    <div *ngIf="data.data.rotational_speed" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{data.data.rotational_speed}} RPM</div>
+                        <div class="text-secondary text-md">Rotation Rate</div>
+                    </div>
+                    <div *ngIf="data.data.device_protocol" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{data.data.device_protocol}}</div>
+                        <div class="text-secondary text-md">Protocol</div>
+                    </div>
+                    <div class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{data.data.smart_results[0]?.power_cycle_count}}</div>
+                        <div class="text-secondary text-md">Power Cycle Count</div>
+                    </div>
+                    <div class="my-2 col-span-2 lt-md:col-span-1">
+                        <div matTooltip="{{data.data.smart_results[0]?.power_on_hours}} hours">{{humanizeHours(data.data.smart_results[0]?.power_on_hours)}}</div>
+                        <div class="text-secondary text-md">Powered On</div>
+                    </div>
+                    <div class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{data.data.smart_results[0]?.temp}}°C</div>
+                        <div class="text-secondary text-md">Temperature</div>
+                    </div>
                 </div>
-                <div class="my-2">
-                    <div>{{data.data.serial_number}}</div>
-                    <div class="text-secondary text-md">Serial Number</div>
-                </div>
-                <div class="my-2">
-                    <div>{{data.data.wwn}}</div>
-                    <div class="text-secondary text-md">LU WWN Device Id</div>
-                </div>
-                <div class="my-2">
-                    <div>{{data.data.firmware}}</div>
-                    <div class="text-secondary text-md">Firmware Version</div>
-                </div>
-                <div class="my-2">
-                    <div>{{data.data.capacity | fileSize}}</div>
-                    <div class="text-secondary text-md">Capacity</div>
-                </div>
-                <div *ngIf="data.data.rotational_speed" class="my-2">
-                    <div>{{data.data.rotational_speed}} RPM</div>
-                    <div class="text-secondary text-md">Rotation Rate</div>
-                </div>
-                <div *ngIf="data.data.device_protocol" class="my-2">
-                    <div>{{data.data.device_protocol}}</div>
-                    <div class="text-secondary text-md">Protocol</div>
-                </div>
-                <div class="my-2">
-                    <div>{{data.data.smart_results[0]?.power_cycle_count}}</div>
-                    <div class="text-secondary text-md">Power Cycle Count</div>
-                </div>
-                <div class="my-2">
-                    <div matTooltip="{{data.data.smart_results[0]?.power_on_hours}} hours">{{humanizeHours(data.data.smart_results[0]?.power_on_hours)}}</div>
-                    <div class="text-secondary text-md">Powered On</div>
-                </div>
-                <div class="my-2">
-                    <div>{{data.data.smart_results[0]?.temp}}°C</div>
-                    <div class="text-secondary text-md">Temperature</div>
-                </div>
-            </div>
-        </treo-card>
-
+            </treo-card>
+        </div>
         <!-- S.M.A.R.T. Data table -->
-        <div class="flex flex-auto w-1/3 p-8 lt-xl:w-full">
+        <div class="flex flex-auto w-3/4 p-4 lt-md:w-full">
             <div class="flex flex-col flex-auto bg-card shadow-md rounded ">
                 <div class="p-6">
                     <div class="font-bold text-md text-secondary uppercase tracking-wider">S.M.A.R.T {{data.data.device_protocol}} Attributes</div>
