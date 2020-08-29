@@ -8,12 +8,19 @@ jobs:
     runs-on: ubuntu-latest
     container: golang:1.13
     steps:
-      - name: Download dependencies
-        run: go mod vendor
-      - name: Build binaries
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
         env:
           GOOS: linux
           GOARCH: amd64
+          PROJECT_PATH: /go/src/github.com/analogj/scrutiny/
         run: |
+          mkdir -p $PROJECT_PATH
+          cp -a $GITHUB_WORKSPACE/* $PROJECT_PATH/
+          cd $PROJECT_PATH
+
+          go mod vendor
+
           go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-web-linux-amd64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
           go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
