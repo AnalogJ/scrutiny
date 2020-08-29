@@ -34,13 +34,23 @@ disks:
     # - /dev/sdb
 
 notify:
-  metric:
-    script: 'notify-metrics.sh'
-  long:
-    script: 'notify-long-test.sh'
-  short:
-    script: 'notify-short-test.sh'
-
+  level: 'warn' # 'warn' or 'error'
+  urls:
+    - "discord://token@channel"
+    - "telegram://token@telegram?channels=channel-1[,channel-2,...]"
+    - "pushover://shoutrrr:apiToken@userKey/?devices=device1[,device2, ...]"
+    - "slack://[botname@]token-a/token-b/token-c"
+    - "smtp://username:password@host:port/?fromAddress=fromAddress&toAddresses=recipient1[,recipient2,...]"
+    - "teams://token-a/token-b/token-c"
+    - "gotify://gotify-host/token"
+    - "pushbullet://api-token[/device/#channel/email]"
+    - "ifttt://key/?events=event1[,event2,...]&value1=value1&value2=value2&value3=value3"
+    - "mattermost://[username@]mattermost-host/token[/channel]"
+    - "hangouts://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz"
+    - "zulip://bot-mail:bot-key@zulip-domain/?stream=name-or-id&topic=name"
+    - "join://shoutrrr:api-key@join/?devices=device1[,device2, ...][&icon=icon][&title=title]"
+    - "script:///file/path/on/disk"
+    - "https://www.example.com/path"
 
 collect:
   metric:
