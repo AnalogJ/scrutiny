@@ -23,6 +23,8 @@ jobs:
 
           go mod vendor
 
+          go test -v -tags "static" $(go list ./... | grep -v /vendor/)
+          
           go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-web-linux-amd64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
           go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
 
