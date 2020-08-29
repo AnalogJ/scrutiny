@@ -40,6 +40,8 @@ jobs:
     runs-on: ubuntu-latest
     container: docker:19.03.2
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Build Docker
         run: |
           docker build -t analogj/scrutiny .
