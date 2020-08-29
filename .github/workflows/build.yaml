@@ -7,6 +7,8 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     container: golang:1.13
+    env:
+      PROJECT_PATH: /go/src/github.com/analogj/scrutiny
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -14,7 +16,6 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
-          PROJECT_PATH: /go/src/github.com/analogj/scrutiny/
         run: |
           mkdir -p $PROJECT_PATH
           cp -a $GITHUB_WORKSPACE/* $PROJECT_PATH/
@@ -24,12 +25,15 @@ jobs:
 
           go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-web-linux-amd64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
           go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
+
+          chmod +x scrutiny-web-linux-amd64
+          chmod +x scrutiny-collector-metrics-linux-amd64
       - name: Archive
         uses: actions/upload-artifact@v2
-        env:
-          PROJECT_PATH: /go/src/github.com/analogj/scrutiny
         with:
           name: binaries
           path: |
-            $PROJECT_PATH/scrutiny-web-linux-amd64
-            $PROJECT_PATH/scrutiny-collector-metrics-linux-amd64
+            ${{ env.PROJECT_PATH }}/scrutiny-web-linux-amd64
+            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-amd64
+
+
