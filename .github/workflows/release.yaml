@@ -1,0 +1,117 @@
+name: Release
+# This workflow is triggered manually
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump_type:
+        description: 'Version Bump Type (major, minor, patch)'
+        required: true
+        default: 'patch'
+      version_metadata_path:
+        description: 'Path to file containing Version string'
+        required: true
+        default: 'webapp/backend/pkg/version/version.go'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    container: golang:1.13
+    env:
+      PROJECT_PATH: /go/src/github.com/analogj/scrutiny
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Bump version
+        id: bump_version
+        uses: packagrio/action-bumpr-go@master
+        with:
+          version_bump_type: ${{ github.event.inputs.version_bump_type }}
+          version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          mkdir -p $PROJECT_PATH
+          cp -a $GITHUB_WORKSPACE/. $PROJECT_PATH/
+          cd $PROJECT_PATH
+
+          go mod vendor
+
+          go test -v -tags "static" $(go list ./... | grep -v /vendor/)
+
+          go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-web-linux-amd64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
+          go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
+
+          chmod +x scrutiny-web-linux-amd64
+          chmod +x scrutiny-collector-metrics-linux-amd64
+      - name: Commit
+        uses: EndBug/add-and-commit@v4 # You can change this to use a specific version
+        with:
+
+          author_name: Jason Kulatunga
+          author_email: jason@thesparktree.com
+          cwd: ${{ env.PROJECT_PATH }}
+          force: false
+          signoff: true
+          message: '(${{steps.bump_version.outputs.release_version}}) Automated packaging of release by Packagr'
+          tag: ${{steps.bump_version.outputs.release_version}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Leave this line unchanged
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.bump_version.outputs.release_version }}
+          release_name: Release ${{ steps.bump_version.outputs.release_version }}
+          draft: false
+          prerelease: false
+      - name: Upload Web Backend Release Asset
+        id: upload-release-asset1
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ${{ env.PROJECT_PATH }}/scrutiny-web-linux-amd64
+          asset_name: scrutiny-web-linux-amd64
+          asset_content_type: application/octet-stream
+      - name: Upload Collector Release Asset
+        id: upload-release-asset2
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-amd64
+          asset_name: scrutiny-collector-metrics-linux-amd64
+          asset_content_type: application/octet-stream
+#  build-docker:
+#    needs: build
+#    name: Build Docker
+#    runs-on: ubuntu-latest
+#    container: docker:19.03.2
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
+      - name: Build Docker
+        run: |
+          cd $PROJECT_PATH
+
+          docker build -t analogj/scrutiny:latest -t analogj/scrutiny:${{ steps.bump_version.outputs.release_version }} .
+          docker save -o docker-analogj-scrutiny-${{ steps.bump_version.outputs.release_version }}.tar analogj/scrutiny
+      - name: Upload Collector Release Asset
+        id: upload-release-asset3
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: docker-analogj-scrutiny-${{ steps.bump_version.outputs.release_version }}.tar
+          asset_name: docker-analogj-scrutiny-${{ steps.bump_version.outputs.release_version }}.tar
+          asset_content_type: application/octet-stream
