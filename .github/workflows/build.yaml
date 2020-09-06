@@ -45,6 +45,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build Docker
+        uses: docker://docker:19.03.2
         run: |
           docker build -t analogj/scrutiny .
           docker save -o docker-analogj-scrutiny-latest.tar analogj/scrutiny:latest
