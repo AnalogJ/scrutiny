@@ -85,7 +85,7 @@ func (sm *Smart) ProcessNvmeSmartInfo(info collector.SmartInfo) {
 		{AttributeId: "critical_warning", Name: "Critical Warning", Value: info.NvmeSmartHealthInformationLog.CriticalWarning},
 		{AttributeId: "temperature", Name: "Temperature", Value: info.NvmeSmartHealthInformationLog.Temperature},
 		{AttributeId: "available_spare", Name: "Available Spare", Value: info.NvmeSmartHealthInformationLog.AvailableSpare, Threshold: info.NvmeSmartHealthInformationLog.AvailableSpareThreshold},
-		{AttributeId: "percentage_used", Name: "Percentage Used", Value: info.NvmeSmartHealthInformationLog.PercentageUsed},
+		{AttributeId: "percentage_used", Name: "Percentage Used", Value: info.NvmeSmartHealthInformationLog.PercentageUsed, Threshold: 100},
 		{AttributeId: "data_units_read", Name: "Data Units Read", Value: info.NvmeSmartHealthInformationLog.DataUnitsRead},
 		{AttributeId: "data_units_written", Name: "Data Units Written", Value: info.NvmeSmartHealthInformationLog.DataUnitsWritten},
 		{AttributeId: "host_reads", Name: "Host Reads", Value: info.NvmeSmartHealthInformationLog.HostReads},
