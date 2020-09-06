@@ -91,20 +91,22 @@ jobs:
           asset_path: ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-amd64
           asset_name: scrutiny-collector-metrics-linux-amd64
           asset_content_type: application/octet-stream
-  build-docker:
-    needs: build
-    name: Build Docker
-    runs-on: ubuntu-latest
-    container: docker:19.03.2
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+#  build-docker:
+#    needs: build
+#    name: Build Docker
+#    runs-on: ubuntu-latest
+#    container: docker:19.03.2
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
       - name: Build Docker
         run: |
-          docker build -t analogj/scrutiny .
-          docker save -o docker-analogj-scrutiny-${{ steps.bump_version.outputs.release_version }}.tar analogj/scrutiny:latest
+          cd $PROJECT_PATH
+
+          docker build -t analogj/scrutiny:latest -t analogj/scrutiny:${{ steps.bump_version.outputs.release_version }} .
+          docker save -o docker-analogj-scrutiny-${{ steps.bump_version.outputs.release_version }}.tar analogj/scrutiny
       - name: Upload Collector Release Asset
-        id: upload-release-asset2
+        id: upload-release-asset3
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
