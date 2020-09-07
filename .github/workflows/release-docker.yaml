@@ -5,7 +5,7 @@ name: Release Docker
 on:
   release:
     # Only use the types keyword to narrow down the activity types that will trigger your workflow.
-    types: [published, created, released]
+    types: [published]
 jobs:
   docker-release:
     name: Docker Release
@@ -20,8 +20,6 @@ jobs:
           ref: ${{github.event.release.tag_name}}
       - name: Build Docker
         run: |
-          cd $PROJECT_PATH
-
           docker build -t analogj/scrutiny:latest -t analogj/scrutiny:${{ github.event.release.tag_name }} .
           docker save -o docker-analogj-scrutiny-${{ github.event.release.tag_name }}.tar analogj/scrutiny
       - name: Upload Collector Release Asset
