@@ -1,5 +1,7 @@
 #TODO: once scrutiny is public, this file can be deleted.
 # builds a docker image and attaches it to the latest release.
+name: Release Docker
+
 on:
   release:
     types: [published]
