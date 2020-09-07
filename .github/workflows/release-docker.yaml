@@ -4,7 +4,8 @@ name: Release Docker
 
 on:
   release:
-    types: [published]
+    # Only use the types keyword to narrow down the activity types that will trigger your workflow.
+    types: [published, created, released]
 jobs:
   docker-release:
     name: Docker Release
