@@ -1,0 +1,33 @@
+#TODO: once scrutiny is public, this file can be deleted.
+# builds a docker image and attaches it to the latest release.
+on:
+  release:
+    types: [published]
+jobs:
+  docker-release:
+    name: Docker Release
+    runs-on: ubuntu-latest
+    container: docker:19.03.2
+    env:
+      PROJECT_PATH: /go/src/github.com/analogj/scrutiny
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{github.event.release.tag_name}}
+      - name: Build Docker
+        run: |
+          cd $PROJECT_PATH
+
+          docker build -t analogj/scrutiny:latest -t analogj/scrutiny:${{ github.event.release.tag_name }} .
+          docker save -o docker-analogj-scrutiny-${{ github.event.release.tag_name }}.tar analogj/scrutiny
+      - name: Upload Collector Release Asset
+        id: upload-release-asset3
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: docker-analogj-scrutiny-${{ github.event.release.tag_name }}.tar
+          asset_name: docker-analogj-scrutiny-${{ github.event.release.tag_name }}.tar
+          asset_content_type: application/octet-stream

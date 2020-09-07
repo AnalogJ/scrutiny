@@ -91,27 +91,3 @@ jobs:
           asset_path: ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-amd64
           asset_name: scrutiny-collector-metrics-linux-amd64
           asset_content_type: application/octet-stream
-#  build-docker:
-#    needs: build
-#    name: Build Docker
-#    runs-on: ubuntu-latest
-#    container: docker:19.03.2
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-      - name: Build Docker
-        run: |
-          cd $PROJECT_PATH
-
-          docker build -t analogj/scrutiny:latest -t analogj/scrutiny:${{ steps.bump_version.outputs.release_version }} .
-          docker save -o docker-analogj-scrutiny-${{ steps.bump_version.outputs.release_version }}.tar analogj/scrutiny
-      - name: Upload Collector Release Asset
-        id: upload-release-asset3
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: docker-analogj-scrutiny-${{ steps.bump_version.outputs.release_version }}.tar
-          asset_name: docker-analogj-scrutiny-${{ steps.bump_version.outputs.release_version }}.tar
-          asset_content_type: application/octet-stream
