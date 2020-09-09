@@ -1,9 +1,7 @@
 package db
 
 import (
-	"github.com/analogj/scrutiny/webapp/backend/pkg/metadata"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
-	"strings"
 	"time"
 )
 
@@ -130,33 +128,24 @@ func (dv *Device) SquashHistory() error {
 }
 
 func (dv *Device) ApplyMetadataRules() error {
-	if !dv.IsAta() {
-		// Scrutiny Observed thresholds not yet available for NVME or SCSI drives
-		// since most SMART attributes are not present and BackBlaze data not available
-		return nil
-	}
 
 	//embed metadata in the latest smart attributes object
-	if len(dv.SmartResults) > 0 && len(dv.SmartResults[0].AtaAttributes) > 0 {
+	if len(dv.SmartResults) > 0 {
 		for ndx, attr := range dv.SmartResults[0].AtaAttributes {
-			if strings.ToUpper(attr.WhenFailed) == SmartWhenFailedFailingNow {
-				//this attribute has previously failed
-				dv.SmartResults[0].AtaAttributes[ndx].Status = SmartAttributeStatusFailed
-				dv.SmartResults[0].AtaAttributes[ndx].StatusReason = "Attribute is failing manufacturer SMART threshold"
+			attr.PopulateAttributeStatus()
+			dv.SmartResults[0].AtaAttributes[ndx] = attr
+		}
 
-			} else if strings.ToUpper(attr.WhenFailed) == SmartWhenFailedInThePast {
-				dv.SmartResults[0].AtaAttributes[ndx].Status = SmartAttributeStatusWarning
-				dv.SmartResults[0].AtaAttributes[ndx].StatusReason = "Attribute has previously failed manufacturer SMART threshold"
-			}
+		for ndx, attr := range dv.SmartResults[0].NvmeAttributes {
+			attr.PopulateAttributeStatus()
+			dv.SmartResults[0].NvmeAttributes[ndx] = attr
 
-			if smartMetadata, ok := metadata.AtaMetadata[attr.AttributeId]; ok {
-				dv.SmartResults[0].AtaAttributes[ndx].MetadataObservedThresholdStatus(smartMetadata)
-			}
+		}
 
-			//check if status is blank, set to "passed"
-			if len(dv.SmartResults[0].AtaAttributes[ndx].Status) == 0 {
-				dv.SmartResults[0].AtaAttributes[ndx].Status = SmartAttributeStatusPassed
-			}
+		for ndx, attr := range dv.SmartResults[0].ScsiAttributes {
+			attr.PopulateAttributeStatus()
+			dv.SmartResults[0].ScsiAttributes[ndx] = attr
+
 		}
 	}
 	return nil

@@ -123,7 +123,11 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     getAttributeIdeal(attribute_data){
-        return this.data.metadata[attribute_data.attribute_id]?.display_type == "raw" ? this.data.metadata[attribute_data.attribute_id]?.ideal : ''
+        if(this.isAta()){
+            return this.data.metadata[attribute_data.attribute_id]?.display_type == "raw" ? this.data.metadata[attribute_data.attribute_id]?.ideal : ''
+        } else {
+            return this.data.metadata[attribute_data.attribute_id]?.ideal
+        }
     }
 
     getAttributeWorst(attribute_data){
@@ -131,15 +135,19 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     getAttributeThreshold(attribute_data){
-        if (this.data.metadata[attribute_data.attribute_id]?.display_type == "normalized"){
-            return attribute_data.thresh
+        if(this.isAta()){
+            if (this.data.metadata[attribute_data.attribute_id]?.display_type == "normalized"){
+                return attribute_data.thresh
+            } else {
+                // if(this.data.metadata[attribute_data.attribute_id].observed_thresholds){
+                //
+                // } else {
+                // }
+                // return ''
+                return attribute_data.thresh
+            }
         } else {
-            // if(this.data.metadata[attribute_data.attribute_id].observed_thresholds){
-            //
-            // } else {
-            // }
-            // return ''
-            return attribute_data.thresh
+            return (attribute_data.thresh == -1 ? '' : attribute_data.thresh )
         }
     }
 
@@ -178,10 +186,10 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         var latest_smart_result = smart_results[0];
         let attributes_list = []
         if(this.isScsi()) {
-            this.smartAttributeTableColumns = ['name', 'value', 'history'];
+            this.smartAttributeTableColumns = ['status', 'name', 'value', 'thresh', 'history'];
             attributes_list = latest_smart_result.scsi_attributes
         } else if(this.isNvme()){
-            this.smartAttributeTableColumns = ['name', 'value', 'history'];
+            this.smartAttributeTableColumns = ['status', 'name', 'value', 'thresh', 'ideal', 'history'];
             attributes_list = latest_smart_result.nvme_attributes
         } else {
             //ATA
