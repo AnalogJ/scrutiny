@@ -1,6 +1,6 @@
 name: CI
 # This workflow is triggered on pushes to the repository.
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
