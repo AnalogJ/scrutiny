@@ -3,6 +3,7 @@ package db
 import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/metadata"
 	"github.com/jinzhu/gorm"
+	"strings"
 )
 
 const SmartAttributeStatusPassed = "passed"
@@ -29,6 +30,28 @@ type SmartAtaAttribute struct {
 	StatusReason     string              `gorm:"-" json:"status_reason,omitempty"`
 	FailureRate      float64             `gorm:"-" json:"failure_rate,omitempty"`
 	History          []SmartAtaAttribute `gorm:"-" json:"history,omitempty"`
+}
+
+//populate attribute status, using SMART Thresholds & Observed Metadata
+func (sa *SmartAtaAttribute) PopulateAttributeStatus() {
+	if strings.ToUpper(sa.WhenFailed) == SmartWhenFailedFailingNow {
+		//this attribute has previously failed
+		sa.Status = SmartAttributeStatusFailed
+		sa.StatusReason = "Attribute is failing manufacturer SMART threshold"
+
+	} else if strings.ToUpper(sa.WhenFailed) == SmartWhenFailedInThePast {
+		sa.Status = SmartAttributeStatusWarning
+		sa.StatusReason = "Attribute has previously failed manufacturer SMART threshold"
+	}
+
+	if smartMetadata, ok := metadata.AtaMetadata[sa.AttributeId]; ok {
+		sa.MetadataObservedThresholdStatus(smartMetadata)
+	}
+
+	//check if status is blank, set to "passed"
+	if len(sa.Status) == 0 {
+		sa.Status = SmartAttributeStatusPassed
+	}
 }
 
 // compare the attribute (raw, normalized, transformed) value to observed thresholds, and update status if necessary
