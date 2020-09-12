@@ -31,7 +31,7 @@ type Notify struct {
 	Payload Payload
 }
 
-func (n *Notify) Send(level string, payload interface{}) error {
+func (n *Notify) Send() error {
 	//validate that the Payload is populated
 	sendDate := time.Now()
 	n.Payload.Date = sendDate.Format(time.RFC3339)

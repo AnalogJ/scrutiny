@@ -3,8 +3,8 @@ package web
 import (
 	"fmt"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/handler"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/web/middleware"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -16,7 +16,8 @@ type AppEngine struct {
 func (ae *AppEngine) Setup() *gin.Engine {
 	r := gin.Default()
 
-	r.Use(database.DatabaseHandler(ae.Config.GetString("web.database.location")))
+	r.Use(middleware.DatabaseMiddleware(ae.Config.GetString("web.database.location")))
+	r.Use(middleware.ConfigMiddleware(ae.Config))
 
 	api := r.Group("/api")
 	{
