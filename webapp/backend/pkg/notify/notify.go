@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/AnalogJ/go-util/utils"
+	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/containrrr/shoutrrr"
 	log "github.com/sirupsen/logrus"
