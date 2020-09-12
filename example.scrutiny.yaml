@@ -49,7 +49,7 @@ notify:
     - "hangouts://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz"
     - "zulip://bot-mail:bot-key@zulip-domain/?stream=name-or-id&topic=name"
     - "join://shoutrrr:api-key@join/?devices=device1[,device2, ...][&icon=icon][&title=title]"
-    - "script:///file/path/on/disk"
+    - "script:///file/path/on/disk" #note the triple slashes "script:///"
     - "https://www.example.com/path"
 
 collect:

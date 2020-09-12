@@ -24,3 +24,10 @@ type DependencyMissingError string
 func (str DependencyMissingError) Error() string {
 	return fmt.Sprintf("DependencyMissingError: %q", string(str))
 }
+
+// Raised when the notification system is incorrectly configured
+type NotificationValidationError string
+
+func (str NotificationValidationError) Error() string {
+	return fmt.Sprintf("NotificationValidationError: %q", string(str))
+}
