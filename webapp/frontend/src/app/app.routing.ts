@@ -26,8 +26,8 @@ export const appRoutes: Route[] = [
         children   : [
 
             // Example
-            {path: 'dashboard', loadChildren: () => import('app/modules/admin/dashboard/dashboard.module').then(m => m.DashboardModule)},
-            {path: 'device/:wwn', loadChildren: () => import('app/modules/admin/detail/detail.module').then(m => m.DetailModule)}
+            {path: 'dashboard', loadChildren: () => import('app/modules/dashboard/dashboard.module').then(m => m.DashboardModule)},
+            {path: 'device/:wwn', loadChildren: () => import('app/modules/detail/detail.module').then(m => m.DetailModule)}
 
             // 404 & Catch all
             // {path: '404-not-found', pathMatch: 'full', loadChildren: () => import('app/modules/admin/pages/errors/error-404/error-404.module').then(m => m.Error404Module)},

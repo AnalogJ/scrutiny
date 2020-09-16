@@ -3,9 +3,9 @@ import {ApexOptions} from "ng-apexcharts";
 import {MatTableDataSource} from "@angular/material/table";
 import {MatSort} from "@angular/material/sort";
 import {Subject} from "rxjs";
-import {DetailService} from "../detail/detail.service";
+import {DetailService} from "./detail.service";
 import {takeUntil} from "rxjs/operators";
-import {fadeOut} from "../../../../@treo/animations/fade";
+import {fadeOut} from "../../../@treo/animations/fade";
 
 @Component({
   selector: 'detail',

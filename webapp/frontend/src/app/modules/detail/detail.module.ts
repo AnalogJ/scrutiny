@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from 'app/shared/shared.module';
-import { DetailComponent } from 'app/modules/admin/detail/detail.component';
-import { detailRoutes } from 'app/modules/admin/detail/detail.routing';
+import { DetailComponent } from 'app/modules/detail/detail.component';
+import { detailRoutes } from 'app/modules/detail/detail.routing';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';

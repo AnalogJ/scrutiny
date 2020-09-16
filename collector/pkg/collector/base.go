@@ -23,6 +23,18 @@ type BaseCollector struct {
 
 func (c *BaseCollector) DetectStorageDevices() ([]models.Device, error) {
 
+	//availableDisksJson, err := c.ExecCmd("smartctl", []string{"-j", "--scan"}, "", os.Environ())
+	//if err != nil {
+	//	c.logger.Errorf("Error getting block storage info: %v", err)
+	//	return nil, err
+	//}
+	//
+	//var smartctlScan models.Scan
+	//err = json.Unmarshal([]byte(availableDisksJson), &smartctlScan)
+	//if err != nil {
+	//	return nil, err
+	//}
+
 	block, err := ghw.Block()
 	if err != nil {
 		c.logger.Errorf("Error getting block storage info: %v", err)
@@ -83,7 +95,6 @@ func (c *BaseCollector) DetectStorageDevices() ([]models.Device, error) {
 
 		approvedDisks = append(approvedDisks, diskModel)
 	}
-
 	return approvedDisks, nil
 }
 
