@@ -46,7 +46,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Build Docker
         run: |
-          docker build -t analogj/scrutiny .
+          docker build -t analogj/scrutiny -f docker/Dockerfile .
           docker save -o docker-analogj-scrutiny-latest.tar analogj/scrutiny:latest
       - name: Archive Docker
         uses: actions/upload-artifact@v2

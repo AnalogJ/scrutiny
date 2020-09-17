@@ -20,7 +20,7 @@ jobs:
           ref: ${{github.event.release.tag_name}}
       - name: Build Docker
         run: |
-          docker build -t analogj/scrutiny:latest -t analogj/scrutiny:${{ github.event.release.tag_name }} .
+          docker build -t analogj/scrutiny:latest -t analogj/scrutiny:${{ github.event.release.tag_name }} -f docker/Dockerfile .
           docker save -o docker-analogj-scrutiny-${{ github.event.release.tag_name }}.tar analogj/scrutiny
       - name: Upload Collector Release Asset
         id: upload-release-asset3
