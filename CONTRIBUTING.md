@@ -6,7 +6,7 @@ There are multiple ways to develop on the scrutiny codebase locally. The two mos
 
 ## Docker Development
 ```
-docker build . -t analogj/scrutiny
+docker build -f docker/Dockerfile . -t analogj/scrutiny
 docker run -it --rm -p 9090:8080 -v /run:/run  -v /dev/disk:/dev/disk --privileged analogj/scrutiny
 /scrutiny/bin/scrutiny-collector-metrics run
 ```
