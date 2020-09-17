@@ -34,4 +34,4 @@ COPY --from=frontendbuild /scrutiny/dist /scrutiny/web
 RUN chmod +x /scrutiny/bin/scrutiny && \
     mkdir -p /scrutiny/web && \
     mkdir -p /scrutiny/config
-CMD ["/scrutiny", "start"]
+CMD ["/scrutiny/bin/scrutiny", "start"]
