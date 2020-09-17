@@ -103,3 +103,14 @@ Jason Kulatunga - Initial Development - @AnalogJ
 # License
 
 MIT
+
+# Sponsors
+
+Scrutiny is only possible with the help of my [Github Sponsors](https://github.com/sponsors/AnalogJ/).
+
+[![](docs/sponsors.png)](https://github.com/sponsors/AnalogJ/)
+
+They read a simple [reddit announcement post](https://github.com/sponsors/AnalogJ/) and decided to trust
+ a developer they've never met. It's an exciting an incredibly humbling experience.
+
+If you found Scrutiny valuable, please consider [supporting my work](https://github.com/sponsors/AnalogJ/)
