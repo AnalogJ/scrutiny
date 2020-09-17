@@ -3,7 +3,7 @@ FROM golang:1.14.4-buster as backendbuild
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 
-COPY .. /go/src/github.com/analogj/scrutiny
+COPY . /go/src/github.com/analogj/scrutiny
 
 RUN go mod vendor && \
     go build -ldflags '-w -extldflags "-static"' -o scrutiny webapp/backend/cmd/scrutiny/scrutiny.go && \
