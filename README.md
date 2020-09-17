@@ -1,3 +1,10 @@
+<p align="center">
+  <a href="https://github.com/AnalogJ/scrutiny">
+  <img width="300" alt="scrutiny_view" src="webapp/frontend/src/assets/images/logo/scrutiny-logo-dark.png">
+  </a>
+</p>
+
+
 # scrutiny
 WebUI for smartd S.M.A.R.T monitoring
 
