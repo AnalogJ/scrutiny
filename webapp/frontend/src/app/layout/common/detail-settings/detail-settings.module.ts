@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { SharedModule } from 'app/shared/shared.module';
-import {DashboardSettingsComponent} from 'app/layout/common/dashboard-settings/dashboard-settings.component'
+import {DetailSettingsComponent} from 'app/layout/common/detail-settings/detail-settings.component'
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatButtonToggleModule} from "@angular/material/button-toggle";
 import {MatTabsModule} from "@angular/material/tabs";
@@ -18,7 +18,7 @@ import {MatTooltipModule} from "@angular/material/tooltip";
 
 @NgModule({
     declarations: [
-        DashboardSettingsComponent
+        DetailSettingsComponent
     ],
     imports     : [
         RouterModule.forChild([]),
@@ -37,10 +37,10 @@ import {MatTooltipModule} from "@angular/material/tooltip";
         SharedModule
     ],
     exports     : [
-        DashboardSettingsComponent
+        DetailSettingsComponent
     ],
     providers   : []
 })
-export class DashboardSettingsModule
+export class DetailSettingsModule
 {
 }

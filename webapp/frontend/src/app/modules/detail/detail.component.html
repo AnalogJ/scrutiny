@@ -17,7 +17,7 @@
                     <span class="ml-2">Export</span>
                 </button>
                 <button class="ml-2 xs:hidden"
-                        matTooltip="not yet implemented"
+                        (click)="openDialog()"
                         mat-stroked-button>
                     <mat-icon class="icon-size-20 rotate-90 mirror"
                               [svgIcon]="'tune'"></mat-icon>
@@ -38,7 +38,7 @@
                             <span class="ml-2">Export</span>
                         </button>
                         <button mat-menu-item
-                                matTooltip="not yet implemented">
+                                (click)="openDialog()">
                             <mat-icon class="icon-size-20 rotate-90 mirror"
                                       [svgIcon]="'tune'"></mat-icon>
                             <span class="ml-2">Settings</span>

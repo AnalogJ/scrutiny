@@ -6,6 +6,8 @@ import {Subject} from "rxjs";
 import {DetailService} from "./detail.service";
 import {takeUntil} from "rxjs/operators";
 import {fadeOut} from "../../../@treo/animations/fade";
+import {DetailSettingsComponent} from "app/layout/common/detail-settings/detail-settings.component";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
   selector: 'detail',
@@ -34,7 +36,9 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
      * @param {DetailService} _detailService
      */
     constructor(
-        private _detailService: DetailService
+        private _detailService: DetailService,
+        public dialog: MatDialog
+
     )
     {
         // Set the private defaults
@@ -277,6 +281,15 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         this.smartAttributeDataSource.data = this._generateSmartAttributeTableDataSource(this.data.data.smart_results);
 
     }
+
+    openDialog() {
+        const dialogRef = this.dialog.open(DetailSettingsComponent);
+
+        dialogRef.afterClosed().subscribe(result => {
+            console.log(`Dialog result: ${result}`);
+        });
+    }
+
     /**
      * Track by function for ngFor loops
      *
