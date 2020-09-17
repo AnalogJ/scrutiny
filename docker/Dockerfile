@@ -3,7 +3,7 @@ FROM golang:1.14.4-buster as backendbuild
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 
-COPY . /go/src/github.com/analogj/scrutiny
+COPY .. /go/src/github.com/analogj/scrutiny
 
 RUN go mod vendor && \
     go build -ldflags '-w -extldflags "-static"' -o scrutiny webapp/backend/cmd/scrutiny/scrutiny.go && \
@@ -17,7 +17,7 @@ FROM node:lts-slim as frontendbuild
 ENV NPM_CONFIG_LOGLEVEL=warn NG_CLI_ANALYTICS=false
 
 WORKDIR /scrutiny/src
-COPY ./webapp/frontend /scrutiny/src
+COPY ../webapp/frontend /scrutiny/src
 
 RUN npm install -g @angular/cli@9.1.4 && \
     mkdir -p /scrutiny/dist && \
