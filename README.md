@@ -45,20 +45,9 @@ Scrutiny is a simple but focused application, with a couple of core features:
 
 ## Docker
 
-> Until our Sponsor goal is reached, we are unable to use Docker Hub. In the meantime, Scrutiny Docker Image(s) will be
-attached to the latest [Scrutiny Github Release](https://github.com/AnalogJHQ/scrutiny/releases)
-
-Download the `docker-analogj-scrutiny-v0.1.2.tar` file, and load it into your Docker daemon:
-
-```bash
-docker load < docker-analogj-scrutiny-v0.1.2.tar
-docker images | grep analogj/scrutiny
-```
-
 If you're using Docker, getting started is as simple as running the following command:
 
 ```bash
-
 docker run -it --rm -p 8080:8080 \
 -v /run/udev:/run/udev:ro \
 -v /dev/disk:/dev/disk \
@@ -68,8 +57,15 @@ docker run -it --rm -p 8080:8080 \
 
 - `/run/udev` and `/dev/disk` are necessary to provide the Scrutiny collector with access to your drive metadata.
 - `--privileged` is required to ensure that your hard disk devices are accessible within the container (this will be changed in a future release)
-- `analogj/scrutiny` is a omnibus image, containing both the webapp server (frontend & api) as well as the S.M.A.R.T metric collector. (dedicated images will be available in a future release)
-- If you do not have access to the `analogj/scrutiny` docker image, please contact me using the email address in my profile: [@analogj](https://github.com/AnalogJ/) Please include your Github username and when you sponsored me.  (eventually both images and source code will be open sourced)
+- `analogj/scrutiny` is a omnibus image, containing both the webapp server (frontend & api) as well as the S.M.A.R.T metric collector. (see below)
+
+### Hub/Spoke Deployment
+
+In addition to the Omnibus image (available under the `latest` tag) there are 2 other Docker images available:
+
+- `analogj/scrutiny:collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like scheduler. You can run one collector on each server.
+- `analogj/scrutiny:web` - Contains the Web UI, API and Database. Only one container necessary
+
 
 ## Usage
 
