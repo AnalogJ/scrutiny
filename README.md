@@ -106,6 +106,4 @@ Jason Kulatunga - Initial Development - @AnalogJ
 
 # License
 
-All Rights Reserved
-
-> Note: This license will change once certain sponsorship conditions are met. Please see the [reddit announcement post](https://www.reddit.com/r/selfhosted/comments/icreui/scrutiny_hard_drive_smart_monitoring_historical/) for more information.
+MIT
