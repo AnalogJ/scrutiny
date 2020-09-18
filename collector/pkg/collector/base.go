@@ -50,12 +50,6 @@ func (c *BaseCollector) DetectStorageDevices() ([]models.Device, error) {
 			continue
 		}
 
-		// ignore NVMe devices (not currently supported) TBA
-		if disk.StorageController == ghw.STORAGE_CONTROLLER_NVME {
-			c.logger.Debugf(" => Ignore: NVMe storage controller - (found %s)\n", disk.StorageController.String())
-			continue
-		}
-
 		// Skip unknown storage controllers, not usually S.M.A.R.T compatible.
 		if disk.StorageController == ghw.STORAGE_CONTROLLER_UNKNOWN {
 			c.logger.Debugf(" => Ignore: Unknown storage controller - (found %s)\n", disk.StorageController.String())
