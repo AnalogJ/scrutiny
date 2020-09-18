@@ -121,9 +121,10 @@ We use SemVer for versioning. For the versions available, see the tags on this r
 
 Jason Kulatunga - Initial Development - @AnalogJ
 
-# License
+# Licenses
 
-MIT
+- MIT
+- Logo: [Glasses by matias porta lezcano](https://thenounproject.com/term/glasses/775232)
 
 # Sponsors
 
