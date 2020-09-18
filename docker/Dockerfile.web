@@ -15,7 +15,7 @@ FROM node:lts-slim as frontendbuild
 ENV NPM_CONFIG_LOGLEVEL=warn NG_CLI_ANALYTICS=false
 
 WORKDIR /scrutiny/src
-COPY ./webapp/frontend /scrutiny/src
+COPY webapp/frontend /scrutiny/src
 
 RUN npm install -g @angular/cli@9.1.4 && \
     mkdir -p /scrutiny/dist && \

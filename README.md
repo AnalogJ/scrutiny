@@ -66,6 +66,19 @@ In addition to the Omnibus image (available under the `latest` tag) there are 2 
 - `analogj/scrutiny:collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like scheduler. You can run one collector on each server.
 - `analogj/scrutiny:web` - Contains the Web UI, API and Database. Only one container necessary
 
+```bash
+docker run -it --rm -p 8080:8080 \
+--name scrutiny-web \
+analogj/scrutiny:web
+
+docker run -it --rm \
+-v /run/udev:/run/udev:ro \
+-v /dev/disk:/dev/disk \
+-e SCRUTINY_API_ENDPOINT=http://SCRUTINY_WEB_IPADDRESS:8080 \
+--name scrutiny-collector \
+--privileged analogj/scrutiny:collector
+```
+
 
 ## Usage
 

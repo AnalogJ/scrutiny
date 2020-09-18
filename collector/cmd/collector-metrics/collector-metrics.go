@@ -99,14 +99,16 @@ OPTIONS:
 
 				Flags: []cli.Flag{
 					&cli.StringFlag{
-						Name:  "api-endpoint",
-						Usage: "The api server endpoint",
-						Value: "http://localhost:8080",
+						Name:    "api-endpoint",
+						Usage:   "The api server endpoint",
+						Value:   "http://localhost:8080",
+						EnvVars: []string{"SCRUTINY_API_ENDPOINT"},
 					},
 
 					&cli.BoolFlag{
-						Name:  "debug",
-						Usage: "Enable debug logging",
+						Name:    "debug",
+						Usage:   "Enable debug logging",
+						EnvVars: []string{"DEBUG"},
 					},
 				},
 			},

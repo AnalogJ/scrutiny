@@ -19,9 +19,9 @@ resultSinks:
 
 jobs:
   MetricsJob:
-    cmd: /scrutiny/bin/scrutiny-collector-metrics run --api-endpoint ${SCRUTINY_API_ENDPOINT:-http://localhost:8080}
+    cmd: /scrutiny/bin/scrutiny-collector-metrics run
     # run daily at midnight.
-    time: '0 0 * * *'
+    time: '0 0 0 * * *'
     onError: Backoff
     notifyOnSuccess:
       - *filesystemSink
