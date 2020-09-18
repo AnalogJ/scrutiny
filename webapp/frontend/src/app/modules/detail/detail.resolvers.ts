@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
-import { DetailService } from 'app/modules/admin/detail/detail.service';
+import { DetailService } from 'app/modules/detail/detail.service';
 
 @Injectable({
     providedIn: 'root'

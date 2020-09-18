@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -146,4 +147,26 @@ func TestPopulateMultiple(t *testing.T) {
 	require.Equal(t, 200, s2r.Code)
 
 	//assert
+}
+
+func TestSendTestNotificationRoute(t *testing.T) {
+	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return("testdata/scrutiny_test.db")
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return("testdata")
+	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"https://scrutiny.requestcatcher.com/test"})
+	ae := web.AppEngine{
+		Config: fakeConfig,
+	}
+	router := ae.Setup()
+
+	//test
+	wr := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/health/notify", strings.NewReader("{}"))
+	router.ServeHTTP(wr, req)
+
+	//assert
+	require.Equal(t, 200, wr.Code)
 }

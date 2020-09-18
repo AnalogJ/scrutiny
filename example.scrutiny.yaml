@@ -34,7 +34,6 @@ disks:
     # - /dev/sdb
 
 notify:
-  level: 'warn' # 'warn' or 'error'
   urls:
     - "discord://token@channel"
     - "telegram://token@telegram?channels=channel-1[,channel-2,...]"
@@ -51,6 +50,21 @@ notify:
     - "join://shoutrrr:api-key@join/?devices=device1[,device2, ...][&icon=icon][&title=title]"
     - "script:///file/path/on/disk"
     - "https://www.example.com/path"
+
+limits:
+  ata:
+    critical:
+      error: 10
+    standard:
+      error: 20
+      warn: 10
+  scsi:
+    critical: true
+    standard: true
+  nvme:
+    critical: true
+    standard: true
+
 
 collect:
   metric:

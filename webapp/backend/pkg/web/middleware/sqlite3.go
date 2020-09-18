@@ -1,4 +1,4 @@
-package database
+package middleware
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
-func DatabaseHandler(dbPath string) gin.HandlerFunc {
+func DatabaseMiddleware(dbPath string) gin.HandlerFunc {
 	//var database *gorm.DB
 	fmt.Printf("Trying to connect to database stored: %s", dbPath)
 	database, err := gorm.Open("sqlite3", dbPath)

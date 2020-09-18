@@ -1,0 +1,77 @@
+<h2 mat-dialog-title>Scrutiny Settings</h2>
+<mat-dialog-content class="mat-typography">
+
+    <form class="flex flex-col p-8 pb-0 overflow-hidden">
+        <div class="flex flex-col gt-xs:flex-row">
+            <mat-form-field class="flex-auto gt-xs:pr-3">
+                <mat-label>Sort By</mat-label>
+                <mat-select [value]="'status'">
+                    <mat-option  value="status">Status</mat-option>
+                    <mat-option value="name" disabled>Name</mat-option>
+                    <mat-option value="label" disabled>Label</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <div class="flex">
+            <mat-tab-group mat-align-tabs="start">
+                <mat-tab label="Ata">
+
+                    <div class="flex flex-col mt-5 gt-md:flex-row">
+                        <mat-form-field class="flex-auto gt-md:pr-3">
+                            <mat-label>Critical Error Threshold</mat-label>
+                            <input matInput [value]="'10%'">
+                        </mat-form-field>
+                        <mat-form-field class="flex-auto gt-md:pl-3">
+                            <mat-label>Critical Warning Threshold</mat-label>
+                            <input matInput>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="flex flex-col gt-md:flex-row">
+                        <mat-form-field class="flex-auto gt-md:pr-3">
+                            <mat-label>Error Threshold</mat-label>
+                            <input matInput [value]="'20%'">
+                        </mat-form-field>
+                        <mat-form-field class="flex-auto gt-md:pl-3">
+                            <mat-label>Warning Threshold</mat-label>
+                            <input matInput [value]="'10%'">
+                        </mat-form-field>
+                    </div>
+
+                </mat-tab>
+                <mat-tab label="NVMe">
+
+                    <div class="flex flex-col mt-5 gt-md:flex-row">
+                        <mat-form-field class="flex-auto gt-md:pr-3">
+                            <mat-label>Critical Error Threshold</mat-label>
+                            <input matInput [value]="'enabled'">
+                        </mat-form-field>
+                        <mat-form-field class="flex-auto gt-md:pl-3">
+                            <mat-label>Critical Warning Threshold</mat-label>
+                            <input matInput>
+                        </mat-form-field>
+                    </div>
+
+                </mat-tab>
+                <mat-tab label="SCSI">
+                    <div class="flex flex-col mt-5 gt-md:flex-row">
+                        <mat-form-field class="flex-auto gt-md:pr-3">
+                            <mat-label>Critical Error Threshold</mat-label>
+                            <input matInput [value]="'enabled'">
+                        </mat-form-field>
+                        <mat-form-field class="flex-auto gt-md:pl-3">
+                            <mat-label>Critical Warning Threshold</mat-label>
+                            <input matInput>
+                        </mat-form-field>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+        </div>
+    </form>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button matTooltip="not yet implemented" [mat-dialog-close]="true" cdkFocusInitial>Save</button>
+</mat-dialog-actions>

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
-import { DashboardService } from 'app/modules/admin/dashboard/dashboard.service';
+import { DashboardService } from 'app/modules/dashboard/dashboard.service';
 
 @Injectable({
     providedIn: 'root'

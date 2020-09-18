@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from 'app/shared/shared.module';
-import { DetailComponent } from 'app/modules/admin/detail/detail.component';
-import { detailRoutes } from 'app/modules/admin/detail/detail.routing';
+import { DashboardComponent } from 'app/modules/dashboard/dashboard.component';
+import { dashboardRoutes } from 'app/modules/dashboard/dashboard.routing';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,16 +10,16 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip'
 import { NgApexchartsModule } from 'ng-apexcharts';
-import { TreoCardModule } from '@treo/components/card';
+import { MatTooltipModule } from '@angular/material/tooltip'
+import { DashboardSettingsModule } from "app/layout/common/dashboard-settings/dashboard-settings.module";
 
 @NgModule({
     declarations: [
-        DetailComponent
+        DashboardComponent
     ],
     imports     : [
-        RouterModule.forChild(detailRoutes),
+        RouterModule.forChild(dashboardRoutes),
         MatButtonModule,
         MatDividerModule,
         MatTooltipModule,
@@ -29,11 +29,10 @@ import { TreoCardModule } from '@treo/components/card';
         MatSortModule,
         MatTableModule,
         NgApexchartsModule,
-        TreoCardModule,
         SharedModule,
-
+        DashboardSettingsModule
     ]
 })
-export class DetailModule
+export class DashboardModule
 {
 }

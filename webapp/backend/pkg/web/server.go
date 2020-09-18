@@ -3,8 +3,8 @@ package web
 import (
 	"fmt"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/handler"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/web/middleware"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -16,7 +16,8 @@ type AppEngine struct {
 func (ae *AppEngine) Setup() *gin.Engine {
 	r := gin.Default()
 
-	r.Use(database.DatabaseHandler(ae.Config.GetString("web.database.location")))
+	r.Use(middleware.DatabaseMiddleware(ae.Config.GetString("web.database.location")))
+	r.Use(middleware.ConfigMiddleware(ae.Config))
 
 	api := r.Group("/api")
 	{
@@ -25,13 +26,13 @@ func (ae *AppEngine) Setup() *gin.Engine {
 				"success": true,
 			})
 		})
+		api.POST("/health/notify", handler.SendTestNotification) //check if notifications are configured correctly
 
-		api.POST("/devices/register", handler.RegisterDevices)
-		api.GET("/summary", handler.GetDevicesSummary)
-		api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics)
+		api.POST("/devices/register", handler.RegisterDevices)      //used by Collector to register new devices and retrieve filtered list
+		api.GET("/summary", handler.GetDevicesSummary)              //used by Dashboard
+		api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics) //used by Collector to upload data
 		api.POST("/device/:wwn/selftest", handler.UploadDeviceSelfTests)
-
-		api.GET("/device/:wwn/details", handler.GetDeviceDetails)
+		api.GET("/device/:wwn/details", handler.GetDeviceDetails) //used by Details
 	}
 
 	//Static request routing

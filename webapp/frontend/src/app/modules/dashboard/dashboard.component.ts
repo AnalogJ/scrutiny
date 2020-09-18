@@ -4,8 +4,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApexOptions } from 'ng-apexcharts';
-import { DashboardService } from 'app/modules/admin/dashboard/dashboard.service';
+import { DashboardService } from 'app/modules/dashboard/dashboard.service';
 import * as moment from "moment";
+import {MatDialog} from '@angular/material/dialog';
+import { DashboardSettingsComponent } from 'app/layout/common/dashboard-settings/dashboard-settings.component';
 
 @Component({
     selector       : 'example',
@@ -28,7 +30,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
      * @param {SmartService} _smartService
      */
     constructor(
-        private _smartService: DashboardService
+        private _smartService: DashboardService,
+        public dialog: MatDialog
     )
     {
         // Set the private defaults
@@ -152,6 +155,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
+
+    openDialog() {
+        const dialogRef = this.dialog.open(DashboardSettingsComponent);
+
+        dialogRef.afterClosed().subscribe(result => {
+            console.log(`Dialog result: ${result}`);
+        });
+    }
 
     /**
      * Track by function for ngFor loops
