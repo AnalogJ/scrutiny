@@ -2,7 +2,10 @@ package collector
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"github.com/analogj/scrutiny/collector/pkg/common"
+	"github.com/analogj/scrutiny/collector/pkg/detect"
 	"github.com/analogj/scrutiny/collector/pkg/errors"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/sirupsen/logrus"
@@ -43,13 +46,18 @@ func (mc *MetricsCollector) Run() error {
 	apiEndpoint.Path = "/api/devices/register"
 
 	deviceRespWrapper := new(models.DeviceWrapper)
-	detectedStorageDevices, err := mc.DetectStorageDevices()
+
+	deviceDetector := detect.Detect{
+		Logger: mc.logger,
+	}
+	detectedStorageDevices, err := deviceDetector.Start()
 	if err != nil {
 		return err
 	}
 
 	mc.logger.Infoln("Sending detected devices to API, for filtering & validation")
-	mc.logger.Debugf("Detected devices: %v", detectedStorageDevices)
+	jsonObj, _ := json.Marshal(detectedStorageDevices)
+	mc.logger.Debugf("Detected devices: %v", string(jsonObj))
 	err = mc.postJson(apiEndpoint.String(), models.DeviceWrapper{
 		Data: detectedStorageDevices,
 	}, &deviceRespWrapper)
@@ -93,7 +101,7 @@ func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, device
 	defer wg.Done()
 	mc.logger.Infof("Collecting smartctl results for %s\n", deviceName)
 
-	result, err := mc.ExecCmd("smartctl", []string{"-a", "-j", fmt.Sprintf("/dev/%s", deviceName)}, "", nil)
+	result, err := common.ExecCmd("smartctl", []string{"-a", "-j", fmt.Sprintf("/dev/%s", deviceName)}, "", nil)
 	resultBytes := []byte(result)
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {

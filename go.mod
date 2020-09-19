@@ -3,9 +3,10 @@ module github.com/analogj/scrutiny
 go 1.13
 
 require (
-	github.com/AnalogJ/go-util v0.0.0-20200905200945-3b93d31215ae
+	github.com/AnalogJ/go-util v0.0.0-20200905200945-3b93d31215ae // indirect
 	github.com/analogj/go-util v0.0.0-20190301173314-5295e364eb14
 	github.com/containrrr/shoutrrr v0.0.0-20200828202222-1da53231b05a
+	github.com/denisbrodbeck/machineid v1.0.1
 	github.com/fatih/color v1.9.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/golang/mock v1.4.3
