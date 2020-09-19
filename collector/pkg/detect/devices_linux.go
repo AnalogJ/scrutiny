@@ -1,5 +1,10 @@
 package detect
 
+import (
+	"github.com/analogj/scrutiny/collector/pkg/models"
+	"github.com/jaypipes/ghw"
+)
+
 func (d *Detect) devicePrefix() string {
 	return "/dev/"
 }
