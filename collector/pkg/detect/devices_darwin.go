@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (d *Detect) devicePrefix() string {
+func DevicePrefix() string {
 	return "/dev/"
 }
 
@@ -69,7 +69,7 @@ func (d *Detect) findMissingDevices(detectedDevices []models.Device) ([]models.D
 
 		//check if device is already detected.
 		alreadyDetected := false
-		diskName := strings.TrimPrefix(disk.Name, d.devicePrefix())
+		diskName := strings.TrimPrefix(disk.Name, DevicePrefix())
 		for _, detectedDevice := range detectedDevices {
 
 			if detectedDevice.DeviceName == diskName {

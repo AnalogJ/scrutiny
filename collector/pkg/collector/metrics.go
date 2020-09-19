@@ -10,6 +10,7 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/sirupsen/logrus"
 	"net/url"
+	"os"
 	"os/exec"
 	"strings"
 	"sync"
@@ -75,7 +76,7 @@ func (mc *MetricsCollector) Run() error {
 		for _, device := range deviceRespWrapper.Data {
 			// execute collection in parallel go-routines
 			wg.Add(1)
-			go mc.Collect(&wg, device.WWN, device.DeviceName)
+			go mc.Collect(&wg, device.WWN, device.DeviceName, device.DeviceType)
 		}
 
 		mc.logger.Infoln("Main: Waiting for workers to finish")
@@ -97,11 +98,18 @@ func (mc *MetricsCollector) Validate() error {
 	return nil
 }
 
-func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string) {
+func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
 	defer wg.Done()
 	mc.logger.Infof("Collecting smartctl results for %s\n", deviceName)
 
-	result, err := common.ExecCmd("smartctl", []string{"-a", "-j", fmt.Sprintf("/dev/%s", deviceName)}, "", nil)
+	args := []string{"-a", "-j"}
+	//only include the device type if its a non-standard one. In some cases ata drives are detected as scsi in docker, and metadata is lost.
+	if len(deviceType) > 0 && deviceType != "scsi" && deviceType != "ata" {
+		args = append(args, "-d", deviceType)
+	}
+	args = append(args, fmt.Sprintf("%s%s", detect.DevicePrefix(), deviceName))
+
+	result, err := common.ExecCmd("smartctl", args, "", os.Environ())
 	resultBytes := []byte(result)
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {

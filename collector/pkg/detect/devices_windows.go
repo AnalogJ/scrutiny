@@ -1,6 +1,6 @@
 package detect
 
-func (d *Detect) devicePrefix() string {
+func DevicePrefix() string {
 	return ""
 }
 

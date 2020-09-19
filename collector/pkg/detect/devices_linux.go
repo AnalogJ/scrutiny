@@ -5,7 +5,7 @@ import (
 	"github.com/jaypipes/ghw"
 )
 
-func (d *Detect) devicePrefix() string {
+func DevicePrefix() string {
 	return "/dev/"
 }
 

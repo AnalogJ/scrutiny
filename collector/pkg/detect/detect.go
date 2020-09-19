@@ -44,7 +44,7 @@ func (d *Detect) smartctlScan() ([]models.Device, error) {
 	for _, detectedDevice := range detectedDeviceConns.Devices {
 		detectedDevices = append(detectedDevices, models.Device{
 			DeviceType: detectedDevice.Type,
-			DeviceName: strings.TrimPrefix(detectedDevice.Name, d.devicePrefix()),
+			DeviceName: strings.TrimPrefix(detectedDevice.Name, DevicePrefix()),
 		})
 	}
 
@@ -58,10 +58,11 @@ func (d *Detect) smartctlScan() ([]models.Device, error) {
 func (d *Detect) smartCtlInfo(device *models.Device) error {
 
 	args := []string{"--info", "-j"}
-	if len(device.DeviceType) > 0 {
+	//only include the device type if its a non-standard one. In some cases ata drives are detected as scsi in docker, and metadata is lost.
+	if len(device.DeviceType) > 0 && device.DeviceType != "scsi" && device.DeviceType != "ata" {
 		args = append(args, "-d", device.DeviceType)
 	}
-	args = append(args, fmt.Sprintf("%s%s", d.devicePrefix(), device.DeviceName))
+	args = append(args, fmt.Sprintf("%s%s", DevicePrefix(), device.DeviceName))
 
 	availableDeviceInfoJson, err := common.ExecCmd("smartctl", args, "", os.Environ())
 	if err != nil {
@@ -78,8 +79,8 @@ func (d *Detect) smartCtlInfo(device *models.Device) error {
 
 	//DeviceType and DeviceName are already populated.
 	//WWN
-	device.ModelName = availableDeviceInfo.ModelName
 	//InterfaceType:
+	device.ModelName = availableDeviceInfo.ModelName
 	device.InterfaceSpeed = availableDeviceInfo.InterfaceSpeed.Current.String
 	device.SerialNumber = availableDeviceInfo.SerialNumber
 	device.Firmware = availableDeviceInfo.FirmwareVersion
