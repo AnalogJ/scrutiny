@@ -164,6 +164,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         });
     }
 
+    deviceTitle(disk){
+        var title = [`/dev/${disk.device_name}`]
+        if (disk.device_type && disk.device_type != 'scsi' && disk.device_type != 'ata'){
+            title.push(disk.device_type)
+        }
+        title.push(disk.model_name)
+        return title.join(' - ')
+    }
+
     /**
      * Track by function for ngFor loops
      *

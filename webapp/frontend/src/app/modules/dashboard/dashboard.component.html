@@ -66,7 +66,7 @@
                         <div class="flex items-center">
                             <div class="flex flex-col">
                                 <a [routerLink]="'/device/'+ disk.wwn"
-                                   class="font-bold text-md text-secondary uppercase tracking-wider">/dev/{{disk.device_name}} - {{disk.model_name}}</a>
+                                   class="font-bold text-md text-secondary uppercase tracking-wider">{{deviceTitle(disk)}}</a>
                                 <div [ngClass]="{'text-green': disk.smart_results[0]?.smart_status == 'passed',
                                     'text-red': disk.smart_results[0]?.smart_status == 'failed' }" class="font-medium text-sm" *ngIf="disk.smart_results[0]">
                                     Last Updated on {{disk.smart_results[0]?.date | date:'MMMM dd, yyyy' }}
