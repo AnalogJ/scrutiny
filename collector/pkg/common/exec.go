@@ -3,17 +3,19 @@ package common
 import (
 	"bytes"
 	"errors"
+	"github.com/sirupsen/logrus"
 	"io"
-	"os"
 	"os/exec"
 	"path"
+	"strings"
 )
 
-func ExecCmd(cmdName string, cmdArgs []string, workingDir string, environ []string) (string, error) {
+func ExecCmd(logger *logrus.Entry, cmdName string, cmdArgs []string, workingDir string, environ []string) (string, error) {
+	logger.Infof("Executing command: %s %s", cmdName, strings.Join(cmdArgs, " "))
 
 	cmd := exec.Command(cmdName, cmdArgs...)
 	var stdBuffer bytes.Buffer
-	mw := io.MultiWriter(os.Stdout, &stdBuffer)
+	mw := io.MultiWriter(logger.Logger.Out, &stdBuffer)
 
 	cmd.Stdout = mw
 	cmd.Stderr = mw

@@ -30,6 +30,7 @@ func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 	if err == nil {
 		for _, disk := range block.Disks {
 			if disk.Name == detectedDevice.DeviceName {
+				d.Logger.Debugf("Found matching block device. WWN: %s", disk.WWN)
 				detectedDevice.WWN = disk.WWN
 				break
 			}
@@ -38,6 +39,7 @@ func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 
 	//no WWN found, or could not open Block devices. Either way, fallback to serial number
 	if len(detectedDevice.WWN) == 0 {
+		d.Logger.Debugf("WWN is empty, falling back to serial number: %s", detectedDevice.SerialNumber)
 		detectedDevice.WWN = detectedDevice.SerialNumber
 	}
 }

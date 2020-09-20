@@ -26,7 +26,7 @@ type Detect struct {
 // models.Device returned from this function only contain the minimum data for smartctl to execute: device type and device name (device file).
 func (d *Detect) smartctlScan() ([]models.Device, error) {
 	//we use smartctl to detect all the drives available.
-	detectedDeviceConnJson, err := common.ExecCmd("smartctl", []string{"--scan", "-j"}, "", os.Environ())
+	detectedDeviceConnJson, err := common.ExecCmd(d.Logger, "smartctl", []string{"--scan", "-j"}, "", os.Environ())
 	if err != nil {
 		d.Logger.Errorf("Error scanning for devices: %v", err)
 		return nil, err
@@ -64,7 +64,7 @@ func (d *Detect) smartCtlInfo(device *models.Device) error {
 	}
 	args = append(args, fmt.Sprintf("%s%s", DevicePrefix(), device.DeviceName))
 
-	availableDeviceInfoJson, err := common.ExecCmd("smartctl", args, "", os.Environ())
+	availableDeviceInfoJson, err := common.ExecCmd(d.Logger, "smartctl", args, "", os.Environ())
 	if err != nil {
 		d.Logger.Errorf("Could not retrieve device information for %s: %v", device.DeviceName, err)
 		return err
@@ -101,6 +101,7 @@ func (d *Detect) smartCtlInfo(device *models.Device) error {
 			Id:  availableDeviceInfo.Wwn.ID,
 		}
 		device.WWN = wwn.ToString()
+		d.Logger.Debugf("NAA: %d OUI: %d Id: %d => WWN: %s", wwn.Naa, wwn.Oui, wwn.Id, device.WWN)
 	} else {
 		d.Logger.Info("Using WWN Fallback")
 		d.wwnFallback(device)

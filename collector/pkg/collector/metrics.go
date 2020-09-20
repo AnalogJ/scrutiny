@@ -109,7 +109,7 @@ func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, device
 	}
 	args = append(args, fmt.Sprintf("%s%s", detect.DevicePrefix(), deviceName))
 
-	result, err := common.ExecCmd("smartctl", args, "", os.Environ())
+	result, err := common.ExecCmd(mc.logger, "smartctl", args, "", os.Environ())
 	resultBytes := []byte(result)
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
