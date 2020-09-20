@@ -1,0 +1,20 @@
+{
+  "data": [
+    {
+      "wwn": "a4c8e8ed-11a0-4c97-9bba-306440f1b944",
+      "device_name": "nvme0",
+      "manufacturer": "",
+      "model_name": "Force MP510",
+      "interface_type": "",
+      "interface_speed": "",
+      "serial_number": "a4c8e8ed-11a0-4c97-9bba-306440f1b944",
+      "firmware": "ECFM12.3",
+      "rotational_speed": 0,
+      "capacity": 480103981056,
+      "form_factor": "",
+      "smart_support": false,
+      "device_protocol": "NVMe",
+      "device_type": "nvme"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "json_format_version": [
+    1,
+    0
+  ],
+  "smartctl": {
+    "version": [
+      7,
+      0
+    ],
+    "svn_revision": "4883",
+    "platform_info": "x86_64-linux-4.19.107-Unraid",
+    "build_info": "(local build)",
+    "argv": [
+      "smartctl",
+      "-a",
+      "-j",
+      "-d",
+      "nvme",
+      "/dev/nvme0"
+    ],
+    "exit_status": 0
+  },
+  "device": {
+    "name": "/dev/nvme0",
+    "info_name": "/dev/nvme0",
+    "type": "nvme",
+    "protocol": "NVMe"
+  },
+  "model_name": "Force MP510",
+  "serial_number": "yes",
+  "firmware_version": "ECFM12.3",
+  "nvme_pci_vendor": {
+    "id": 6535,
+    "subsystem_id": 6535
+  },
+  "nvme_ieee_oui_identifier": 6584743,
+  "nvme_total_capacity": 480103981056,
+  "nvme_unallocated_capacity": 0,
+  "nvme_controller_id": 1,
+  "nvme_number_of_namespaces": 1,
+  "nvme_namespaces": [
+    {
+      "id": 1,
+      "size": {
+        "blocks": 937703088,
+        "bytes": 480103981056
+      },
+      "capacity": {
+        "blocks": 937703088,
+        "bytes": 480103981056
+      },
+      "utilization": {
+        "blocks": 937703088,
+        "bytes": 480103981056
+      },
+      "formatted_lba_size": 512,
+      "eui64": {
+        "oui": 6584743,
+        "ext_id": 171819811633
+      }
+    }
+  ],
+  "user_capacity": {
+    "blocks": 937703088,
+    "bytes": 480103981056
+  },
+  "logical_block_size": 512,
+  "local_time": {
+    "time_t": 1600619090,
+    "asctime": "Sun Sep 20 16:24:50 2020 Europe"
+  },
+  "smart_status": {
+    "passed": true,
+    "nvme": {
+      "value": 0
+    }
+  },
+  "nvme_smart_health_information_log": {
+    "critical_warning": 0,
+    "temperature": 38,
+    "available_spare": 100,
+    "available_spare_threshold": 5,
+    "percentage_used": 1,
+    "data_units_read": 6932144,
+    "data_units_written": 16093122,
+    "host_reads": 29878811,
+    "host_writes": 17533252,
+    "controller_busy_time": 305,
+    "power_cycles": 4,
+    "power_on_hours": 6487,
+    "unsafe_shutdowns": 4,
+    "media_errors": 0,
+    "num_err_log_entries": 8382,
+    "warning_temp_time": 0,
+    "critical_comp_time": 0
+  },
+  "temperature": {
+    "current": 38
+  },
+  "power_cycle_count": 4,
+  "power_on_time": {
+    "hours": 6487
+  }
+}

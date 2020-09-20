@@ -1,24 +1,30 @@
 package web_test
 
 import (
+	"encoding/json"
 	mock_config "github.com/analogj/scrutiny/webapp/backend/pkg/config/mock"
+	dbModels "github.com/analogj/scrutiny/webapp/backend/pkg/models/db"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path"
 	"strings"
 	"testing"
 )
 
 func TestHealthRoute(t *testing.T) {
 	//setup
+	parentPath, _ := ioutil.TempDir("", "")
+	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
-	fakeConfig.EXPECT().GetString("web.database.location").Return("testdata/scrutiny_test.db")
-	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return("testdata")
+	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db"))
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath)
 
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -38,11 +44,13 @@ func TestHealthRoute(t *testing.T) {
 
 func TestRegisterDevicesRoute(t *testing.T) {
 	//setup
+	parentPath, _ := ioutil.TempDir("", "")
+	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
-	fakeConfig.EXPECT().GetString("web.database.location").Return("testdata/scrutiny_test.db")
-	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return("testdata")
+	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db"))
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath)
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -61,11 +69,13 @@ func TestRegisterDevicesRoute(t *testing.T) {
 
 func TestUploadDeviceMetricsRoute(t *testing.T) {
 	//setup
+	parentPath, _ := ioutil.TempDir("", "")
+	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
-	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return("testdata/scrutiny_test.db")
-	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return("testdata")
+	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -92,11 +102,14 @@ func TestUploadDeviceMetricsRoute(t *testing.T) {
 
 func TestPopulateMultiple(t *testing.T) {
 	//setup
+	parentPath, _ := ioutil.TempDir("", "")
+	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
-	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return("testdata/scrutiny_test.db")
-	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return("testdata")
+	//fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return("testdata/scrutiny_test.db")
+	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -151,11 +164,13 @@ func TestPopulateMultiple(t *testing.T) {
 
 func TestSendTestNotificationRoute(t *testing.T) {
 	//setup
+	parentPath, _ := ioutil.TempDir("", "")
+	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
-	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return("testdata/scrutiny_test.db")
-	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return("testdata")
+	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"https://scrutiny.requestcatcher.com/test"})
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -169,4 +184,46 @@ func TestSendTestNotificationRoute(t *testing.T) {
 
 	//assert
 	require.Equal(t, 200, wr.Code)
+}
+
+func TestGetDevicesSummaryRoute_Nvme(t *testing.T) {
+	//setup
+	parentPath, _ := ioutil.TempDir("", "")
+	defer os.RemoveAll(parentPath)
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	ae := web.AppEngine{
+		Config: fakeConfig,
+	}
+	router := ae.Setup()
+	devicesfile, err := os.Open("testdata/register-devices-req-2.json")
+	require.NoError(t, err)
+
+	metricsfile, err := os.Open("../models/testdata/smart-nvme2.json")
+	require.NoError(t, err)
+
+	//test
+	wr := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/devices/register", devicesfile)
+	router.ServeHTTP(wr, req)
+	require.Equal(t, 200, wr.Code)
+
+	mr := httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", "/api/device/a4c8e8ed-11a0-4c97-9bba-306440f1b944/smart", metricsfile)
+	router.ServeHTTP(mr, req)
+	require.Equal(t, 200, mr.Code)
+
+	sr := httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/api/summary", nil)
+	router.ServeHTTP(sr, req)
+	require.Equal(t, 200, sr.Code)
+	var device dbModels.DeviceWrapper
+	json.Unmarshal(sr.Body.Bytes(), &device)
+
+	//assert
+	require.Equal(t, "a4c8e8ed-11a0-4c97-9bba-306440f1b944", device.Data[0].WWN)
+	require.Equal(t, "passed", device.Data[0].SmartResults[0].SmartStatus)
 }
