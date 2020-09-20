@@ -137,6 +137,7 @@ func (mc *MetricsCollector) Publish(deviceWWN string, payload []byte) error {
 
 	resp, err := httpClient.Post(apiEndpoint.String(), "application/json", bytes.NewBuffer(payload))
 	if err != nil {
+		mc.logger.Errorf("An error occurred while publishing SMART data for device (%s): %v", deviceWWN, err)
 		return err
 	}
 	defer resp.Body.Close()
