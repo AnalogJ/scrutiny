@@ -39,7 +39,7 @@ jobs:
             ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-amd64
       - uses: codecov/codecov-action@v1
         with:
-          file: coverage.txt
+          file: ${{ env.PROJECT_PATH }}/coverage.txt
           flags: unittests
           fail_ci_if_error: true
   build-docker:
