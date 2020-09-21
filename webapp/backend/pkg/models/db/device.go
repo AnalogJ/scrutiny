@@ -152,16 +152,6 @@ func (dv *Device) ApplyMetadataRules() error {
 }
 
 func (dv *Device) UpdateFromCollectorSmartInfo(info collector.SmartInfo) error {
-	dv.InterfaceSpeed = info.InterfaceSpeed.Current.String
 	dv.Firmware = info.FirmwareVersion
-	dv.RotationSpeed = info.RotationRate
-	dv.Capacity = info.UserCapacity.Bytes
-	dv.FormFactor = info.FormFactor.Name
-	dv.DeviceProtocol = info.Device.Protocol
-	dv.DeviceType = info.Device.Type
-	if len(info.Vendor) > 0 {
-		dv.Manufacturer = info.Vendor
-	}
-
 	return nil
 }

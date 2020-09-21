@@ -23,9 +23,9 @@ type SmartInfo struct {
 	ModelName    string `json:"model_name"`
 	SerialNumber string `json:"serial_number"`
 	Wwn          struct {
-		Naa int   `json:"naa"`
-		Oui int   `json:"oui"`
-		ID  int64 `json:"id"`
+		Naa uint64 `json:"naa"`
+		Oui uint64 `json:"oui"`
+		ID  uint64 `json:"id"`
 	} `json:"wwn"`
 	FirmwareVersion string `json:"firmware_version"`
 	UserCapacity    struct {

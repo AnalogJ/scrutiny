@@ -5,6 +5,7 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
 	"github.com/sirupsen/logrus"
+	"io"
 	"log"
 	"os"
 	"time"
@@ -85,6 +86,16 @@ OPTIONS:
 						logrus.SetLevel(logrus.InfoLevel)
 					}
 
+					if c.IsSet("log-file") {
+						logFile, err := os.OpenFile(c.String("log-file"), os.O_CREATE|os.O_WRONLY, 0644)
+						if err != nil {
+							logrus.Errorf("Failed to open log file %s for output: %s", c.String("log-file"), err)
+							return err
+						}
+						defer logFile.Close()
+						logrus.SetOutput(io.MultiWriter(os.Stderr, logFile))
+					}
+
 					metricCollector, err := collector.CreateMetricsCollector(
 						collectorLogger,
 						c.String("api-endpoint"),
@@ -103,6 +114,12 @@ OPTIONS:
 						Usage:   "The api server endpoint",
 						Value:   "http://localhost:8080",
 						EnvVars: []string{"SCRUTINY_API_ENDPOINT"},
+					},
+
+					&cli.StringFlag{
+						Name:  "log-file",
+						Usage: "Path to file for logging. Leave empty to use STDOUT",
+						Value: "",
 					},
 
 					&cli.BoolFlag{
