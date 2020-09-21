@@ -13,7 +13,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"sync"
 )
 
 type MetricsCollector struct {
@@ -71,16 +70,19 @@ func (mc *MetricsCollector) Run() error {
 		return errors.ApiServerCommunicationError("An error occurred while retrieving filtered devices")
 	} else {
 		mc.logger.Debugln(deviceRespWrapper)
-		var wg sync.WaitGroup
-
+		//var wg sync.WaitGroup
 		for _, device := range deviceRespWrapper.Data {
 			// execute collection in parallel go-routines
-			wg.Add(1)
-			go mc.Collect(&wg, device.WWN, device.DeviceName, device.DeviceType)
+			//wg.Add(1)
+			//go mc.Collect(&wg, device.WWN, device.DeviceName, device.DeviceType)
+			go mc.Collect(device.WWN, device.DeviceName, device.DeviceType)
+
+			// TODO: we may need to sleep for between each call to smartctl -a
+			//time.Sleep(30 * time.Millisecond)
 		}
 
-		mc.logger.Infoln("Main: Waiting for workers to finish")
-		wg.Wait()
+		//mc.logger.Infoln("Main: Waiting for workers to finish")
+		//wg.Wait()
 		mc.logger.Infoln("Main: Completed")
 	}
 
@@ -98,8 +100,9 @@ func (mc *MetricsCollector) Validate() error {
 	return nil
 }
 
-func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
-	defer wg.Done()
+//func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
+func (mc *MetricsCollector) Collect(deviceWWN string, deviceName string, deviceType string) {
+	//defer wg.Done()
 	mc.logger.Infof("Collecting smartctl results for %s\n", deviceName)
 
 	args := []string{"-a", "-j"}
