@@ -75,7 +75,7 @@ func (mc *MetricsCollector) Run() error {
 			// execute collection in parallel go-routines
 			//wg.Add(1)
 			//go mc.Collect(&wg, device.WWN, device.DeviceName, device.DeviceType)
-			go mc.Collect(device.WWN, device.DeviceName, device.DeviceType)
+			mc.Collect(device.WWN, device.DeviceName, device.DeviceType)
 
 			// TODO: we may need to sleep for between each call to smartctl -a
 			//time.Sleep(30 * time.Millisecond)
