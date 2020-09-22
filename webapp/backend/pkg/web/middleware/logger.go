@@ -38,10 +38,14 @@ func LoggerMiddleware(logger logrus.FieldLogger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		//clone the request body reader.
-		buf, _ := ioutil.ReadAll(c.Request.Body)
-		reqBodyReader1 := ioutil.NopCloser(bytes.NewBuffer(buf))
-		reqBodyReader2 := ioutil.NopCloser(bytes.NewBuffer(buf)) //We have to create a new Buffer, because reqBodyReader1 will be read.
-		c.Request.Body = reqBodyReader2
+		var reqBody string
+		if c.Request.Body != nil {
+			buf, _ := ioutil.ReadAll(c.Request.Body)
+			reqBodyReader1 := ioutil.NopCloser(bytes.NewBuffer(buf))
+			reqBodyReader2 := ioutil.NopCloser(bytes.NewBuffer(buf)) //We have to create a new Buffer, because reqBodyReader1 will be read.
+			c.Request.Body = reqBodyReader2
+			reqBody = readBody(reqBodyReader1)
+		}
 
 		// other handler can change c.Path so:
 		path := c.Request.URL.Path
@@ -86,7 +90,9 @@ func LoggerMiddleware(logger logrus.FieldLogger) gin.HandlerFunc {
 		}
 		if strings.HasPrefix(path, "/api/") {
 			//only debug log request/response from api endpoint.
-			entry.WithField("bodyType", "request").Debugln(readBody(reqBodyReader1)) // Print request body
+			if len(reqBody) > 0 {
+				entry.WithField("bodyType", "request").Debugln(reqBody) // Print request body
+			}
 			entry.WithField("bodyType", "response").Debugln(blw.body.String())
 		}
 	}
