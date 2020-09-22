@@ -95,8 +95,16 @@ OPTIONS:
 						if err != nil {                             // Handle errors reading the config file
 							//ignore "could not find config file"
 							fmt.Printf("Could not find config file at specified path: %s", c.String("config"))
-							os.Exit(1)
+							return err
 						}
+					}
+
+					if c.Bool("debug") {
+						config.Set("log.level", "DEBUG")
+					}
+
+					if c.IsSet("log-file") {
+						config.Set("log.file", c.String("log-file"))
 					}
 
 					webServer := web.AppEngine{Config: config}
@@ -108,6 +116,18 @@ OPTIONS:
 					&cli.StringFlag{
 						Name:  "config",
 						Usage: "Specify the path to the config file",
+					},
+					&cli.StringFlag{
+						Name:    "log-file",
+						Usage:   "Path to file for logging. Leave empty to use STDOUT",
+						Value:   "",
+						EnvVars: []string{"SCRUTINY_LOG_FILE"},
+					},
+
+					&cli.BoolFlag{
+						Name:    "debug",
+						Usage:   "Enable debug logging",
+						EnvVars: []string{"SCRUTINY_DEBUG", "DEBUG"},
 					},
 				},
 			},

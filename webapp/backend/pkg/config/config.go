@@ -30,22 +30,24 @@ func (c *configuration) Init() error {
 	c.SetDefault("web.listen.port", "8080")
 	c.SetDefault("web.listen.host", "0.0.0.0")
 	c.SetDefault("web.src.frontend.path", "/scrutiny/web")
-
 	c.SetDefault("web.database.location", "/scrutiny/config/scrutiny.db")
 
-	c.SetDefault("disks.include", []string{})
-	c.SetDefault("disks.exclude", []string{})
+	c.SetDefault("log.level", "INFO")
+	c.SetDefault("log.file", "")
 
-	c.SetDefault("notify.metric.script", "/scrutiny/config/notify-metrics.sh")
-	c.SetDefault("notify.long.script", "/scrutiny/config/notify-long-test.sh")
-	c.SetDefault("notify.short.script", "/scrutiny/config/notify-short-test.sh")
+	//c.SetDefault("disks.include", []string{})
+	//c.SetDefault("disks.exclude", []string{})
 
-	c.SetDefault("collect.metric.enable", true)
-	c.SetDefault("collect.metric.command", "-a -o on -S on")
-	c.SetDefault("collect.long.enable", true)
-	c.SetDefault("collect.long.command", "-a -o on -S on")
-	c.SetDefault("collect.short.enable", true)
-	c.SetDefault("collect.short.command", "-a -o on -S on")
+	//c.SetDefault("notify.metric.script", "/scrutiny/config/notify-metrics.sh")
+	//c.SetDefault("notify.long.script", "/scrutiny/config/notify-long-test.sh")
+	//c.SetDefault("notify.short.script", "/scrutiny/config/notify-short-test.sh")
+
+	//c.SetDefault("collect.metric.enable", true)
+	//c.SetDefault("collect.metric.command", "-a -o on -S on")
+	//c.SetDefault("collect.long.enable", true)
+	//c.SetDefault("collect.long.command", "-a -o on -S on")
+	//c.SetDefault("collect.short.enable", true)
+	//c.SetDefault("collect.short.command", "-a -o on -S on")
 
 	//if you want to load a non-standard location system config file (~/drawbridge.yml), use ReadConfig
 	c.SetConfigType("yaml")

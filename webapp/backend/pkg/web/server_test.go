@@ -6,6 +6,7 @@ import (
 	dbModels "github.com/analogj/scrutiny/webapp/backend/pkg/models/db"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web"
 	"github.com/golang/mock/gomock"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"net/http"
@@ -30,7 +31,7 @@ func TestHealthRoute(t *testing.T) {
 		Config: fakeConfig,
 	}
 
-	router := ae.Setup()
+	router := ae.Setup(logrus.New())
 
 	//test
 	w := httptest.NewRecorder()
@@ -54,7 +55,7 @@ func TestRegisterDevicesRoute(t *testing.T) {
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
-	router := ae.Setup()
+	router := ae.Setup(logrus.New())
 	file, err := os.Open("testdata/register-devices-req.json")
 	require.NoError(t, err)
 
@@ -79,7 +80,7 @@ func TestUploadDeviceMetricsRoute(t *testing.T) {
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
-	router := ae.Setup()
+	router := ae.Setup(logrus.New())
 	devicesfile, err := os.Open("testdata/register-devices-single-req.json")
 	require.NoError(t, err)
 
@@ -113,7 +114,7 @@ func TestPopulateMultiple(t *testing.T) {
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
-	router := ae.Setup()
+	router := ae.Setup(logrus.New())
 	devicesfile, err := os.Open("testdata/register-devices-req.json")
 	require.NoError(t, err)
 
@@ -175,7 +176,7 @@ func TestSendTestNotificationRoute(t *testing.T) {
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
-	router := ae.Setup()
+	router := ae.Setup(logrus.New())
 
 	//test
 	wr := httptest.NewRecorder()
@@ -198,7 +199,7 @@ func TestGetDevicesSummaryRoute_Nvme(t *testing.T) {
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
-	router := ae.Setup()
+	router := ae.Setup(logrus.New())
 	devicesfile, err := os.Open("testdata/register-devices-req-2.json")
 	require.NoError(t, err)
 

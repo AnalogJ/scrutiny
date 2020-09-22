@@ -27,52 +27,59 @@ web:
     frontend:
       path: ./dist
 
-disks:
-  include:
-    # - /dev/sda
-  exclude:
-    # - /dev/sdb
 
-notify:
-  urls:
-    - "discord://token@channel"
-    - "telegram://token@telegram?channels=channel-1[,channel-2,...]"
-    - "pushover://shoutrrr:apiToken@userKey/?devices=device1[,device2, ...]"
-    - "slack://[botname@]token-a/token-b/token-c"
-    - "smtp://username:password@host:port/?fromAddress=fromAddress&toAddresses=recipient1[,recipient2,...]"
-    - "teams://token-a/token-b/token-c"
-    - "gotify://gotify-host/token"
-    - "pushbullet://api-token[/device/#channel/email]"
-    - "ifttt://key/?events=event1[,event2,...]&value1=value1&value2=value2&value3=value3"
-    - "mattermost://[username@]mattermost-host/token[/channel]"
-    - "hangouts://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz"
-    - "zulip://bot-mail:bot-key@zulip-domain/?stream=name-or-id&topic=name"
-    - "join://shoutrrr:api-key@join/?devices=device1[,device2, ...][&icon=icon][&title=title]"
-    - "script:///file/path/on/disk"
-    - "https://www.example.com/path"
+log:
+  file: '' #absolute or relative paths allowed, eg. web.log
+  level: INFO
 
-limits:
-  ata:
-    critical:
-      error: 10
-    standard:
-      error: 20
-      warn: 10
-  scsi:
-    critical: true
-    standard: true
-  nvme:
-    critical: true
-    standard: true
+# The following commented out sections are a preview of additional configuration options that will be available soon.
+
+#disks:
+#  include:
+#    # - /dev/sda
+#  exclude:
+#    # - /dev/sdb
+
+#notify:
+#  urls:
+#    - "discord://token@channel"
+#    - "telegram://token@telegram?channels=channel-1[,channel-2,...]"
+#    - "pushover://shoutrrr:apiToken@userKey/?devices=device1[,device2, ...]"
+#    - "slack://[botname@]token-a/token-b/token-c"
+#    - "smtp://username:password@host:port/?fromAddress=fromAddress&toAddresses=recipient1[,recipient2,...]"
+#    - "teams://token-a/token-b/token-c"
+#    - "gotify://gotify-host/token"
+#    - "pushbullet://api-token[/device/#channel/email]"
+#    - "ifttt://key/?events=event1[,event2,...]&value1=value1&value2=value2&value3=value3"
+#    - "mattermost://[username@]mattermost-host/token[/channel]"
+#    - "hangouts://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz"
+#    - "zulip://bot-mail:bot-key@zulip-domain/?stream=name-or-id&topic=name"
+#    - "join://shoutrrr:api-key@join/?devices=device1[,device2, ...][&icon=icon][&title=title]"
+#    - "script:///file/path/on/disk"
+#    - "https://www.example.com/path"
+
+#limits:
+#  ata:
+#    critical:
+#      error: 10
+#    standard:
+#      error: 20
+#      warn: 10
+#  scsi:
+#    critical: true
+#    standard: true
+#  nvme:
+#    critical: true
+#    standard: true
 
 
-collect:
-  metric:
-    enable: true
-    command: '-a -o on -S on'
-  long:
-    enable: false
-    command: ''
-  short:
-    enable: false
-    command: ''
+#collect:
+#  metric:
+#    enable: true
+#    command: '-a -o on -S on'
+#  long:
+#    enable: false
+#    command: ''
+#  short:
+#    enable: false
+#    command: ''
