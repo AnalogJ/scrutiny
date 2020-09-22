@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"io"
+	"io/ioutil"
 	"math"
 	"net/http"
 	"os"
@@ -34,9 +36,16 @@ func LoggerMiddleware(logger logrus.FieldLogger) gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
+
+		//clone the request body reader.
+		buf, _ := ioutil.ReadAll(c.Request.Body)
+		reqBodyReader1 := ioutil.NopCloser(bytes.NewBuffer(buf))
+		reqBodyReader2 := ioutil.NopCloser(bytes.NewBuffer(buf)) //We have to create a new Buffer, because reqBodyReader1 will be read.
+		c.Request.Body = reqBodyReader2
+
 		// other handler can change c.Path so:
 		path := c.Request.URL.Path
-		blw := &bodyLogWriter{body: &bytes.Buffer{}, ResponseWriter: c.Writer}
+		blw := &responseBodyLogWriter{body: &bytes.Buffer{}, ResponseWriter: c.Writer}
 		c.Writer = blw
 		start := time.Now()
 		c.Next()
@@ -46,9 +55,9 @@ func LoggerMiddleware(logger logrus.FieldLogger) gin.HandlerFunc {
 		clientIP := c.ClientIP()
 		clientUserAgent := c.Request.UserAgent()
 		referer := c.Request.Referer()
-		dataLength := c.Writer.Size()
-		if dataLength < 0 {
-			dataLength = 0
+		respLength := c.Writer.Size()
+		if respLength < 0 {
+			respLength = 0
 		}
 
 		entry := logger.WithFields(logrus.Fields{
@@ -59,14 +68,14 @@ func LoggerMiddleware(logger logrus.FieldLogger) gin.HandlerFunc {
 			"method":     c.Request.Method,
 			"path":       path,
 			"referer":    referer,
-			"dataLength": dataLength,
+			"respLength": respLength,
 			"userAgent":  clientUserAgent,
 		})
 
 		if len(c.Errors) > 0 {
 			entry.Error(c.Errors.ByType(gin.ErrorTypePrivate).String())
 		} else {
-			msg := fmt.Sprintf("%s - %s [%s] \"%s %s\" %d %d \"%s\" \"%s\" (%dms)", clientIP, hostname, time.Now().Format(timeFormat), c.Request.Method, path, statusCode, dataLength, referer, clientUserAgent, latency)
+			msg := fmt.Sprintf("%s - %s [%s] \"%s %s\" %d %d \"%s\" \"%s\" (%dms)", clientIP, hostname, time.Now().Format(timeFormat), c.Request.Method, path, statusCode, respLength, referer, clientUserAgent, latency)
 			if statusCode >= http.StatusInternalServerError {
 				entry.Error(msg)
 			} else if statusCode >= http.StatusBadRequest {
@@ -77,17 +86,30 @@ func LoggerMiddleware(logger logrus.FieldLogger) gin.HandlerFunc {
 		}
 		if strings.HasPrefix(path, "/api/") {
 			//only debug log request/response from api endpoint.
-			entry.Debugln(blw.body.String())
+			entry.WithField("bodyType", "request").Debugln(readBody(reqBodyReader1)) // Print request body
+			entry.WithField("bodyType", "response").Debugln(blw.body.String())
 		}
 	}
 }
 
-type bodyLogWriter struct {
+// Response Logging
+
+type responseBodyLogWriter struct {
 	gin.ResponseWriter
 	body *bytes.Buffer
 }
 
-func (w bodyLogWriter) Write(b []byte) (int, error) {
+func (w responseBodyLogWriter) Write(b []byte) (int, error) {
 	w.body.Write(b)
 	return w.ResponseWriter.Write(b)
+}
+
+// Request Logging
+
+func readBody(reader io.Reader) string {
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(reader)
+
+	s := buf.String()
+	return s
 }
