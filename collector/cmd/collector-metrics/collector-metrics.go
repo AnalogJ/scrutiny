@@ -117,15 +117,16 @@ OPTIONS:
 					},
 
 					&cli.StringFlag{
-						Name:  "log-file",
-						Usage: "Path to file for logging. Leave empty to use STDOUT",
-						Value: "",
+						Name:    "log-file",
+						Usage:   "Path to file for logging. Leave empty to use STDOUT",
+						Value:   "",
+						EnvVars: []string{"COLLECTOR_LOG_FILE"},
 					},
 
 					&cli.BoolFlag{
 						Name:    "debug",
 						Usage:   "Enable debug logging",
-						EnvVars: []string{"DEBUG"},
+						EnvVars: []string{"COLLECTOR_DEBUG", "DEBUG"},
 					},
 				},
 			},

@@ -6,18 +6,23 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/handler"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/middleware"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	"io"
 	"net/http"
+	"os"
 )
 
 type AppEngine struct {
 	Config config.Interface
 }
 
-func (ae *AppEngine) Setup() *gin.Engine {
-	r := gin.Default()
+func (ae *AppEngine) Setup(logger logrus.FieldLogger) *gin.Engine {
+	r := gin.New()
 
-	r.Use(middleware.DatabaseMiddleware(ae.Config.GetString("web.database.location")))
+	r.Use(middleware.LoggerMiddleware(logger))
+	r.Use(middleware.DatabaseMiddleware(ae.Config, logger))
 	r.Use(middleware.ConfigMiddleware(ae.Config))
+	r.Use(gin.Recovery())
 
 	api := r.Group("/api")
 	{
@@ -51,7 +56,28 @@ func (ae *AppEngine) Setup() *gin.Engine {
 }
 
 func (ae *AppEngine) Start() error {
-	r := ae.Setup()
+
+	logger := logrus.New()
+	//set default log level
+	logLevel, err := logrus.ParseLevel(ae.Config.GetString("log.level"))
+	if err != nil {
+		return err
+	}
+	logger.SetLevel(logLevel)
+	//set the log file if present
+	if len(ae.Config.GetString("log.file")) != 0 {
+		logFile, err := os.OpenFile(ae.Config.GetString("log.file"), os.O_CREATE|os.O_WRONLY, 0644)
+		defer logFile.Close()
+		if err != nil {
+			logrus.Errorf("Failed to open log file %s for output: %s", ae.Config.GetString("log.file"), err)
+			return err
+		}
+
+		//configure the logrus default
+		logger.SetOutput(io.MultiWriter(os.Stderr, logFile))
+	}
+
+	r := ae.Setup(logger)
 
 	return r.Run(fmt.Sprintf("%s:%s", ae.Config.GetString("web.listen.host"), ae.Config.GetString("web.listen.port")))
 }
