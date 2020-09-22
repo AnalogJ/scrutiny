@@ -40,3 +40,24 @@ Now visit http://localhost:8080
 brew install smartmontools
 go run collector/cmd/collector-metrics/collector-metrics.go run --debug
 ```
+
+
+## Debugging
+
+If you need more verbose logs for debugging, you can use the following environmental variables:
+
+- `DEBUG=true` - enables debug level logging on both the `collector` and `webapp`
+- `COLLECTOR_DEBUG=true` - enables debug level logging on the `collector`
+- `SCRUTINY_DEBUG=true` - enables debug level logging on the `webapp`
+
+In addition, you can instruct scrutiny to write its logs to a file using the following environmental variables:
+
+- `COLLECTOR_LOG_FILE=/tmp/collector.log` - write the `collector` logs to a file
+- `SCRUTINY_LOG_FILE=/tmp/web.log` - write the `webapp` logs to a file
+
+Finally, you can copy the files from the scrutiny container to your host using the following command(s)
+
+```
+docker cp scrutiny:/tmp/collector.log collector.log
+docker cp scrutiny:/tmp/web.log web.log
+```

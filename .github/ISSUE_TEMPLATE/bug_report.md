@@ -20,7 +20,20 @@ If applicable, add screenshots to help explain your problem.
 If related to missing devices or SMART data, please run the `collector` in DEBUG mode, and attach the log file.
 
 ```
-docker exec scrutiny scrutiny-collector-metrics run --debug --log-file /tmp/test.log
-# then use docker cp to copy the log file out of the container. 
-docker cp scrutiny:/tmp/test.log test.log
+docker run -it --rm -p 8080:8080 \
+-v /run/udev:/run/udev:ro \
+-v /dev/disk:/dev/disk \
+-e DEBUG=true \
+-e COLLECTOR_LOG_FILE=/tmp/collector.log \
+-e SCRUTINY_LOG_FILE=/tmp/web.log \
+--name scrutiny \
+--privileged analogj/scrutiny
+
+# in another terminal trigger the collector
+docker exec scrutiny scrutiny-collector-metrics run
+
+# then use docker cp to copy the log files out of the container.
+docker cp scrutiny:/tmp/collector.log collector.log
+docker cp scrutiny:/tmp/web.log web.log
+
 ```
