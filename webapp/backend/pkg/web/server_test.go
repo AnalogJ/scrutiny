@@ -24,8 +24,8 @@ func TestHealthRoute(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
-	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db"))
-	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
 
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -50,8 +50,8 @@ func TestRegisterDevicesRoute(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
-	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db"))
-	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
