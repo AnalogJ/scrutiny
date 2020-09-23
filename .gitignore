@@ -62,5 +62,5 @@ vendor
 /scrutiny-web-linux-amd64
 scrutiny-*.db
 scrutiny_test.db
-
+scrutiny.yaml
 coverage.txt

@@ -22,10 +22,10 @@ web:
     host: 0.0.0.0
   database:
     # can also set absolute path here
-    location: ./scrutiny.db
+    location: /scrutiny/config/scrutiny.db
   src:
     frontend:
-      path: ./dist
+      path: /scrutiny/web
 
 
 log:

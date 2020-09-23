@@ -29,9 +29,38 @@ cd webapp/frontend && ng build --watch --output-path=../../dist --deploy-url="/w
 > Note: if you do not add `--prod` flag, app will display mocked data for api calls.
 
 ### Backend
+
+If you're using the `ng build` command above to generate your frontend, you'll need to create a custom config file and
+override the `web.src.frontend.path` value.
+
 ```
-go run webapp/backend/cmd/scrutiny/scrutiny.go start --config ./example.scrutiny.yaml
+# config file for local development. store as scrutiny.yaml
+version: 1
+
+web:
+  listen:
+    port: 8080
+    host: 0.0.0.0
+  database:
+    # can also set absolute path here
+    location: ./scrutiny.db
+  src:
+    frontend:
+      path: ./dist
+
+
+log:
+  file: 'web.log' #absolute or relative paths allowed, eg. web.log
+  level: DEBUG
+
 ```
+
+Once you've created a config file, you can pass it to the scrutiny binary during startup.
+
+```
+go run webapp/backend/cmd/scrutiny/scrutiny.go start --config ./scrutiny.yaml
+```
+
 Now visit http://localhost:8080
 
 
