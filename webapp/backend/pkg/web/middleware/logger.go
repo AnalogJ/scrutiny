@@ -51,6 +51,7 @@ func LoggerMiddleware(logger logrus.FieldLogger) gin.HandlerFunc {
 		path := c.Request.URL.Path
 		blw := &responseBodyLogWriter{body: &bytes.Buffer{}, ResponseWriter: c.Writer}
 		c.Writer = blw
+		c.Set("LOGGER", logger)
 		start := time.Now()
 		c.Next()
 		stop := time.Since(start)

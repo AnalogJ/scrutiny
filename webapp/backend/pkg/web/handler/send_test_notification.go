@@ -6,6 +6,7 @@ import (
 	dbModels "github.com/analogj/scrutiny/webapp/backend/pkg/models/db"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/notify"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 )
@@ -13,6 +14,7 @@ import (
 // Send test notification
 func SendTestNotification(c *gin.Context) {
 	appConfig := c.MustGet("CONFIG").(config.Interface)
+	logger := c.MustGet("LOGGER").(logrus.FieldLogger)
 
 	testNotify := notify.Notify{
 		Config: appConfig,
@@ -28,7 +30,8 @@ func SendTestNotification(c *gin.Context) {
 	}
 	err := testNotify.Send()
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
+		logger.Errorln("An error occurred while sending test notification", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
 		})
 	} else {

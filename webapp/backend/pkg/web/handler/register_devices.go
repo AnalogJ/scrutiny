@@ -4,36 +4,43 @@ import (
 	dbModels "github.com/analogj/scrutiny/webapp/backend/pkg/models/db"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
 // filter devices that are detected by various collectors.
 func RegisterDevices(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
+	logger := c.MustGet("LOGGER").(logrus.FieldLogger)
 
 	var collectorDeviceWrapper dbModels.DeviceWrapper
 	err := c.BindJSON(&collectorDeviceWrapper)
 	if err != nil {
-		log.Error("Cannot parse detected devices")
-		c.JSON(http.StatusOK, gin.H{"success": false})
+		logger.Errorln("Cannot parse detected devices", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
+		return
 	}
 
 	//TODO: filter devices here (remove excludes, force includes)
-
+	errs := []error{}
 	for _, dev := range collectorDeviceWrapper.Data {
 		//insert devices into DB if not already there.
-		db.Where(dbModels.Device{WWN: dev.WWN}).FirstOrCreate(&dev)
+		if err := db.Where(dbModels.Device{WWN: dev.WWN}).FirstOrCreate(&dev).Error; err != nil {
+			errs = append(errs, err)
+		}
 	}
 
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
+	if len(errs) > 0 {
+		logger.Errorln("An error occurred while registering devices", errs)
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
 		})
+		return
 	} else {
 		c.JSON(http.StatusOK, dbModels.DeviceWrapper{
 			Success: true,
 			Data:    collectorDeviceWrapper.Data,
 		})
+		return
 	}
 }

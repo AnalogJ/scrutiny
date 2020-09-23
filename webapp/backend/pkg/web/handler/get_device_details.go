@@ -5,25 +5,40 @@ import (
 	dbModels "github.com/analogj/scrutiny/webapp/backend/pkg/models/db"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
 func GetDeviceDetails(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
+	logger := c.MustGet("LOGGER").(logrus.FieldLogger)
 	device := dbModels.Device{}
 
-	db.Debug().
-		Preload("SmartResults", func(db *gorm.DB) *gorm.DB {
-			return db.Order("smarts.created_at DESC").Limit(40)
-		}).
+	if err := db.Preload("SmartResults", func(db *gorm.DB) *gorm.DB {
+		return db.Order("smarts.created_at DESC").Limit(40)
+	}).
 		Preload("SmartResults.AtaAttributes").
 		Preload("SmartResults.NvmeAttributes").
 		Preload("SmartResults.ScsiAttributes").
 		Where("wwn = ?", c.Param("wwn")).
-		First(&device)
+		First(&device).Error; err != nil {
 
-	device.SquashHistory()
-	device.ApplyMetadataRules()
+		logger.Errorln("An error occurred while retrieving device details", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
+		return
+	}
+
+	if err := device.SquashHistory(); err != nil {
+		logger.Errorln("An error occurred while squashing device history", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
+		return
+	}
+
+	if err := device.ApplyMetadataRules(); err != nil {
+		logger.Errorln("An error occurred while applying scrutiny thresholds & rules", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
+		return
+	}
 
 	var deviceMetadata interface{}
 	if device.IsAta() {
