@@ -26,4 +26,7 @@ func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 	if len(detectedDevice.WWN) == 0 {
 		detectedDevice.WWN = detectedDevice.SerialNumber
 	}
+
+	//wwn must always be lowercase.
+	detectedDevice.WWN = strings.ToLower(detectedDevice.WWN)
 }

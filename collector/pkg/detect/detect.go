@@ -100,7 +100,7 @@ func (d *Detect) smartCtlInfo(device *models.Device) error {
 			Oui: availableDeviceInfo.Wwn.Oui,
 			Id:  availableDeviceInfo.Wwn.ID,
 		}
-		device.WWN = wwn.ToString()
+		device.WWN = strings.ToLower(wwn.ToString())
 		d.Logger.Debugf("NAA: %d OUI: %d Id: %d => WWN: %s", wwn.Naa, wwn.Oui, wwn.Id, device.WWN)
 	} else {
 		d.Logger.Info("Using WWN Fallback")

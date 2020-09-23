@@ -2,6 +2,7 @@ package detect
 
 import (
 	"fmt"
+	"strings"
 )
 
 type Wwn struct {
@@ -54,5 +55,5 @@ func (wwn *Wwn) ToString() string {
 
 	//TODO: may need to support additional versions in the future.
 
-	return fmt.Sprintf("%#x", wwnBuffer)
+	return strings.ToLower(fmt.Sprintf("%#x", wwnBuffer))
 }
