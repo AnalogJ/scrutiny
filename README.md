@@ -68,7 +68,7 @@ analogj/scrutiny
 
 - `/run/udev` is necessary to provide the Scrutiny collector with access to your device metadata
 - `--cap-add SYS_RAWIO` is necessary to allow `smartctl` permission to query your device SMART data
-    - NOTE: If you have NVMe drives, you must use `--cap-add SYS_ADMIN` instead. See #26
+    - NOTE: If you have NVMe drives, you must use `--cap-add SYS_ADMIN` instead. See [#26](https://github.com/AnalogJ/scrutiny/issues/26)
 - `--device` entries are required to ensure that your hard disk devices are accessible within the container
 - `analogj/scrutiny` is a omnibus image, containing both the webapp server (frontend & api) as well as the S.M.A.R.T metric collector. (see below)
 
