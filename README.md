@@ -59,13 +59,17 @@ If you're using Docker, getting started is as simple as running the following co
 ```bash
 docker run -it --rm -p 8080:8080 \
 -v /run/udev:/run/udev:ro \
--v /dev/disk:/dev/disk \
+--cap-add SYS_RAWIO \
+--device=/dev/sda \
+--device=/dev/sdb \
 --name scrutiny \
---privileged analogj/scrutiny
+analogj/scrutiny
 ```
 
-- `/run/udev` and `/dev/disk` are necessary to provide the Scrutiny collector with access to your drive metadata.
-- `--privileged` is required to ensure that your hard disk devices are accessible within the container (this will be changed in a future release)
+- `/run/udev` is necessary to provide the Scrutiny collector with access to your device metadata
+- `--cap-add SYS_RAWIO` is necessary to allow `smartctl` permission to query your device SMART data
+    - NOTE: If you have NVMe drives, you must use `--cap-add SYS_ADMIN` instead. See #26
+- `--device` entries are required to ensure that your hard disk devices are accessible within the container
 - `analogj/scrutiny` is a omnibus image, containing both the webapp server (frontend & api) as well as the S.M.A.R.T metric collector. (see below)
 
 ### Hub/Spoke Deployment
@@ -82,10 +86,12 @@ analogj/scrutiny:web
 
 docker run -it --rm \
 -v /run/udev:/run/udev:ro \
--v /dev/disk:/dev/disk \
+--cap-add SYS_RAWIO \
+--device=/dev/sda \
+--device=/dev/sdb \
 -e SCRUTINY_API_ENDPOINT=http://SCRUTINY_WEB_IPADDRESS:8080 \
 --name scrutiny-collector \
---privileged analogj/scrutiny:collector
+analogj/scrutiny:collector
 ```
 
 

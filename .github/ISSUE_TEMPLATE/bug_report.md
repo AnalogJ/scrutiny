@@ -22,12 +22,14 @@ If related to missing devices or SMART data, please run the `collector` in DEBUG
 ```
 docker run -it --rm -p 8080:8080 \
 -v /run/udev:/run/udev:ro \
--v /dev/disk:/dev/disk \
+--cap-add SYS_RAWIO \
+--device=/dev/sda \
+--device=/dev/sdb \
 -e DEBUG=true \
 -e COLLECTOR_LOG_FILE=/tmp/collector.log \
 -e SCRUTINY_LOG_FILE=/tmp/web.log \
 --name scrutiny \
---privileged analogj/scrutiny
+analogj/scrutiny
 
 # in another terminal trigger the collector
 docker exec scrutiny scrutiny-collector-metrics run
