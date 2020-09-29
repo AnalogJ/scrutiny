@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Build
+      - name: Test
         env:
           GOOS: linux
           GOARCH: amd64
@@ -22,24 +22,32 @@ jobs:
           cd $PROJECT_PATH
 
           go mod vendor
-
           go test -race -coverprofile=coverage.txt -covermode=atomic -v -tags "static" $(go list ./... | grep -v /vendor/)
-
-          GOOS=linux GOARCH=amd64 go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-web-linux-amd64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
-          GOOS=linux GOARCH=amd64 go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
-
-          GOOS=linux GOARCH=arm64 go build -ldflags "-X main.goos=linux -X main.goarch=arm64" -o scrutiny-web-linux-arm64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
-          GOOS=linux GOARCH=arm64 go build -ldflags "-X main.goos=linux -X main.goarch=arm64" -o scrutiny-collector-metrics-linux-arm64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
+      - name: Build amd64
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-web-linux-amd64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
+          go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
 
           chmod +x scrutiny-web-linux-amd64
           chmod +x scrutiny-collector-metrics-linux-amd64
-          chmod +x scrutiny-web-linux-arm64
-          chmod +x scrutiny-collector-metrics-linux-arm64
 
           # print info about the static binaries
           file scrutiny-web-linux-amd64
           file scrutiny-collector-metrics-linux-amd64
 
+      - name: Build arm64
+        env:
+          GOOS: linux
+          GOARCH: arm64
+        run: |
+          go build -ldflags "-X main.goos=linux -X main.goarch=arm64" -o scrutiny-web-linux-arm64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
+          go build -ldflags "-X main.goos=linux -X main.goarch=arm64" -o scrutiny-collector-metrics-linux-arm64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
+
+          chmod +x scrutiny-web-linux-arm64
+          chmod +x scrutiny-collector-metrics-linux-arm64
 
       - name: Archive
         uses: actions/upload-artifact@v2
