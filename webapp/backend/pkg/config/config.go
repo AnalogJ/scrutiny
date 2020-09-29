@@ -65,7 +65,7 @@ func (c *configuration) ReadConfig(configFilePath string) error {
 	}
 
 	if !utils.FileExists(configFilePath) {
-		log.Printf("No configuration file found at %v. Skipping", configFilePath)
+		log.Printf("No configuration file found at %v. Using Defaults.", configFilePath)
 		return errors.ConfigFileMissingError("The configuration file could not be found.")
 	}
 
