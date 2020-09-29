@@ -31,10 +31,6 @@ jobs:
           GOOS=linux GOARCH=arm64 go build -ldflags "-X main.goos=linux -X main.goarch=arm64" -o scrutiny-web-linux-arm64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
           GOOS=linux GOARCH=arm64 go build -ldflags "-X main.goos=linux -X main.goarch=arm64" -o scrutiny-collector-metrics-linux-arm64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
 
-          GOOS=windows GOARCH=amd64 go build -ldflags "-X main.goos=windows -X main.goarch=amd64" -o scrutiny-web-windows-amd64.exe -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
-          GOOS=windows GOARCH=amd64 go build -ldflags "-X main.goos=windows -X main.goarch=amd64" -o scrutiny-collector-metrics-windows-amd64.exe -tags "static" collector/cmd/collector-metrics/collector-metrics.go
-
-
           chmod +x scrutiny-web-linux-amd64
           chmod +x scrutiny-collector-metrics-linux-amd64
           chmod +x scrutiny-web-linux-arm64
@@ -54,8 +50,6 @@ jobs:
             ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-amd64
             ${{ env.PROJECT_PATH }}/scrutiny-web-linux-arm64
             ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-arm64
-            ${{ env.PROJECT_PATH }}/scrutiny-web-windows-amd64.exe
-            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-windows-amd64.exe
       - uses: codecov/codecov-action@v1
         with:
           file: ${{ env.PROJECT_PATH }}/coverage.txt
