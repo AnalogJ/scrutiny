@@ -28,6 +28,7 @@ jobs:
           GOOS: linux
           GOARCH: amd64
         run: |
+          cd $PROJECT_PATH
           go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-web-linux-amd64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
           go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
 
@@ -43,6 +44,7 @@ jobs:
           GOOS: linux
           GOARCH: arm64
         run: |
+          cd $PROJECT_PATH
           go build -ldflags "-X main.goos=linux -X main.goarch=arm64" -o scrutiny-web-linux-arm64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
           go build -ldflags "-X main.goos=linux -X main.goarch=arm64" -o scrutiny-collector-metrics-linux-arm64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
 
