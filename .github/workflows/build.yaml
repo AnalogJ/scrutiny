@@ -65,24 +65,10 @@ jobs:
             ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-amd64
             ${{ env.PROJECT_PATH }}/scrutiny-web-linux-arm64
             ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-arm64
+            ${{ env.PROJECT_PATH }}/scrutiny-web-windows-amd64.exe
+            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-windows-amd64.exe
       - uses: codecov/codecov-action@v1
         with:
           file: ${{ env.PROJECT_PATH }}/coverage.txt
           flags: unittests
           fail_ci_if_error: true
-  build-docker:
-    name: Build Docker
-    runs-on: ubuntu-latest
-    container: docker:19.03.2
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build Docker
-        run: |
-          docker build -t analogj/scrutiny -f docker/Dockerfile .
-          docker save -o docker-analogj-scrutiny-latest.tar analogj/scrutiny:latest
-      - name: Archive Docker
-        uses: actions/upload-artifact@v2
-        with:
-          name: docker
-          path: docker-analogj-scrutiny-latest.tar
