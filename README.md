@@ -52,6 +52,19 @@ Scrutiny is a simple but focused application, with a couple of core features:
 
 # Getting Started
 
+## RAID/Virtual Drives
+
+Scrutiny uses `smartctl --scan` to detect devices/drives.
+
+- All RAID controllers supported by `smartctl` are automatically supported by Scrutiny.
+    - While some RAID controllers support passing through the underlying SMART data to `smartctl` others do not.
+    - In some cases `--scan` does not correctly detect the device type, returning [incomplete SMART data](https://github.com/AnalogJ/scrutiny/issues/45).
+    Scrutiny will eventually support overriding detected device type via the config file.
+- If you use docker, you **must** pass though the RAID virtual disk to the container using `--device` (see below)
+    - This device may be in `/dev/*` or `/dev/bus/*`.
+    - If you're unsure, run `smartctl --scan` on your host, and pass all listed devices to the container.
+
+
 ## Docker
 
 If you're using Docker, getting started is as simple as running the following command:
@@ -68,8 +81,8 @@ analogj/scrutiny
 
 - `/run/udev` is necessary to provide the Scrutiny collector with access to your device metadata
 - `--cap-add SYS_RAWIO` is necessary to allow `smartctl` permission to query your device SMART data
-    - NOTE: If you have NVMe drives, you must use `--cap-add SYS_ADMIN` instead. See issue [#26](https://github.com/AnalogJ/scrutiny/issues/26#issuecomment-696817130)
-- `--device` entries are required to ensure that your hard disk devices are accessible within the container
+    - NOTE: If you have NVMe drives, you must use `--cap-add SYS_ADMIN`. See issue [#26](https://github.com/AnalogJ/scrutiny/issues/26#issuecomment-696817130)
+- `--device` entries are required to ensure that your hard disk devices are accessible within the container.
 - `analogj/scrutiny` is a omnibus image, containing both the webapp server (frontend & api) as well as the S.M.A.R.T metric collector. (see below)
 
 ### Hub/Spoke Deployment
@@ -94,6 +107,13 @@ docker run -it --rm \
 analogj/scrutiny:collector
 ```
 
+## Manual Installation (without-Docker)
+
+While the easiest way to get started with [Scrutiny is using Docker](https://github.com/AnalogJ/scrutiny#docker),
+it is possible to run it manually without much work. You can even mix and match, using Docker for one component and
+a manual installation for the other.
+
+See [docs/INSTALL_MANUAL.md](docs/INSTALL_MANUAL.md) for instructions.
 
 ## Usage
 
