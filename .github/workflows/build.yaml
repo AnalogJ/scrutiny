@@ -33,7 +33,7 @@ jobs:
           go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
 
           chmod +x scrutiny-web-linux-amd64
-          chmod +x scrutiny-collector-metrics-linux-amd6
+          chmod +x scrutiny-collector-metrics-linux-amd64
 
       - name: Build arm64
         env:
