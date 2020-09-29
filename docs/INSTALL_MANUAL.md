@@ -73,9 +73,62 @@ tar xvzf scrutiny-web-frontend.tar.gz --strip-components 1 -C .
 rm -rf scrutiny-web-frontend.tar.gz
 ```
 
-### Start Scrutiny Webapp
+### Install Scrutiny systemd service
 
-Finally, we start the Scrutiny webapp:
+You may install Scrutiny as a systemd service:
+
+Create user and group for the service:
+
+```
+groupadd -r scrutiny
+useradd -m -d /etc/scrutiny -s /sbin/nologin -r -g scrutiny scrutiny
+```
+
+Change file permissions:
+
+```
+chown -R scrutiny\:scrutiny /etc/scrutiny
+```
+
+Create the service unit file:
+
+```
+cat > /etc/systemd/system/scrutiny.service <<EOF
+[Unit]
+Description=Scrutiny disk health monitor
+After=network.target
+
+[Service]
+Type=idle
+User=scrutiny
+Group=scrutiny
+ExecStart=/etc/scrutiny/bin/scrutiny-web-linux-amd64 start --config /etc/scrutiny/config/scrutiny.yaml
+TimeoutStartSec=600
+TimeoutStopSec=600
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+Enable and start the service:
+
+```
+systemctl daemon-reload
+systemctl enable scrutiny
+systemctl start scrutiny
+```
+
+Check log for any issues:
+
+```
+journalctl -u scrutiny
+```
+
+### Start Scrutiny Webapp (non-systemd)
+
+If you are not using the systemd service, you can start the Scrutiny webapp in the
+foreground:
 
 ```
 /opt/scrutiny/bin/scrutiny-web-linux-amd64 start --config /opt/scrutiny/config/scrutiny.yaml
@@ -128,7 +181,78 @@ Now that we have downloaded the required files, let's prepare the filesystem.
 chmod +x /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64
 ```
 
-### Start Scrutiny Collector, Populate Webapp
+### Install Scrutiny Collector systemd service
+
+If you are using systemd, you may configure collector as a systemd service and
+create a timer to invoke it periodically:
+
+```
+sudo cat > /etc/systemd/system/scrutiny-collector.service <<EOF
+[Unit]
+Description=Scrutiny disk health data collector
+
+[Service]
+Type=idle
+ExecStart=/etc/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 run --api-endpoint "http://localhost:8080"
+TimeoutStartSec=600
+TimeoutStopSec=600
+EOF
+```
+
+Configure collector systemd timer:
+
+```
+sudo cat > /etc/systemd/system/scrutiny-collector.timer <<EOF
+[Unit]
+Description=Scrutiny disk health data collector timer
+
+[Timer]
+OnCalendar=*:0/15
+Unit=scrutiny-collector.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+```
+
+Enable timer:
+
+```
+systemctl daemon-reload
+systemctl enable scrutiny-collector.timer
+systemctl start scrutiny-collector.timer
+```
+
+Check timer:
+
+```
+systemctl is-active scrutiny-collector.timer
+```
+
+Should say `active`
+
+Check the next scheduled run:
+
+```
+systemctl list-timers scrutiny*
+```
+
+Manually run the first data collection:
+
+```
+systemctl start scrutiny-collector.service
+```
+
+Check log for any issues:
+
+```
+journalctl -u scrutiny-collector.service
+```
+
+### Non-systemd configuration
+
+#### Start Scrutiny Collector, Populate Webapp
 
 Next, we will manually trigger the collector, to populate the Scrutiny dashboard:
 
@@ -136,7 +260,7 @@ Next, we will manually trigger the collector, to populate the Scrutiny dashboard
 /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 run --api-endpoint "http://localhost:8080"
 ```
 
-### Schedule Collector with Cron
+#### Schedule Collector with Cron
 
 Finally you need to schedule the collector to run periodically.
 This may be different depending on your OS/environment, but it may look something like this:
