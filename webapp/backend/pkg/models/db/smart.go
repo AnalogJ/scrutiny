@@ -10,6 +10,9 @@ import (
 const SmartWhenFailedFailingNow = "FAILING_NOW"
 const SmartWhenFailedInThePast = "IN_THE_PAST"
 
+const SmartStatusPassed = "passed"
+const SmartStatusFailed = "failed"
+
 type Smart struct {
 	gorm.Model
 
@@ -17,7 +20,7 @@ type Smart struct {
 	Device    Device `json:"-" gorm:"foreignkey:DeviceWWN"` // use DeviceWWN as foreign key
 
 	TestDate    time.Time `json:"date"`
-	SmartStatus string    `json:"smart_status"`
+	SmartStatus string    `json:"smart_status"` // SmartStatusPassed or SmartStatusFailed
 
 	//Metrics
 	Temp            int64 `json:"temp"`
@@ -49,9 +52,9 @@ func (sm *Smart) FromCollectorSmartInfo(wwn string, info collector.SmartInfo) er
 	}
 
 	if info.SmartStatus.Passed {
-		sm.SmartStatus = "passed"
+		sm.SmartStatus = SmartStatusPassed
 	} else {
-		sm.SmartStatus = "failed"
+		sm.SmartStatus = SmartStatusFailed
 	}
 	return nil
 }
