@@ -98,13 +98,21 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
     getAttributeDescription(attribute_data){
-        return this.data.metadata[attribute_data.attribute_id]?.description
+        let attribute_metadata = this.data.metadata[attribute_data.attribute_id]
+        if(!attribute_metadata){
+            return 'Unknown'
+        } else {
+            return attribute_metadata.description
+        }
+        return
     }
 
     getAttributeValue(attribute_data){
         if(this.isAta()) {
             let attribute_metadata = this.data.metadata[attribute_data.attribute_id]
-            if (attribute_metadata.display_type == "raw") {
+            if(!attribute_metadata){
+                return attribute_data.value
+            } else if (attribute_metadata.display_type == "raw") {
                 return attribute_data.raw_value
             } else if (attribute_metadata.display_type == "transformed" && attribute_data.transformed_value) {
                 return attribute_data.transformed_value
@@ -120,7 +128,11 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     getAttributeValueType(attribute_data){
         if(this.isAta()) {
             let attribute_metadata = this.data.metadata[attribute_data.attribute_id]
-            return attribute_metadata.display_type
+            if(!attribute_metadata){
+                return ''
+            } else {
+                return attribute_metadata.display_type
+            }
         } else {
             return ''
         }
@@ -135,12 +147,18 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     getAttributeWorst(attribute_data){
-        return this.data.metadata[attribute_data.attribute_id]?.display_type == "normalized" ? attribute_data.worst : ''
+        let attribute_metadata = this.data.metadata[attribute_data.attribute_id]
+        if(!attribute_metadata){
+            return attribute_data.worst
+        } else {
+            return attribute_metadata?.display_type == "normalized" ? attribute_data.worst : ''
+        }
     }
 
     getAttributeThreshold(attribute_data){
         if(this.isAta()){
-            if (this.data.metadata[attribute_data.attribute_id]?.display_type == "normalized"){
+            let attribute_metadata = this.data.metadata[attribute_data.attribute_id]
+            if(!attribute_metadata || attribute_metadata.display_type == "normalized"){
                 return attribute_data.thresh
             } else {
                 // if(this.data.metadata[attribute_data.attribute_id].observed_thresholds){

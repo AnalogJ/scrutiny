@@ -7,6 +7,7 @@ import { sdb } from 'app/data/mock/device/details/sdb';
 import { sdc } from 'app/data/mock/device/details/sdc';
 import { sdd } from 'app/data/mock/device/details/sdd';
 import { sde } from 'app/data/mock/device/details/sde';
+import { sdf } from 'app/data/mock/device/details/sdf';
 
 @Injectable({
     providedIn: 'root'
@@ -84,7 +85,7 @@ export class DetailsMockApi implements TreoMockApi
 
                 return [
                     200,
-                    _.cloneDeep(sde)
+                    _.cloneDeep(sdf)
                 ];
             });
     }
