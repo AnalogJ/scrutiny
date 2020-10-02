@@ -81,13 +81,13 @@ Create user and group for the service:
 
 ```
 groupadd -r scrutiny
-useradd -m -d /etc/scrutiny -s /sbin/nologin -r -g scrutiny scrutiny
+useradd -m -d /opt/scrutiny -s /sbin/nologin -r -g scrutiny scrutiny
 ```
 
 Change file permissions:
 
 ```
-chown -R scrutiny\:scrutiny /etc/scrutiny
+chown -R scrutiny\:scrutiny /opt/scrutiny
 ```
 
 Create the service unit file:
@@ -102,7 +102,7 @@ After=network.target
 Type=idle
 User=scrutiny
 Group=scrutiny
-ExecStart=/etc/scrutiny/bin/scrutiny-web-linux-amd64 start --config /etc/scrutiny/config/scrutiny.yaml
+ExecStart=/opt/scrutiny/bin/scrutiny-web-linux-amd64 start --config /opt/scrutiny/config/scrutiny.yaml
 TimeoutStartSec=600
 TimeoutStopSec=600
 
@@ -193,7 +193,7 @@ Description=Scrutiny disk health data collector
 
 [Service]
 Type=idle
-ExecStart=/etc/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 run --api-endpoint "http://localhost:8080"
+ExecStart=/opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 run --api-endpoint "http://localhost:8080"
 TimeoutStartSec=600
 TimeoutStopSec=600
 EOF
