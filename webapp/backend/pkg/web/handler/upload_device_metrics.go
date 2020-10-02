@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	dbModels "github.com/analogj/scrutiny/webapp/backend/pkg/models/db"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/notify"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
@@ -12,6 +14,7 @@ import (
 func UploadDeviceMetrics(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
 	logger := c.MustGet("LOGGER").(logrus.FieldLogger)
+	appConfig := c.MustGet("CONFIG").(config.Interface)
 
 	var collectorSmartData collector.SmartInfo
 	err := c.BindJSON(&collectorSmartData)
@@ -43,6 +46,22 @@ func UploadDeviceMetrics(c *gin.Context) {
 		logger.Errorln("An error occurred while saving smartctl metrics", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
 		return
+	}
+
+	//check for error
+	if deviceSmartData.SmartStatus == dbModels.SmartStatusFailed {
+		//send notifications
+		testNotify := notify.Notify{
+			Config: appConfig,
+			Payload: notify.Payload{
+				FailureType:  notify.NotifyFailureTypeSmartFailure,
+				DeviceName:   device.DeviceName,
+				DeviceType:   device.DeviceProtocol,
+				DeviceSerial: device.SerialNumber,
+				Test:         false,
+			},
+		}
+		_ = testNotify.Send() //we ignore error message when sending notifications.
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
