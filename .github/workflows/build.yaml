@@ -68,6 +68,18 @@ jobs:
           go build -ldflags "-X main.goos=windows -X main.goarch=amd64" -o scrutiny-web-windows-amd64.exe -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
           go build -ldflags "-X main.goos=windows -X main.goarch=amd64" -o scrutiny-collector-metrics-windows-amd64.exe -tags "static" collector/cmd/collector-metrics/collector-metrics.go
 
+      - name: Build freebsd
+        env:
+          GOOS: freebsd
+          GOARCH: amd64
+        run: |
+          cd $PROJECT_PATH
+          go build -ldflags "-X main.goos=freebsd -X main.goarch=amd64" -o scrutiny-web-freebsd-amd64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
+          go build -ldflags "-X main.goos=freebsd -X main.goarch=amd64" -o scrutiny-collector-metrics-freebsd-amd64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
+
+          chmod +x scrutiny-web-freebsd-amd64
+          chmod +x scrutiny-collector-metrics-freebsd-amd64
+
       - name: Archive
         uses: actions/upload-artifact@v2
         with:
@@ -81,6 +93,8 @@ jobs:
             ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-arm
             ${{ env.PROJECT_PATH }}/scrutiny-web-windows-amd64.exe
             ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-windows-amd64.exe
+            ${{ env.PROJECT_PATH }}/scrutiny-web-freebsd-amd64
+            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-freebsd-amd64
       - uses: codecov/codecov-action@v1
         with:
           file: ${{ env.PROJECT_PATH }}/coverage.txt
