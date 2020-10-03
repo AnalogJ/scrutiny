@@ -28,17 +28,21 @@ type Payload struct {
 	Date         string `json:"date"`          //populated by Send function.
 	FailureType  string `json:"failure_type"`  //EmailTest, SmartFail, ScrutinyFail
 	DeviceType   string `json:"device_type"`   //ATA/SCSI/NVMe
-	DeviceName   string `json:"device_string"` //dev/sda
-	DeviceSerial string `json:"device"`        //WDDJ324KSO
-	Test         bool   `json:"-"`             // false
+	DeviceName   string `json:"device_name"`   //dev/sda
+	DeviceSerial string `json:"device_serial"` //WDDJ324KSO
+	Test         bool   `json:"test"`          // false
+
+	//should not be populated
+	Subject string `json:"subject"`
+	Message string `json:"message"`
 }
 
-func (p *Payload) GenerateMessage() string {
+func (p *Payload) GenerateSubject() string {
 	//generate a detailed failure message
 	return fmt.Sprintf("Scrutiny SMART error (%s) detected on device: %s", p.FailureType, p.DeviceName)
 }
 
-func (p *Payload) GenerateSubject() string {
+func (p *Payload) GenerateMessage() string {
 	//generate a detailed failure message
 	message := fmt.Sprintf(
 		`Scrutiny SMART error notification for device: %s
@@ -66,6 +70,8 @@ func (n *Notify) Send() error {
 	//validate that the Payload is populated
 	sendDate := time.Now()
 	n.Payload.Date = sendDate.Format(time.RFC3339)
+	n.Payload.Subject = n.Payload.GenerateSubject()
+	n.Payload.Message = n.Payload.GenerateMessage()
 
 	//retrieve list of notification endpoints from config file
 	configUrls := n.Config.GetStringSlice("notify.urls")
@@ -155,13 +161,13 @@ func (n *Notify) SendScriptNotification(wg *sync.WaitGroup, scriptUrl string) {
 	}
 
 	copyEnv := os.Environ()
-	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_SUBJECT=%s", n.Payload.GenerateSubject()))
+	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_SUBJECT=%s", n.Payload.Subject))
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_DATE=%s", n.Payload.Date))
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_FAILURE_TYPE=%s", n.Payload.FailureType))
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_DEVICE_NAME=%s", n.Payload.DeviceName))
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_DEVICE_TYPE=%s", n.Payload.DeviceType))
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_DEVICE_SERIAL=%s", n.Payload.DeviceSerial))
-	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_MESSAGE=%s", n.Payload.GenerateMessage()))
+	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_MESSAGE=%s", n.Payload.Message))
 	err := utils.CmdExec(scriptPath, []string{}, "", copyEnv, "")
 	if err != nil {
 		n.Logger.Errorf("An error occurred while executing script %s: %v", scriptPath, err)
@@ -189,7 +195,7 @@ func (n *Notify) SendShoutrrrNotification(wg *sync.WaitGroup, shoutrrrUrl string
 		n.Logger.Errorf("An error occurred  occurred while generating notification payload for %s:\n %v", serviceName, shoutrrrUrl, err)
 	}
 
-	errs := sender.Send(n.Payload.GenerateMessage(), params)
+	errs := sender.Send(n.Payload.Message, params)
 	if len(errs) > 0 {
 		n.Logger.Errorf("One or more errors occurred  occurred while sending notifications for %s:\n %v", shoutrrrUrl, errs)
 		for _, err := range errs {
@@ -208,7 +214,7 @@ func (n *Notify) GenShoutrrrNotificationParams(shoutrrrUrl string) (string, *sho
 	params := &shoutrrrTypes.Params{}
 
 	logoUrl := "https://raw.githubusercontent.com/AnalogJ/scrutiny/master/webapp/frontend/src/ms-icon-144x144.png"
-	subject := n.Payload.GenerateSubject()
+	subject := n.Payload.Subject
 	switch serviceName {
 	// no params supported for these services
 	case "discord", "hangouts", "ifttt", "mattermost", "teams":

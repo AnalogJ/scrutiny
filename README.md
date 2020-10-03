@@ -132,6 +132,34 @@ We support a global YAML configuration file that must be located at /scrutiny/co
 
 Check the [example.scrutiny.yml](example.scrutiny.yaml) file for a fully commented version.
 
+## Notifications
+
+Scrutiny supports sending SMART device failure notifications via the following services:
+- Email
+- Webhooks
+- Discord
+- Gotify
+- Hangouts
+- IFTTT
+- Join
+- Mattermost
+- Pushbullet
+- Pushover
+- Slack
+- Teams
+- Telegram
+- Tulip
+
+Check the `notify.urls` section of [example.scrutiny.yml](example.scrutiny.yaml) for more information and documentation for service specific setup.
+
+### Testing Notifications
+
+You can test that your notifications are configured correctly by posting an empty payload to the notifications health check API.
+
+```
+curl -X POST http://localhost:8080/api/health/notify
+```
+
 # Contributing
 
 Please see the [CONTRIBUTING.md](CONTRIBUTING.md) for instructions for how to develop and contribute to the scrutiny codebase.

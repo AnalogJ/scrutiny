@@ -33,6 +33,9 @@ log:
   level: INFO
 
 
+# Notification "urls" look like the following. For more information about service specific configuration see
+# Shoutrrr's documentation: https://containrrr.dev/shoutrrr/services/overview/
+
 #notify:
 #  urls:
 #    - "discord://token@channel"
@@ -51,8 +54,12 @@ log:
 #    - "script:///file/path/on/disk"
 #    - "https://www.example.com/path"
 
-
+########################################################################################################################
+# FEATURES COMING SOON
+#
 # The following commented out sections are a preview of additional configuration options that will be available soon.
+#
+########################################################################################################################
 
 #disks:
 #  include:
