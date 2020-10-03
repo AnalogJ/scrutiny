@@ -160,6 +160,47 @@ You can test that your notifications are configured correctly by posting an empt
 curl -X POST http://localhost:8080/api/health/notify
 ```
 
+# Debug mode & Log Files
+Scrutiny provides various methods to change the log level to debug and generate log files.
+
+## Web Server/API
+
+You can use environmental variables to enable debug logging and/or log files for the web server:
+
+```
+DEBUG=true
+SCRUTINY_LOG_FILE=/tmp/web.log
+```
+
+You can configure the log level and log file in the config file:
+
+```
+log:
+  file: '/tmp/web.log'
+  level: DEBUG
+```
+
+Or if you're not using docker, you can pass CLI arguments to the web server during startup:
+
+```
+scrutiny start --debug --log-file /tmp/web.log
+```
+
+## Collector
+
+You can use environmental variables to enable debug logging and/or log files for the collector:
+
+```
+DEBUG=true
+COLLECTOR_LOG_FILE=/tmp/collector.log
+```
+
+Or if you're not using docker, you can pass CLI arguments to the collector during startup:
+
+```
+scrutiny-collector-metrics run --debug --log-file /tmp/collector.log
+```
+
 # Contributing
 
 Please see the [CONTRIBUTING.md](CONTRIBUTING.md) for instructions for how to develop and contribute to the scrutiny codebase.
