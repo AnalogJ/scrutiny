@@ -77,6 +77,8 @@ jobs:
             ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-amd64
             ${{ env.PROJECT_PATH }}/scrutiny-web-linux-arm64
             ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-arm64
+            ${{ env.PROJECT_PATH }}/scrutiny-web-linux-arm
+            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-arm
             ${{ env.PROJECT_PATH }}/scrutiny-web-windows-amd64.exe
             ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-windows-amd64.exe
       - uses: codecov/codecov-action@v1
