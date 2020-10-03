@@ -71,6 +71,11 @@ func (n *Notify) Send() error {
 	configUrls := n.Config.GetStringSlice("notify.urls")
 	n.Logger.Debugf("Configured notification services: %v", configUrls)
 
+	if len(configUrls) == 0 {
+		n.Logger.Infof("No notification endpoints configured. Skipping failure notification.")
+		return nil
+	}
+
 	//remove http:// https:// and script:// prefixed urls
 	notifyWebhooks := []string{}
 	notifyScripts := []string{}

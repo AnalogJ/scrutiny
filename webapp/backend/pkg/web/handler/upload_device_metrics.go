@@ -60,6 +60,7 @@ func UploadDeviceMetrics(c *gin.Context) {
 				DeviceSerial: device.SerialNumber,
 				Test:         false,
 			},
+			Logger: logger,
 		}
 		_ = testNotify.Send() //we ignore error message when sending notifications.
 	}
