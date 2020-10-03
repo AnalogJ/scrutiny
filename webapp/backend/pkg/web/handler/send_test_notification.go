@@ -30,6 +30,7 @@ func SendTestNotification(c *gin.Context) {
 		logger.Errorln("An error occurred while sending test notification", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
+			"errors":  []string{err.Error()},
 		})
 	} else {
 		c.JSON(http.StatusOK, dbModels.DeviceWrapper{
