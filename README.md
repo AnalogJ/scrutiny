@@ -135,6 +135,7 @@ Check the [example.scrutiny.yml](example.scrutiny.yaml) file for a fully comment
 ## Notifications
 
 Scrutiny supports sending SMART device failure notifications via the following services:
+- Custom Script (data provided via environmental variables)
 - Email
 - Webhooks
 - Discord
