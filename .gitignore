@@ -58,8 +58,8 @@ scrutiny.db
 /dist/
 vendor
 /scrutiny
-/scrutiny-collector-metrics-linux-amd64
-/scrutiny-web-linux-amd64
+/scrutiny-collector-metrics-*
+/scrutiny-web-*
 scrutiny-*.db
 scrutiny_test.db
 scrutiny.yaml
