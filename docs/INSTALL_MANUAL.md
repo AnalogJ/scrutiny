@@ -146,5 +146,5 @@ This may be different depending on your OS/environment, but it may look somethin
 crontab -e
 
 # add a line for Scrutiny
-*/15 * * * * /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 run --api-endpoint "http://localhost:8080"
+*/15 * * * * . /etc/profile; /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 run --api-endpoint "http://localhost:8080"
 ```
