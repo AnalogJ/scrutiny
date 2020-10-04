@@ -18,10 +18,9 @@ ENV PATH="/scrutiny/bin:${PATH}"
 ADD https://github.com/dshearer/jobber/releases/download/v1.4.4/jobber_1.4.4-1_amd64.deb /tmp/
 RUN apt install /tmp/jobber_1.4.4-1_amd64.deb
 
-RUN apt-get update && apt-get install -y smartmontools=7.0-0ubuntu1~ubuntu18.04.1
+RUN apt-get update && apt-get install -y smartmontools=7.0-0ubuntu1~ubuntu18.04.1 ca-certificates && update-ca-certificates
 
 COPY /rootfs/scrutiny /scrutiny
-
 
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-selftest /scrutiny/bin/
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-metrics /scrutiny/bin/
