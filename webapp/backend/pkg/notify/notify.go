@@ -206,10 +206,19 @@ func (n *Notify) SendShoutrrrNotification(shoutrrrUrl string) error {
 		var errstrings []string
 
 		for _, err := range errs {
+			if err == nil || err.Error() == "" {
+				continue
+			}
 			n.Logger.Error(err)
 			errstrings = append(errstrings, err.Error())
 		}
-		return errors.New(strings.Join(errstrings, "\n"))
+		//sometimes there are empty errs, we're going to skip them.
+		if len(errstrings) == 0 {
+			return nil
+		} else {
+			return errors.New(strings.Join(errstrings, "\n"))
+
+		}
 	}
 	return nil
 }
