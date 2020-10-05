@@ -202,22 +202,21 @@ func (n *Notify) SendShoutrrrNotification(shoutrrrUrl string) error {
 
 	errs := sender.Send(n.Payload.Message, params)
 	if len(errs) > 0 {
-		n.Logger.Errorf("One or more errors occurred  occurred while sending notifications for %s:", shoutrrrUrl)
 		var errstrings []string
 
 		for _, err := range errs {
 			if err == nil || err.Error() == "" {
 				continue
 			}
-			n.Logger.Error(err)
 			errstrings = append(errstrings, err.Error())
 		}
 		//sometimes there are empty errs, we're going to skip them.
 		if len(errstrings) == 0 {
 			return nil
 		} else {
+			n.Logger.Errorf("One or more errors occurred while sending notifications for %s:", shoutrrrUrl)
+			n.Logger.Error(errs)
 			return errors.New(strings.Join(errstrings, "\n"))
-
 		}
 	}
 	return nil
