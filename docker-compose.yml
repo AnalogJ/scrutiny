@@ -1,0 +1,16 @@
+version: '3.5'
+
+services:
+  scrutiny:
+    container_name: scrutiny
+    image: analogj/scrutiny
+    cap_add:
+      - SYS_RAWIO
+    ports:
+      - "8080:8080"
+    volumes:
+      - /run/udev:/run/udev:ro
+      - ./config:/scrutiny/config
+    devices:
+      - "/dev/sda"
+      - "/dev/sdb"
