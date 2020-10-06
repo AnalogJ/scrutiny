@@ -32,19 +32,15 @@ log:
   file: '' #absolute or relative paths allowed, eg. web.log
   level: INFO
 
-# The following commented out sections are a preview of additional configuration options that will be available soon.
 
-#disks:
-#  include:
-#    # - /dev/sda
-#  exclude:
-#    # - /dev/sdb
+# Notification "urls" look like the following. For more information about service specific configuration see
+# Shoutrrr's documentation: https://containrrr.dev/shoutrrr/services/overview/
 
 #notify:
 #  urls:
 #    - "discord://token@channel"
 #    - "telegram://token@telegram?channels=channel-1[,channel-2,...]"
-#    - "pushover://shoutrrr:apiToken@userKey/?devices=device1[,device2, ...]"
+#    - "pushover://shoutrrr:apiToken@userKey/?priority=1&devices=device1[,device2, ...]"
 #    - "slack://[botname@]token-a/token-b/token-c"
 #    - "smtp://username:password@host:port/?fromAddress=fromAddress&toAddresses=recipient1[,recipient2,...]"
 #    - "teams://token-a/token-b/token-c"
@@ -57,6 +53,19 @@ log:
 #    - "join://shoutrrr:api-key@join/?devices=device1[,device2, ...][&icon=icon][&title=title]"
 #    - "script:///file/path/on/disk"
 #    - "https://www.example.com/path"
+
+########################################################################################################################
+# FEATURES COMING SOON
+#
+# The following commented out sections are a preview of additional configuration options that will be available soon.
+#
+########################################################################################################################
+
+#disks:
+#  include:
+#    # - /dev/sda
+#  exclude:
+#    # - /dev/sdb
 
 #limits:
 #  ata:

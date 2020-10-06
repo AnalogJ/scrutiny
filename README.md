@@ -132,6 +132,76 @@ We support a global YAML configuration file that must be located at /scrutiny/co
 
 Check the [example.scrutiny.yml](example.scrutiny.yaml) file for a fully commented version.
 
+## Notifications
+
+Scrutiny supports sending SMART device failure notifications via the following services:
+- Custom Script (data provided via environmental variables)
+- Email
+- Webhooks
+- Discord
+- Gotify
+- Hangouts
+- IFTTT
+- Join
+- Mattermost
+- Pushbullet
+- Pushover
+- Slack
+- Teams
+- Telegram
+- Tulip
+
+Check the `notify.urls` section of [example.scrutiny.yml](example.scrutiny.yaml) for more information and documentation for service specific setup.
+
+### Testing Notifications
+
+You can test that your notifications are configured correctly by posting an empty payload to the notifications health check API.
+
+```
+curl -X POST http://localhost:8080/api/health/notify
+```
+
+# Debug mode & Log Files
+Scrutiny provides various methods to change the log level to debug and generate log files.
+
+## Web Server/API
+
+You can use environmental variables to enable debug logging and/or log files for the web server:
+
+```
+DEBUG=true
+SCRUTINY_LOG_FILE=/tmp/web.log
+```
+
+You can configure the log level and log file in the config file:
+
+```
+log:
+  file: '/tmp/web.log'
+  level: DEBUG
+```
+
+Or if you're not using docker, you can pass CLI arguments to the web server during startup:
+
+```
+scrutiny start --debug --log-file /tmp/web.log
+```
+
+## Collector
+
+You can use environmental variables to enable debug logging and/or log files for the collector:
+
+```
+DEBUG=true
+COLLECTOR_LOG_FILE=/tmp/collector.log
+```
+
+Or if you're not using docker, you can pass CLI arguments to the collector during startup:
+
+```
+scrutiny-collector-metrics run --debug --log-file /tmp/collector.log
+```
+
 # Contributing
 
 Please see the [CONTRIBUTING.md](CONTRIBUTING.md) for instructions for how to develop and contribute to the scrutiny codebase.

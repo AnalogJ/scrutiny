@@ -35,6 +35,8 @@ func (c *configuration) Init() error {
 	c.SetDefault("log.level", "INFO")
 	c.SetDefault("log.file", "")
 
+	c.SetDefault("notify.urls", []string{})
+
 	//c.SetDefault("disks.include", []string{})
 	//c.SetDefault("disks.exclude", []string{})
 
