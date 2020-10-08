@@ -30,7 +30,7 @@ func RegisterDevices(c *gin.Context) {
 		// update device fields that may change: (DeviceType, HostID)
 		if err := db.Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "wwn"}},
-			DoUpdates: clause.AssignmentColumns([]string{"host_id", "device_name"}),
+			DoUpdates: clause.AssignmentColumns([]string{"host_id", "device_name", "device_type"}),
 		}).Create(&dev).Error; err != nil {
 
 			errs = append(errs, err)
