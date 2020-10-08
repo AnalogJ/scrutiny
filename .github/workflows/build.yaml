@@ -27,7 +27,7 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
-          CGO_ENABLED=0
+          CGO_ENABLED: 0
         run: |
           apt-get update && apt-get install -y file
 
@@ -44,7 +44,7 @@ jobs:
         env:
           GOOS: linux
           GOARCH: arm
-          CGO_ENABLED=0
+          CGO_ENABLED: 0
         run: |
           cd $PROJECT_PATH
           go build -ldflags "-X main.goos=linux -X main.goarch=arm" -o scrutiny-web-linux-arm -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
@@ -57,7 +57,7 @@ jobs:
         env:
           GOOS: linux
           GOARCH: arm64
-          CGO_ENABLED=0
+          CGO_ENABLED: 0
         run: |
           cd $PROJECT_PATH
           go build -ldflags "-X main.goos=linux -X main.goarch=arm64" -o scrutiny-web-linux-arm64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
@@ -79,7 +79,7 @@ jobs:
         env:
           GOOS: freebsd
           GOARCH: amd64
-          CGO_ENABLED=0
+          CGO_ENABLED: 0
         run: |
           cd $PROJECT_PATH
           go build -ldflags "-X main.goos=freebsd -X main.goarch=amd64" -o scrutiny-web-freebsd-amd64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
