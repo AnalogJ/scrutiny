@@ -33,7 +33,7 @@ jobs:
 
           cd $PROJECT_PATH
           go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=amd64" -o scrutiny-web-linux-amd64 -tags "static sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
-          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
+          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
 
           chmod +x scrutiny-web-linux-amd64
           chmod +x scrutiny-collector-metrics-linux-amd64
