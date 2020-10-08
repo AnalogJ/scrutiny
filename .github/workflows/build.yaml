@@ -27,6 +27,7 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
+          CGO_ENABLED: 0
         run: |
           apt-get update && apt-get install -y file
 
