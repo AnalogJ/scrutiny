@@ -1,6 +1,6 @@
 # Commented Scrutiny Configuration File
 #
-# The default location for this file is ~/scrutiny.yaml.
+# The default location for this file is /scrutiny/config/scrutiny.yaml.
 # In some cases to improve clarity default values are specified,
 # uncommented. Other example values are commented out.
 #

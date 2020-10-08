@@ -1,0 +1,65 @@
+# Commented Scrutiny Configuration File
+#
+# The default location for this file is /scrutiny/config/collector.yaml.
+# In some cases to improve clarity default values are specified,
+# uncommented. Other example values are commented out.
+#
+# When this file is parsed by Scrutiny, all configuration file keys are
+# lowercased automatically. As such, Configuration keys are case-insensitive,
+# and should be lowercase in this file to be consistent with usage.
+
+
+######################################################################
+# Version
+#
+# version specifies the version of this configuration file schema, not
+# the scrutiny binary. There is only 1 version available at the moment
+version: 1
+
+# The host id is a label used for identifying groups of disks running on the same host
+# Primiarly used for hub/spoke deployments (can be left empty if using all-in-one image).
+host:
+  id: ""
+
+
+# This block allows you to override/customize the settings for devices detected by
+# Scrutiny via `smartctl --scan`
+# See the "--device=TYPE" section of https://linux.die.net/man/8/smartctl
+# type can be a 'string' or a 'list'
+devices:
+#  # example for forcing device type detection for a single disk
+#  - device: /dev/sda
+#    type: 'sat'
+#
+#  # example to show how to ignore a specific disk/device.
+#  - device: /dev/sda
+#    ignore: true
+#
+#  # examples showing how to force smartctl to detect disks inside a raid array/virtual disk
+#  - device: /dev/bus/0
+#    type:
+#      - megaraid,14
+#      - megaraid,15
+#      - megaraid,18
+#      - megaraid,19
+#      - megaraid,20
+#      - megaraid,21
+#
+#  - device: /dev/twa0
+#    type:
+#      - 3ware,0
+#      - 3ware,1
+#      - 3ware,2
+#      - 3ware,3
+#      - 3ware,4
+#      - 3ware,5
+
+
+
+########################################################################################################################
+# FEATURES COMING SOON
+#
+# The following commented out sections are a preview of additional configuration options that will be available soon.
+#
+########################################################################################################################
+

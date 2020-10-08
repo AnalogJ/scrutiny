@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/analogj/scrutiny/collector/pkg/common"
+	"github.com/analogj/scrutiny/collector/pkg/config"
 	"github.com/analogj/scrutiny/collector/pkg/detect"
 	"github.com/analogj/scrutiny/collector/pkg/errors"
 	"github.com/analogj/scrutiny/collector/pkg/models"
@@ -16,17 +17,19 @@ import (
 )
 
 type MetricsCollector struct {
+	config config.Interface
 	BaseCollector
 	apiEndpoint *url.URL
 }
 
-func CreateMetricsCollector(logger *logrus.Entry, apiEndpoint string) (MetricsCollector, error) {
+func CreateMetricsCollector(appConfig config.Interface, logger *logrus.Entry, apiEndpoint string) (MetricsCollector, error) {
 	apiEndpointUrl, err := url.Parse(apiEndpoint)
 	if err != nil {
 		return MetricsCollector{}, err
 	}
 
 	sc := MetricsCollector{
+		config:      appConfig,
 		apiEndpoint: apiEndpointUrl,
 		BaseCollector: BaseCollector{
 			logger: logger,
@@ -49,6 +52,7 @@ func (mc *MetricsCollector) Run() error {
 
 	deviceDetector := detect.Detect{
 		Logger: mc.logger,
+		Config: mc.config,
 	}
 	detectedStorageDevices, err := deviceDetector.Start()
 	if err != nil {

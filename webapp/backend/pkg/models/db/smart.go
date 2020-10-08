@@ -3,7 +3,7 @@ package db
 import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/metadata"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	"time"
 )
 
