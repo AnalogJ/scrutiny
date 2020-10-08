@@ -10,10 +10,11 @@ type Scan struct {
 		Argv         []string `json:"argv"`
 		ExitStatus   int      `json:"exit_status"`
 	} `json:"smartctl"`
-	Devices []struct {
-		Name     string `json:"name"`
-		InfoName string `json:"info_name"`
-		Type     string `json:"type"`
-		Protocol string `json:"protocol"`
-	} `json:"devices"`
+	Devices []ScanDevice `json:"devices"`
+}
+type ScanDevice struct {
+	Name     string `json:"name"`
+	InfoName string `json:"info_name"`
+	Type     string `json:"type"`
+	Protocol string `json:"protocol"`
 }

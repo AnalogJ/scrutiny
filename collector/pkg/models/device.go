@@ -1,7 +1,8 @@
 package models
 
 type Device struct {
-	WWN string `json:"wwn"`
+	WWN    string `json:"wwn"`
+	HostId string `json:"host_id"`
 
 	DeviceName     string `json:"device_name"`
 	Manufacturer   string `json:"manufacturer"`

@@ -1,0 +1,19 @@
+version: 1
+devices:
+  - device: /dev/bus/0
+    type:
+      - megaraid,14
+      - megaraid,15
+      - megaraid,18
+      - megaraid,19
+      - megaraid,20
+      - megaraid,21
+
+  - device: /dev/twa0
+    type:
+      - 3ware,0
+      - 3ware,1
+      - 3ware,2
+      - 3ware,3
+      - 3ware,4
+      - 3ware,5

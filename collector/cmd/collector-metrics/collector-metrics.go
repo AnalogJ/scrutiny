@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/analogj/scrutiny/collector/pkg/collector"
+	"github.com/analogj/scrutiny/collector/pkg/config"
+	"github.com/analogj/scrutiny/collector/pkg/errors"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
 	"github.com/sirupsen/logrus"
 	"io"
@@ -19,6 +21,20 @@ var goos string
 var goarch string
 
 func main() {
+
+	config, err := config.Create()
+	if err != nil {
+		fmt.Printf("FATAL: %+v\n", err)
+		os.Exit(1)
+	}
+
+	//we're going to load the config file manually, since we need to validate it.
+	err = config.ReadConfig("/scrutiny/config/collector.yaml") // Find and read the config file
+	if _, ok := err.(errors.ConfigFileMissingError); ok {      // Handle errors reading the config file
+		//ignore "could not find config file"
+	} else if err != nil {
+		os.Exit(1)
+	}
 
 	cli.CommandHelpTemplate = `NAME:
    {{.HelpName}} - {{.Usage}}
@@ -75,6 +91,17 @@ OPTIONS:
 				Name:  "run",
 				Usage: "Run the scrutiny smartctl metrics collector",
 				Action: func(c *cli.Context) error {
+					if c.IsSet("config") {
+						err = config.ReadConfig(c.String("config")) // Find and read the config file
+						if err != nil {                             // Handle errors reading the config file
+							//ignore "could not find config file"
+							fmt.Printf("Could not find config file at specified path: %s", c.String("config"))
+							return err
+						}
+					}
+					if c.IsSet("host-id") {
+						config.Set("host.id", c.String("host-id")) // set/override the host-id using CLI.
+					}
 
 					collectorLogger := logrus.WithFields(logrus.Fields{
 						"type": "metrics",
@@ -97,6 +124,7 @@ OPTIONS:
 					}
 
 					metricCollector, err := collector.CreateMetricsCollector(
+						config,
 						collectorLogger,
 						c.String("api-endpoint"),
 					)
@@ -109,6 +137,10 @@ OPTIONS:
 				},
 
 				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "config",
+						Usage: "Specify the path to the devices file",
+					},
 					&cli.StringFlag{
 						Name:    "api-endpoint",
 						Usage:   "The api server endpoint",
@@ -128,12 +160,18 @@ OPTIONS:
 						Usage:   "Enable debug logging",
 						EnvVars: []string{"COLLECTOR_DEBUG", "DEBUG"},
 					},
+
+					&cli.BoolFlag{
+						Name:    "host-id",
+						Usage:   "Host identifier/label, used for grouping devices",
+						EnvVars: []string{"COLLECTOR_HOST_ID"},
+					},
 				},
 			},
 		},
 	}
 
-	err := app.Run(os.Args)
+	err = app.Run(os.Args)
 	if err != nil {
 		log.Fatal(color.HiRedString("ERROR: %v", err))
 	}

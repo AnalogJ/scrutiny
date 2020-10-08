@@ -60,7 +60,7 @@ OPTIONS:
 		},
 		Before: func(c *cli.Context) error {
 
-			drawbridge := "github.com/AnalogJ/scrutiny"
+			scrutiny := "github.com/AnalogJ/scrutiny"
 
 			var versionInfo string
 			if len(goos) > 0 && len(goarch) > 0 {
@@ -69,7 +69,7 @@ OPTIONS:
 				versionInfo = fmt.Sprintf("dev-%s", version.VERSION)
 			}
 
-			subtitle := drawbridge + utils.LeftPad2Len(versionInfo, " ", 65-len(drawbridge))
+			subtitle := scrutiny + utils.LeftPad2Len(versionInfo, " ", 65-len(scrutiny))
 
 			color.New(color.FgGreen).Fprintf(c.App.Writer, fmt.Sprintf(utils.StripIndent(
 				`

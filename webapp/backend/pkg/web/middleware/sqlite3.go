@@ -5,20 +5,24 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/db"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/sirupsen/logrus"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
-func DatabaseMiddleware(appConfig config.Interface, logger logrus.FieldLogger) gin.HandlerFunc {
+func DatabaseMiddleware(appConfig config.Interface, globalLogger logrus.FieldLogger) gin.HandlerFunc {
+
 	//var database *gorm.DB
 	fmt.Printf("Trying to connect to database stored: %s\n", appConfig.GetString("web.database.location"))
-	database, err := gorm.Open("sqlite3", appConfig.GetString("web.database.location"))
+	database, err := gorm.Open(sqlite.Open(appConfig.GetString("web.database.location")), &gorm.Config{
+		//TODO: figure out how to log database queries again.
+		//Logger: logger
+	})
 	if err != nil {
 		panic("Failed to connect to database!")
 	}
 
-	database.SetLogger(&GormLogger{Logger: logger})
+	//database.SetLogger()
 	database.AutoMigrate(&db.Device{})
 	database.AutoMigrate(&db.SelfTest{})
 	database.AutoMigrate(&db.Smart{})

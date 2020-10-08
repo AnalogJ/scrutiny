@@ -128,7 +128,7 @@ docker exec scrutiny /scrutiny/bin/scrutiny-collector-metrics run
 ```
 
 # Configuration
-We support a global YAML configuration file that must be located at /scrutiny/config/scrutiny.yaml
+We support a global YAML configuration file that must be located at `/scrutiny/config/scrutiny.yaml`
 
 Check the [example.scrutiny.yml](example.scrutiny.yaml) file for a fully commented version.
 

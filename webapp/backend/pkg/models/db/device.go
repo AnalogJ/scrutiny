@@ -21,7 +21,8 @@ type Device struct {
 	UpdatedAt time.Time
 	DeletedAt *time.Time
 
-	WWN string `json:"wwn" gorm:"primary_key"`
+	WWN    string `json:"wwn" gorm:"primary_key"`
+	HostId string `json:"host_id"`
 
 	DeviceName     string  `json:"device_name"`
 	Manufacturer   string  `json:"manufacturer"`
@@ -151,6 +152,8 @@ func (dv *Device) ApplyMetadataRules() error {
 	return nil
 }
 
+// This function is called every time the collector sends SMART data to the API.
+// It can be used to update device data that can change over time.
 func (dv *Device) UpdateFromCollectorSmartInfo(info collector.SmartInfo) error {
 	dv.Firmware = info.FirmwareVersion
 	return nil

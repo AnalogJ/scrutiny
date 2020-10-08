@@ -11,14 +11,14 @@ func DevicePrefix() string {
 
 func (d *Detect) Start() ([]models.Device, error) {
 	// call the base/common functionality to get a list of devices
-	detectedDevices, err := d.smartctlScan()
+	detectedDevices, err := d.SmartctlScan()
 	if err != nil {
 		return nil, err
 	}
 
 	//inflate device info for detected devices.
 	for ndx, _ := range detectedDevices {
-		d.smartCtlInfo(&detectedDevices[ndx]) //ignore errors.
+		d.SmartCtlInfo(&detectedDevices[ndx]) //ignore errors.
 	}
 
 	return detectedDevices, nil

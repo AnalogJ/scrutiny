@@ -2,7 +2,7 @@ package db
 
 import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/metadata"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type SmartScsiAttribute struct {

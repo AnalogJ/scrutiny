@@ -3,12 +3,15 @@ package handler
 import (
 	dbModels "github.com/analogj/scrutiny/webapp/backend/pkg/models/db"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
-// filter devices that are detected by various collectors.
+// register devices that are detected by various collectors.
+// This function is run everytime a collector is about to start a run. It can be used to update device data.
 func RegisterDevices(c *gin.Context) {
 	db := c.MustGet("DB").(*gorm.DB)
 	logger := c.MustGet("LOGGER").(logrus.FieldLogger)
@@ -21,11 +24,15 @@ func RegisterDevices(c *gin.Context) {
 		return
 	}
 
-	//TODO: filter devices here (remove excludes, force includes)
 	errs := []error{}
 	for _, dev := range collectorDeviceWrapper.Data {
-		//insert devices into DB if not already there.
-		if err := db.Where(dbModels.Device{WWN: dev.WWN}).FirstOrCreate(&dev).Error; err != nil {
+		//insert devices into DB (and update specified columns if device is already registered)
+		// update device fields that may change: (DeviceType, HostID)
+		if err := db.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "wwn"}},
+			DoUpdates: clause.AssignmentColumns([]string{"host_id", "device_name"}),
+		}).Create(&dev).Error; err != nil {
+
 			errs = append(errs, err)
 		}
 	}
