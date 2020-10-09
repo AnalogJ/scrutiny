@@ -47,7 +47,7 @@ Scrutiny is a simple but focused application, with a couple of core features:
 - Customized thresholds using real world failure rates
 - Temperature tracking
 - Provided as an all-in-one Docker image (but can be installed manually)
-- (Future) Configurable Alerting/Notifications via Webhooks
+- Future Configurable Alerting/Notifications via Webhooks
 - (Future) Hard Drive performance testing & tracking
 
 # Getting Started
@@ -119,18 +119,25 @@ See [docs/INSTALL_MANUAL.md](docs/INSTALL_MANUAL.md) for instructions.
 
 Once scrutiny is running, you can open your browser to `http://localhost:8080` and take a look at the dashboard.
 
-Initially it will be empty, however after the first collector run, you'll be greeted with a list of all your hard drives and their current smart status.
+If you're using the omnibus image, the collector should already have run, and your dashboard should be populate with every
+drive that Scrutiny detected. The collector is configured to run once a day, but you can trigger it manually by running the command below.
 
-The collector is configured to run once a day, but you can trigger it manually by running the following command
+For users of the docker Hub/Spoke deployment or manual install: initially the dashboard will be empty.
+After the first collector run, you'll be greeted with a list of all your hard drives and their current smart status.
 
 ```
 docker exec scrutiny /scrutiny/bin/scrutiny-collector-metrics run
 ```
 
 # Configuration
-We support a global YAML configuration file that must be located at `/scrutiny/config/scrutiny.yaml`
+By default Scrutiny looks for its YAML configuration files in `/scrutiny/config`
 
-Check the [example.scrutiny.yml](example.scrutiny.yaml) file for a fully commented version.
+There are two configuration files available:
+
+- Webapp/API config via `scrutiny.yaml` - [example.scrutiny.yml](example.scrutiny.yaml).
+- Collector config via `collector.yaml` - [example.collector.yml](example.collector.yaml).
+
+Neither file is required, however if provided, it allows you to configure how Scrutiny functions.
 
 ## Notifications
 
