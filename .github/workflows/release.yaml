@@ -29,24 +29,75 @@ jobs:
           version_bump_type: ${{ github.event.inputs.version_bump_type }}
           version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
           github_token: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-      - name: Build
+      - name: Test
         env:
           GOOS: linux
           GOARCH: amd64
         run: |
           mkdir -p $PROJECT_PATH
-          cp -a $GITHUB_WORKSPACE/. $PROJECT_PATH/
+          cp -a $GITHUB_WORKSPACE/* $PROJECT_PATH/
           cd $PROJECT_PATH
 
           go mod vendor
-
           go test -v -tags "static" $(go list ./... | grep -v /vendor/)
 
-          go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-web-linux-amd64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
-          go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go
+      - name: Build amd64
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          cd $PROJECT_PATH
+          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=amd64" -o scrutiny-web-linux-amd64 -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
+          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
 
           chmod +x scrutiny-web-linux-amd64
           chmod +x scrutiny-collector-metrics-linux-amd64
+
+      - name: Build arm
+        env:
+          GOOS: linux
+          GOARCH: arm
+        run: |
+          cd $PROJECT_PATH
+          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=arm" -o scrutiny-web-linux-arm -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
+          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=arm" -o scrutiny-collector-metrics-linux-arm -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
+
+          chmod +x scrutiny-web-linux-arm
+          chmod +x scrutiny-collector-metrics-linux-arm
+
+      - name: Build arm64
+        env:
+          GOOS: linux
+          GOARCH: arm64
+        run: |
+          cd $PROJECT_PATH
+          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=arm64" -o scrutiny-web-linux-arm64 -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
+          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=arm64" -o scrutiny-collector-metrics-linux-arm64 -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
+
+          chmod +x scrutiny-web-linux-arm64
+          chmod +x scrutiny-collector-metrics-linux-arm64
+
+      - name: Build windows
+        env:
+          GOOS: windows
+          GOARCH: amd64
+        run: |
+          cd $PROJECT_PATH
+          go build -ldflags "-X main.goos=windows -X main.goarch=amd64" -o scrutiny-web-windows-amd64.exe -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
+          go build -ldflags "-X main.goos=windows -X main.goarch=amd64" -o scrutiny-collector-metrics-windows-amd64.exe -tags "static" collector/cmd/collector-metrics/collector-metrics.go
+
+      - name: Build freebsd
+        env:
+          GOOS: freebsd
+          GOARCH: amd64
+        run: |
+          cd $PROJECT_PATH
+          go build -ldflags "-extldflags=-static -X main.goos=freebsd -X main.goarch=amd64" -o scrutiny-web-freebsd-amd64 -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
+          go build -ldflags "-extldflags=-static -X main.goos=freebsd -X main.goarch=amd64" -o scrutiny-collector-metrics-freebsd-amd64 -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
+
+          chmod +x scrutiny-web-freebsd-amd64
+          chmod +x scrutiny-collector-metrics-freebsd-amd64
+
       - name: Commit
         uses: EndBug/add-and-commit@v4 # You can change this to use a specific version
         with:
@@ -71,7 +122,8 @@ jobs:
           release_name: Release ${{ steps.bump_version.outputs.release_version }}
           draft: false
           prerelease: false
-      - name: Upload Web Backend Release Asset
+
+      - name: Release Asset - Web - linux-amd64
         id: upload-release-asset1
         uses: actions/upload-release-asset@v1
         env:
@@ -81,7 +133,7 @@ jobs:
           asset_path: ${{ env.PROJECT_PATH }}/scrutiny-web-linux-amd64
           asset_name: scrutiny-web-linux-amd64
           asset_content_type: application/octet-stream
-      - name: Upload Collector Release Asset
+      - name: Release Asset - Collector - linux-amd64
         id: upload-release-asset2
         uses: actions/upload-release-asset@v1
         env:
@@ -90,4 +142,68 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           asset_path: ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-amd64
           asset_name: scrutiny-collector-metrics-linux-amd64
+          asset_content_type: application/octet-stream
+
+
+      - name: Release Asset - Web - linux-arm64
+        id: upload-release-asset3
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ${{ env.PROJECT_PATH }}/scrutiny-web-linux-arm64
+          asset_name: scrutiny-web-linux-arm64
+          asset_content_type: application/octet-stream
+      - name: Release Asset - Collector - linux-arm64
+        id: upload-release-asset4
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-arm64
+          asset_name: scrutiny-collector-metrics-linux-arm64
+          asset_content_type: application/octet-stream
+
+      - name: Release Asset - Web - linux-arm
+        id: upload-release-asset5
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ${{ env.PROJECT_PATH }}/scrutiny-web-linux-arm
+          asset_name: scrutiny-web-linux-arm
+          asset_content_type: application/octet-stream
+      - name: Release Asset - Collector - linux-arm
+        id: upload-release-asset6
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-arm
+          asset_name: scrutiny-collector-metrics-linux-arm
+          asset_content_type: application/octet-stream
+
+      - name: Release Asset - Web - freebsd-amd64
+        id: upload-release-asset7
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ${{ env.PROJECT_PATH }}/scrutiny-web-freebsd-amd64
+          asset_name: scrutiny-web-freebsd-amd64
+          asset_content_type: application/octet-stream
+      - name: Release Asset - Collector - freebsd-amd64
+        id: upload-release-asset8
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-freebsd-amd64
+          asset_name: scrutiny-collector-metrics-freebsd-amd64
           asset_content_type: application/octet-stream
