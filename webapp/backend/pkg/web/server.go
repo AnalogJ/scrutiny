@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type AppEngine struct {
@@ -26,6 +27,17 @@ func (ae *AppEngine) Setup(logger logrus.FieldLogger) *gin.Engine {
 	r.Use(middleware.DatabaseMiddleware(ae.Config, logger))
 	r.Use(middleware.ConfigMiddleware(ae.Config))
 	r.Use(gin.Recovery())
+
+	basePath := ae.Config.GetString("web.src.backend.basepath")
+	if len(basePath) > 0 {
+		r.Group(basePath, func(c *gin.Context) {
+			c.Request.URL.Path = strings.TrimPrefix(c.Request.URL.Path, basePath)
+			r.HandleContext(c)
+		})
+	} else {
+		basePath = "/"
+	}
+
 
 	api := r.Group("/api")
 	{
@@ -48,7 +60,7 @@ func (ae *AppEngine) Setup(logger logrus.FieldLogger) *gin.Engine {
 
 	//redirect base url to /web
 	r.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusFound, "/web")
+		c.Redirect(http.StatusFound, basePath + "/web")
 	})
 
 	//catch-all, serve index page.
