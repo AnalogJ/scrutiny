@@ -26,6 +26,7 @@ func TestHealthRoute(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.src.backend.basepath").Return("").AnyTimes()
 
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -52,6 +53,7 @@ func TestRegisterDevicesRoute(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.src.backend.basepath").Return("").AnyTimes()
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -77,6 +79,7 @@ func TestUploadDeviceMetricsRoute(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.src.backend.basepath").Return("").AnyTimes()
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -112,6 +115,7 @@ func TestPopulateMultiple(t *testing.T) {
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").Return([]string{}).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.src.backend.basepath").Return("").AnyTimes()
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -198,6 +202,7 @@ func TestSendTestNotificationRoute_WebhookFailure(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.src.backend.basepath").Return("").AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"https://unroutable.domain.example.asdfghj"})
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -222,6 +227,7 @@ func TestSendTestNotificationRoute_ScriptFailure(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.src.backend.basepath").Return("").AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"script:///missing/path/on/disk"})
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -270,6 +276,7 @@ func TestSendTestNotificationRoute_ShoutrrrFailure(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.src.backend.basepath").Return("").AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"discord://invalidtoken@channel"})
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -294,6 +301,7 @@ func TestGetDevicesSummaryRoute_Nvme(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.src.backend.basepath").Return("").AnyTimes()
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
