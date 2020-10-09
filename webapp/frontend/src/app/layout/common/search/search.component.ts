@@ -5,6 +5,7 @@ import { MatFormField } from '@angular/material/form-field';
 import { Subject } from 'rxjs';
 import { debounceTime, filter, map, takeUntil } from 'rxjs/operators';
 import { TreoAnimations } from '@treo/animations/public-api';
+import { getBasePath } from 'app/app.routing';
 
 @Component({
     selector     : 'search',
@@ -199,7 +200,7 @@ export class SearchComponent implements OnInit, OnDestroy
                 })
             )
             .subscribe((value) => {
-                this._httpClient.post('api/common/search', {query: value})
+                this._httpClient.post(getBasePath() + '/api/common/search', {query: value})
                     .subscribe((response: any) => {
                         this.results = response.results;
                     });

@@ -22,7 +22,7 @@ COPY webapp/frontend /scrutiny/src
 RUN npm install -g @angular/cli@9.1.4 && \
     mkdir -p /scrutiny/dist && \
     npm install && \
-    ng build --output-path=/scrutiny/dist --deploy-url="/web/" --base-href="/web/" --prod
+    ng build --output-path=/scrutiny/dist --prod
 
 
 ########

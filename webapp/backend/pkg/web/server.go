@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 type AppEngine struct {
@@ -29,37 +28,31 @@ func (ae *AppEngine) Setup(logger logrus.FieldLogger) *gin.Engine {
 	r.Use(gin.Recovery())
 
 	basePath := ae.Config.GetString("web.src.backend.basepath")
-	if len(basePath) > 0 {
-		r.Group(basePath, func(c *gin.Context) {
-			c.Request.URL.Path = strings.TrimPrefix(c.Request.URL.Path, basePath)
-			r.HandleContext(c)
-		})
-	} else {
-		basePath = "/"
-	}
-
-
-	api := r.Group("/api")
+	logger.Debugf("basepath: %s", basePath)
+	base := r.Group(basePath)
 	{
-		api.GET("/health", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"success": true,
+		api := base.Group("/api")
+		{
+			api.GET("/health", func(c *gin.Context) {
+				c.JSON(http.StatusOK, gin.H{
+					"success": true,
+				})
 			})
-		})
-		api.POST("/health/notify", handler.SendTestNotification) //check if notifications are configured correctly
+			api.POST("/health/notify", handler.SendTestNotification) //check if notifications are configured correctly
 
-		api.POST("/devices/register", handler.RegisterDevices)      //used by Collector to register new devices and retrieve filtered list
-		api.GET("/summary", handler.GetDevicesSummary)              //used by Dashboard
-		api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics) //used by Collector to upload data
-		api.POST("/device/:wwn/selftest", handler.UploadDeviceSelfTests)
-		api.GET("/device/:wwn/details", handler.GetDeviceDetails) //used by Details
+			api.POST("/devices/register", handler.RegisterDevices)      //used by Collector to register new devices and retrieve filtered list
+			api.GET("/summary", handler.GetDevicesSummary)              //used by Dashboard
+			api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics) //used by Collector to upload data
+			api.POST("/device/:wwn/selftest", handler.UploadDeviceSelfTests)
+			api.GET("/device/:wwn/details", handler.GetDeviceDetails) //used by Details
+		}
 	}
 
 	//Static request routing
-	r.StaticFS("/web", http.Dir(ae.Config.GetString("web.src.frontend.path")))
+	base.StaticFS("/web", http.Dir(ae.Config.GetString("web.src.frontend.path")))
 
 	//redirect base url to /web
-	r.GET("/", func(c *gin.Context) {
+	base.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusFound, basePath + "/web")
 	})
 
