@@ -2,7 +2,9 @@ package web
 
 import (
 	"fmt"
+	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/handler"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/middleware"
 	"github.com/gin-gonic/gin"
@@ -10,6 +12,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 type AppEngine struct {
@@ -75,6 +78,13 @@ func (ae *AppEngine) Start() error {
 
 		//configure the logrus default
 		logger.SetOutput(io.MultiWriter(os.Stderr, logFile))
+	}
+
+	//check if the database parent directory exists, fail here rather than in a handler.
+	if !utils.FileExists(filepath.Dir(ae.Config.GetString("web.database.location"))) {
+		return errors.ConfigValidationError(fmt.Sprintf(
+			"Database parent directory does not exist. Please check path (%s)",
+			filepath.Dir(ae.Config.GetString("web.database.location"))))
 	}
 
 	r := ae.Setup(logger)
