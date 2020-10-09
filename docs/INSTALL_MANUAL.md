@@ -100,7 +100,7 @@ So you'll need to install the v7+ version using one of the following commands:
 - **Centos8:**
     - `dnf install https://extras.getpagespeed.com/release-el8-latest.rpm`
     - `dnf install smartmontools`
-
+- **FreeBSD:** `pkg install smartmontools`
 
 ### Directory Structure
 
