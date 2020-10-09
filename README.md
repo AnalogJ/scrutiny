@@ -134,8 +134,8 @@ By default Scrutiny looks for its YAML configuration files in `/scrutiny/config`
 
 There are two configuration files available:
 
-- Webapp/API config via `scrutiny.yaml` - [example.scrutiny.yml](example.scrutiny.yaml).
-- Collector config via `collector.yaml` - [example.collector.yml](example.collector.yaml).
+- Webapp/API config via `scrutiny.yaml` - [example.scrutiny.yaml](example.scrutiny.yaml).
+- Collector config via `collector.yaml` - [example.collector.yaml](example.collector.yaml).
 
 Neither file is required, however if provided, it allows you to configure how Scrutiny functions.
 
