@@ -41,7 +41,9 @@ jobs:
           chmod +x scrutiny-collector-metrics-linux-amd64
 
           file scrutiny-web-linux-amd64
+          ldd scrutiny-web-linux-amd64 || true
           file scrutiny-collector-metrics-linux-amd64
+          ldd scrutiny-collector-metrics-linux-amd64 || true
       - name: Build arm
         env:
           GOOS: linux
