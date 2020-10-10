@@ -28,7 +28,7 @@ web:
       path: /scrutiny/web
     # leave empty unless behind a path prefixed proxy
     backend:
-      basepath: # if behind a path prefixed proxy set to path value
+      basepath: # if behind a path prefixed proxy set to path value with leading /
 
 
 log:
