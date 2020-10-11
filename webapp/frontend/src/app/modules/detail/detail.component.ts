@@ -8,6 +8,7 @@ import {takeUntil} from "rxjs/operators";
 import {fadeOut} from "../../../@treo/animations/fade";
 import {DetailSettingsComponent} from "app/layout/common/detail-settings/detail-settings.component";
 import {MatDialog} from "@angular/material/dialog";
+import humanizeDuration from 'humanize-duration';
 
 @Component({
   selector: 'detail',
@@ -320,23 +321,17 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         // return item.id || index;
     }
 
-    humanizeHours(hours: number): string {
+
+    humanizeHours(hours: number, full: boolean = false): string {
+        let duration: string = ''
         if(!hours){
             return '--'
         }
-
-        var value: number
-        let unit = ""
-        if(hours > (24*365)){ //more than a year
-            value = Math.round((hours/(24*365)) * 10)/10
-            unit = "years"
-        } else if (hours > 24){
-            value = Math.round((hours/24) *10 )/10
-            unit = "days"
-        } else{
-            value = hours
-            unit = "hours"
+        if(!full){
+            duration = humanizeDuration(hours * 60 * 60 * 1000, { round: true, largest: 1, units: ['y', 'd', 'h', 'm', 's'] });
+        } else {
+            duration = humanizeDuration(hours * 60 * 60 * 1000, { conjunction: " and ", serialComma: false });
         }
-        return `${value} ${unit}`
+        return duration
     }
 }

@@ -97,7 +97,7 @@
                         <div class="text-secondary text-md">Power Cycle Count</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
-                        <div matTooltip="{{data.data.smart_results[0]?.power_on_hours}} hours">{{humanizeHours(data.data.smart_results[0]?.power_on_hours)}}</div>
+                        <div matTooltip="{{humanizeHours(data.data.smart_results[0]?.power_on_hours, true)}}">{{humanizeHours(data.data.smart_results[0]?.power_on_hours)}}</div>
                         <div class="text-secondary text-md">Powered On</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
