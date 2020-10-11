@@ -69,7 +69,7 @@
                                    class="font-bold text-md text-secondary uppercase tracking-wider">{{deviceTitle(disk)}}</a>
                                 <div [ngClass]="{'text-green': disk.smart_results[0]?.smart_status == 'passed',
                                     'text-red': disk.smart_results[0]?.smart_status == 'failed' }" class="font-medium text-sm" *ngIf="disk.smart_results[0]">
-                                    Last Updated on {{disk.smart_results[0]?.date | date:'MMMM dd, yyyy' }}
+                                    Last Updated on {{disk.smart_results[0]?.date | date:'MMMM dd, yyyy - HH:mm' }}
                                 </div>
                             </div>
                             <div class="ml-auto" *ngIf="disk.smart_results">
