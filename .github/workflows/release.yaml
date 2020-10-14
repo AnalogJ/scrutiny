@@ -19,6 +19,7 @@ jobs:
     container: golang:1.13
     env:
       PROJECT_PATH: /go/src/github.com/analogj/scrutiny
+      CGO_ENABLED: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v2
