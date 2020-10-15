@@ -38,20 +38,20 @@ jobs:
         with:
           name: binaries.zip
           path: |
-            ${{ env.PROJECT_PATH }}/scrutiny-web-linux-amd64
-            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-amd64
-            ${{ env.PROJECT_PATH }}/scrutiny-web-linux-arm64
-            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-arm64
-            ${{ env.PROJECT_PATH }}/scrutiny-web-linux-arm-5
-            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-arm-5
-            ${{ env.PROJECT_PATH }}/scrutiny-web-linux-arm-6
-            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-arm-6
-            ${{ env.PROJECT_PATH }}/scrutiny-web-linux-arm-7
-            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-arm-7
-            ${{ env.PROJECT_PATH }}/scrutiny-web-windows-4.0-amd64.exe
-            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-windows-4.0-amd64.exe
-            ${{ env.PROJECT_PATH }}/scrutiny-web-freebsd-amd64
-            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-freebsd-amd64
+            /build/scrutiny-web-linux-amd64
+            /build/scrutiny-collector-metrics-linux-amd64
+            /build/scrutiny-web-linux-arm64
+            /build/scrutiny-collector-metrics-linux-arm64
+            /build/scrutiny-web-linux-arm-5
+            /build/scrutiny-collector-metrics-linux-arm-5
+            /build/scrutiny-web-linux-arm-6
+            /build/scrutiny-collector-metrics-linux-arm-6
+            /build/scrutiny-web-linux-arm-7
+            /build/scrutiny-collector-metrics-linux-arm-7
+            /build/scrutiny-web-windows-4.0-amd64.exe
+            /build/scrutiny-collector-metrics-windows-4.0-amd64.exe
+            /build/scrutiny-web-freebsd-amd64
+            /build/scrutiny-collector-metrics-freebsd-amd64
       - uses: codecov/codecov-action@v1
         with:
           file: ${{ env.PROJECT_PATH }}/coverage.txt
