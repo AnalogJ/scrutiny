@@ -1,0 +1,7 @@
+FROM karalabe/xgo-1.13.x
+
+WORKDIR /go/src/github.com/analogj/scrutiny
+
+COPY . /go/src/github.com/analogj/scrutiny
+
+RUN make all
