@@ -185,16 +185,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         return item.id || index;
     }
 
-    humanizeHours(hours: number, full: boolean = false): string {
-        let duration: string = ''
-        if(!hours){
-            return '--'
-        }
-        if(!full){
-            duration = humanizeDuration(hours * 60 * 60 * 1000, { round: true, largest: 1, units: ['y', 'd', 'h', 'm', 's'] });
-        } else {
-            duration = humanizeDuration(hours * 60 * 60 * 1000, { conjunction: " and ", serialComma: false });
-        }
-        return duration
-    }
+    readonly humanizeDuration = humanizeDuration;
+
 }
