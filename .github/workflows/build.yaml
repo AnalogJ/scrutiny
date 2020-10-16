@@ -14,9 +14,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Test
-        env:
-          GOOS: linux
-          GOARCH: amd64
         run: |
           mkdir -p $PROJECT_PATH
           cp -a $GITHUB_WORKSPACE/* $PROJECT_PATH/
@@ -24,10 +21,7 @@ jobs:
 
           go mod vendor
           go test -race -coverprofile=coverage.txt -covermode=atomic -v -tags "static" $(go list ./... | grep -v /vendor/)
-      - name: Build amd64
-        env:
-          GOOS: linux
-          GOARCH: amd64
+      - name: Build Binaries
         run: |
 
           cd $PROJECT_PATH
