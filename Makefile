@@ -29,8 +29,8 @@ $(BINARY): build/scrutiny-web-%:
 	file "/build/scrutiny-collector-metrics-$(OS)-$(ARCH)" || true
 	ldd "/build/scrutiny-collector-metrics-$(OS)-$(ARCH)" || true
 
-windows/amd64: OS = windows
-windows/amd64: ARCH = amd64
+windows/amd64: export OS = windows
+windows/amd64: export ARCH = amd64
 windows/amd64:
 	@echo "building web binary (OS = $(OS), ARCH = $(ARCH))"
 	xgo -v --targets="$(OS)/$(ARCH)" -ldflags "-extldflags=-static -X main.goos=$(OS) -X main.goarch=$(ARCH)" -out scrutiny-web -tags "static netgo sqlite_omit_load_extension" ./webapp/backend/cmd/scrutiny/
@@ -38,49 +38,44 @@ windows/amd64:
 	@echo "building collector binary (OS = $(OS), ARCH = $(ARCH))"
 	xgo -v --targets="$(OS)/$(ARCH)" -ldflags "-extldflags=-static -X main.goos=$(OS) -X main.goarch=$(ARCH)" -out scrutiny-collector-metrics -tags "static netgo" ./collector/cmd/collector-metrics/
 
-freebsd/amd64: OS = freebsd
-freebsd/amd64: ARCH = amd64
-freebsd/amd64: GOOS = freebsd
-freebsd/amd64: GOARCH = amd64
-freebsd/amd64: CGO_ENABLED = 1
+freebsd/amd64: export GOOS = freebsd
+freebsd/amd64: export GOARCH = amd64
 freebsd/amd64:
 	mkdir -p /build
 
-	@echo "building web binary (OS = $(OS), ARCH = $(ARCH))"
-	go build -ldflags "-extldflags=-static -X main.goos=$(OS) -X main.goarch=$(ARCH)" -o /build/scrutiny-web-$(OS)-$(ARCH) -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
+	@echo "building web binary (OS = $(GOOS), ARCH = $(GOARCH))"
+	go build -ldflags "-extldflags=-static -X main.goos=$(GOOS) -X main.goarch=$(GOARCH)" -o /build/scrutiny-web-$(GOOS)-$(GOARCH) -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
 
-	chmod +x "/build/scrutiny-web-$(OS)-$(ARCH)"
-	file "/build/scrutiny-web-$(OS)-$(ARCH)" || true
-	ldd "/build/scrutiny-web-$(OS)-$(ARCH)" || true
+	chmod +x "/build/scrutiny-web-$(GOOS)-$(GOARCH)"
+	file "/build/scrutiny-web-$(GOOS)-$(GOARCH)" || true
+	ldd "/build/scrutiny-web-$(GOOS)-$(GOARCH)" || true
 
-	@echo "building collector binary (OS = $(OS), ARCH = $(ARCH))"
-	go build -ldflags "-extldflags=-static -X main.goos=$(OS) -X main.goarch=$(ARCH)" -o /build/scrutiny-collector-metrics-$(OS)-$(ARCH) -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
+	@echo "building collector binary (OS = $(GOOS), ARCH = $(GOARCH))"
+	go build -ldflags "-extldflags=-static -X main.goos=$(GOOS) -X main.goarch=$(GOARCH)" -o /build/scrutiny-collector-metrics-$(GOOS)-$(GOARCH) -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
 
-	chmod +x "/build/scrutiny-collector-metrics-$(OS)-$(ARCH)"
-	file "/build/scrutiny-collector-metrics-$(OS)-$(ARCH)" || true
-	ldd "/build/scrutiny-collector-metrics-$(OS)-$(ARCH)" || true
+	chmod +x "/build/scrutiny-collector-metrics-$(GOOS)-$(GOARCH)"
+	file "/build/scrutiny-collector-metrics-$(GOOS)-$(GOARCH)" || true
+	ldd "/build/scrutiny-collector-metrics-$(GOOS)-$(GOARCH)" || true
 
-freebsd/386: OS = freebsd
-freebsd/386: ARCH = 386
-freebsd/386: GOOS = freebsd
-freebsd/386: GOARCH = 386
-freebsd/386: CGO_ENABLED = 1
+freebsd/386: export GOOS = freebsd
+freebsd/386: export GOARCH = 386
 freebsd/386:
 	mkdir -p /build
-	env
-	@echo "building web binary (OS = $(OS), ARCH = $(ARCH))"
-	go build -ldflags "-extldflags=-static -X main.goos=$(OS) -X main.goarch=$(ARCH)" -o /build/scrutiny-web-$(OS)-$(ARCH) -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
 
-	chmod +x "/build/scrutiny-web-$(OS)-$(ARCH)"
-	file "/build/scrutiny-web-$(OS)-$(ARCH)" || true
-	ldd "/build/scrutiny-web-$(OS)-$(ARCH)" || true
+	@echo "building web binary (OS = $(GOOS), ARCH = $(GOARCH))"
+	go build -ldflags "-extldflags=-static -X main.goos=$(GOOS) -X main.goarch=$(GOARCH)" -o /build/scrutiny-web-$(GOOS)-$(GOARCH) -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
 
-	@echo "building collector binary (OS = $(OS), ARCH = $(ARCH))"
-	go build -ldflags "-extldflags=-static -X main.goos=$(OS) -X main.goarch=$(ARCH)" -o /build/scrutiny-collector-metrics-$(OS)-$(ARCH) -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
+	chmod +x "/build/scrutiny-web-$(GOOS)-$(GOARCH)"
+	file "/build/scrutiny-web-$(GOOS)-$(GOARCH)" || true
+	ldd "/build/scrutiny-web-$(GOOS)-$(GOARCH)" || true
 
-	chmod +x "/build/scrutiny-collector-metrics-$(OS)-$(ARCH)"
-	file "/build/scrutiny-collector-metrics-$(OS)-$(ARCH)" || true
-	ldd "/build/scrutiny-collector-metrics-$(OS)-$(ARCH)" || true
+	@echo "building collector binary (OS = $(GOOS), ARCH = $(GOARCH))"
+	go build -ldflags "-extldflags=-static -X main.goos=$(GOOS) -X main.goarch=$(GOARCH)" -o /build/scrutiny-collector-metrics-$(GOOS)-$(GOARCH) -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
+
+	chmod +x "/build/scrutiny-collector-metrics-$(GOOS)-$(GOARCH)"
+	file "/build/scrutiny-collector-metrics-$(GOOS)-$(GOARCH)" || true
+	ldd "/build/scrutiny-collector-metrics-$(GOOS)-$(GOARCH)" || true
+
 
 
 
