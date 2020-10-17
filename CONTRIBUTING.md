@@ -25,12 +25,12 @@ If you're working on the frontend and can use mocked data rather than a real bac
 ```
 cd webapp/frontend
 npm install
-ng serve
+ng serve --deploy-url="/web/" --base-href="/web/"
 ```
 
 However, if you need to also run the backend, and use real data, you'll need to run the following command:
 ```
-cd webapp/frontend && ng build --watch --output-path=../../dist --deploy-url="/web/" --base-href="/web/" --prod
+cd webapp/frontend && ng build --watch --output-path=../../dist --prod
 ```
 
 > Note: if you do not add `--prod` flag, app will display mocked data for api calls.
