@@ -8,6 +8,7 @@ import { DashboardService } from 'app/modules/dashboard/dashboard.service';
 import * as moment from "moment";
 import {MatDialog} from '@angular/material/dialog';
 import { DashboardSettingsComponent } from 'app/layout/common/dashboard-settings/dashboard-settings.component';
+import  humanizeDuration from 'humanize-duration'
 
 @Component({
     selector       : 'example',
@@ -184,23 +185,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         return item.id || index;
     }
 
-    humanizeHours(hours: number): string {
-        if(!hours){
-            return '--'
-        }
+    readonly humanizeDuration = humanizeDuration;
 
-        var value: number
-        let unit = ""
-        if(hours > (24*365)){ //more than a year
-            value = Math.round((hours/(24*365)) * 10)/10
-            unit = "years"
-        } else if (hours > 24){
-            value = Math.round((hours/24) *10 )/10
-            unit = "days"
-        } else{
-            value = hours
-            unit = "hours"
-        }
-        return `${value} ${unit}`
-    }
 }

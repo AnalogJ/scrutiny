@@ -96,8 +96,8 @@
                         <div>{{data.data.smart_results[0]?.power_cycle_count}}</div>
                         <div class="text-secondary text-md">Power Cycle Count</div>
                     </div>
-                    <div class="my-2 col-span-2 lt-md:col-span-1">
-                        <div matTooltip="{{data.data.smart_results[0]?.power_on_hours}} hours">{{humanizeHours(data.data.smart_results[0]?.power_on_hours)}}</div>
+                    <div *ngIf="data.data.smart_results[0]?.power_on_hours"  class="my-2 col-span-2 lt-md:col-span-1">
+                        <div matTooltip="{{humanizeDuration(data.data.smart_results[0]?.power_on_hours * 60 * 60 * 1000, { conjunction: ' and ', serialComma: false })}}">{{humanizeDuration(data.data.smart_results[0]?.power_on_hours *60 * 60 * 1000, { round: true, largest: 1, units: ['y', 'd', 'h'] })}}</div>
                         <div class="text-secondary text-md">Powered On</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">

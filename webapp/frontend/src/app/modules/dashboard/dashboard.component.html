@@ -105,7 +105,8 @@
                             </div>
                             <div class="flex flex-col mx-6 my-3 xs:w-full">
                                 <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Powered On</div>
-                                <div class="mt-2 font-medium text-3xl leading-none">{{ humanizeHours(disk.smart_results[0]?.power_on_hours) }}</div>
+                                <div class="mt-2 font-medium text-3xl leading-none" *ngIf="disk.smart_results[0]?.power_on_hours; else unknownPoweredOn">{{ humanizeDuration(disk.smart_results[0]?.power_on_hours * 60 * 60 * 1000, { round: true, largest: 1, units: ['y', 'd', 'h'] }) }}</div>
+                                <ng-template #unknownPoweredOn><div class="mt-2 font-medium text-3xl leading-none">--</div></ng-template>
                             </div>
                         </div>
                     </div>
