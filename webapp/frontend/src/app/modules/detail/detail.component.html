@@ -56,8 +56,12 @@
                     <div class="text-2xl font-semibold leading-tight">/dev/{{data.data.device_name}}</div>
                 </div>
                 <div class="flex flex-col my-2 grid grid-cols-2">
+                    <div *ngIf="data.data.host_id" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{data.data.host_id}}</div>
+                        <div class="text-secondary text-md">Host ID</div>
+                    </div>
                     <div *ngIf="data.data.device_type && data.data.device_type != 'ata' && data.data.device_type != 'scsi'" class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{data.data.device_type}}</div>
+                        <div>{{data.data.device_type | uppercase}}</div>
                         <div class="text-secondary text-md">Device Type</div>
                     </div>
                     <div *ngIf="data.data.manufacturer" class="my-2 col-span-2 lt-md:col-span-1">

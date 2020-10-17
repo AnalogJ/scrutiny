@@ -9,6 +9,7 @@ export const sda = {
         "model_name": "Samsung_SSD_860_EVO_500GB",
         "interface_type": "SCSI",
         "interface_speed": "",
+        "host_id": "NAS",
         "serial_number": "S3YZNB0KBXXXXXX",
         "firmware": "002C",
         "rotational_speed": 0,
