@@ -67,7 +67,7 @@ freebsd/386: GOARCH = 386
 freebsd/386: CGO_ENABLED = 1
 freebsd/386:
 	mkdir -p /build
-    env
+	env
 	@echo "building web binary (OS = $(OS), ARCH = $(ARCH))"
 	go build -ldflags "-extldflags=-static -X main.goos=$(OS) -X main.goarch=$(ARCH)" -o /build/scrutiny-web-$(OS)-$(ARCH) -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
 
