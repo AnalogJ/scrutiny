@@ -10,7 +10,7 @@ BINARY=\
 
 
 .PHONY: all $(BINARY)
-all: $(BINARY) windows/amd64 freebsd/amd64 freebsd/386
+all: $(BINARY) windows/amd64
 
 $(BINARY): OS = $(word 1,$(subst /, ,$*))
 $(BINARY): ARCH = $(word 2,$(subst /, ,$*))
