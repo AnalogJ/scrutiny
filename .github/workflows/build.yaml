@@ -44,8 +44,8 @@ jobs:
             /build/scrutiny-collector-metrics-linux-arm-7
             /build/scrutiny-web-windows-4.0-amd64.exe
             /build/scrutiny-collector-metrics-windows-4.0-amd64.exe
-            /build/scrutiny-web-freebsd-amd64
-            /build/scrutiny-collector-metrics-freebsd-amd64
+#            /build/scrutiny-web-freebsd-amd64
+#            /build/scrutiny-collector-metrics-freebsd-amd64
       - uses: codecov/codecov-action@v1
         with:
           file: ${{ env.PROJECT_PATH }}/coverage.txt
