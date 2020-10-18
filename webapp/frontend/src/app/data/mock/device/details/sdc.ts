@@ -9,6 +9,7 @@ export const sdc = {
         "model_name": "WDC_WD140EDFZ-11A0VA0",
         "interface_type": "SCSI",
         "interface_speed": "1.5 Gb/s",
+        "host_id": "NAS",
         "serial_number": "9RK4XXXXX",
         "firmware": "MS1OA650",
         "rotational_speed": 7200,
