@@ -6,7 +6,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    container: golang:1.13
+    container: karalabe/xgo-1.13.x
     env:
       PROJECT_PATH: /go/src/github.com/analogj/scrutiny
       CGO_ENABLED: 1
@@ -14,9 +14,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Test
-        env:
-          GOOS: linux
-          GOARCH: amd64
         run: |
           mkdir -p $PROJECT_PATH
           cp -a $GITHUB_WORKSPACE/* $PROJECT_PATH/
@@ -24,88 +21,33 @@ jobs:
 
           go mod vendor
           go test -race -coverprofile=coverage.txt -covermode=atomic -v -tags "static" $(go list ./... | grep -v /vendor/)
-      - name: Build amd64
-        env:
-          GOOS: linux
-          GOARCH: amd64
+      - name: Build Binaries
         run: |
-          apt-get update && apt-get install -y file
 
           cd $PROJECT_PATH
-          echo "###### Build Web ######"
-          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=amd64" -o scrutiny-web-linux-amd64 -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
-          echo "###### Build Collector ######"
-          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
-
-          chmod +x scrutiny-web-linux-amd64
-          chmod +x scrutiny-collector-metrics-linux-amd64
-
-          file scrutiny-web-linux-amd64
-          ldd scrutiny-web-linux-amd64 || true
-          file scrutiny-collector-metrics-linux-amd64
-          ldd scrutiny-collector-metrics-linux-amd64 || true
-      - name: Build arm
-        env:
-          GOOS: linux
-          GOARCH: arm
-        run: |
-          cd $PROJECT_PATH
-          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=arm" -o scrutiny-web-linux-arm -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
-          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=arm" -o scrutiny-collector-metrics-linux-arm -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
-
-          chmod +x scrutiny-web-linux-arm
-          chmod +x scrutiny-collector-metrics-linux-arm
-
-      - name: Build arm64
-        env:
-          GOOS: linux
-          GOARCH: arm64
-        run: |
-          cd $PROJECT_PATH
-          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=arm64" -o scrutiny-web-linux-arm64 -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
-          go build -ldflags "-extldflags=-static -X main.goos=linux -X main.goarch=arm64" -o scrutiny-collector-metrics-linux-arm64 -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
-
-          chmod +x scrutiny-web-linux-arm64
-          chmod +x scrutiny-collector-metrics-linux-arm64
-
-      - name: Build windows
-        env:
-          GOOS: windows
-          GOARCH: amd64
-        run: |
-          cd $PROJECT_PATH
-          go build -ldflags "-X main.goos=windows -X main.goarch=amd64" -o scrutiny-web-windows-amd64.exe -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go
-          go build -ldflags "-X main.goos=windows -X main.goarch=amd64" -o scrutiny-collector-metrics-windows-amd64.exe -tags "static" collector/cmd/collector-metrics/collector-metrics.go
-
-      - name: Build freebsd
-        env:
-          GOOS: freebsd
-          GOARCH: amd64
-        run: |
-          cd $PROJECT_PATH
-          go build -ldflags "-extldflags=-static -X main.goos=freebsd -X main.goarch=amd64" -o scrutiny-web-freebsd-amd64 -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
-          go build -ldflags "-extldflags=-static -X main.goos=freebsd -X main.goarch=amd64" -o scrutiny-collector-metrics-freebsd-amd64 -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
-
-          chmod +x scrutiny-web-freebsd-amd64
-          chmod +x scrutiny-collector-metrics-freebsd-amd64
+          make all
 
       - name: Archive
         uses: actions/upload-artifact@v2
         with:
           name: binaries.zip
           path: |
-            ${{ env.PROJECT_PATH }}/scrutiny-web-linux-amd64
-            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-amd64
-            ${{ env.PROJECT_PATH }}/scrutiny-web-linux-arm64
-            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-arm64
-            ${{ env.PROJECT_PATH }}/scrutiny-web-linux-arm
-            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-linux-arm
-            ${{ env.PROJECT_PATH }}/scrutiny-web-windows-amd64.exe
-            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-windows-amd64.exe
-            ${{ env.PROJECT_PATH }}/scrutiny-web-freebsd-amd64
-            ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-freebsd-amd64
+            /build/scrutiny-web-linux-amd64
+            /build/scrutiny-collector-metrics-linux-amd64
+            /build/scrutiny-web-linux-arm64
+            /build/scrutiny-collector-metrics-linux-arm64
+            /build/scrutiny-web-linux-arm-5
+            /build/scrutiny-collector-metrics-linux-arm-5
+            /build/scrutiny-web-linux-arm-6
+            /build/scrutiny-collector-metrics-linux-arm-6
+            /build/scrutiny-web-linux-arm-7
+            /build/scrutiny-collector-metrics-linux-arm-7
+            /build/scrutiny-web-windows-4.0-amd64.exe
+            /build/scrutiny-collector-metrics-windows-4.0-amd64.exe
+#            /build/scrutiny-web-freebsd-amd64
+#            /build/scrutiny-collector-metrics-freebsd-amd64
       - uses: codecov/codecov-action@v1
         with:
           file: ${{ env.PROJECT_PATH }}/coverage.txt
           flags: unittests
-          fail_ci_if_error: true
+          fail_ci_if_error: false
