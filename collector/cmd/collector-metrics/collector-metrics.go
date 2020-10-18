@@ -161,9 +161,10 @@ OPTIONS:
 						EnvVars: []string{"COLLECTOR_DEBUG", "DEBUG"},
 					},
 
-					&cli.BoolFlag{
+					&cli.StringFlag{
 						Name:    "host-id",
 						Usage:   "Host identifier/label, used for grouping devices",
+						Value:   "",
 						EnvVars: []string{"COLLECTOR_HOST_ID"},
 					},
 				},
