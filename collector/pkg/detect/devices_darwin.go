@@ -92,7 +92,7 @@ func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 	block, err := ghw.Block()
 	if err == nil {
 		for _, disk := range block.Disks {
-			if disk.Name == detectedDevice.DeviceName {
+			if disk.Name == detectedDevice.DeviceName && strings.ToLower(disk.WWN) != "unknown" {
 				d.Logger.Debugf("Found matching block device. WWN: %s", disk.WWN)
 				detectedDevice.WWN = disk.WWN
 				break
