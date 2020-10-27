@@ -29,9 +29,12 @@ EXPOSE 8080
 WORKDIR /scrutiny
 ENV PATH="/scrutiny/bin:${PATH}"
 
+RUN apt-get update && apt-get install -y ca-certificates curl && update-ca-certificates
+
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny /scrutiny/bin/
 COPY --from=frontendbuild /scrutiny/dist /scrutiny/web
 RUN chmod +x /scrutiny/bin/scrutiny && \
     mkdir -p /scrutiny/web && \
-    mkdir -p /scrutiny/config
+    mkdir -p /scrutiny/config && \
+    chmod -R ugo+rwx /scrutiny/config
 CMD ["/scrutiny/bin/scrutiny", "start"]

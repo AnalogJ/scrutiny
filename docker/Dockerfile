@@ -49,6 +49,9 @@ RUN chmod +x /scrutiny/bin/scrutiny && \
     chmod +x /scrutiny/bin/scrutiny-collector-metrics && \
     mkdir -p /scrutiny/web && \
     mkdir -p /scrutiny/config && \
-    mkdir -p /scrutiny/jobber
+    mkdir -p /scrutiny/jobber && \
+    chmod -R ugo+rwx /scrutiny/config && \
+    chmod -R ugo+rwx /scrutiny/jobber
+
 
 CMD ["/init"]
