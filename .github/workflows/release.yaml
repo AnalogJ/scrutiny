@@ -135,7 +135,7 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Release Asset - Web - linux-arm-6
-        id: upload-release-asset5
+        id: upload-release-asset7
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
@@ -145,7 +145,7 @@ jobs:
           asset_name: scrutiny-web-linux-arm-6
           asset_content_type: application/octet-stream
       - name: Release Asset - Collector - linux-arm-6
-        id: upload-release-asset6
+        id: upload-release-asset8
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
@@ -156,7 +156,7 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Release Asset - Web - linux-arm-7
-        id: upload-release-asset5
+        id: upload-release-asset9
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
@@ -166,7 +166,7 @@ jobs:
           asset_name: scrutiny-web-linux-arm-7
           asset_content_type: application/octet-stream
       - name: Release Asset - Collector - linux-arm-7
-        id: upload-release-asset6
+        id: upload-release-asset10
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
