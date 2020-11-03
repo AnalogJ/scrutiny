@@ -237,6 +237,30 @@ func TestSendTestNotificationRoute_ScriptFailure(t *testing.T) {
 	require.Equal(t, 500, wr.Code)
 }
 
+func TestSendTestNotificationRoute_ScriptSuccess(t *testing.T) {
+	//setup
+	parentPath, _ := ioutil.TempDir("", "")
+	defer os.RemoveAll(parentPath)
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"script:///usr/bin/env"})
+	ae := web.AppEngine{
+		Config: fakeConfig,
+	}
+	router := ae.Setup(logrus.New())
+
+	//test
+	wr := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/health/notify", strings.NewReader("{}"))
+	router.ServeHTTP(wr, req)
+
+	//assert
+	require.Equal(t, 200, wr.Code)
+}
+
 func TestSendTestNotificationRoute_ShoutrrrFailure(t *testing.T) {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
