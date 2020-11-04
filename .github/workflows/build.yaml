@@ -11,6 +11,9 @@ jobs:
       GITHUB_WORKSPACE: /go/src/github.com/analogj/scrutiny
       CGO_ENABLED: 1
     steps:
+      - name: Workspace
+        run: |
+          mkdir -p ${GITHUB_WORKSPACE}
       - name: Checkout
         uses: actions/checkout@v2
       - name: Test
