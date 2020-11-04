@@ -18,10 +18,13 @@ jobs:
         uses: actions/checkout@v2
       - name: Test
         run: |
+          ls -alt ${GITHUB_WORKSPACE}
+
           go mod vendor
           go test -race -coverprofile=coverage.txt -covermode=atomic -v -tags "static" $(go list ./... | grep -v /vendor/)
       - name: Build Binaries
         run: |
+          ls -alt ${GITHUB_WORKSPACE}
           make all
 
       - name: Archive
