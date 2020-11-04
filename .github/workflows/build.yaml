@@ -8,23 +8,17 @@ jobs:
     runs-on: ubuntu-latest
     container: karalabe/xgo-1.13.x
     env:
-      PROJECT_PATH: /go/src/github.com/analogj/scrutiny
+      GITHUB_WORKSPACE: /go/src/github.com/analogj/scrutiny
       CGO_ENABLED: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Test
         run: |
-          mkdir -p $PROJECT_PATH
-          cp -a $GITHUB_WORKSPACE/* $PROJECT_PATH/
-          cd $PROJECT_PATH
-
           go mod vendor
           go test -race -coverprofile=coverage.txt -covermode=atomic -v -tags "static" $(go list ./... | grep -v /vendor/)
       - name: Build Binaries
         run: |
-
-          cd $PROJECT_PATH
           make all
 
       - name: Archive
@@ -48,6 +42,6 @@ jobs:
 #            /build/scrutiny-collector-metrics-freebsd-amd64
       - uses: codecov/codecov-action@v1
         with:
-          file: ${{ env.PROJECT_PATH }}/coverage.txt
+          file: ${{ env.GITHUB_WORKSPACE }}/coverage.txt
           flags: unittests
           fail_ci_if_error: false
