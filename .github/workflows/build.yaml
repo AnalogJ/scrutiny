@@ -13,7 +13,8 @@ jobs:
     steps:
       - name: Git
         run: |
-          add-apt-repository ppa:git-core/ppa && apt-get update && apt-get install git
+          apt-get update && apt-get install -y software-properties-common
+          add-apt-repository ppa:git-core/ppa && apt-get update && apt-get install -y git
           git --version
       - name: Checkout
         uses: actions/checkout@v2
