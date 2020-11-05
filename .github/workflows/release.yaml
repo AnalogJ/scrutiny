@@ -21,6 +21,11 @@ jobs:
       PROJECT_PATH: /go/src/github.com/analogj/scrutiny
       CGO_ENABLED: 1
     steps:
+      - name: Git
+        run: |
+          apt-get update && apt-get install -y software-properties-common
+          add-apt-repository ppa:git-core/ppa && apt-get update && apt-get install -y git
+          git --version
       - name: Checkout
         uses: actions/checkout@v2
       - name: Bump version
