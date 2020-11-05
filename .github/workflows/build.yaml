@@ -22,8 +22,6 @@ jobs:
         run: |
           mkdir -p $(dirname "$PROJECT_PATH")
           cp -a $GITHUB_WORKSPACE $PROJECT_PATH
-          ls -alt $(dirname "$PROJECT_PATH")
-          ls -alt $PROJECT_PATH
           cd $PROJECT_PATH
 
           go mod vendor

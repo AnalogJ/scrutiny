@@ -37,8 +37,8 @@ jobs:
           github_token: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
       - name: Test
         run: |
-          mkdir -p $PROJECT_PATH
-          cp -a $GITHUB_WORKSPACE/* $PROJECT_PATH/
+          mkdir -p $(dirname "$PROJECT_PATH")
+          cp -a $GITHUB_WORKSPACE $PROJECT_PATH
           cd $PROJECT_PATH
 
           go mod vendor
