@@ -1,0 +1,6 @@
+[template]
+src = "jobber.yaml.tmpl"
+dest = "/scrutiny/jobber/jobber.yaml"
+keys = [
+    "/cron/metrics"
+]

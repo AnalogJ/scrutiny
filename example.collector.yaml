@@ -16,6 +16,11 @@
 # the scrutiny binary. There is only 1 version available at the moment
 version: 1
 
+# this is only relevant when running the collector via Docker images.
+# it's used to configure Jobber (cron-like daemon)
+cron:
+  metrics: '0 0 0 * * *'
+
 # The host id is a label used for identifying groups of disks running on the same host
 # Primiarly used for hub/spoke deployments (can be left empty if using all-in-one image).
 host:

@@ -18,14 +18,16 @@ ENV PATH="/scrutiny/bin:${PATH}"
 ADD https://github.com/dshearer/jobber/releases/download/v1.4.4/jobber_1.4.4-1_amd64.deb /tmp/
 RUN apt install /tmp/jobber_1.4.4-1_amd64.deb
 
-RUN apt-get update && apt-get install -y smartmontools=7.0-0ubuntu1~ubuntu18.04.1 ca-certificates && update-ca-certificates
+RUN apt-get update && apt-get install -y smartmontools=7.0-0ubuntu1~ubuntu18.04.1 ca-certificates && update-ca-certificates && \
+    curl -L -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v0.16.0/confd-0.16.0-linux-amd64 && \
+    chmod +x /usr/local/bin/confd
 
-COPY /rootfs/scrutiny /scrutiny
-
+COPY /rootfs/etc/confd /etc/confd
+COPY /rootfs/start-collector.sh /start-collector.sh
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-selftest /scrutiny/bin/
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-metrics /scrutiny/bin/
 RUN chmod +x /scrutiny/bin/scrutiny-collector-selftest && \
     chmod +x /scrutiny/bin/scrutiny-collector-metrics && \
-    mkdir -p /var/jobber/0/
+    mkdir -p /scrutiny/jobber
 
-CMD ["/usr/lib/x86_64-linux-gnu/jobberrunner", "-u", "/var/jobber/0/cmd.sock", "/scrutiny/jobber/jobber.yaml"]
+CMD ["/init-collector.sh"]

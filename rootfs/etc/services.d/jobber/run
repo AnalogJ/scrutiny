@@ -1,6 +1,10 @@
 #!/usr/bin/with-contenv bash
 
-echo "starting jobber/cron"
-mkdir -p /var/jobber/0/
+# Should be kept in sync with init-collector.sh
 
+echo "populating jobber config"
+confd -onetime -backend file -file /scrutiny/config/collector.yaml
+
+echo "starting jobber"
+mkdir -p /var/jobber/0/
 su -c "/usr/lib/x86_64-linux-gnu/jobberrunner -u /var/jobber/0/cmd.sock /scrutiny/jobber/jobber.yaml" root
