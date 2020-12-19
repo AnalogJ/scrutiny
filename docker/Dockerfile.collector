@@ -25,6 +25,7 @@ COPY /rootfs/scrutiny /scrutiny
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-selftest /scrutiny/bin/
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-metrics /scrutiny/bin/
 RUN chmod +x /scrutiny/bin/scrutiny-collector-selftest && \
-    chmod +x /scrutiny/bin/scrutiny-collector-metrics
+    chmod +x /scrutiny/bin/scrutiny-collector-metrics && \
+    mkdir -p /var/jobber/0/
 
-CMD ["/usr/lib/x86_64-linux-gnu/jobberrunner", "/scrutiny/jobber/jobber.yaml"]
+CMD ["/usr/lib/x86_64-linux-gnu/jobberrunner", "-u", "/var/jobber/0/cmd.sock", "/scrutiny/jobber/jobber.yaml"]
