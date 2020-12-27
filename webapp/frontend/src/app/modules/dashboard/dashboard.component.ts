@@ -139,7 +139,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
             tooltip: {
                 theme: 'dark',
                 x    : {
-                    format: 'MMM dd, yyyy hh:mm:ss'
+                    format: 'MMM dd, yyyy HH:mm:ss'
                 },
                 y    : {
                     formatter: (value) => {
