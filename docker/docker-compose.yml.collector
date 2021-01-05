@@ -1,0 +1,21 @@
+version: '3.5'
+
+services:
+  scrutiny:
+    container_name: scrutiny
+    image: analogj/scrutiny
+    cap_add:
+      - SYS_RAWIO
+    ports:
+      - "8080:8080"
+    volumes:
+      - /run/udev:/run/udev:ro
+      - ./config:/scrutiny/config
+    devices:
+      - "/dev/sda"
+      - "/dev/sdb"
+    restart: unless-stopped
+    environment: # This is for just a collector
+      - SCRUTINY_API_ENDPOINT=http://192.168.1.1:8080 # This needs to be where the main collector resides
+      - SCRUTINY_WEB=false # This turns off the web service
+      - SCRUTINY_COLLECTOR=true

@@ -1,0 +1,21 @@
+version: '3.5'
+
+services:
+  scrutiny:
+    container_name: scrutiny
+    image: analogj/scrutiny
+    cap_add:
+      - SYS_RAWIO
+    ports:
+      - "8080:8080"
+    volumes:
+      - /run/udev:/run/udev:ro
+      - ./config:/scrutiny/config
+    devices:
+      - "/dev/sda"
+      - "/dev/sdb"
+    restart: unless-stopped
+    environment: # This is for the main web collector
+      - SCRUTINY_API_ENDPOINT=http://localhost:8080
+      - SCRUTINY_WEB=true
+      - SCRUTINY_COLLECTOR=true # This can be set to false if not collecting, for example if the api endpoint is inside a VM
