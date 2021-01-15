@@ -48,6 +48,7 @@ RUN apt-get update && apt-get install -y smartmontools=7.0-0ubuntu1~ubuntu18.04.
 ADD https://github.com/just-containers/s6-overlay/releases/download/v1.21.8.0/s6-overlay-aarch64.tar.gz /tmp/
 RUN tar xzf /tmp/s6-overlay-aarch64.tar.gz -C /
 COPY /rootfs /
+RUN sed -i 's/x86_64/aarch64/' /etc/services.d/jobber/run
 
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny /scrutiny/bin/
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-selftest /scrutiny/bin/
