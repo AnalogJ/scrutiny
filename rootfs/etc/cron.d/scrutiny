@@ -1,3 +1,4 @@
+MAILTO=""
 # Example of job definition:
 # .---------------- minute (0 - 59)
 # |  .------------- hour (0 - 23)
@@ -7,9 +8,8 @@
 # |  |  |  |  |
 # *  *  *  *  * user-name command to be executed
 
-# TODO: correctly route collector logs (STDOUT & STDERR), print to Cron foreground (collectable by Docker STDOUT?)
-# TODO: change cron schedule to daily at midnight:  '0 0 0 * * *'
-# System environmental variables are stripped by cron, source our dump of the docker environmental variables before each command
-* * * * * root . /env.sh; /scrutiny/bin/scrutiny-collector-metrics run >> /var/log/scrutiny.log 2>&1
-* * * * * root date >> /var/log/cron.log
+# correctly route collector logs (STDOUT & STDERR) to Cron foreground (collectable by Docker STDOUT)
+# cron schedule to run daily at midnight:  '0 0 * * *'
+# System environmental variables are stripped by cron, source our dump of the docker environmental variables before each command (/env.sh)
+0 0 * * * root . /env.sh; /scrutiny/bin/scrutiny-collector-metrics run >/proc/1/fd/1 2>/proc/1/fd/2
 # An empty line is required at the end of this file for a valid cron file.
