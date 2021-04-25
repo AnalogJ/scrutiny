@@ -88,13 +88,13 @@ func (n *Notify) Send() error {
 	notifyScripts := []string{}
 	notifyShoutrrr := []string{}
 
-	for _, url := range configUrls {
-		if strings.HasPrefix(url, "https://") || strings.HasPrefix(url, "http://") {
-			notifyWebhooks = append(notifyWebhooks, url)
-		} else if strings.HasPrefix(url, "script://") {
-			notifyScripts = append(notifyScripts, url)
+	for ndx, _ := range configUrls {
+		if strings.HasPrefix(configUrls[ndx], "https://") || strings.HasPrefix(configUrls[ndx], "http://") {
+			notifyWebhooks = append(notifyWebhooks, configUrls[ndx])
+		} else if strings.HasPrefix(configUrls[ndx], "script://") {
+			notifyScripts = append(notifyScripts, configUrls[ndx])
 		} else {
-			notifyShoutrrr = append(notifyShoutrrr, url)
+			notifyShoutrrr = append(notifyShoutrrr, configUrls[ndx])
 		}
 	}
 
@@ -106,16 +106,20 @@ func (n *Notify) Send() error {
 	//var wg sync.WaitGroup
 	var eg errgroup.Group
 
-	for _, notifyWebhook := range notifyWebhooks {
+	for _, url := range notifyWebhooks {
 		// execute collection in parallel go-routines
-		eg.Go(func() error { return n.SendWebhookNotification(notifyWebhook) })
+		_url := url
+		eg.Go(func() error { return n.SendWebhookNotification(_url) })
 	}
-	for _, notifyScript := range notifyScripts {
+	for _, url := range notifyScripts {
 		// execute collection in parallel go-routines
-		eg.Go(func() error { return n.SendScriptNotification(notifyScript) })
+		_url := url
+		eg.Go(func() error { return n.SendScriptNotification(_url) })
 	}
-	for _, shoutrrrUrl := range notifyShoutrrr {
-		eg.Go(func() error { return n.SendShoutrrrNotification(shoutrrrUrl) })
+	for _, url := range notifyShoutrrr {
+		// execute collection in parallel go-routines
+		_url := url
+		eg.Go(func() error { return n.SendShoutrrrNotification(_url) })
 	}
 
 	//and wait for completion, error or timeout.
@@ -193,7 +197,7 @@ func (n *Notify) SendShoutrrrNotification(shoutrrrUrl string) error {
 
 	//sender.SetLogger(n.Logger.)
 	serviceName, params, err := n.GenShoutrrrNotificationParams(shoutrrrUrl)
-	n.Logger.Debug("notification data for %s: (%s)\n%v", serviceName, shoutrrrUrl, params)
+	n.Logger.Debugf("notification data for %s: (%s)\n%v", serviceName, shoutrrrUrl, params)
 
 	if err != nil {
 		n.Logger.Errorf("An error occurred  occurred while generating notification payload for %s:\n %v", serviceName, shoutrrrUrl, err)
@@ -235,17 +239,19 @@ func (n *Notify) GenShoutrrrNotificationParams(shoutrrrUrl string) (string, *sho
 	subject := n.Payload.Subject
 	switch serviceName {
 	// no params supported for these services
-	case "discord", "hangouts", "ifttt", "mattermost", "teams":
+	case "discord", "hangouts", "ifttt", "mattermost", "teams", "rocketchat":
 		break
 	case "gotify":
 		(*params)["title"] = subject
 	case "join":
 		(*params)["title"] = subject
 		(*params)["icon"] = logoUrl
+	case "opsgenie":
+		(*params)["description"] = subject
 	case "pushbullet":
 		(*params)["title"] = subject
 	case "pushover":
-		(*params)["subject"] = subject
+		(*params)["title"] = subject
 	case "slack":
 		(*params)["title"] = subject
 		(*params)["thumb_url"] = logoUrl
