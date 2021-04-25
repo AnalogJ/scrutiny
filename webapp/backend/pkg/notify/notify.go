@@ -260,7 +260,7 @@ func (n *Notify) GenShoutrrrNotificationParams(shoutrrrUrl string) (string, *sho
 	case "standard":
 		(*params)["subject"] = subject
 	case "telegram":
-		(*params)["subject"] = subject
+		(*params)["title"] = subject
 	case "zulip":
 		(*params)["topic"] = subject
 	}

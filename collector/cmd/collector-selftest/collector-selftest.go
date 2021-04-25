@@ -96,6 +96,7 @@ OPTIONS:
 						logrus.SetOutput(io.MultiWriter(os.Stderr, logFile))
 					}
 
+					//TODO: pass in the collector, use configuration from collector-metrics
 					stCollector, err := collector.CreateSelfTestCollector(
 						collectorLogger,
 						c.String("api-endpoint"),

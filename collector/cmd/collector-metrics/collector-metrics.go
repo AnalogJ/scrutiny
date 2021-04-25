@@ -99,24 +99,37 @@ OPTIONS:
 							return err
 						}
 					}
+					//override config with flags if set
 					if c.IsSet("host-id") {
 						config.Set("host.id", c.String("host-id")) // set/override the host-id using CLI.
+					}
+
+					if c.Bool("debug") {
+						config.Set("log.level", "DEBUG")
+					}
+
+					if c.IsSet("log-file") {
+						config.Set("log.file", c.String("log-file"))
+					}
+
+					if c.IsSet("api-endpoint") {
+						config.Set("api.endpoint", c.String("api-endpoint"))
 					}
 
 					collectorLogger := logrus.WithFields(logrus.Fields{
 						"type": "metrics",
 					})
 
-					if c.Bool("debug") {
-						logrus.SetLevel(logrus.DebugLevel)
+					if level, err := logrus.ParseLevel(config.GetString("log.level")); err == nil {
+						logrus.SetLevel(level)
 					} else {
 						logrus.SetLevel(logrus.InfoLevel)
 					}
 
-					if c.IsSet("log-file") {
-						logFile, err := os.OpenFile(c.String("log-file"), os.O_CREATE|os.O_WRONLY, 0644)
+					if config.IsSet("log.file") && len(config.GetString("log.file")) > 0 {
+						logFile, err := os.OpenFile(config.GetString("log.file"), os.O_CREATE|os.O_WRONLY, 0644)
 						if err != nil {
-							logrus.Errorf("Failed to open log file %s for output: %s", c.String("log-file"), err)
+							logrus.Errorf("Failed to open log file %s for output: %s", config.IsSet("log.file"), err)
 							return err
 						}
 						defer logFile.Close()
@@ -126,7 +139,7 @@ OPTIONS:
 					metricCollector, err := collector.CreateMetricsCollector(
 						config,
 						collectorLogger,
-						c.String("api-endpoint"),
+						config.GetString("api.endpoint"),
 					)
 
 					if err != nil {
@@ -144,14 +157,12 @@ OPTIONS:
 					&cli.StringFlag{
 						Name:    "api-endpoint",
 						Usage:   "The api server endpoint",
-						Value:   "http://localhost:8080",
 						EnvVars: []string{"SCRUTINY_API_ENDPOINT"},
 					},
 
 					&cli.StringFlag{
 						Name:    "log-file",
 						Usage:   "Path to file for logging. Leave empty to use STDOUT",
-						Value:   "",
 						EnvVars: []string{"COLLECTOR_LOG_FILE"},
 					},
 

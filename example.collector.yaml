@@ -54,7 +54,12 @@ devices:
 #      - 3ware,4
 #      - 3ware,5
 
-
+#log:
+#  file: '' #absolute or relative paths allowed, eg. web.log
+#  level: INFO
+#
+#api:
+#  endpoint: 'http://localhost:8080'
 
 ########################################################################################################################
 # FEATURES COMING SOON
