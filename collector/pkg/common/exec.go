@@ -15,7 +15,15 @@ func ExecCmd(logger *logrus.Entry, cmdName string, cmdArgs []string, workingDir 
 
 	cmd := exec.Command(cmdName, cmdArgs...)
 	var stdBuffer bytes.Buffer
-	mw := io.MultiWriter(logger.Logger.Out, &stdBuffer)
+
+	logWriters := []io.Writer{
+		&stdBuffer,
+	}
+	if logger.Logger.Level == logrus.DebugLevel {
+		logWriters = append(logWriters, logger.Logger.Out)
+	}
+
+	mw := io.MultiWriter(logWriters...)
 
 	cmd.Stdout = mw
 	cmd.Stderr = mw
