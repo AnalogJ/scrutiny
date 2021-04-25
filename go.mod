@@ -21,7 +21,6 @@ require (
 	github.com/urfave/cli/v2 v2.2.0
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
 	golang.org/x/sys v0.0.0-20210423185535-09eb48e85fd7 // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
 	gorm.io/driver/sqlite v1.1.3
 	gorm.io/gorm v1.20.2
 	nhooyr.io/websocket v1.8.7 // indirect
