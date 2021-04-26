@@ -48,7 +48,7 @@
 
             <div class="flex flex-wrap w-full">
 
-                <div *ngFor="let disk of data.data | deviceSort" class="flex w-1/2 min-w-80 p-4">
+                <div *ngFor="let disk of data.data | deviceSort" class="flex gt-sm:w-1/2 min-w-80 p-4">
                     <div [ngClass]="{'border-green': disk.smart_results[0]?.smart_status == 'passed',
                                     'border-red': disk.smart_results[0]?.smart_status == 'failed' }"
                          class="relative flex flex-col flex-auto p-6 pr-3 pb-3 bg-card rounded border-l-4 shadow-md overflow-hidden">

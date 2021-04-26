@@ -23,7 +23,9 @@ analogj/scrutiny
 The frontend is written in Angular.
 If you're working on the frontend and can use mocked data rather than a real backend, you can use
 ```
-cd webapp/frontend && ng serve
+cd webapp/frontend
+npm install
+ng serve
 ```
 
 However, if you need to also run the backend, and use real data, you'll need to run the following command:
