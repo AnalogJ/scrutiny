@@ -56,3 +56,30 @@ jobs:
           file: ${{ env.PROJECT_PATH }}/coverage.txt
           flags: unittests
           fail_ci_if_error: false
+
+  buildfreebsd:
+    runs-on: macos-latest
+    env:
+      PROJECT_PATH: /go/src/github.com/analogj/scrutiny
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build Binaries
+        uses: vmactions/freebsd-vm@v0.1.4
+        with:
+          usesh: true
+          prepare: pkg install -y curl go
+          run: |
+            pwd
+            ls -lah
+            whoami
+            env
+            freebsd-version
+
+            mkdir -p $(dirname "$PROJECT_PATH")
+            cp -a $GITHUB_WORKSPACE $PROJECT_PATH
+            cd $PROJECT_PATH
+
+            make freebsd/amd64 freebsd/386
+
+
