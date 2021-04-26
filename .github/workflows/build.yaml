@@ -69,7 +69,9 @@ jobs:
       - name: Build Binaries
         uses: vmactions/freebsd-vm@v0.1.3
         with:
+          envs: 'PROJECT_PATH GOPATH'
           usesh: true
+          #TODO: lock go version using https://www.jeremymorgan.com/tutorials/golang/how-to-install-go-freebsd/
           prepare: pkg install -y curl go gmake
           run: |
             pwd
