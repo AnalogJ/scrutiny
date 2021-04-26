@@ -1,3 +1,4 @@
+#!/bin/bash
 # Cron runs in its own isolated environment (usually using only /etc/environment )
 # So when the container starts up, we will do a dump of the runtime environment into a .env file that we
 # will then source into the crontab file (/etc/cron.d/scrutiny.sh)

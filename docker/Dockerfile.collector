@@ -22,6 +22,7 @@ COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-metrics /scrutiny/bin/
 RUN chmod +x /scrutiny/bin/scrutiny-collector-selftest && \
     chmod +x /scrutiny/bin/scrutiny-collector-metrics && \
+    chmod +x /entrypoint-collector.sh && \
     chmod 0644 /etc/cron.d/scrutiny && \
     rm -f /etc/cron.daily/apt /etc/cron.daily/dpkg /etc/cron.daily/passwd
 
