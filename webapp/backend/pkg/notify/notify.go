@@ -239,15 +239,19 @@ func (n *Notify) GenShoutrrrNotificationParams(shoutrrrUrl string) (string, *sho
 	subject := n.Payload.Subject
 	switch serviceName {
 	// no params supported for these services
-	case "discord", "hangouts", "ifttt", "mattermost", "teams", "rocketchat":
+	case "hangouts", "mattermost", "teams", "rocketchat":
 		break
+	case "discord":
+		(*params)["title"] = subject
 	case "gotify":
+		(*params)["title"] = subject
+	case "ifttt":
 		(*params)["title"] = subject
 	case "join":
 		(*params)["title"] = subject
 		(*params)["icon"] = logoUrl
 	case "opsgenie":
-		(*params)["description"] = subject
+		(*params)["title"] = subject
 	case "pushbullet":
 		(*params)["title"] = subject
 	case "pushover":

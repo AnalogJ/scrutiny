@@ -129,7 +129,7 @@ OPTIONS:
 					if config.IsSet("log.file") && len(config.GetString("log.file")) > 0 {
 						logFile, err := os.OpenFile(config.GetString("log.file"), os.O_CREATE|os.O_WRONLY, 0644)
 						if err != nil {
-							logrus.Errorf("Failed to open log file %s for output: %s", config.IsSet("log.file"), err)
+							logrus.Errorf("Failed to open log file %s for output: %s", config.GetString("log.file"), err)
 							return err
 						}
 						defer logFile.Close()
