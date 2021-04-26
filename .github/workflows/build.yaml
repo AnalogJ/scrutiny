@@ -70,7 +70,7 @@ jobs:
         uses: vmactions/freebsd-vm@v0.1.3
         with:
           usesh: true
-          prepare: pkg install -y curl go-1.13.4,1 gmake
+          prepare: pkg install -y curl go gmake
           run: |
             pwd
             ls -lah
