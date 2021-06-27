@@ -71,6 +71,33 @@ go run webapp/backend/cmd/scrutiny/scrutiny.go start --config ./scrutiny.yaml
 Now visit http://localhost:8080
 
 
+If you'd like to populate the database with some test data,  you can run the following commands:
+
+```
+docker run -p 8086:8086 --rm influxdb:2.0
+
+
+docker run -p 8086:8086 \
+      -e DOCKER_INFLUXDB_INIT_USERNAME=admin \
+      -e DOCKER_INFLUXDB_INIT_PASSWORD=12345678 \
+      -e DOCKER_INFLUXDB_INIT_ORG=my-org \
+      -e DOCKER_INFLUXDB_INIT_BUCKET=bucket \
+      influxdb:2.0
+
+
+curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/web/testdata/register-devices-req.json localhost:8080/api/devices/register
+
+curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-ata.json localhost:8080/api/device/0x5000cca264eb01d7/smart
+curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-ata-date.json localhost:8080/api/device/0x5000cca264eb01d7/smart
+curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-fail2.json localhost:8080/api/device/0x5000cca264ec3183/smart
+curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-nvme.json localhost:8080/api/device/0x5002538e40a22954/smart
+curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-scsi.json localhost:8080/api/device/0x5000cca252c859cc/smart
+curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-scsi2.json localhost:8080/api/device/0x5000cca264ebc248/smart
+
+curl localhost:8080/api/summary
+
+```
+
 ### Collector
 ```
 brew install smartmontools

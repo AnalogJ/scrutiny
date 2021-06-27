@@ -1,0 +1,4 @@
+bolt-path: /scrutiny/influxdb/influxd.bolt
+engine-path: /scrutiny/influxdb/engine
+http-bind-address: ":8086"
+reporting-disabled: true

@@ -23,7 +23,7 @@ func (ae *AppEngine) Setup(logger logrus.FieldLogger) *gin.Engine {
 	r := gin.New()
 
 	r.Use(middleware.LoggerMiddleware(logger))
-	r.Use(middleware.DatabaseMiddleware(ae.Config, logger))
+	r.Use(middleware.RepositoryMiddleware(ae.Config, logger))
 	r.Use(middleware.ConfigMiddleware(ae.Config))
 	r.Use(gin.Recovery())
 

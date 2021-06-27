@@ -30,11 +30,16 @@ FROM ubuntu:bionic as runtime
 EXPOSE 8080
 WORKDIR /scrutiny
 ENV PATH="/scrutiny/bin:${PATH}"
+ENV INFLUXD_CONFIG_PATH=/scrutiny/influxdb
 
 RUN apt-get update && apt-get install -y cron smartmontools=7.0-0ubuntu1~ubuntu18.04.1 ca-certificates curl && update-ca-certificates
 
 ADD https://github.com/just-containers/s6-overlay/releases/download/v1.21.8.0/s6-overlay-amd64.tar.gz /tmp/
 RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
+
+ADD https://dl.influxdata.com/influxdb/releases/influxdb2-2.0.4-amd64.deb /tmp/
+RUN dpkg -i /tmp/influxdb2-2.0.4-amd64.deb && rm -rf /tmp/influxdb2-2.0.4-amd64.deb
+
 COPY /rootfs /
 
 COPY /rootfs/etc/cron.d/scrutiny /etc/cron.d/scrutiny

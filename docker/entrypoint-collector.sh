@@ -7,4 +7,4 @@ printenv | sed 's/^\(.*\)$/export \1/g' > /env.sh
 
 # now that we have the env start cron in the foreground
 echo "starting cron"
-cron -f
+su -c "cron -l 8 -f" root

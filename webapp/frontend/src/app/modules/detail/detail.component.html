@@ -53,59 +53,59 @@
         <div class="flex flex-auto w-1/4 p-4 lt-md:w-full">
             <treo-card class="flex flex-auto p-4 pt-6 flex-col flex-auto filter-list">
                 <div class="flex items-center justify-between">
-                    <div class="text-2xl font-semibold leading-tight">/dev/{{data.data.device_name}}</div>
+                    <div class="text-2xl font-semibold leading-tight">/dev/{{device?.device_name}}</div>
                 </div>
                 <div class="flex flex-col my-2 grid grid-cols-2">
-                    <div *ngIf="data.data.host_id" class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{data.data.host_id}}</div>
+                    <div *ngIf="device?.host_id" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{device?.host_id}}</div>
                         <div class="text-secondary text-md">Host ID</div>
                     </div>
-                    <div *ngIf="data.data.device_type && data.data.device_type != 'ata' && data.data.device_type != 'scsi'" class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{data.data.device_type | uppercase}}</div>
+                    <div *ngIf="device?.device_type && device?.device_type != 'ata' && device?.device_type != 'scsi'" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{device?.device_type | uppercase}}</div>
                         <div class="text-secondary text-md">Device Type</div>
                     </div>
-                    <div *ngIf="data.data.manufacturer" class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{data.data.manufacturer}}</div>
+                    <div *ngIf="device?.manufacturer" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{device?.manufacturer}}</div>
                         <div class="text-secondary text-md">Model Family</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{data.data.model_name}}</div>
+                        <div>{{device?.model_name}}</div>
                         <div class="text-secondary text-md">Device Model</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{data.data.serial_number}}</div>
+                        <div>{{device?.serial_number}}</div>
                         <div class="text-secondary text-md">Serial Number</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{data.data.wwn}}</div>
+                        <div>{{device?.wwn}}</div>
                         <div class="text-secondary text-md">LU WWN Device Id</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{data.data.firmware}}</div>
+                        <div>{{device?.firmware}}</div>
                         <div class="text-secondary text-md">Firmware Version</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{data.data.capacity | fileSize}}</div>
+                        <div>{{device?.capacity | fileSize}}</div>
                         <div class="text-secondary text-md">Capacity</div>
                     </div>
-                    <div *ngIf="data.data.rotational_speed" class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{data.data.rotational_speed}} RPM</div>
+                    <div *ngIf="device?.rotational_speed" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{device?.rotational_speed}} RPM</div>
                         <div class="text-secondary text-md">Rotation Rate</div>
                     </div>
-                    <div *ngIf="data.data.device_protocol" class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{data.data.device_protocol}}</div>
+                    <div *ngIf="device?.device_protocol" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{device?.device_protocol}}</div>
                         <div class="text-secondary text-md">Protocol</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{data.data.smart_results[0]?.power_cycle_count}}</div>
+                        <div>{{smart_results[0]?.power_cycle_count}}</div>
                         <div class="text-secondary text-md">Power Cycle Count</div>
                     </div>
-                    <div *ngIf="data.data.smart_results[0]?.power_on_hours"  class="my-2 col-span-2 lt-md:col-span-1">
-                        <div matTooltip="{{humanizeDuration(data.data.smart_results[0]?.power_on_hours * 60 * 60 * 1000, { conjunction: ' and ', serialComma: false })}}">{{humanizeDuration(data.data.smart_results[0]?.power_on_hours *60 * 60 * 1000, { round: true, largest: 1, units: ['y', 'd', 'h'] })}}</div>
+                    <div *ngIf="smart_results[0]?.power_on_hours"  class="my-2 col-span-2 lt-md:col-span-1">
+                        <div matTooltip="{{humanizeDuration(smart_results[0]?.power_on_hours * 60 * 60 * 1000, { conjunction: ' and ', serialComma: false })}}">{{humanizeDuration(smart_results[0]?.power_on_hours *60 * 60 * 1000, { round: true, largest: 1, units: ['y', 'd', 'h'] })}}</div>
                         <div class="text-secondary text-md">Powered On</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{data.data.smart_results[0]?.temp}}°C</div>
+                        <div>{{smart_results[0]?.temp}}°C</div>
                         <div class="text-secondary text-md">Temperature</div>
                     </div>
                 </div>
@@ -115,7 +115,7 @@
         <div class="flex flex-auto w-3/4 p-4 lt-md:w-full">
             <div class="flex flex-col flex-auto w-full bg-card shadow-md rounded ">
                 <div class="p-6">
-                    <div class="font-bold text-md text-secondary uppercase tracking-wider">S.M.A.R.T {{data.data.device_protocol}} Attributes</div>
+                    <div class="font-bold text-md text-secondary uppercase tracking-wider">S.M.A.R.T {{device?.device_protocol}} Attributes</div>
                     <div class="text-sm text-hint font-medium">{{this.smartAttributeDataSource.data.length}} visible, {{getHiddenAttributes()}} hidden</div>
                 </div>
                 <div class="overflow-auto">

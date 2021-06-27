@@ -11,9 +11,9 @@ type NvmeAttributeMetadata struct {
 	Critical    bool   `json:"critical"`
 	Description string `json:"description"`
 
-	Transform          func(int, int64, string) int64 `json:"-"` //this should be a method to extract/tranform the normalized or raw data to a chartable format. Str
-	TransformValueUnit string                         `json:"transform_value_unit,omitempty"`
-	DisplayType        string                         `json:"display_type"` //"raw" "normalized" or "transformed"
+	Transform          func(int64, int64, string) int64 `json:"-"` //this should be a method to extract/tranform the normalized or raw data to a chartable format. Str
+	TransformValueUnit string                           `json:"transform_value_unit,omitempty"`
+	DisplayType        string                           `json:"display_type"` //"raw" "normalized" or "transformed"
 }
 
 var NmveMetadata = map[string]NvmeAttributeMetadata{

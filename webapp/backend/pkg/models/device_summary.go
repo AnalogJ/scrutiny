@@ -1,0 +1,19 @@
+package models
+
+import (
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
+	"time"
+)
+
+type DeviceSummary struct {
+	Device Device `json:"device"`
+
+	SmartResults *SmartSummary                   `json:"smart,omitempty"`
+	TempHistory  []measurements.SmartTemperature `json:"temp_history,omitempty"`
+}
+type SmartSummary struct {
+	// Collector Summary Data
+	CollectorDate time.Time `json:"collector_date,omitempty"`
+	Temp          int64     `json:"temp,omitempty"`
+	PowerOnHours  int64     `json:"power_on_hours,omitempty"`
+}

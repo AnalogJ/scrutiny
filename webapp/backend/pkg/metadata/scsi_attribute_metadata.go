@@ -7,9 +7,9 @@ type ScsiAttributeMetadata struct {
 	Critical    bool   `json:"critical"`
 	Description string `json:"description"`
 
-	Transform          func(int, int64, string) int64 `json:"-"` //this should be a method to extract/tranform the normalized or raw data to a chartable format. Str
-	TransformValueUnit string                         `json:"transform_value_unit,omitempty"`
-	DisplayType        string                         `json:"display_type"` //"raw" "normalized" or "transformed"
+	Transform          func(int64, int64, string) int64 `json:"-"` //this should be a method to extract/tranform the normalized or raw data to a chartable format. Str
+	TransformValueUnit string                           `json:"transform_value_unit,omitempty"`
+	DisplayType        string                           `json:"display_type"` //"raw" "normalized" or "transformed"
 }
 
 var ScsiMetadata = map[string]ScsiAttributeMetadata{
@@ -21,96 +21,96 @@ var ScsiMetadata = map[string]ScsiAttributeMetadata{
 		Critical:    true,
 		Description: "",
 	},
-	"read.errors_corrected_by_eccfast": {
-		ID:          "read.errors_corrected_by_eccfast",
+	"read_errors_corrected_by_eccfast": {
+		ID:          "read_errors_corrected_by_eccfast",
 		DisplayName: "Read Errors Corrected by ECC Fast",
 		DisplayType: "",
 		Ideal:       "",
 		Critical:    false,
 		Description: "",
 	},
-	"read.errors_corrected_by_eccdelayed": {
-		ID:          "read.errors_corrected_by_eccdelayed",
+	"read_errors_corrected_by_eccdelayed": {
+		ID:          "read_errors_corrected_by_eccdelayed",
 		DisplayName: "Read Errors Corrected by ECC Delayed",
 		DisplayType: "",
 		Ideal:       "",
 		Critical:    false,
 		Description: "",
 	},
-	"read.errors_corrected_by_rereads_rewrites": {
-		ID:          "read.errors_corrected_by_rereads_rewrites",
+	"read_errors_corrected_by_rereads_rewrites": {
+		ID:          "read_errors_corrected_by_rereads_rewrites",
 		DisplayName: "Read Errors Corrected by ReReads/ReWrites",
 		DisplayType: "",
 		Ideal:       "low",
 		Critical:    true,
 		Description: "",
 	},
-	"read.total_errors_corrected": {
-		ID:          "read.total_errors_corrected",
+	"read_total_errors_corrected": {
+		ID:          "read_total_errors_corrected",
 		DisplayName: "Read Total Errors Corrected",
 		DisplayType: "",
 		Ideal:       "",
 		Critical:    false,
 		Description: "",
 	},
-	"read.correction_algorithm_invocations": {
-		ID:          "read.correction_algorithm_invocations",
+	"read_correction_algorithm_invocations": {
+		ID:          "read_correction_algorithm_invocations",
 		DisplayName: "Read Correction Algorithm Invocations",
 		DisplayType: "",
 		Ideal:       "",
 		Critical:    false,
 		Description: "",
 	},
-	"read.total_uncorrected_errors": {
-		ID:          "read.total_uncorrected_errors",
+	"read_total_uncorrected_errors": {
+		ID:          "read_total_uncorrected_errors",
 		DisplayName: "Read Total Uncorrected Errors",
 		DisplayType: "",
 		Ideal:       "low",
 		Critical:    true,
 		Description: "",
 	},
-	"write.errors_corrected_by_eccfast": {
-		ID:          "write.errors_corrected_by_eccfast",
+	"write_errors_corrected_by_eccfast": {
+		ID:          "write_errors_corrected_by_eccfast",
 		DisplayName: "Write Errors Corrected by ECC Fast",
 		DisplayType: "",
 		Ideal:       "",
 		Critical:    false,
 		Description: "",
 	},
-	"write.errors_corrected_by_eccdelayed": {
-		ID:          "write.errors_corrected_by_eccdelayed",
+	"write_errors_corrected_by_eccdelayed": {
+		ID:          "write_errors_corrected_by_eccdelayed",
 		DisplayName: "Write Errors Corrected by ECC Delayed",
 		DisplayType: "",
 		Ideal:       "",
 		Critical:    false,
 		Description: "",
 	},
-	"write.errors_corrected_by_rereads_rewrites": {
-		ID:          "write.errors_corrected_by_rereads_rewrites",
+	"write_errors_corrected_by_rereads_rewrites": {
+		ID:          "write_errors_corrected_by_rereads_rewrites",
 		DisplayName: "Write Errors Corrected by ReReads/ReWrites",
 		DisplayType: "",
 		Ideal:       "low",
 		Critical:    true,
 		Description: "",
 	},
-	"write.total_errors_corrected": {
-		ID:          "write.total_errors_corrected",
+	"write_total_errors_corrected": {
+		ID:          "write_total_errors_corrected",
 		DisplayName: "Write Total Errors Corrected",
 		DisplayType: "",
 		Ideal:       "",
 		Critical:    false,
 		Description: "",
 	},
-	"write.correction_algorithm_invocations": {
-		ID:          "write.correction_algorithm_invocations",
+	"write_correction_algorithm_invocations": {
+		ID:          "write_correction_algorithm_invocations",
 		DisplayName: "Write Correction Algorithm Invocations",
 		DisplayType: "",
 		Ideal:       "",
 		Critical:    false,
 		Description: "",
 	},
-	"write.total_uncorrected_errors": {
-		ID:          "write.total_uncorrected_errors",
+	"write_total_uncorrected_errors": {
+		ID:          "write_total_uncorrected_errors",
 		DisplayName: "Write Total Uncorrected Errors",
 		DisplayType: "",
 		Ideal:       "low",

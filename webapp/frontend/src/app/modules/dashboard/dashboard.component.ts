@@ -84,16 +84,23 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     private _deviceDataTemperatureSeries() {
         var deviceTemperatureSeries = []
 
-        for(let device of this.data.data){
+        console.log("DEVICE DATA SUMMARY", this.data)
+
+        for(const wwn in this.data.data.summary){
+            var deviceSummary = this.data.data.summary[wwn]
+            if (!deviceSummary.temp_history){
+                continue
+            }
             var deviceSeriesMetadata = {
-                name: `/dev/${device.device_name}`,
+                name: `/dev/${deviceSummary.device.device_name}`,
                 data: []
             }
-            for(let smartResults of device.smart_results){
-                let newDate = new Date(smartResults.CreatedAt);
+
+            for(let tempHistory of deviceSummary.temp_history){
+                let newDate = new Date(tempHistory.date);
                 deviceSeriesMetadata.data.push({
                     x: newDate,
-                    y: smartResults.temp
+                    y: tempHistory.temp
                 })
             }
             deviceTemperatureSeries.push(deviceSeriesMetadata)
@@ -179,6 +186,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         title.push(disk.model_name)
 
         return title.join(' - ')
+    }
+
+    deviceStatusString(deviceStatus){
+        if(deviceStatus == 0){
+            return "passed"
+        } else {
+            return "failed"
+        }
     }
 
     /**

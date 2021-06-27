@@ -119,14 +119,28 @@ type SmartInfo struct {
 		FeatureControlSupported       bool `json:"feature_control_supported"`
 		DataTableSupported            bool `json:"data_table_supported"`
 	} `json:"ata_sct_capabilities"`
+	AtaSctTemperatureHistory struct {
+		Version                int   `json:"version"`
+		SamplingPeriodMinutes  int64 `json:"sampling_period_minutes"`
+		LoggingIntervalMinutes int64 `json:"logging_interval_minutes"`
+		Temperature            struct {
+			OpLimitMin int `json:"op_limit_min"`
+			OpLimitMax int `json:"op_limit_max"`
+			LimitMin   int `json:"limit_min"`
+			LimitMax   int `json:"limit_max"`
+		} `json:"temperature"`
+		Size  int     `json:"size"`
+		Index int     `json:"index"`
+		Table []int64 `json:"table"`
+	} `json:"ata_sct_temperature_history"`
 	AtaSmartAttributes struct {
 		Revision int `json:"revision"`
 		Table    []struct {
 			ID         int    `json:"id"`
 			Name       string `json:"name"`
-			Value      int    `json:"value"`
-			Worst      int    `json:"worst"`
-			Thresh     int    `json:"thresh"`
+			Value      int64  `json:"value"`
+			Worst      int64  `json:"worst"`
+			Thresh     int64  `json:"thresh"`
 			WhenFailed string `json:"when_failed"`
 			Flags      struct {
 				Value         int    `json:"value"`
@@ -237,48 +251,48 @@ type SmartInfo struct {
 		FormattedLbaSize int `json:"formatted_lba_size"`
 	} `json:"nvme_namespaces"`
 	NvmeSmartHealthInformationLog struct {
-		CriticalWarning         int `json:"critical_warning"`
-		Temperature             int `json:"temperature"`
-		AvailableSpare          int `json:"available_spare"`
-		AvailableSpareThreshold int `json:"available_spare_threshold"`
-		PercentageUsed          int `json:"percentage_used"`
-		DataUnitsRead           int `json:"data_units_read"`
-		DataUnitsWritten        int `json:"data_units_written"`
-		HostReads               int `json:"host_reads"`
-		HostWrites              int `json:"host_writes"`
-		ControllerBusyTime      int `json:"controller_busy_time"`
-		PowerCycles             int `json:"power_cycles"`
-		PowerOnHours            int `json:"power_on_hours"`
-		UnsafeShutdowns         int `json:"unsafe_shutdowns"`
-		MediaErrors             int `json:"media_errors"`
-		NumErrLogEntries        int `json:"num_err_log_entries"`
-		WarningTempTime         int `json:"warning_temp_time"`
-		CriticalCompTime        int `json:"critical_comp_time"`
+		CriticalWarning         int64 `json:"critical_warning"`
+		Temperature             int64 `json:"temperature"`
+		AvailableSpare          int64 `json:"available_spare"`
+		AvailableSpareThreshold int64 `json:"available_spare_threshold"`
+		PercentageUsed          int64 `json:"percentage_used"`
+		DataUnitsRead           int64 `json:"data_units_read"`
+		DataUnitsWritten        int64 `json:"data_units_written"`
+		HostReads               int64 `json:"host_reads"`
+		HostWrites              int64 `json:"host_writes"`
+		ControllerBusyTime      int64 `json:"controller_busy_time"`
+		PowerCycles             int64 `json:"power_cycles"`
+		PowerOnHours            int64 `json:"power_on_hours"`
+		UnsafeShutdowns         int64 `json:"unsafe_shutdowns"`
+		MediaErrors             int64 `json:"media_errors"`
+		NumErrLogEntries        int64 `json:"num_err_log_entries"`
+		WarningTempTime         int64 `json:"warning_temp_time"`
+		CriticalCompTime        int64 `json:"critical_comp_time"`
 	} `json:"nvme_smart_health_information_log"`
 
 	// SCSI Protocol Specific Fields
 	Vendor              string `json:"vendor"`
 	Product             string `json:"product"`
 	ScsiVersion         string `json:"scsi_version"`
-	ScsiGrownDefectList int    `json:"scsi_grown_defect_list"`
+	ScsiGrownDefectList int64  `json:"scsi_grown_defect_list"`
 	ScsiErrorCounterLog struct {
 		Read struct {
-			ErrorsCorrectedByEccfast         int    `json:"errors_corrected_by_eccfast"`
-			ErrorsCorrectedByEccdelayed      int    `json:"errors_corrected_by_eccdelayed"`
-			ErrorsCorrectedByRereadsRewrites int    `json:"errors_corrected_by_rereads_rewrites"`
-			TotalErrorsCorrected             int    `json:"total_errors_corrected"`
-			CorrectionAlgorithmInvocations   int    `json:"correction_algorithm_invocations"`
+			ErrorsCorrectedByEccfast         int64  `json:"errors_corrected_by_eccfast"`
+			ErrorsCorrectedByEccdelayed      int64  `json:"errors_corrected_by_eccdelayed"`
+			ErrorsCorrectedByRereadsRewrites int64  `json:"errors_corrected_by_rereads_rewrites"`
+			TotalErrorsCorrected             int64  `json:"total_errors_corrected"`
+			CorrectionAlgorithmInvocations   int64  `json:"correction_algorithm_invocations"`
 			GigabytesProcessed               string `json:"gigabytes_processed"`
-			TotalUncorrectedErrors           int    `json:"total_uncorrected_errors"`
+			TotalUncorrectedErrors           int64  `json:"total_uncorrected_errors"`
 		} `json:"read"`
 		Write struct {
-			ErrorsCorrectedByEccfast         int    `json:"errors_corrected_by_eccfast"`
-			ErrorsCorrectedByEccdelayed      int    `json:"errors_corrected_by_eccdelayed"`
-			ErrorsCorrectedByRereadsRewrites int    `json:"errors_corrected_by_rereads_rewrites"`
-			TotalErrorsCorrected             int    `json:"total_errors_corrected"`
-			CorrectionAlgorithmInvocations   int    `json:"correction_algorithm_invocations"`
+			ErrorsCorrectedByEccfast         int64  `json:"errors_corrected_by_eccfast"`
+			ErrorsCorrectedByEccdelayed      int64  `json:"errors_corrected_by_eccdelayed"`
+			ErrorsCorrectedByRereadsRewrites int64  `json:"errors_corrected_by_rereads_rewrites"`
+			TotalErrorsCorrected             int64  `json:"total_errors_corrected"`
+			CorrectionAlgorithmInvocations   int64  `json:"correction_algorithm_invocations"`
 			GigabytesProcessed               string `json:"gigabytes_processed"`
-			TotalUncorrectedErrors           int    `json:"total_uncorrected_errors"`
+			TotalUncorrectedErrors           int64  `json:"total_uncorrected_errors"`
 		} `json:"write"`
 	} `json:"scsi_error_counter_log"`
 }

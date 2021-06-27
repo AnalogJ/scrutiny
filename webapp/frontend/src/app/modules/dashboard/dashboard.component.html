@@ -1,4 +1,5 @@
-<div *ngIf="data && data.data && data.data.length > 0; else emptyDashboard">
+
+<div *ngIf="data && data.data && data.data.summary; else emptyDashboard">
     <div class="flex flex-col flex-auto w-full p-8 xs:p-2">
 
         <div class="flex flex-wrap w-full">
@@ -47,38 +48,37 @@
             </div>
 
             <div class="flex flex-wrap w-full">
-
-                <div *ngFor="let disk of data.data | deviceSort" class="flex gt-sm:w-1/2 min-w-80 p-4">
-                    <div [ngClass]="{'border-green': disk.smart_results[0]?.smart_status == 'passed',
-                                    'border-red': disk.smart_results[0]?.smart_status == 'failed' }"
+                <div *ngFor="let summary of data.data.summary | keyvalue" class="flex gt-sm:w-1/2 min-w-80 p-4">
+                    <div [ngClass]="{ 'border-green': summary.value.device.device_status == 0 && summary.value.smart,
+                                    'border-red': summary.value.device.device_status != 0 }"
                          class="relative flex flex-col flex-auto p-6 pr-3 pb-3 bg-card rounded border-l-4 shadow-md overflow-hidden">
                         <div class="absolute bottom-0 right-0 w-24 h-24 -m-6">
                             <mat-icon class="icon-size-96 opacity-12 text-green"
-                                      *ngIf="disk.smart_results[0]?.smart_status == 'passed'"
+                                      *ngIf="summary.value.device.device_status == 0 && summary.value.smart"
                                       [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
                             <mat-icon class="icon-size-96 opacity-12 text-red"
-                                      *ngIf="disk.smart_results[0]?.smart_status == 'failed'"
+                                      *ngIf="summary.value.device.device_status != 0"
                                       [svgIcon]="'heroicons_outline:exclamation-circle'"></mat-icon>
                             <mat-icon class="icon-size-96 opacity-12 text-yellow"
-                                      *ngIf="!disk.smart_results[0]"
+                                      *ngIf="!summary.value.smart"
                                       [svgIcon]="'heroicons_outline:question-mark-circle'"></mat-icon>
                         </div>
                         <div class="flex items-center">
                             <div class="flex flex-col">
-                                <a [routerLink]="'/device/'+ disk.wwn"
-                                   class="font-bold text-md text-secondary uppercase tracking-wider">{{deviceTitle(disk)}}</a>
-                                <div [ngClass]="{'text-green': disk.smart_results[0]?.smart_status == 'passed',
-                                    'text-red': disk.smart_results[0]?.smart_status == 'failed' }" class="font-medium text-sm" *ngIf="disk.smart_results[0]">
-                                    Last Updated on {{disk.smart_results[0]?.date | date:'MMMM dd, yyyy - HH:mm' }}
+                                <a [routerLink]="'/device/'+ summary.value.device.wwn"
+                                   class="font-bold text-md text-secondary uppercase tracking-wider">{{deviceTitle(summary.value.device)}}</a>
+                                <div [ngClass]="{'text-green': summary.value.device.device_status == 0 && summary.value.smart,
+                                    'text-red': summary.value.device.device_status != 0 }" class="font-medium text-sm" *ngIf="summary.value.smart">
+                                    Last Updated on {{summary.value.smart.collector_date | date:'MMMM dd, yyyy - HH:mm' }}
                                 </div>
                             </div>
-                            <div class="ml-auto" *ngIf="disk.smart_results">
+                            <div class="ml-auto" *ngIf="summary.value.device">
                                 <button mat-icon-button
                                         [matMenuTriggerFor]="previousStatementMenu">
                                     <mat-icon [svgIcon]="'more_vert'"></mat-icon>
                                 </button>
                                 <mat-menu #previousStatementMenu="matMenu">
-                                    <a mat-menu-item [routerLink]="'/device/'+ disk.wwn">
+                                    <a mat-menu-item [routerLink]="'/device/'+ summary.value.device.wwn">
                                     <span class="flex items-center">
                                         <mat-icon class="icon-size-20 mr-3"
                                                   [svgIcon]="'payment'"></mat-icon>
@@ -90,22 +90,22 @@
                         </div>
                         <div class="flex flex-row flex-wrap mt-4 -mx-6">
                             <div class="flex flex-col mx-6 my-3 xs:w-full">
-                                <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">S.M.A.R.T</div>
-                                <div class="mt-2 font-medium text-3xl leading-none" *ngIf="disk.smart_results[0]; else unknownStatus">{{ disk.smart_results[0]?.smart_status | titlecase}}</div>
+                                <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Status</div>
+                                <div class="mt-2 font-medium text-3xl leading-none" *ngIf="summary.value.smart?.collector_date; else unknownStatus">{{ deviceStatusString(summary.value.device.device_status) | titlecase}}</div>
                                 <ng-template #unknownStatus><div class="mt-2 font-medium text-3xl leading-none">No Data</div></ng-template>
                             </div>
                             <div class="flex flex-col mx-6 my-3 xs:w-full">
                                 <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Temperature</div>
-                                <div class="mt-2 font-medium text-3xl leading-none" *ngIf="disk.smart_results[0]; else unknownTemp">{{ disk.smart_results[0]?.temp }}°C</div>
+                                <div class="mt-2 font-medium text-3xl leading-none" *ngIf="summary.value.smart?.collector_date; else unknownTemp">{{ summary.value.smart?.temp }}°C</div>
                                 <ng-template #unknownTemp><div class="mt-2 font-medium text-3xl leading-none">--</div></ng-template>
                             </div>
                             <div class="flex flex-col mx-6 my-3 xs:w-full">
                                 <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Capacity</div>
-                                <div class="mt-2 font-medium text-3xl leading-none">{{ disk.capacity | fileSize}}</div>
+                                <div class="mt-2 font-medium text-3xl leading-none">{{ summary.value.device.capacity | fileSize}}</div>
                             </div>
                             <div class="flex flex-col mx-6 my-3 xs:w-full">
                                 <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Powered On</div>
-                                <div class="mt-2 font-medium text-3xl leading-none" *ngIf="disk.smart_results[0]?.power_on_hours; else unknownPoweredOn">{{ humanizeDuration(disk.smart_results[0]?.power_on_hours * 60 * 60 * 1000, { round: true, largest: 1, units: ['y', 'd', 'h'] }) }}</div>
+                                <div class="mt-2 font-medium text-3xl leading-none" *ngIf="summary.value.smart?.power_on_hours; else unknownPoweredOn">{{ humanizeDuration(summary.value.smart?.power_on_hours * 60 * 60 * 1000, { round: true, largest: 1, units: ['y', 'd', 'h'] }) }}</div>
                                 <ng-template #unknownPoweredOn><div class="mt-2 font-medium text-3xl leading-none">--</div></ng-template>
                             </div>
                         </div>
@@ -140,7 +140,7 @@
 
                     </div>
                     <div class="flex flex-col flex-auto">
-                        <apx-chart class="flex-auto w-full h-full"
+                        <apx-chart *ngIf="temperatureOptions" class="flex-auto w-full h-full"
                                    [chart]="temperatureOptions.chart"
                                    [colors]="temperatureOptions.colors"
                                    [fill]="temperatureOptions.fill"

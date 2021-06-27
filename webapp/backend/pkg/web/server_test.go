@@ -3,7 +3,7 @@ package web_test
 import (
 	"encoding/json"
 	mock_config "github.com/analogj/scrutiny/webapp/backend/pkg/config/mock"
-	dbModels "github.com/analogj/scrutiny/webapp/backend/pkg/models/db"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web"
 	"github.com/golang/mock/gomock"
 	"github.com/sirupsen/logrus"
@@ -319,7 +319,7 @@ func TestGetDevicesSummaryRoute_Nvme(t *testing.T) {
 	req, _ = http.NewRequest("GET", "/api/summary", nil)
 	router.ServeHTTP(sr, req)
 	require.Equal(t, 200, sr.Code)
-	var device dbModels.DeviceWrapper
+	var device models.DeviceWrapper
 	json.Unmarshal(sr.Body.Bytes(), &device)
 
 	//assert
