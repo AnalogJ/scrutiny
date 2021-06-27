@@ -235,12 +235,20 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
             //chart history data
             if (!attr.chartData) {
-                var rawHistory = (attr.history || []).map(hist_attr => this.getAttributeValue(hist_attr)).reverse()
-                rawHistory.push(this.getAttributeValue(attr))
-                attr.chartData = [
+
+
+                var attrHistory = []
+                for (let smart_result of smart_results){
+                    attrHistory.push(this.getAttributeValue(smart_result.attrs[attrId]))
+                }
+
+                // var rawHistory = (attr.history || []).map(hist_attr => this.getAttributeValue(hist_attr)).reverse()
+                // rawHistory.push(this.getAttributeValue(attr))
+
+                attributes[attrId].chartData = [
                     {
                         name: "chart-line-sparkline",
-                        data: rawHistory
+                        data: attrHistory
                     }
                 ]
             }
