@@ -38,7 +38,7 @@ jobs:
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           tags: |
-            type=ref,enable=true,event=branch,prefix=collector-
+            type=ref,enable=true,event=branch,suffix=-collector
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       # Build and push Docker image with Buildx (don't push on PR)
@@ -77,7 +77,7 @@ jobs:
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           tags: |
-            type=ref,enable=true,event=branch,prefix=web-
+            type=ref,enable=true,event=branch,suffix=-web
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       # Build and push Docker image with Buildx (don't push on PR)
@@ -116,7 +116,7 @@ jobs:
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           tags: |
-            type=ref,enable=true,event=branch,prefix=omnibus-
+            type=ref,enable=true,event=branch,suffix=-omnibus
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       # Build and push Docker image with Buildx (don't push on PR)
