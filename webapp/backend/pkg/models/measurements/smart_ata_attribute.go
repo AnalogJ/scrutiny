@@ -2,13 +2,11 @@ package measurements
 
 import (
 	"fmt"
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"strconv"
 	"strings"
 )
-
-const SmartAttributeStatusPassed = "passed"
-const SmartAttributeStatusFailed = "failed"
-const SmartAttributeStatusWarning = "warn"
 
 type SmartAtaAttribute struct {
 	AttributeId int    `json:"attribute_id"`
@@ -25,6 +23,10 @@ type SmartAtaAttribute struct {
 	Status           string  `json:"status,omitempty"`
 	StatusReason     string  `json:"status_reason,omitempty"`
 	FailureRate      float64 `json:"failure_rate,omitempty"`
+}
+
+func (sa *SmartAtaAttribute) GetStatus() string {
+	return sa.Status
 }
 
 func (sa *SmartAtaAttribute) Flatten() map[string]interface{} {
@@ -71,81 +73,82 @@ func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
 	}
 }
 
-//
-////populate attribute status, using SMART Thresholds & Observed Metadata
-//func (sa *SmartAtaAttribute) PopulateAttributeStatus() {
-//	if strings.ToUpper(sa.WhenFailed) == SmartWhenFailedFailingNow {
-//		//this attribute has previously failed
-//		sa.Status = SmartAttributeStatusFailed
-//		sa.StatusReason = "Attribute is failing manufacturer SMART threshold"
-//
-//	} else if strings.ToUpper(sa.WhenFailed) == SmartWhenFailedInThePast {
-//		sa.Status = SmartAttributeStatusWarning
-//		sa.StatusReason = "Attribute has previously failed manufacturer SMART threshold"
-//	}
-//
-//	if smartMetadata, ok := metadata.AtaMetadata[sa.AttributeId]; ok {
-//		sa.MetadataObservedThresholdStatus(smartMetadata)
-//	}
-//
-//	//check if status is blank, set to "passed"
-//	if len(sa.Status) == 0 {
-//		sa.Status = SmartAttributeStatusPassed
-//	}
-//}
-//
-//// compare the attribute (raw, normalized, transformed) value to observed thresholds, and update status if necessary
-//func (sa *SmartAtaAttribute) MetadataObservedThresholdStatus(smartMetadata metadata.AtaAttributeMetadata) {
-//	//TODO: multiple rules
-//	// try to predict the failure rates for observed thresholds that have 0 failure rate and error bars.
-//	// - if the attribute is critical
-//	//		- the failure rate is over 10 - set to failed
-//	//		- the attribute does not match any threshold, set to warn
-//	// - if the attribute is not critical
-//	//		- if failure rate is above 20 - set to failed
-//	// 		- if failure rate is above 10 but below 20 - set to warn
-//
-//	//update the smart attribute status based on Observed thresholds.
-//	var value int64
-//	if smartMetadata.DisplayType == metadata.AtaSmartAttributeDisplayTypeNormalized {
-//		value = int64(sa.Value)
-//	} else if smartMetadata.DisplayType == metadata.AtaSmartAttributeDisplayTypeTransformed {
-//		value = sa.TransformedValue
-//	} else {
-//		value = sa.RawValue
-//	}
-//
-//	for _, obsThresh := range smartMetadata.ObservedThresholds {
-//
-//		//check if "value" is in this bucket
-//		if ((obsThresh.Low == obsThresh.High) && value == obsThresh.Low) ||
-//			(obsThresh.Low < value && value <= obsThresh.High) {
-//			sa.FailureRate = obsThresh.AnnualFailureRate
-//
-//			if smartMetadata.Critical {
-//				if obsThresh.AnnualFailureRate >= 0.10 {
-//					sa.Status = SmartAttributeStatusFailed
-//					sa.StatusReason = "Observed Failure Rate for Critical Attribute is greater than 10%"
-//				}
-//			} else {
-//				if obsThresh.AnnualFailureRate >= 0.20 {
-//					sa.Status = SmartAttributeStatusFailed
-//					sa.StatusReason = "Observed Failure Rate for Attribute is greater than 20%"
-//				} else if obsThresh.AnnualFailureRate >= 0.10 {
-//					sa.Status = SmartAttributeStatusWarning
-//					sa.StatusReason = "Observed Failure Rate for Attribute is greater than 10%"
-//				}
-//			}
-//
-//			//we've found the correct bucket, we can drop out of this loop
-//			return
-//		}
-//	}
-//	// no bucket found
-//	if smartMetadata.Critical {
-//		sa.Status = SmartAttributeStatusWarning
-//		sa.StatusReason = "Could not determine Observed Failure Rate for Critical Attribute"
-//	}
-//
-//	return
-//}
+//populate attribute status, using SMART Thresholds & Observed Metadata
+// Chainable
+func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
+	if strings.ToUpper(sa.WhenFailed) == pkg.SmartWhenFailedFailingNow {
+		//this attribute has previously failed
+		sa.Status = pkg.SmartAttributeStatusFailed
+		sa.StatusReason = "Attribute is failing manufacturer SMART threshold"
+
+	} else if strings.ToUpper(sa.WhenFailed) == pkg.SmartWhenFailedInThePast {
+		sa.Status = pkg.SmartAttributeStatusWarning
+		sa.StatusReason = "Attribute has previously failed manufacturer SMART threshold"
+	}
+
+	if smartMetadata, ok := thresholds.AtaMetadata[sa.AttributeId]; ok {
+		sa.ValidateThreshold(smartMetadata)
+	}
+
+	//check if status is blank, set to "passed"
+	if len(sa.Status) == 0 {
+		sa.Status = pkg.SmartAttributeStatusPassed
+	}
+	return sa
+}
+
+// compare the attribute (raw, normalized, transformed) value to observed thresholds, and update status if necessary
+func (sa *SmartAtaAttribute) ValidateThreshold(smartMetadata thresholds.AtaAttributeMetadata) {
+	//TODO: multiple rules
+	// try to predict the failure rates for observed thresholds that have 0 failure rate and error bars.
+	// - if the attribute is critical
+	//		- the failure rate is over 10 - set to failed
+	//		- the attribute does not match any threshold, set to warn
+	// - if the attribute is not critical
+	//		- if failure rate is above 20 - set to failed
+	// 		- if failure rate is above 10 but below 20 - set to warn
+
+	//update the smart attribute status based on Observed thresholds.
+	var value int64
+	if smartMetadata.DisplayType == thresholds.AtaSmartAttributeDisplayTypeNormalized {
+		value = int64(sa.Value)
+	} else if smartMetadata.DisplayType == thresholds.AtaSmartAttributeDisplayTypeTransformed {
+		value = sa.TransformedValue
+	} else {
+		value = sa.RawValue
+	}
+
+	for _, obsThresh := range smartMetadata.ObservedThresholds {
+
+		//check if "value" is in this bucket
+		if ((obsThresh.Low == obsThresh.High) && value == obsThresh.Low) ||
+			(obsThresh.Low < value && value <= obsThresh.High) {
+			sa.FailureRate = obsThresh.AnnualFailureRate
+
+			if smartMetadata.Critical {
+				if obsThresh.AnnualFailureRate >= 0.10 {
+					sa.Status = pkg.SmartAttributeStatusFailed
+					sa.StatusReason = "Observed Failure Rate for Critical Attribute is greater than 10%"
+				}
+			} else {
+				if obsThresh.AnnualFailureRate >= 0.20 {
+					sa.Status = pkg.SmartAttributeStatusFailed
+					sa.StatusReason = "Observed Failure Rate for Attribute is greater than 20%"
+				} else if obsThresh.AnnualFailureRate >= 0.10 {
+					sa.Status = pkg.SmartAttributeStatusWarning
+					sa.StatusReason = "Observed Failure Rate for Attribute is greater than 10%"
+				}
+			}
+
+			//we've found the correct bucket, we can drop out of this loop
+			return
+		}
+	}
+	// no bucket found
+	if smartMetadata.Critical {
+		sa.Status = pkg.SmartAttributeStatusWarning
+		sa.StatusReason = "Could not determine Observed Failure Rate for Critical Attribute"
+	}
+
+	return
+}

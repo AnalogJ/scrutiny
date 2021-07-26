@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/metadata"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -23,11 +23,11 @@ func GetDeviceDetails(c *gin.Context) {
 
 	var deviceMetadata interface{}
 	if device.IsAta() {
-		deviceMetadata = metadata.AtaMetadata
+		deviceMetadata = thresholds.AtaMetadata
 	} else if device.IsNvme() {
-		deviceMetadata = metadata.NmveMetadata
+		deviceMetadata = thresholds.NmveMetadata
 	} else if device.IsScsi() {
-		deviceMetadata = metadata.ScsiMetadata
+		deviceMetadata = thresholds.ScsiMetadata
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": map[string]interface{}{"device": device, "smart_results": smartResults}, "metadata": deviceMetadata})

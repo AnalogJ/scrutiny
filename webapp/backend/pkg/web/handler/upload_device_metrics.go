@@ -37,11 +37,21 @@ func UploadDeviceMetrics(c *gin.Context) {
 	}
 
 	// insert smart info
-	_, err = deviceRepo.SaveSmartAttributes(c, c.Param("wwn"), collectorSmartData)
+	smartData, err := deviceRepo.SaveSmartAttributes(c, c.Param("wwn"), collectorSmartData)
 	if err != nil {
 		logger.Errorln("An error occurred while saving smartctl metrics", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
 		return
+	}
+
+	if smartData.Status != pkg.DeviceStatusPassed {
+		//there is a failure detected by Scrutiny, update the device status on the homepage.
+		updatedDevice, err = deviceRepo.UpdateDeviceStatus(c, c.Param("wwn"), smartData.Status)
+		if err != nil {
+			logger.Errorln("An error occurred while updating device status", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false})
+			return
+		}
 	}
 
 	// save smart temperature data (ignore failures)

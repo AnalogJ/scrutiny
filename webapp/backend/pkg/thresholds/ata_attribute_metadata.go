@@ -1,4 +1,4 @@
-package metadata
+package thresholds
 
 const AtaSmartAttributeDisplayTypeRaw = "raw"
 const AtaSmartAttributeDisplayTypeNormalized = "normalized"

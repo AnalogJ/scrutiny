@@ -1,4 +1,4 @@
-package metadata
+package thresholds
 
 // https://media.kingston.com/support/downloads/MKP_521.6_SMART-DCP1000_attribute.pdf
 // https://www.percona.com/blog/2017/02/09/using-nvme-command-line-tools-to-check-nvme-flash-health/

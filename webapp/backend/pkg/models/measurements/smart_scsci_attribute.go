@@ -2,6 +2,8 @@ package measurements
 
 import (
 	"fmt"
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"strings"
 )
 
@@ -15,6 +17,10 @@ type SmartScsiAttribute struct {
 	Status           string  `json:"status,omitempty"`
 	StatusReason     string  `json:"status_reason,omitempty"`
 	FailureRate      float64 `json:"failure_rate,omitempty"`
+}
+
+func (sa *SmartScsiAttribute) GetStatus() string {
+	return sa.Status
 }
 
 func (sa *SmartScsiAttribute) Flatten() map[string]interface{} {
@@ -45,23 +51,25 @@ func (sa *SmartScsiAttribute) Inflate(key string, val interface{}) {
 }
 
 //
-////populate attribute status, using SMART Thresholds & Observed Metadata
-//func (sa *SmartScsiAttribute) PopulateAttributeStatus() {
-//
-//	//-1 is a special number meaning no threshold.
-//	if sa.Threshold != -1 {
-//		if smartMetadata, ok := metadata.NmveMetadata[sa.AttributeId]; ok {
-//			//check what the ideal is. Ideal tells us if we our recorded value needs to be above, or below the threshold
-//			if (smartMetadata.Ideal == "low" && sa.Value > sa.Threshold) ||
-//				(smartMetadata.Ideal == "high" && sa.Value < sa.Threshold) {
-//				sa.Status = SmartAttributeStatusFailed
-//				sa.StatusReason = "Attribute is failing recommended SMART threshold"
-//			}
-//		}
-//	}
-//
-//	//check if status is blank, set to "passed"
-//	if len(sa.Status) == 0 {
-//		sa.Status = SmartAttributeStatusPassed
-//	}
-//}
+//populate attribute status, using SMART Thresholds & Observed Metadata
+//Chainable
+func (sa *SmartScsiAttribute) PopulateAttributeStatus() *SmartScsiAttribute {
+
+	//-1 is a special number meaning no threshold.
+	if sa.Threshold != -1 {
+		if smartMetadata, ok := thresholds.NmveMetadata[sa.AttributeId]; ok {
+			//check what the ideal is. Ideal tells us if we our recorded value needs to be above, or below the threshold
+			if (smartMetadata.Ideal == "low" && sa.Value > sa.Threshold) ||
+				(smartMetadata.Ideal == "high" && sa.Value < sa.Threshold) {
+				sa.Status = pkg.SmartAttributeStatusFailed
+				sa.StatusReason = "Attribute is failing recommended SMART threshold"
+			}
+		}
+	}
+
+	//check if status is blank, set to "passed"
+	if len(sa.Status) == 0 {
+		sa.Status = pkg.SmartAttributeStatusPassed
+	}
+	return sa
+}

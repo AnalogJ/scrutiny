@@ -1,4 +1,4 @@
-package metadata
+package thresholds
 
 type ScsiAttributeMetadata struct {
 	ID          string `json:"-"`

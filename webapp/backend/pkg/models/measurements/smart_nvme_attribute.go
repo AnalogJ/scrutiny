@@ -2,6 +2,8 @@ package measurements
 
 import (
 	"fmt"
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"strings"
 )
 
@@ -15,6 +17,10 @@ type SmartNvmeAttribute struct {
 	Status           string  `json:"status,omitempty"`
 	StatusReason     string  `json:"status_reason,omitempty"`
 	FailureRate      float64 `json:"failure_rate,omitempty"`
+}
+
+func (sa *SmartNvmeAttribute) GetStatus() string {
+	return sa.Status
 }
 
 func (sa *SmartNvmeAttribute) Flatten() map[string]interface{} {
@@ -44,25 +50,26 @@ func (sa *SmartNvmeAttribute) Inflate(key string, val interface{}) {
 	}
 }
 
-//
-////populate attribute status, using SMART Thresholds & Observed Metadata
-//func (sa *SmartNvmeAttribute) PopulateAttributeStatus() {
-//
-//	//-1 is a special number meaning no threshold.
-//	if sa.Threshold != -1 {
-//		if smartMetadata, ok := metadata.NmveMetadata[sa.AttributeId]; ok {
-//			//check what the ideal is. Ideal tells us if we our recorded value needs to be above, or below the threshold
-//			if (smartMetadata.Ideal == "low" && sa.Value > sa.Threshold) ||
-//				(smartMetadata.Ideal == "high" && sa.Value < sa.Threshold) {
-//				sa.Status = SmartAttributeStatusFailed
-//				sa.StatusReason = "Attribute is failing recommended SMART threshold"
-//			}
-//		}
-//	}
-//	//TODO: eventually figure out the critical_warning bits and determine correct error messages here.
-//
-//	//check if status is blank, set to "passed"
-//	if len(sa.Status) == 0 {
-//		sa.Status = SmartAttributeStatusPassed
-//	}
-//}
+//populate attribute status, using SMART Thresholds & Observed Metadata
+// Chainable
+func (sa *SmartNvmeAttribute) PopulateAttributeStatus() *SmartNvmeAttribute {
+
+	//-1 is a special number meaning no threshold.
+	if sa.Threshold != -1 {
+		if smartMetadata, ok := thresholds.NmveMetadata[sa.AttributeId]; ok {
+			//check what the ideal is. Ideal tells us if we our recorded value needs to be above, or below the threshold
+			if (smartMetadata.Ideal == "low" && sa.Value > sa.Threshold) ||
+				(smartMetadata.Ideal == "high" && sa.Value < sa.Threshold) {
+				sa.Status = pkg.SmartAttributeStatusFailed
+				sa.StatusReason = "Attribute is failing recommended SMART threshold"
+			}
+		}
+	}
+	//TODO: eventually figure out the critical_warning bits and determine correct error messages here.
+
+	//check if status is blank, set to "passed"
+	if len(sa.Status) == 0 {
+		sa.Status = pkg.SmartAttributeStatusPassed
+	}
+	return sa
+}

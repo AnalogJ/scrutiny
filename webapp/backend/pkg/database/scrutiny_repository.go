@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
@@ -160,6 +161,17 @@ func (sr *scrutinyRepository) UpdateDevice(ctx context.Context, wwn string, coll
 	if err != nil {
 		return device, err
 	}
+	return device, sr.gormClient.Model(&device).Updates(device).Error
+}
+
+//Update Device Status
+func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, wwn string, status pkg.DeviceStatus) (models.Device, error) {
+	var device models.Device
+	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
+		return device, fmt.Errorf("Could not get device from DB", err)
+	}
+
+	device.DeviceStatus = pkg.Set(device.DeviceStatus, status)
 	return device, sr.gormClient.Model(&device).Updates(device).Error
 }
 
@@ -433,4 +445,12 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 	}
 
 	return summaries, nil
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Process Thresholds
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (sr *scrutinyRepository) ProcessSmartAttributeThresholds() {
+
 }
