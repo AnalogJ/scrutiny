@@ -42,6 +42,12 @@ func (sa *SmartAtaAttribute) Flatten() map[string]interface{} {
 		fmt.Sprintf("attr.%s.raw_value", idString):    sa.RawValue,
 		fmt.Sprintf("attr.%s.raw_string", idString):   sa.RawString,
 		fmt.Sprintf("attr.%s.when_failed", idString):  sa.WhenFailed,
+
+		//Generated Data
+		fmt.Sprintf("attr.%s.transformed_value", idString): sa.TransformedValue,
+		fmt.Sprintf("attr.%s.status", idString):            sa.Status,
+		fmt.Sprintf("attr.%s.status_reason", idString):     sa.StatusReason,
+		fmt.Sprintf("attr.%s.failure_rate", idString):      sa.FailureRate,
 	}
 }
 func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
@@ -70,6 +76,17 @@ func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
 		sa.RawString = val.(string)
 	case "when_failed":
 		sa.WhenFailed = val.(string)
+
+	//generated
+	case "transformed_value":
+		sa.TransformedValue = val.(int64)
+	case "status":
+		sa.Status = val.(string)
+	case "status_reason":
+		sa.StatusReason = val.(string)
+	case "failure_rate":
+		sa.FailureRate = val.(float64)
+
 	}
 }
 
