@@ -50,6 +50,203 @@ export const sdc = {
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
+                    "transformed_value": 0,
+                    "status": "passed"
+                },
+                "12": {
+                    "attribute_id": 12,
+                    "name": "Power Cycle Count",
+                    "value": 100,
+                    "thresh": 0,
+                    "worst": 100,
+                    "raw_value": 86,
+                    "raw_string": "86",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "192": {
+                    "attribute_id": 192,
+                    "name": "Power-off Retract Count",
+                    "value": 95,
+                    "thresh": 0,
+                    "worst": 95,
+                    "raw_value": 6244,
+                    "raw_string": "6244",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "193": {
+                    "attribute_id": 193,
+                    "name": "Load Cycle Count",
+                    "value": 95,
+                    "thresh": 0,
+                    "worst": 95,
+                    "raw_value": 6244,
+                    "raw_string": "6244",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "194": {
+                    "attribute_id": 194,
+                    "name": "Temperature",
+                    "value": 240,
+                    "thresh": 0,
+                    "worst": 240,
+                    "raw_value": 167504969753,
+                    "raw_string": "25 (Min/Max 19/39)",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "196": {
+                    "attribute_id": 196,
+                    "name": "Reallocation Event Count",
+                    "value": 1,
+                    "thresh": 0,
+                    "worst": 1,
+                    "raw_value": 3831,
+                    "raw_string": "3831",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "197": {
+                    "attribute_id": 197,
+                    "name": "Current Pending Sector Count",
+                    "value": 100,
+                    "thresh": 0,
+                    "worst": 100,
+                    "raw_value": 8,
+                    "raw_string": "8",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "198": {
+                    "attribute_id": 198,
+                    "name": "(Offline) Uncorrectable Sector Count",
+                    "value": 100,
+                    "thresh": 0,
+                    "worst": 100,
+                    "raw_value": 0,
+                    "raw_string": "0",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "199": {
+                    "attribute_id": 199,
+                    "name": "UltraDMA CRC Error Count",
+                    "value": 200,
+                    "thresh": 0,
+                    "worst": 200,
+                    "raw_value": 0,
+                    "raw_string": "0",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "2": {
+                    "attribute_id": 2,
+                    "name": "Throughput Performance",
+                    "value": 136,
+                    "thresh": 54,
+                    "worst": 136,
+                    "raw_value": 91,
+                    "raw_string": "91",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "3": {
+                    "attribute_id": 3,
+                    "name": "Spin-Up Time",
+                    "value": 125,
+                    "thresh": 24,
+                    "worst": 125,
+                    "raw_value": 17192124596,
+                    "raw_string": "180 (Average 187)",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "4": {
+                    "attribute_id": 4,
+                    "name": "Start/Stop Count",
+                    "value": 100,
+                    "thresh": 0,
+                    "worst": 100,
+                    "raw_value": 86,
+                    "raw_string": "86",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "5": {
+                    "attribute_id": 5,
+                    "name": "Reallocated Sectors Count",
+                    "value": 1,
+                    "thresh": 5,
+                    "worst": 1,
+                    "raw_value": 1975,
+                    "raw_string": "1975",
+                    "when_failed": "now",
+                    "transformed_value": 0
+                },
+                "7": {
+                    "attribute_id": 7,
+                    "name": "Seek Error Rate",
+                    "value": 100,
+                    "thresh": 67,
+                    "worst": 100,
+                    "raw_value": 0,
+                    "raw_string": "0",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "8": {
+                    "attribute_id": 8,
+                    "name": "Seek Time Performance",
+                    "value": 118,
+                    "thresh": 20,
+                    "worst": 118,
+                    "raw_value": 33,
+                    "raw_string": "33",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "9": {
+                    "attribute_id": 9,
+                    "name": "Power-On Hours",
+                    "value": 91,
+                    "thresh": 0,
+                    "worst": 91,
+                    "raw_value": 65592,
+                    "raw_string": "65592",
+                    "when_failed": "",
+                    "transformed_value": 0
+                }
+            }
+        }, {
+            "date": "2020-07-08T13:48:23Z",
+            "device_wwn": "0x5000cca264ec3183",
+            "device_protocol": "ATA",
+            "temp": 25,
+            "power_on_hours": 65592,
+            "power_cycle_count": 86,
+            "attrs": {
+                "1": {
+                    "attribute_id": 1,
+                    "name": "Read Error Rate",
+                    "value": 100,
+                    "thresh": 16,
+                    "worst": 100,
+                    "raw_value": 0,
+                    "raw_string": "0",
+                    "when_failed": "",
+                    "transformed_value": 0
+                },
+                "10": {
+                    "attribute_id": 10,
+                    "name": "Spin Retry Count",
+                    "value": 100,
+                    "thresh": 60,
+                    "worst": 100,
+                    "raw_value": 0,
+                    "raw_string": "0",
+                    "when_failed": "",
                     "transformed_value": 0
                 },
                 "12": {
