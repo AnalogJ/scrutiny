@@ -1,4 +1,17 @@
 #!/usr/bin/with-contenv bash
 
+mkdir -p /scrutiny/influxdb/
+
+if [ -f "/scrutiny/influxdb/config.yaml" ]; then
+    echo "influxdb config file already exists. skipping."
+else
+cat << 'EOF' > /scrutiny/influxdb/config.yaml
+bolt-path: /scrutiny/influxdb/influxd.bolt
+engine-path: /scrutiny/influxdb/engine
+http-bind-address: ":8086"
+reporting-disabled: true
+EOF
+fi
+
 echo "starting influxdb"
 influxd run
