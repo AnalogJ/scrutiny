@@ -127,7 +127,7 @@ For users of the docker Hub/Spoke deployment or manual install: initially the da
 After the first collector run, you'll be greeted with a list of all your hard drives and their current smart status.
 
 ```
-docker exec scrutiny /scrutiny/bin/scrutiny-collector-metrics run
+docker exec scrutiny /usr/local/bin/scrutiny-collector-metrics run
 ```
 
 # Configuration
