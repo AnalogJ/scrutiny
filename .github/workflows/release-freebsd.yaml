@@ -1,0 +1,77 @@
+# compiles FreeBSD artifacts and attaches them to build
+name: Release FreeBSD
+
+on:
+  release:
+    # Only use the types keyword to narrow down the activity types that will trigger your workflow.
+    types: [published]
+jobs:
+
+  release-freebsd:
+    name: Release FreeBSD
+    runs-on: macos-latest
+    env:
+      PROJECT_PATH: /go/src/github.com/analogj/scrutiny
+      GOPATH: /go
+      GOOS: freebsd
+      GOARCH: amd64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{github.event.release.tag_name}}
+      - name: Build Binaries
+        uses: vmactions/freebsd-vm@v0.1.3
+        with:
+          envs: 'PROJECT_PATH GOPATH GOOS GOARCH'
+          usesh: true
+          #TODO: lock go version using https://www.jeremymorgan.com/tutorials/golang/how-to-install-go-freebsd/
+          prepare: pkg install -y curl go gmake
+          run: |
+            pwd
+            ls -lah
+            whoami
+            freebsd-version
+
+            mkdir -p $(dirname "$PROJECT_PATH")
+            cp -R $GITHUB_WORKSPACE $PROJECT_PATH
+            cd $PROJECT_PATH
+
+            mkdir -p $GITHUB_WORKSPACE/dist
+
+            echo "building web binary (OS = ${GOOS}, ARCH = ${GOARCH})"
+            go build -ldflags "-extldflags=-static -X main.goos=${GOOS} -X main.goarch=${GOARCH}" -o $GITHUB_WORKSPACE/dist/scrutiny-web-${GOOS}-${GOARCH} -tags "static netgo sqlite_omit_load_extension" webapp/backend/cmd/scrutiny/scrutiny.go
+
+            chmod +x "$GITHUB_WORKSPACE/dist/scrutiny-web-${GOOS}-${GOARCH}"
+            file "$GITHUB_WORKSPACE/dist/scrutiny-web-${GOOS}-${GOARCH}" || true
+            ldd "$GITHUB_WORKSPACE/dist/scrutiny-web-${GOOS}-${GOARCH}" || true
+
+            echo "building collector binary (OS = ${GOOS}, ARCH = ${GOARCH})"
+            go build -ldflags "-extldflags=-static -X main.goos=${GOOS} -X main.goarch=${GOARCH}" -o $GITHUB_WORKSPACE/dist/scrutiny-collector-metrics-${GOOS}-${GOARCH} -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
+
+            chmod +x "$GITHUB_WORKSPACE/dist/scrutiny-collector-metrics-${GOOS}-${GOARCH}"
+            file "$GITHUB_WORKSPACE/dist/scrutiny-collector-metrics-${GOOS}-${GOARCH}" || true
+            ldd "$GITHUB_WORKSPACE/dist/scrutiny-collector-metrics-${GOOS}-${GOARCH}" || true
+
+
+      - name: Release Asset - Web - freebsd-amd64
+        id: upload-release-asset1
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: './dist/scrutiny-web-freebsd-amd64'
+          asset_name: scrutiny-web-freebsd-amd64
+          asset_content_type: application/octet-stream
+
+      - name: Release Asset - Collector - freebsd-amd64
+        id: upload-release-asset2
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: './dist/scrutiny-collector-metrics-freebsd-amd64'
+          asset_name: scrutiny-collector-metrics-freebsd-amd64
+          asset_content_type: application/octet-stream

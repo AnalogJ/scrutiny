@@ -33,6 +33,11 @@ func (c *configuration) Init() error {
 
 	c.SetDefault("devices", []string{})
 
+	c.SetDefault("log.level", "INFO")
+	c.SetDefault("log.file", "")
+
+	c.SetDefault("api.endpoint", "http://localhost:8080")
+
 	//c.SetDefault("collect.short.command", "-a -o on -S on")
 
 	//if you want to load a non-standard location system config file (~/drawbridge.yml), use ReadConfig

@@ -1,5 +1,0 @@
-#!/usr/bin/with-contenv bash
-
-echo "starting jobber/cron"
-
-su -c "/usr/lib/x86_64-linux-gnu/jobberrunner /scrutiny/jobber/jobber.yaml" root
