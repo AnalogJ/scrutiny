@@ -6,14 +6,6 @@ on:
     # Only use the types keyword to narrow down the activity types that will trigger your workflow.
     types: [published]
 
-  # for testing, we can also trigger manually. remove this afterwards.
-  workflow_dispatch:
-    inputs:
-      version_bump_type:
-        description: 'noop'
-        required: false
-        default: 'patch'
-
 jobs:
 
   release-windows:
@@ -25,9 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-# TODO: uncomment this
-#        with:
-#          ref: ${{github.event.release.tag_name}}
+        with:
+          ref: ${{github.event.release.tag_name}}
       - uses: actions/setup-go@v2
         with:
           go-version: '^1.13.1' # The Go version to download (if necessary) and use.
