@@ -38,7 +38,8 @@ jobs:
 
           echo "building collector binary (OS = ${GOOS}, ARCH = ${GOARCH})"
           go build -ldflags "-extldflags=-static -X main.goos=${GOOS} -X main.goarch=${GOARCH}" -o $GITHUB_WORKSPACE/dist/scrutiny-collector-metrics-${GOOS}-${GOARCH}.exe -tags "static netgo" collector/cmd/collector-metrics/collector-metrics.go
-
+          ls $GITHUB_WORKSPACE/dist/scrutiny-collector-metrics-${GOOS}-${GOARCH}.exe
+          
       - name: Release Asset - Collector - windows-amd64
         id: upload-release-asset2
         uses: actions/upload-release-asset@v1
