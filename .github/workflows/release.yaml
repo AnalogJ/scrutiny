@@ -57,7 +57,8 @@ jobs:
         env:
           # This is necessary in order to push a commit to the repo
           GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
-
+        with:
+          version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
       - name: Publish Release
         id: publish
         uses: packagrio/action-publishr-go@master
