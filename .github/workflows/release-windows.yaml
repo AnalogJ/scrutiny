@@ -20,8 +20,6 @@ jobs:
     name: Release Windows
     runs-on: windows-latest
     env:
-      PROJECT_PATH: /go/src/github.com/analogj/scrutiny
-      GOPATH: /go
       GOOS: windows
       GOARCH: amd64
     steps:
@@ -35,11 +33,6 @@ jobs:
           go-version: '^1.13.1' # The Go version to download (if necessary) and use.
       - name: Build Binaries
         run: |
-
-          mkdir -p $(dirname "$PROJECT_PATH")
-          cp -R $GITHUB_WORKSPACE $PROJECT_PATH
-          cd $PROJECT_PATH
-
           mkdir -p $GITHUB_WORKSPACE/dist
 
           echo "building collector binary (OS = ${GOOS}, ARCH = ${GOARCH})"
