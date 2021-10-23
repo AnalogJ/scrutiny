@@ -51,6 +51,9 @@ jobs:
           cd $PROJECT_PATH
           make all
 
+          # restore modified dir to GH workspace.
+          cp -arf $PROJECT_PATH/. $GITHUB_WORKSPACE/
+
       - name: Commit Changes
         id: commit
         uses: packagrio/action-releasr-go@master
