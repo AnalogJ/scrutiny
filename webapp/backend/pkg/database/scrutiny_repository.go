@@ -91,7 +91,10 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 	// Get query client
 	queryAPI := client.QueryAPI(appConfig.GetString("web.influxdb.org"))
 
-	if writeAPI == nil || queryAPI == nil {
+	// Get task client
+	taskAPI := client.TasksAPI()
+
+	if writeAPI == nil || queryAPI == nil || taskAPI == nil {
 		return nil, fmt.Errorf("Failed to connect to influxdb!")
 	}
 
@@ -101,6 +104,7 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 		influxClient:   client,
 		influxWriteApi: writeAPI,
 		influxQueryApi: queryAPI,
+		influxTaskApi: taskAPI,
 		gormClient:     database,
 	}
 
@@ -113,6 +117,7 @@ type scrutinyRepository struct {
 
 	influxWriteApi api.WriteAPIBlocking
 	influxQueryApi api.QueryAPI
+	influxTaskApi api.TasksAPI
 	influxClient   influxdb2.Client
 
 	gormClient *gorm.DB
@@ -121,6 +126,26 @@ type scrutinyRepository struct {
 func (sr *scrutinyRepository) Close() error {
 	sr.influxClient.Close()
 	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Tasks
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+func (sr *scrutinyRepository) InitTasks(ctx context.Context) error {
+	flux := ""
+
+	//weekly on Sunday at 1:00am
+	sr.influxTaskApi.CreateTaskWithCron(ctx, "tsk-weekly-aggr", flux, "0 1 * * 0", sr.appConfig.GetString("web.influxdb.org"))
+
+	//monthly on first day of the month at 1:30am
+	sr.influxTaskApi.CreateTaskWithCron(ctx, "tsk-monthly-aggr", flux, "30 1 1 * *", sr.appConfig.GetString("web.influxdb.org"))
+
+	//yearly on the frist day of the year at 2:00am
+	sr.influxTaskApi.CreateTaskWithCron(ctx, "tsk-yearly-aggr", flux, "0 2 1 1 *", sr.appConfig.GetString("web.influxdb.org"))
+}
+
+func (sr *scrutinyRepository) DownsampleScript(aggregate string) (string, error){
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
