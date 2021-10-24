@@ -79,9 +79,9 @@ docker run -p 8086:8086 --rm influxdb:2.0
 
 docker run -p 8086:8086 \
       -e DOCKER_INFLUXDB_INIT_USERNAME=admin \
-      -e DOCKER_INFLUXDB_INIT_PASSWORD=12345678 \
-      -e DOCKER_INFLUXDB_INIT_ORG=my-org \
-      -e DOCKER_INFLUXDB_INIT_BUCKET=bucket \
+      -e DOCKER_INFLUXDB_INIT_PASSWORD=password12345 \
+      -e DOCKER_INFLUXDB_INIT_ORG=scrutiny \
+      -e DOCKER_INFLUXDB_INIT_BUCKET=metrics \
       influxdb:2.0
 
 
@@ -89,6 +89,7 @@ curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/web/test
 
 curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-ata.json localhost:8080/api/device/0x5000cca264eb01d7/smart
 curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-ata-date.json localhost:8080/api/device/0x5000cca264eb01d7/smart
+curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-ata-date2.json localhost:8080/api/device/0x5000cca264eb01d7/smart
 curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-fail2.json localhost:8080/api/device/0x5000cca264ec3183/smart
 curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-nvme.json localhost:8080/api/device/0x5002538e40a22954/smart
 curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-scsi.json localhost:8080/api/device/0x5000cca252c859cc/smart

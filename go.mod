@@ -9,7 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/golang/mock v1.4.3
 	github.com/google/uuid v1.2.0 // indirect
-	github.com/hashicorp/serf v0.8.2
+	github.com/hashicorp/serf v0.8.2 // indirect
 	github.com/influxdata/influxdb-client-go/v2 v2.2.3
 	github.com/jaypipes/ghw v0.6.1
 	github.com/klauspost/compress v1.12.1 // indirect
