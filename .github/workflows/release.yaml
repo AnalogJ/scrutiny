@@ -28,6 +28,8 @@ jobs:
           git --version
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Bump version
         id: bump_version
         uses: packagrio/action-bumpr-go@master
