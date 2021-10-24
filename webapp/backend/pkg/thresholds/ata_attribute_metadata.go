@@ -6,7 +6,7 @@ const AtaSmartAttributeDisplayTypeTransformed = "transformed"
 
 type AtaAttributeMetadata struct {
 	ID          int64  `json:"-"`
-	DisplayName string `json:"-"`
+	DisplayName string `json:"display_name"`
 	Ideal       string `json:"ideal"`
 	Critical    bool   `json:"critical"`
 	Description string `json:"description"`

@@ -10,7 +10,6 @@ import (
 
 type SmartAtaAttribute struct {
 	AttributeId int    `json:"attribute_id"`
-	Name        string `json:"name"`
 	Value       int64  `json:"value"`
 	Threshold   int64  `json:"thresh"`
 	Worst       int64  `json:"worst"`
@@ -20,12 +19,12 @@ type SmartAtaAttribute struct {
 
 	//Generated data
 	TransformedValue int64   `json:"transformed_value"`
-	Status           string  `json:"status,omitempty"`
+	Status           int64   `json:"status,omitempty"`
 	StatusReason     string  `json:"status_reason,omitempty"`
 	FailureRate      float64 `json:"failure_rate,omitempty"`
 }
 
-func (sa *SmartAtaAttribute) GetStatus() string {
+func (sa *SmartAtaAttribute) GetStatus() int64 {
 	return sa.Status
 }
 
@@ -35,7 +34,6 @@ func (sa *SmartAtaAttribute) Flatten() map[string]interface{} {
 
 	return map[string]interface{}{
 		fmt.Sprintf("attr.%s.attribute_id", idString): idString,
-		fmt.Sprintf("attr.%s.name", idString):         sa.Name,
 		fmt.Sprintf("attr.%s.value", idString):        sa.Value,
 		fmt.Sprintf("attr.%s.worst", idString):        sa.Worst,
 		fmt.Sprintf("attr.%s.thresh", idString):       sa.Threshold,
@@ -62,8 +60,6 @@ func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
 		if err == nil {
 			sa.AttributeId = attrId
 		}
-	case "name":
-		sa.Name = val.(string)
 	case "value":
 		sa.Value = val.(int64)
 	case "worst":
@@ -81,7 +77,7 @@ func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
 	case "transformed_value":
 		sa.TransformedValue = val.(int64)
 	case "status":
-		sa.Status = val.(string)
+		sa.Status = val.(int64)
 	case "status_reason":
 		sa.StatusReason = val.(string)
 	case "failure_rate":
@@ -107,10 +103,6 @@ func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
 		sa.ValidateThreshold(smartMetadata)
 	}
 
-	//check if status is blank, set to "passed"
-	if len(sa.Status) == 0 {
-		sa.Status = pkg.SmartAttributeStatusPassed
-	}
 	return sa
 }
 

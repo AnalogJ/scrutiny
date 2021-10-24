@@ -4,9 +4,9 @@ const DeviceProtocolAta = "ATA"
 const DeviceProtocolScsi = "SCSI"
 const DeviceProtocolNvme = "NVMe"
 
-const SmartAttributeStatusPassed = "passed"
-const SmartAttributeStatusFailed = "failed"
-const SmartAttributeStatusWarning = "warn"
+const SmartAttributeStatusPassed = 0
+const SmartAttributeStatusFailed = 1
+const SmartAttributeStatusWarning = 2
 
 const SmartWhenFailedFailingNow = "FAILING_NOW"
 const SmartWhenFailedInThePast = "IN_THE_PAST"

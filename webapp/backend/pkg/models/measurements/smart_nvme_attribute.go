@@ -9,24 +9,22 @@ import (
 
 type SmartNvmeAttribute struct {
 	AttributeId string `json:"attribute_id"` //json string from smartctl
-	Name        string `json:"name"`
 	Value       int64  `json:"value"`
 	Threshold   int64  `json:"thresh"`
 
 	TransformedValue int64   `json:"transformed_value"`
-	Status           string  `json:"status,omitempty"`
+	Status           int64   `json:"status,omitempty"`
 	StatusReason     string  `json:"status_reason,omitempty"`
 	FailureRate      float64 `json:"failure_rate,omitempty"`
 }
 
-func (sa *SmartNvmeAttribute) GetStatus() string {
+func (sa *SmartNvmeAttribute) GetStatus() int64 {
 	return sa.Status
 }
 
 func (sa *SmartNvmeAttribute) Flatten() map[string]interface{} {
 	return map[string]interface{}{
 		fmt.Sprintf("attr.%s.attribute_id", sa.AttributeId): sa.AttributeId,
-		fmt.Sprintf("attr.%s.name", sa.AttributeId):         sa.Name,
 		fmt.Sprintf("attr.%s.value", sa.AttributeId):        sa.Value,
 		fmt.Sprintf("attr.%s.thresh", sa.AttributeId):       sa.Threshold,
 
@@ -47,8 +45,6 @@ func (sa *SmartNvmeAttribute) Inflate(key string, val interface{}) {
 	switch keyParts[2] {
 	case "attribute_id":
 		sa.AttributeId = val.(string)
-	case "name":
-		sa.Name = val.(string)
 	case "value":
 		sa.Value = val.(int64)
 	case "thresh":
@@ -58,7 +54,7 @@ func (sa *SmartNvmeAttribute) Inflate(key string, val interface{}) {
 	case "transformed_value":
 		sa.TransformedValue = val.(int64)
 	case "status":
-		sa.Status = val.(string)
+		sa.Status = val.(int64)
 	case "status_reason":
 		sa.StatusReason = val.(string)
 	case "failure_rate":
@@ -83,9 +79,5 @@ func (sa *SmartNvmeAttribute) PopulateAttributeStatus() *SmartNvmeAttribute {
 	}
 	//TODO: eventually figure out the critical_warning bits and determine correct error messages here.
 
-	//check if status is blank, set to "passed"
-	if len(sa.Status) == 0 {
-		sa.Status = pkg.SmartAttributeStatusPassed
-	}
 	return sa
 }
