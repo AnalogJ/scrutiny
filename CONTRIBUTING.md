@@ -73,6 +73,9 @@ Now visit http://localhost:8080
 
 If you'd like to populate the database with some test data,  you can run the following commands:
 
+> NOTE: you may need to update the `local_time` key within the JSON file, any timestamps older than ~3 weeks will be automatically ignored
+> (since the downsampling & retention policy takes effect at 2 weeks)
+
 ```
 docker run -p 8086:8086 --rm influxdb:2.0
 
