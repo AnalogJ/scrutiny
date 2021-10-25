@@ -2,6 +2,7 @@ package web_test
 
 import (
 	"encoding/json"
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	mock_config "github.com/analogj/scrutiny/webapp/backend/pkg/config/mock"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web"
@@ -324,5 +325,5 @@ func TestGetDevicesSummaryRoute_Nvme(t *testing.T) {
 
 	//assert
 	require.Equal(t, "a4c8e8ed-11a0-4c97-9bba-306440f1b944", device.Data[0].WWN)
-	require.Equal(t, "passed", device.Data[0].SmartResults[0].SmartStatus)
+	require.Equal(t, pkg.DeviceStatusPassed, device.Data[0].DeviceStatus)
 }
