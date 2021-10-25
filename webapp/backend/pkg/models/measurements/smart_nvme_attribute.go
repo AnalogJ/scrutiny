@@ -13,7 +13,7 @@ type SmartNvmeAttribute struct {
 	Threshold   int64  `json:"thresh"`
 
 	TransformedValue int64   `json:"transformed_value"`
-	Status           int64   `json:"status,omitempty"`
+	Status           int64   `json:"status"`
 	StatusReason     string  `json:"status_reason,omitempty"`
 	FailureRate      float64 `json:"failure_rate,omitempty"`
 }

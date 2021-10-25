@@ -2,7 +2,7 @@ export const sdb = {
     "data": {
         "device": {
             "CreatedAt": "2021-06-24T21:17:31.302191-07:00",
-            "UpdatedAt": "2021-06-27T09:25:21.627183-07:00",
+            "UpdatedAt": "2021-10-24T17:06:39.436996-07:00",
             "DeletedAt": null,
             "wwn": "0x5000cca264eb01d7",
             "device_name": "sdb",
@@ -20,10 +20,10 @@ export const sdb = {
             "device_type": "",
             "label": "",
             "host_id": "",
-            "device_status": 0
+            "device_status": 2
         },
         "smart_results": [{
-            "date": "2020-06-21T00:03:30Z",
+            "date": "2021-10-24T20:34:04Z",
             "device_wwn": "0x5000cca264eb01d7",
             "device_protocol": "ATA",
             "temp": 32,
@@ -32,205 +32,218 @@ export const sdb = {
             "attrs": {
                 "1": {
                     "attribute_id": 1,
-                    "name": "Read Error Rate",
                     "value": 100,
                     "thresh": 1,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.034155719633986996
                 },
                 "10": {
                     "attribute_id": 10,
-                    "name": "Spin Retry Count",
                     "value": 100,
                     "thresh": 1,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.05459827163896099
                 },
                 "12": {
                     "attribute_id": 12,
-                    "name": "Power Cycle Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 9,
                     "raw_string": "9",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.019835987118930823
                 },
                 "192": {
                     "attribute_id": 192,
-                    "name": "Power-off Retract Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 329,
                     "raw_string": "329",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.01634692899031039
                 },
                 "193": {
                     "attribute_id": 193,
-                    "name": "Load Cycle Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 329,
                     "raw_string": "329",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0
                 },
                 "194": {
                     "attribute_id": 194,
-                    "name": "Temperature",
                     "value": 51,
                     "thresh": 0,
                     "worst": 51,
                     "raw_value": 163210330144,
                     "raw_string": "32 (Min/Max 24/38)",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 32,
+                    "status": 0
                 },
                 "196": {
                     "attribute_id": 196,
-                    "name": "Reallocation Event Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.007389855800729792
                 },
                 "197": {
                     "attribute_id": 197,
-                    "name": "Current Pending Sector Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.025540791394761345
                 },
                 "198": {
                     "attribute_id": 198,
-                    "name": "(Offline) Uncorrectable Sector Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.028675322159886437
                 },
                 "199": {
                     "attribute_id": 199,
-                    "name": "UltraDMA CRC Error Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0
                 },
                 "2": {
                     "attribute_id": 2,
-                    "name": "Throughput Performance",
                     "value": 135,
                     "thresh": 54,
                     "worst": 135,
                     "raw_value": 108,
                     "raw_string": "108",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0
                 },
                 "22": {
                     "attribute_id": 22,
-                    "name": "Current Helium Level",
                     "value": 100,
                     "thresh": 25,
                     "worst": 100,
                     "raw_value": 100,
                     "raw_string": "100",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0
                 },
                 "3": {
                     "attribute_id": 3,
-                    "name": "Spin-Up Time",
                     "value": 81,
                     "thresh": 1,
                     "worst": 81,
                     "raw_value": 30089675132,
                     "raw_string": "380 (Average 380)",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 2,
+                    "status_reason": "Observed Failure Rate for Attribute is greater than 10%",
+                    "failure_rate": 0.11452195377351217
                 },
                 "4": {
                     "attribute_id": 4,
-                    "name": "Start/Stop Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 9,
                     "raw_string": "9",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.01989335424860646
                 },
                 "5": {
                     "attribute_id": 5,
-                    "name": "Reallocated Sectors Count",
                     "value": 100,
                     "thresh": 1,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.025169175350572493
                 },
                 "7": {
                     "attribute_id": 7,
-                    "name": "Seek Error Rate",
                     "value": 100,
                     "thresh": 1,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.01087335627722523
                 },
                 "8": {
                     "attribute_id": 8,
-                    "name": "Seek Time Performance",
                     "value": 133,
                     "thresh": 20,
                     "worst": 133,
                     "raw_value": 18,
                     "raw_string": "18",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0
                 },
                 "9": {
                     "attribute_id": 9,
-                    "name": "Power-On Hours",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 1730,
                     "raw_string": "1730",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0
                 }
-            }
+            },
+            "Status": 0
         }, {
-            "date": "2021-01-23T16:24:06Z",
+            "date": "2021-10-24T23:20:44Z",
             "device_wwn": "0x5000cca264eb01d7",
             "device_protocol": "ATA",
             "temp": 32,
@@ -239,414 +252,221 @@ export const sdb = {
             "attrs": {
                 "1": {
                     "attribute_id": 1,
-                    "name": "Read Error Rate",
                     "value": 100,
                     "thresh": 1,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.034155719633986996
                 },
                 "10": {
                     "attribute_id": 10,
-                    "name": "Spin Retry Count",
                     "value": 100,
                     "thresh": 1,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.05459827163896099
                 },
                 "12": {
                     "attribute_id": 12,
-                    "name": "Power Cycle Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 9,
                     "raw_string": "9",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.019835987118930823
                 },
                 "192": {
                     "attribute_id": 192,
-                    "name": "Power-off Retract Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 329,
                     "raw_string": "329",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.01634692899031039
                 },
                 "193": {
                     "attribute_id": 193,
-                    "name": "Load Cycle Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 329,
                     "raw_string": "329",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0
                 },
                 "194": {
                     "attribute_id": 194,
-                    "name": "Temperature",
                     "value": 51,
                     "thresh": 0,
                     "worst": 51,
                     "raw_value": 163210330144,
                     "raw_string": "32 (Min/Max 24/38)",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 32,
+                    "status": 0
                 },
                 "196": {
                     "attribute_id": 196,
-                    "name": "Reallocation Event Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.007389855800729792
                 },
                 "197": {
                     "attribute_id": 197,
-                    "name": "Current Pending Sector Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.025540791394761345
                 },
                 "198": {
                     "attribute_id": 198,
-                    "name": "(Offline) Uncorrectable Sector Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.028675322159886437
                 },
                 "199": {
                     "attribute_id": 199,
-                    "name": "UltraDMA CRC Error Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0
                 },
                 "2": {
                     "attribute_id": 2,
-                    "name": "Throughput Performance",
                     "value": 135,
                     "thresh": 54,
                     "worst": 135,
                     "raw_value": 108,
                     "raw_string": "108",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0
                 },
                 "22": {
                     "attribute_id": 22,
-                    "name": "Current Helium Level",
                     "value": 100,
                     "thresh": 25,
                     "worst": 100,
                     "raw_value": 100,
                     "raw_string": "100",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0
                 },
                 "3": {
                     "attribute_id": 3,
-                    "name": "Spin-Up Time",
                     "value": 81,
                     "thresh": 1,
                     "worst": 81,
                     "raw_value": 30089675132,
                     "raw_string": "380 (Average 380)",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 2,
+                    "status_reason": "Observed Failure Rate for Attribute is greater than 10%",
+                    "failure_rate": 0.11452195377351217
                 },
                 "4": {
                     "attribute_id": 4,
-                    "name": "Start/Stop Count",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 9,
                     "raw_string": "9",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.01989335424860646
                 },
                 "5": {
                     "attribute_id": 5,
-                    "name": "Reallocated Sectors Count",
                     "value": 100,
                     "thresh": 1,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.025169175350572493
                 },
                 "7": {
                     "attribute_id": 7,
-                    "name": "Seek Error Rate",
                     "value": 100,
                     "thresh": 1,
                     "worst": 100,
                     "raw_value": 0,
                     "raw_string": "0",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0,
+                    "failure_rate": 0.01087335627722523
                 },
                 "8": {
                     "attribute_id": 8,
-                    "name": "Seek Time Performance",
                     "value": 133,
                     "thresh": 20,
                     "worst": 133,
                     "raw_value": 18,
                     "raw_string": "18",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0
                 },
                 "9": {
                     "attribute_id": 9,
-                    "name": "Power-On Hours",
                     "value": 100,
                     "thresh": 0,
                     "worst": 100,
                     "raw_value": 1730,
                     "raw_string": "1730",
                     "when_failed": "",
-                    "transformed_value": 0
+                    "transformed_value": 0,
+                    "status": 0
                 }
-            }
-        }, {
-            "date": "2021-01-23T16:25:46Z",
-            "device_wwn": "0x5000cca264eb01d7",
-            "device_protocol": "ATA",
-            "temp": 32,
-            "power_on_hours": 1730,
-            "power_cycle_count": 9,
-            "attrs": {
-                "1": {
-                    "attribute_id": 1,
-                    "name": "Read Error Rate",
-                    "value": 100,
-                    "thresh": 1,
-                    "worst": 100,
-                    "raw_value": 0,
-                    "raw_string": "0",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "10": {
-                    "attribute_id": 10,
-                    "name": "Spin Retry Count",
-                    "value": 100,
-                    "thresh": 1,
-                    "worst": 100,
-                    "raw_value": 0,
-                    "raw_string": "0",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "12": {
-                    "attribute_id": 12,
-                    "name": "Power Cycle Count",
-                    "value": 100,
-                    "thresh": 0,
-                    "worst": 100,
-                    "raw_value": 9,
-                    "raw_string": "9",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "192": {
-                    "attribute_id": 192,
-                    "name": "Power-off Retract Count",
-                    "value": 100,
-                    "thresh": 0,
-                    "worst": 100,
-                    "raw_value": 329,
-                    "raw_string": "329",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "193": {
-                    "attribute_id": 193,
-                    "name": "Load Cycle Count",
-                    "value": 100,
-                    "thresh": 0,
-                    "worst": 100,
-                    "raw_value": 329,
-                    "raw_string": "329",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "194": {
-                    "attribute_id": 194,
-                    "name": "Temperature",
-                    "value": 51,
-                    "thresh": 0,
-                    "worst": 51,
-                    "raw_value": 163210330144,
-                    "raw_string": "32 (Min/Max 24/38)",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "196": {
-                    "attribute_id": 196,
-                    "name": "Reallocation Event Count",
-                    "value": 100,
-                    "thresh": 0,
-                    "worst": 100,
-                    "raw_value": 0,
-                    "raw_string": "0",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "197": {
-                    "attribute_id": 197,
-                    "name": "Current Pending Sector Count",
-                    "value": 100,
-                    "thresh": 0,
-                    "worst": 100,
-                    "raw_value": 0,
-                    "raw_string": "0",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "198": {
-                    "attribute_id": 198,
-                    "name": "(Offline) Uncorrectable Sector Count",
-                    "value": 100,
-                    "thresh": 0,
-                    "worst": 100,
-                    "raw_value": 0,
-                    "raw_string": "0",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "199": {
-                    "attribute_id": 199,
-                    "name": "UltraDMA CRC Error Count",
-                    "value": 100,
-                    "thresh": 0,
-                    "worst": 100,
-                    "raw_value": 0,
-                    "raw_string": "0",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "2": {
-                    "attribute_id": 2,
-                    "name": "Throughput Performance",
-                    "value": 135,
-                    "thresh": 54,
-                    "worst": 135,
-                    "raw_value": 108,
-                    "raw_string": "108",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "22": {
-                    "attribute_id": 22,
-                    "name": "Current Helium Level",
-                    "value": 100,
-                    "thresh": 25,
-                    "worst": 100,
-                    "raw_value": 100,
-                    "raw_string": "100",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "3": {
-                    "attribute_id": 3,
-                    "name": "Spin-Up Time",
-                    "value": 81,
-                    "thresh": 1,
-                    "worst": 81,
-                    "raw_value": 30089675132,
-                    "raw_string": "380 (Average 380)",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "4": {
-                    "attribute_id": 4,
-                    "name": "Start/Stop Count",
-                    "value": 100,
-                    "thresh": 0,
-                    "worst": 100,
-                    "raw_value": 9,
-                    "raw_string": "9",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "5": {
-                    "attribute_id": 5,
-                    "name": "Reallocated Sectors Count",
-                    "value": 100,
-                    "thresh": 1,
-                    "worst": 100,
-                    "raw_value": 0,
-                    "raw_string": "0",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "7": {
-                    "attribute_id": 7,
-                    "name": "Seek Error Rate",
-                    "value": 100,
-                    "thresh": 1,
-                    "worst": 100,
-                    "raw_value": 0,
-                    "raw_string": "0",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "8": {
-                    "attribute_id": 8,
-                    "name": "Seek Time Performance",
-                    "value": 133,
-                    "thresh": 20,
-                    "worst": 133,
-                    "raw_value": 18,
-                    "raw_string": "18",
-                    "when_failed": "",
-                    "transformed_value": 0
-                },
-                "9": {
-                    "attribute_id": 9,
-                    "name": "Power-On Hours",
-                    "value": 100,
-                    "thresh": 0,
-                    "worst": 100,
-                    "raw_value": 1730,
-                    "raw_string": "1730",
-                    "when_failed": "",
-                    "transformed_value": 0
-                }
-            }
+            },
+            "Status": 0
         }]
     },
     "metadata": {
         "1": {
+            "display_name": "Read Error Rate",
             "ideal": "low",
             "critical": false,
             "description": "(Vendor specific raw value.) Stores data related to the rate of hardware read errors that occurred when reading data from a disk surface. The raw value has different structure for different vendors and is often not meaningful as a decimal number.",
@@ -694,6 +514,7 @@ export const sdb = {
             "display_type": "normalized"
         },
         "10": {
+            "display_name": "Spin Retry Count",
             "ideal": "low",
             "critical": true,
             "description": "Count of retry of spin start attempts. This attribute stores a total count of the spin start attempts to reach the fully operational speed (under the condition that the first attempt was unsuccessful). An increase of this attribute value is a sign of problems in the hard disk mechanical subsystem.",
@@ -711,6 +532,7 @@ export const sdb = {
             "display_type": "raw"
         },
         "11": {
+            "display_name": "Recalibration Retries or Calibration Retry Count",
             "ideal": "low",
             "critical": false,
             "description": "This attribute indicates the count that recalibration was requested (under the condition that the first attempt was unsuccessful). An increase of this attribute value is a sign of problems in the hard disk mechanical subsystem.",
@@ -758,6 +580,7 @@ export const sdb = {
             "display_type": "raw"
         },
         "12": {
+            "display_name": "Power Cycle Count",
             "ideal": "low",
             "critical": false,
             "description": "This attribute indicates the count of full hard disk power on/off cycles.",
@@ -800,84 +623,98 @@ export const sdb = {
             "display_type": "raw"
         },
         "13": {
+            "display_name": "Soft Read Error Rate",
             "ideal": "low",
             "critical": false,
             "description": "Uncorrected read errors reported to the operating system.",
             "display_type": "normalized"
         },
         "170": {
+            "display_name": "Available Reserved Space",
             "ideal": "",
             "critical": false,
             "description": "See attribute E8.",
             "display_type": "normalized"
         },
         "171": {
+            "display_name": "SSD Program Fail Count",
             "ideal": "",
             "critical": false,
             "description": "(Kingston) The total number of flash program operation failures since the drive was deployed.[33] Identical to attribute 181.",
             "display_type": "normalized"
         },
         "172": {
+            "display_name": "SSD Erase Fail Count",
             "ideal": "",
             "critical": false,
             "description": "(Kingston) Counts the number of flash erase failures. This attribute returns the total number of Flash erase operation failures since the drive was deployed. This attribute is identical to attribute 182.",
             "display_type": "normalized"
         },
         "173": {
+            "display_name": "SSD Wear Leveling Count",
             "ideal": "",
             "critical": false,
             "description": "Counts the maximum worst erase count on any block.",
             "display_type": "normalized"
         },
         "174": {
+            "display_name": "Unexpected Power Loss Count",
             "ideal": "",
             "critical": false,
             "description": "Also known as \"Power-off Retract Count\" per conventional HDD terminology. Raw value reports the number of unclean shutdowns, cumulative over the life of an SSD, where an \"unclean shutdown\" is the removal of power without STANDBY IMMEDIATE as the last command (regardless of PLI activity using capacitor power). Normalized value is always 100.",
             "display_type": ""
         },
         "175": {
+            "display_name": "Power Loss Protection Failure",
             "ideal": "",
             "critical": false,
             "description": "Last test result as microseconds to discharge cap, saturated at its maximum value. Also logs minutes since last test and lifetime number of tests. Raw value contains the following data:     Bytes 0-1: Last test result as microseconds to discharge cap, saturates at max value. Test result expected in range 25 \u003c= result \u003c= 5000000, lower indicates specific error code. Bytes 2-3: Minutes since last test, saturates at max value.Bytes 4-5: Lifetime number of tests, not incremented on power cycle, saturates at max value. Normalized value is set to one on test failure or 11 if the capacitor has been tested in an excessive temperature condition, otherwise 100.",
             "display_type": "normalized"
         },
         "176": {
+            "display_name": "Erase Fail Count",
             "ideal": "",
             "critical": false,
             "description": "S.M.A.R.T. parameter indicates a number of flash erase command failures.",
             "display_type": "normalized"
         },
         "177": {
+            "display_name": "Wear Range Delta",
             "ideal": "",
             "critical": false,
             "description": "Delta between most-worn and least-worn Flash blocks. It describes how good/bad the wearleveling of the SSD works on a more technical way. ",
             "display_type": "normalized"
         },
         "179": {
+            "display_name": "Used Reserved Block Count Total",
             "ideal": "",
             "critical": false,
             "description": "Pre-Fail attribute used at least in Samsung devices.",
             "display_type": "normalized"
         },
         "180": {
+            "display_name": "Unused Reserved Block Count Total",
             "ideal": "",
             "critical": false,
             "description": "\"Pre-Fail\" attribute used at least in HP devices. ",
             "display_type": "normalized"
         },
         "181": {
+            "display_name": "Program Fail Count Total",
             "ideal": "",
             "critical": false,
             "description": "Total number of Flash program operation failures since the drive was deployed.",
             "display_type": "normalized"
         },
         "182": {
+            "display_name": "Erase Fail Count",
             "ideal": "",
             "critical": false,
             "description": "\"Pre-Fail\" Attribute used at least in Samsung devices.",
             "display_type": "normalized"
         },
         "183": {
+            "display_name": "SATA Downshift Error Count or Runtime Bad Block",
             "ideal": "low",
             "critical": false,
             "description": "Western Digital, Samsung or Seagate attribute: Either the number of downshifts of link speed (e.g. from 6Gbit/s to 3Gbit/s) or the total number of data blocks with detected, uncorrectable errors encountered during normal operation. Although degradation of this parameter can be an indicator of drive aging and/or potential electromechanical problems, it does not directly indicate imminent drive failure.",
@@ -930,6 +767,7 @@ export const sdb = {
             "display_type": "raw"
         },
         "184": {
+            "display_name": "End-to-End error",
             "ideal": "low",
             "critical": true,
             "description": "This attribute is a part of Hewlett-Packard\"s SMART IV technology, as well as part of other vendors\" IO Error Detection and Correction schemas, and it contains a count of parity errors which occur in the data path to the media via the drive\"s cache RAM",
@@ -977,18 +815,21 @@ export const sdb = {
             "display_type": "normalized"
         },
         "185": {
+            "display_name": "Head Stability",
             "ideal": "",
             "critical": false,
             "description": "Western Digital attribute.",
             "display_type": "normalized"
         },
         "186": {
+            "display_name": "Induced Op-Vibration Detection",
             "ideal": "",
             "critical": false,
             "description": "Western Digital attribute.",
             "display_type": "normalized"
         },
         "187": {
+            "display_name": "Reported Uncorrectable Errors",
             "ideal": "low",
             "critical": true,
             "description": "The count of errors that could not be recovered using hardware ECC (see attribute 195).",
@@ -1041,6 +882,7 @@ export const sdb = {
             "display_type": "raw"
         },
         "188": {
+            "display_name": "Command Timeout",
             "ideal": "low",
             "critical": true,
             "description": "The count of aborted operations due to HDD timeout. Normally this attribute value should be equal to zero.",
@@ -1093,6 +935,7 @@ export const sdb = {
             "display_type": "raw"
         },
         "189": {
+            "display_name": "High Fly Writes",
             "ideal": "low",
             "critical": false,
             "description": "HDD manufacturers implement a flying height sensor that attempts to provide additional protections for write operations by detecting when a recording head is flying outside its normal operating range. If an unsafe fly height condition is encountered, the write process is stopped, and the information is rewritten or reallocated to a safe region of the hard drive. This attribute indicates the count of these errors detected over the lifetime of the drive.",
@@ -1140,18 +983,21 @@ export const sdb = {
             "display_type": "raw"
         },
         "190": {
+            "display_name": "Temperature Difference",
             "ideal": "",
             "critical": false,
             "description": "Value is equal to (100-temp. °C), allowing manufacturer to set a minimum threshold which corresponds to a maximum temperature. This also follows the convention of 100 being a best-case value and lower values being undesirable. However, some older drives may instead report raw Temperature (identical to 0xC2) or Temperature minus 50 here.",
             "display_type": "normalized"
         },
         "191": {
+            "display_name": "G-sense Error Rate",
             "ideal": "low",
             "critical": false,
             "description": "The count of errors resulting from externally induced shock and vibration. ",
             "display_type": "normalized"
         },
         "192": {
+            "display_name": "Power-off Retract Count",
             "ideal": "low",
             "critical": false,
             "description": "Number of power-off or emergency retract cycles.",
@@ -1199,12 +1045,14 @@ export const sdb = {
             "display_type": "raw"
         },
         "193": {
+            "display_name": "Load Cycle Count",
             "ideal": "low",
             "critical": false,
             "description": "Count of load/unload cycles into head landing zone position.[45] Some drives use 225 (0xE1) for Load Cycle Count instead.",
             "display_type": "normalized"
         },
         "194": {
+            "display_name": "Temperature",
             "ideal": "low",
             "critical": false,
             "description": "Indicates the device temperature, if the appropriate sensor is fitted. Lowest byte of the raw value contains the exact temperature value (Celsius degrees).",
@@ -1212,6 +1060,7 @@ export const sdb = {
             "display_type": "transformed"
         },
         "195": {
+            "display_name": "Hardware ECC Recovered",
             "ideal": "",
             "critical": false,
             "description": "(Vendor-specific raw value.) The raw value has different structure for different vendors and is often not meaningful as a decimal number.",
@@ -1259,6 +1108,7 @@ export const sdb = {
             "display_type": "normalized"
         },
         "196": {
+            "display_name": "Reallocation Event Count",
             "ideal": "low",
             "critical": true,
             "description": "Count of remap operations. The raw value of this attribute shows the total count of attempts to transfer data from reallocated sectors to a spare area. Both successful and unsuccessful attempts are counted.",
@@ -1311,6 +1161,7 @@ export const sdb = {
             "display_type": "raw"
         },
         "197": {
+            "display_name": "Current Pending Sector Count",
             "ideal": "low",
             "critical": true,
             "description": "Count of \"unstable\" sectors (waiting to be remapped, because of unrecoverable read errors). If an unstable sector is subsequently read successfully, the sector is remapped and this value is decreased. Read errors on a sector will not remap the sector immediately (since the correct value cannot be read and so the value to remap is not known, and also it might become readable later); instead, the drive firmware remembers that the sector needs to be remapped, and will remap it the next time it\"s written.",
@@ -1363,6 +1214,7 @@ export const sdb = {
             "display_type": "raw"
         },
         "198": {
+            "display_name": "(Offline) Uncorrectable Sector Count",
             "ideal": "low",
             "critical": true,
             "description": "The total count of uncorrectable errors when reading/writing a sector. A rise in the value of this attribute indicates defects of the disk surface and/or problems in the mechanical subsystem.",
@@ -1415,6 +1267,7 @@ export const sdb = {
             "display_type": "raw"
         },
         "199": {
+            "display_name": "UltraDMA CRC Error Count",
             "ideal": "low",
             "critical": false,
             "description": "The count of errors in data transfer via the interface cable as determined by ICRC (Interface Cyclic Redundancy Check).",
@@ -1467,246 +1320,287 @@ export const sdb = {
             "display_type": "raw"
         },
         "2": {
+            "display_name": "Throughput Performance",
             "ideal": "high",
             "critical": false,
             "description": "Overall (general) throughput performance of a hard disk drive. If the value of this attribute is decreasing there is a high probability that there is a problem with the disk.",
             "display_type": "normalized"
         },
         "200": {
+            "display_name": "Multi-Zone Error Rate",
             "ideal": "low",
             "critical": false,
             "description": "The count of errors found when writing a sector. The higher the value, the worse the disk\"s mechanical condition is.",
             "display_type": "normalized"
         },
         "201": {
+            "display_name": "Soft Read Error Rate",
             "ideal": "low",
             "critical": true,
             "description": "Count indicates the number of uncorrectable software read errors.",
             "display_type": "normalized"
         },
         "202": {
+            "display_name": "Data Address Mark errors",
             "ideal": "low",
             "critical": false,
             "description": "Count of Data Address Mark errors (or vendor-specific).",
             "display_type": "normalized"
         },
         "203": {
+            "display_name": "Run Out Cancel",
             "ideal": "low",
             "critical": false,
             "description": "The number of errors caused by incorrect checksum during the error correction.",
             "display_type": "normalized"
         },
         "204": {
+            "display_name": "Soft ECC Correction",
             "ideal": "low",
             "critical": false,
             "description": "Count of errors corrected by the internal error correction software.",
             "display_type": ""
         },
         "205": {
+            "display_name": "Thermal Asperity Rate",
             "ideal": "low",
             "critical": false,
             "description": "Count of errors due to high temperature.",
             "display_type": "normalized"
         },
         "206": {
+            "display_name": "Flying Height",
             "ideal": "",
             "critical": false,
             "description": "Height of heads above the disk surface. If too low, head crash is more likely; if too high, read/write errors are more likely.",
             "display_type": "normalized"
         },
         "207": {
+            "display_name": "Spin High Current",
             "ideal": "low",
             "critical": false,
             "description": "Amount of surge current used to spin up the drive.",
             "display_type": "normalized"
         },
         "208": {
+            "display_name": "Spin Buzz",
             "ideal": "",
             "critical": false,
             "description": "Count of buzz routines needed to spin up the drive due to insufficient power.",
             "display_type": "normalized"
         },
         "209": {
+            "display_name": "Offline Seek Performance",
             "ideal": "",
             "critical": false,
             "description": "Drive\"s seek performance during its internal tests.",
             "display_type": "normalized"
         },
         "210": {
+            "display_name": "Vibration During Write",
             "ideal": "",
             "critical": false,
             "description": "Found in Maxtor 6B200M0 200GB and Maxtor 2R015H1 15GB disks.",
             "display_type": "normalized"
         },
         "211": {
+            "display_name": "Vibration During Write",
             "ideal": "",
             "critical": false,
             "description": "A recording of a vibration encountered during write operations.",
             "display_type": "normalized"
         },
         "212": {
+            "display_name": "Shock During Write",
             "ideal": "",
             "critical": false,
             "description": "A recording of shock encountered during write operations.",
             "display_type": "normalized"
         },
         "22": {
+            "display_name": "Current Helium Level",
             "ideal": "high",
             "critical": false,
             "description": "Specific to He8 drives from HGST. This value measures the helium inside of the drive specific to this manufacturer. It is a pre-fail attribute that trips once the drive detects that the internal environment is out of specification.",
             "display_type": "normalized"
         },
         "220": {
+            "display_name": "Disk Shift",
             "ideal": "low",
             "critical": false,
             "description": "Distance the disk has shifted relative to the spindle (usually due to shock or temperature). Unit of measure is unknown.",
             "display_type": "normalized"
         },
         "221": {
+            "display_name": "G-Sense Error Rate",
             "ideal": "low",
             "critical": false,
             "description": "The count of errors resulting from externally induced shock and vibration.",
             "display_type": "normalized"
         },
         "222": {
+            "display_name": "Loaded Hours",
             "ideal": "",
             "critical": false,
             "description": "Time spent operating under data load (movement of magnetic head armature).",
             "display_type": "normalized"
         },
         "223": {
+            "display_name": "Load/Unload Retry Count",
             "ideal": "",
             "critical": false,
             "description": "Count of times head changes position.",
             "display_type": "normalized"
         },
         "224": {
+            "display_name": "Load Friction",
             "ideal": "low",
             "critical": false,
             "description": "Resistance caused by friction in mechanical parts while operating.",
             "display_type": "normalized"
         },
         "225": {
+            "display_name": "Load/Unload Cycle Count",
             "ideal": "low",
             "critical": false,
             "description": "Total count of load cycles Some drives use 193 (0xC1) for Load Cycle Count instead. See Description for 193 for significance of this number. ",
             "display_type": "normalized"
         },
         "226": {
+            "display_name": "Load \"In\"-time",
             "ideal": "",
             "critical": false,
             "description": "Total time of loading on the magnetic heads actuator (time not spent in parking area).",
             "display_type": "normalized"
         },
         "227": {
+            "display_name": "Torque Amplification Count",
             "ideal": "low",
             "critical": false,
             "description": "Count of attempts to compensate for platter speed variations.[66]",
             "display_type": ""
         },
         "228": {
+            "display_name": "Power-Off Retract Cycle",
             "ideal": "low",
             "critical": false,
             "description": "The number of power-off cycles which are counted whenever there is a \"retract event\" and the heads are loaded off of the media such as when the machine is powered down, put to sleep, or is idle.",
             "display_type": ""
         },
         "230": {
+            "display_name": "GMR Head Amplitude ",
             "ideal": "",
             "critical": false,
             "description": "Amplitude of \"thrashing\" (repetitive head moving motions between operations).",
             "display_type": "normalized"
         },
         "231": {
+            "display_name": "Life Left",
             "ideal": "",
             "critical": false,
             "description": "Indicates the approximate SSD life left, in terms of program/erase cycles or available reserved blocks. A normalized value of 100 represents a new drive, with a threshold value at 10 indicating a need for replacement. A value of 0 may mean that the drive is operating in read-only mode to allow data recovery.",
             "display_type": "normalized"
         },
         "232": {
+            "display_name": "Endurance Remaining",
             "ideal": "",
             "critical": false,
             "description": "Number of physical erase cycles completed on the SSD as a percentage of the maximum physical erase cycles the drive is designed to endure.",
             "display_type": "normalized"
         },
         "233": {
+            "display_name": "Media Wearout Indicator",
             "ideal": "",
             "critical": false,
             "description": "Intel SSDs report a normalized value from 100, a new drive, to a minimum of 1. It decreases while the NAND erase cycles increase from 0 to the maximum-rated cycles.",
             "display_type": "normalized"
         },
         "234": {
+            "display_name": "Average erase count",
             "ideal": "",
             "critical": false,
             "description": "Decoded as: byte 0-1-2 = average erase count (big endian) and byte 3-4-5 = max erase count (big endian).",
             "display_type": "normalized"
         },
         "235": {
+            "display_name": "Good Block Count",
             "ideal": "",
             "critical": false,
             "description": "Decoded as: byte 0-1-2 = good block count (big endian) and byte 3-4 = system (free) block count.",
             "display_type": "normalized"
         },
         "240": {
+            "display_name": "Head Flying Hours",
             "ideal": "",
             "critical": false,
             "description": "Time spent during the positioning of the drive heads.[15][71] Some Fujitsu drives report the count of link resets during a data transfer.",
             "display_type": "normalized"
         },
         "241": {
+            "display_name": "Total LBAs Written",
             "ideal": "",
             "critical": false,
             "description": "Total count of LBAs written.",
             "display_type": "normalized"
         },
         "242": {
+            "display_name": "Total LBAs Read",
             "ideal": "",
             "critical": false,
             "description": "Total count of LBAs read.Some S.M.A.R.T. utilities will report a negative number for the raw value since in reality it has 48 bits rather than 32.",
             "display_type": "normalized"
         },
         "243": {
+            "display_name": "Total LBAs Written Expanded",
             "ideal": "",
             "critical": false,
             "description": "The upper 5 bytes of the 12-byte total number of LBAs written to the device. The lower 7 byte value is located at attribute 0xF1.",
             "display_type": "normalized"
         },
         "244": {
+            "display_name": "Total LBAs Read Expanded",
             "ideal": "",
             "critical": false,
             "description": "The upper 5 bytes of the 12-byte total number of LBAs read from the device. The lower 7 byte value is located at attribute 0xF2.",
             "display_type": "normalized"
         },
         "249": {
+            "display_name": "NAND Writes (1GiB)",
             "ideal": "",
             "critical": false,
             "description": "Total NAND Writes. Raw value reports the number of writes to NAND in 1 GB increments.",
             "display_type": "normalized"
         },
         "250": {
+            "display_name": "Read Error Retry Rate",
             "ideal": "low",
             "critical": false,
             "description": "Count of errors while reading from a disk.",
             "display_type": "normalized"
         },
         "251": {
+            "display_name": "Minimum Spares Remaining",
             "ideal": "",
             "critical": false,
             "description": "The Minimum Spares Remaining attribute indicates the number of remaining spare blocks as a percentage of the total number of spare blocks available.",
             "display_type": "normalized"
         },
         "252": {
+            "display_name": "Newly Added Bad Flash Block",
             "ideal": "",
             "critical": false,
             "description": "The Newly Added Bad Flash Block attribute indicates the total number of bad flash blocks the drive detected since it was first initialized in manufacturing.",
             "display_type": "normalized"
         },
         "254": {
+            "display_name": "Free Fall Protection",
             "ideal": "low",
             "critical": false,
             "description": "Count of \"Free Fall Events\" detected.",
             "display_type": "normalized"
         },
         "3": {
+            "display_name": "Spin-Up Time",
             "ideal": "low",
             "critical": false,
             "description": "Average time of spindle spin up (from zero RPM to fully operational [milliseconds]).",
@@ -1754,6 +1648,7 @@ export const sdb = {
             "display_type": "normalized"
         },
         "4": {
+            "display_name": "Start/Stop Count",
             "ideal": "",
             "critical": false,
             "description": "A tally of spindle start/stop cycles. The spindle turns on, and hence the count is increased, both when the hard disk is turned on after having before been turned entirely off (disconnected from power source) and when the hard disk returns from having previously been put to sleep mode.",
@@ -1801,6 +1696,7 @@ export const sdb = {
             "display_type": "raw"
         },
         "5": {
+            "display_name": "Reallocated Sectors Count",
             "ideal": "low",
             "critical": true,
             "description": "Count of reallocated sectors. The raw value represents a count of the bad sectors that have been found and remapped.Thus, the higher the attribute value, the more sectors the drive has had to reallocate. This value is primarily used as a metric of the life expectancy of the drive; a drive which has had any reallocations at all is significantly more likely to fail in the immediate months.",
@@ -1853,12 +1749,14 @@ export const sdb = {
             "display_type": "raw"
         },
         "6": {
+            "display_name": "Read Channel Margin",
             "ideal": "",
             "critical": false,
             "description": "Margin of a channel while reading data. The function of this attribute is not specified.",
             "display_type": "normalized"
         },
         "7": {
+            "display_name": "Seek Error Rate",
             "ideal": "",
             "critical": false,
             "description": "(Vendor specific raw value.) Rate of seek errors of the magnetic heads. If there is a partial failure in the mechanical positioning system, then seek errors will arise. Such a failure may be due to numerous factors, such as damage to a servo, or thermal widening of the hard disk. The raw value has different structure for different vendors and is often not meaningful as a decimal number.",
@@ -1906,12 +1804,14 @@ export const sdb = {
             "display_type": "normalized"
         },
         "8": {
+            "display_name": "Seek Time Performance",
             "ideal": "high",
             "critical": false,
             "description": "Average performance of seek operations of the magnetic heads. If this attribute is decreasing, it is a sign of problems in the mechanical subsystem.",
             "display_type": "normalized"
         },
         "9": {
+            "display_name": "Power-On Hours",
             "ideal": "",
             "critical": false,
             "description": "Count of hours in power-on state. The raw value of this attribute shows total count of hours (or minutes, or seconds, depending on manufacturer) in power-on state. By default, the total expected lifetime of a hard disk in perfect condition is defined as 5 years (running every day and night on all days). This is equal to 1825 days in 24/7 mode or 43800 hours. On some pre-2005 drives, this raw value may advance erratically and/or \"wrap around\" (reset to zero periodically).",

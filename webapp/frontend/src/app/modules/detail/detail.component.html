@@ -139,15 +139,15 @@
                             <td mat-cell
                                 *matCellDef="let attribute">
                                 <span class="inline-flex items-center font-bold text-xs px-2 py-2px rounded-full tracking-wide uppercase"
-                                      [ngClass]="{'red-200': attribute.status === 'failed',
-                                      'green-200': attribute.status === 'passed',
-                                      'yellow-200': attribute.status === 'warn'
+                                      [ngClass]="{'red-200': getAttributeStatusName(attribute.status) === 'failed',
+                                      'green-200': getAttributeStatusName(attribute.status) === 'passed',
+                                      'yellow-200': getAttributeStatusName(attribute.status) === 'warn'
                                       }">
                                     <span class="w-2 h-2 rounded-full mr-2"
-                                          [ngClass]="{'bg-red': attribute.status === 'failed',
-                                      'bg-green': attribute.status === 'passed',
-                                      'bg-yellow': attribute.status === 'warn'}"></span>
-                                    <span class="pr-2px leading-relaxed whitespace-no-wrap" matTooltip="{{attribute.status_reason}}">{{attribute.status}}</span>
+                                          [ngClass]="{'bg-red': getAttributeStatusName(attribute.status) === 'failed',
+                                      'bg-green': getAttributeStatusName(attribute.status) === 'passed',
+                                      'bg-yellow': getAttributeStatusName(attribute.status) === 'warn'}"></span>
+                                    <span class="pr-2px leading-relaxed whitespace-no-wrap" matTooltip="{{attribute.status_reason}}">{{getAttributeStatusName(attribute.status)}}</span>
                                 </span>
                             </td>
                         </ng-container>
@@ -183,7 +183,7 @@
                             <td mat-cell
                                 *matCellDef="let attribute">
                                 <span class="pr-6 whitespace-no-wrap" matTooltip="{{getAttributeDescription(attribute)}}">
-                                    {{attribute.name}} <mat-icon *ngIf="getAttributeDescription(attribute)" class="icon-size-10" [svgIcon]="'info'"></mat-icon>
+                                    {{getAttributeName(attribute)}} <mat-icon *ngIf="getAttributeDescription(attribute)" class="icon-size-10" [svgIcon]="'info'"></mat-icon>
                                 </span>
                             </td>
                         </ng-container>

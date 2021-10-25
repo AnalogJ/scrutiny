@@ -6,7 +6,7 @@ package thresholds
 // https://www.micromat.com/product_manuals/drive_scope_manual_01.pdf
 type NvmeAttributeMetadata struct {
 	ID          string `json:"-"`
-	DisplayName string `json:"-"`
+	DisplayName string `json:"display_name"`
 	Ideal       string `json:"ideal"`
 	Critical    bool   `json:"critical"`
 	Description string `json:"description"`

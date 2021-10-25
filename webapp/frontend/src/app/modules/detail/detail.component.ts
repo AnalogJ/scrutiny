@@ -107,6 +107,26 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // -----------------------------------------------------------------------------------------------------
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
+    getAttributeStatusName(attribute_status){
+        if(attribute_status == 0){
+            return "passed"
+        } else if (attribute_status == 1){
+            return "warn"
+        } else if (attribute_status == 2){
+            return "failed"
+        }
+        return
+    }
+
+    getAttributeName(attribute_data){
+        let attribute_metadata = this.metadata[attribute_data.attribute_id]
+        if(!attribute_metadata){
+            return 'Unknown Attribute Name'
+        } else {
+            return attribute_metadata.display_name
+        }
+        return
+    }
     getAttributeDescription(attribute_data){
         let attribute_metadata = this.metadata[attribute_data.attribute_id]
         if(!attribute_metadata){
