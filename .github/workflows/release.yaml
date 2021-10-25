@@ -71,6 +71,7 @@ jobs:
           # This is necessary in order to push a commit to the repo
           GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
         with:
+          version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
           upload_assets: '/build/scrutiny-web-linux-amd64 /build/scrutiny-collector-metrics-linux-amd64 /build/scrutiny-web-linux-arm64 /build/scrutiny-collector-metrics-linux-arm64 /build/scrutiny-web-linux-arm-5 /build/scrutiny-collector-metrics-linux-arm-5 /build/scrutiny-web-linux-arm-6 /build/scrutiny-collector-metrics-linux-arm-6 /build/scrutiny-web-linux-arm-7 /build/scrutiny-collector-metrics-linux-arm-7 /build/scrutiny-web-windows-4.0-amd64.exe /build/scrutiny-collector-metrics-windows-4.0-amd64.exe'
 
 
