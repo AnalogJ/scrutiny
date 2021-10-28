@@ -1,14 +1,17 @@
 package web_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	mock_config "github.com/analogj/scrutiny/webapp/backend/pkg/config/mock"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web"
 	"github.com/golang/mock/gomock"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -16,7 +19,47 @@ import (
 	"path"
 	"strings"
 	"testing"
+	"time"
 )
+
+/*
+All tests in this file require the existance of a influxDB listening on port 8086
+
+docker run --rm -it -p 8086:8086 \
+-e DOCKER_INFLUXDB_INIT_MODE=setup \
+-e DOCKER_INFLUXDB_INIT_USERNAME=admin \
+-e DOCKER_INFLUXDB_INIT_PASSWORD=password12345 \
+-e DOCKER_INFLUXDB_INIT_ORG=scrutiny \
+-e DOCKER_INFLUXDB_INIT_BUCKET=metrics \
+-e DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token \
+influxdb:2.0
+*/
+
+//func TestMain(m *testing.M) {
+//	setup()
+//	code := m.Run()
+//	shutdown()
+//	os.Exit(code)
+//}
+
+// InfluxDB will throw an error/ignore any submitted data with a timestamp older than the
+// retention period. Lets fix this by opening test files, modifying the timestamp and returning an io.Reader
+func helperReadSmartDataFileFixTimestamp(t *testing.T, smartDataFilepath string) io.Reader {
+	metricsfile, err := os.Open(smartDataFilepath)
+	require.NoError(t, err)
+
+	metricsFileData, err := ioutil.ReadAll(metricsfile)
+	require.NoError(t, err)
+
+	//unmarshal because we need to change the timestamp
+	var smartData collector.SmartInfo
+	err = json.Unmarshal(metricsFileData, &smartData)
+	require.NoError(t, err)
+	smartData.LocalTime.TimeT = time.Now().Unix()
+	updatedSmartDataBytes, err := json.Marshal(smartData)
+
+	return bytes.NewReader(updatedSmartDataBytes)
+}
 
 func TestHealthRoute(t *testing.T) {
 	//setup
@@ -27,6 +70,12 @@ func TestHealthRoute(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -53,6 +102,13 @@ func TestRegisterDevicesRoute(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -78,6 +134,13 @@ func TestUploadDeviceMetricsRoute(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -85,8 +148,7 @@ func TestUploadDeviceMetricsRoute(t *testing.T) {
 	devicesfile, err := os.Open("testdata/register-devices-single-req.json")
 	require.NoError(t, err)
 
-	metricsfile, err := os.Open("testdata/upload-device-metrics-req.json")
-	require.NoError(t, err)
+	metricsfile := helperReadSmartDataFileFixTimestamp(t, "testdata/upload-device-metrics-req.json")
 
 	//test
 	wr := httptest.NewRecorder()
@@ -113,6 +175,13 @@ func TestPopulateMultiple(t *testing.T) {
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").Return([]string{}).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -120,16 +189,11 @@ func TestPopulateMultiple(t *testing.T) {
 	devicesfile, err := os.Open("testdata/register-devices-req.json")
 	require.NoError(t, err)
 
-	metricsfile, err := os.Open("../models/testdata/smart-ata.json")
-	require.NoError(t, err)
-	failfile, err := os.Open("../models/testdata/smart-fail2.json")
-	require.NoError(t, err)
-	nvmefile, err := os.Open("../models/testdata/smart-nvme.json")
-	require.NoError(t, err)
-	scsifile, err := os.Open("../models/testdata/smart-scsi.json")
-	require.NoError(t, err)
-	scsi2file, err := os.Open("../models/testdata/smart-scsi2.json")
-	require.NoError(t, err)
+	metricsfile := helperReadSmartDataFileFixTimestamp(t, "../models/testdata/smart-ata.json")
+	failfile := helperReadSmartDataFileFixTimestamp(t, "../models/testdata/smart-fail2.json")
+	nvmefile := helperReadSmartDataFileFixTimestamp(t, "../models/testdata/smart-nvme.json")
+	scsifile := helperReadSmartDataFileFixTimestamp(t, "../models/testdata/smart-scsi.json")
+	scsi2file := helperReadSmartDataFileFixTimestamp(t, "../models/testdata/smart-scsi2.json")
 
 	//test
 	wr := httptest.NewRecorder()
@@ -199,6 +263,12 @@ func TestSendTestNotificationRoute_WebhookFailure(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"https://unroutable.domain.example.asdfghj"})
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -223,6 +293,12 @@ func TestSendTestNotificationRoute_ScriptFailure(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"script:///missing/path/on/disk"})
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -247,6 +323,13 @@ func TestSendTestNotificationRoute_ScriptSuccess(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"script:///usr/bin/env"})
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -271,6 +354,12 @@ func TestSendTestNotificationRoute_ShoutrrrFailure(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"discord://invalidtoken@channel"})
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -295,6 +384,14 @@ func TestGetDevicesSummaryRoute_Nvme(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{})
+
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -302,8 +399,7 @@ func TestGetDevicesSummaryRoute_Nvme(t *testing.T) {
 	devicesfile, err := os.Open("testdata/register-devices-req-2.json")
 	require.NoError(t, err)
 
-	metricsfile, err := os.Open("../models/testdata/smart-nvme2.json")
-	require.NoError(t, err)
+	metricsfile := helperReadSmartDataFileFixTimestamp(t, "../models/testdata/smart-nvme2.json")
 
 	//test
 	wr := httptest.NewRecorder()
@@ -320,10 +416,11 @@ func TestGetDevicesSummaryRoute_Nvme(t *testing.T) {
 	req, _ = http.NewRequest("GET", "/api/summary", nil)
 	router.ServeHTTP(sr, req)
 	require.Equal(t, 200, sr.Code)
-	var device models.DeviceWrapper
-	json.Unmarshal(sr.Body.Bytes(), &device)
+	var deviceSummary models.DeviceSummaryWrapper
+	err = json.Unmarshal(sr.Body.Bytes(), &deviceSummary)
+	require.NoError(t, err)
 
 	//assert
-	require.Equal(t, "a4c8e8ed-11a0-4c97-9bba-306440f1b944", device.Data[0].WWN)
-	require.Equal(t, pkg.DeviceStatusPassed, device.Data[0].DeviceStatus)
+	require.Equal(t, "a4c8e8ed-11a0-4c97-9bba-306440f1b944", deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.WWN)
+	require.Equal(t, pkg.DeviceStatusFailedScrutiny, deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.DeviceStatus)
 }

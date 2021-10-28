@@ -590,6 +590,12 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 			//get summary data from Influxdb.
 			//result.Record().Values()
 			if deviceWWN, ok := result.Record().Values()["device_wwn"]; ok {
+
+				//ensure summaries is intialized for this wwn
+				if _, exists := summaries[deviceWWN.(string)]; !exists {
+					summaries[deviceWWN.(string)] = &models.DeviceSummary{}
+				}
+
 				summaries[deviceWWN.(string)].SmartResults = &models.SmartSummary{
 					Temp:          result.Record().Values()["temp"].(int64),
 					PowerOnHours:  result.Record().Values()["power_on_hours"].(int64),

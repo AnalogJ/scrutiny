@@ -5,6 +5,14 @@ import (
 	"time"
 )
 
+type DeviceSummaryWrapper struct {
+	Success bool    `json:"success"`
+	Errors  []error `json:"errors"`
+	Data    struct {
+		Summary map[string]*DeviceSummary `json:"summary"`
+	} `json:"data"`
+}
+
 type DeviceSummary struct {
 	Device Device `json:"device"`
 
