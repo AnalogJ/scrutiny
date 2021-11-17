@@ -522,9 +522,9 @@ func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context) (m
 	queryStr := fmt.Sprintf(`
   import "influxdata/influxdb/schema"
   from(bucket: "%s")
-  |> range(start: -3y, stop: now())
+  |> range(start: -1w, stop: now())
   |> filter(fn: (r) => r["_measurement"] == "temp" )
-  |> filter(fn: (r) => r["_field"] == "temp")
+  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
   |> schema.fieldsAsCols()
   |> group(columns: ["device_wwn"])
   |> yield(name: "last")

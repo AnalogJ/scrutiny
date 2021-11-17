@@ -24,6 +24,11 @@ func (st *SmartTemperature) Inflate(key string, val interface{}) {
 	}
 
 	if key == "temp" {
-		st.Temp = val.(int64)
+		switch t := val.(type) {
+		case int64:
+			st.Temp = t
+		case float64:
+			st.Temp = int64(t)
+		}
 	}
 }
