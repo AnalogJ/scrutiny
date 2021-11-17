@@ -32,6 +32,7 @@ web:
 #    token: 'my-token'
 #    org: 'my-org'
 #    bucket: 'bucket'
+    retention_policy: true
 
 log:
   file: '' #absolute or relative paths allowed, eg. web.log
