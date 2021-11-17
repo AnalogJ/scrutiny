@@ -289,7 +289,7 @@ func (sr *scrutinyRepository) DownsampleScript(aggregationType string) string {
   smart_data = from(bucket: sourceBucket)
   |> range(start: rangeStart, stop: rangeEnd)
   |> filter(fn: (r) => r["_measurement"] == "smart" )
-  |> filter(fn: (r) => r["_field"] !~ /(raw_string|_measurement|device_protocol|device_wwn|attribute_id|when_failed)/)
+  |> filter(fn: (r) => r["_field"] !~ /(raw_string|_measurement|device_protocol|status_reason|device_wwn|attribute_id|when_failed)/)
   |> last()
   |> yield(name: "last")
 
@@ -514,7 +514,8 @@ func (sr *scrutinyRepository) SaveSmartTemperature(ctx context.Context, wwn stri
 	return nil
 }
 
-func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context) (map[string][]measurements.SmartTemperature, error) {
+func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[string][]measurements.SmartTemperature, error) {
+	//we can get temp history for "week", "month", "year", "forever"
 
 	deviceTempHistory := map[string][]measurements.SmartTemperature{}
 
@@ -522,14 +523,15 @@ func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context) (m
 	queryStr := fmt.Sprintf(`
   import "influxdata/influxdb/schema"
   from(bucket: "%s")
-  |> range(start: -1w, stop: now())
+  |> range(start: %s, stop: now())
   |> filter(fn: (r) => r["_measurement"] == "temp" )
   |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
   |> schema.fieldsAsCols()
   |> group(columns: ["device_wwn"])
   |> yield(name: "last")
 		`,
-		sr.appConfig.GetString("web.influxdb.bucket"),
+		sr.lookupBucketName(durationKey),
+		sr.lookupDuration(durationKey),
 	)
 
 	result, err := sr.influxQueryApi.Query(ctx, queryStr)
@@ -590,6 +592,7 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
   |> range(start: -1y, stop: now())
   |> filter(fn: (r) => r["_measurement"] == "smart" )
   |> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
+  |> last()
   |> schema.fieldsAsCols()
   |> group(columns: ["device_wwn"])
   |> yield(name: "last")
@@ -630,7 +633,7 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 		return nil, err
 	}
 
-	deviceTempHistory, err := sr.GetSmartTemperatureHistory(ctx)
+	deviceTempHistory, err := sr.GetSmartTemperatureHistory(ctx, "week")
 	if err != nil {
 		sr.logger.Printf("========================>>>>>>>>======================")
 		sr.logger.Printf("========================>>>>>>>>======================")
@@ -644,4 +647,45 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 	}
 
 	return summaries, nil
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Helper Methods
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (sr *scrutinyRepository) lookupBucketName(durationKey string) string {
+	switch durationKey {
+	case "week":
+		//data stored in the last week
+		return sr.appConfig.GetString("web.influxdb.bucket")
+	case "month":
+		// data stored in the last month (after the first week)
+		return fmt.Sprintf("%s_weekly", sr.appConfig.GetString("web.influxdb.bucket"))
+	case "year":
+		// data stored in the last year (after the first month)
+		return fmt.Sprintf("%s_monthly", sr.appConfig.GetString("web.influxdb.bucket"))
+	case "forever":
+		//data stored before the last year
+		return fmt.Sprintf("%s_yearly", sr.appConfig.GetString("web.influxdb.bucket"))
+	}
+	return sr.appConfig.GetString("web.influxdb.bucket")
+}
+
+func (sr *scrutinyRepository) lookupDuration(durationKey string) string {
+
+	switch durationKey {
+	case "week":
+		//data stored in the last week
+		return "-1w"
+	case "month":
+		// data stored in the last month (after the first week)
+		return "-1mo"
+	case "year":
+		// data stored in the last year (after the first month)
+		return "-1y"
+	case "forever":
+		//data stored before the last year
+		return "-10y"
+	}
+	return "-1w"
 }

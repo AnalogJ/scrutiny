@@ -36,9 +36,10 @@ func (ae *AppEngine) Setup(logger logrus.FieldLogger) *gin.Engine {
 		})
 		api.POST("/health/notify", handler.SendTestNotification) //check if notifications are configured correctly
 
-		api.POST("/devices/register", handler.RegisterDevices)      //used by Collector to register new devices and retrieve filtered list
-		api.GET("/summary", handler.GetDevicesSummary)              //used by Dashboard
-		api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics) //used by Collector to upload data
+		api.POST("/devices/register", handler.RegisterDevices)         //used by Collector to register new devices and retrieve filtered list
+		api.GET("/summary", handler.GetDevicesSummary)                 //used by Dashboard
+		api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory) //used by Dashboard (Temperature history dropdown)
+		api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics)    //used by Collector to upload data
 		api.POST("/device/:wwn/selftest", handler.UploadDeviceSelfTests)
 		api.GET("/device/:wwn/details", handler.GetDeviceDetails) //used by Details
 	}
