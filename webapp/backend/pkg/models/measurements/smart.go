@@ -6,6 +6,7 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -155,7 +156,7 @@ func (sm *Smart) ProcessAtaSmartInfo(info collector.SmartInfo) {
 			}
 		}
 		attrModel.PopulateAttributeStatus()
-		sm.Attributes[string(collectorAttr.ID)] = &attrModel
+		sm.Attributes[strconv.Itoa(collectorAttr.ID)] = &attrModel
 		if attrModel.Status == pkg.SmartAttributeStatusFailed {
 			sm.Status = pkg.DeviceStatusFailedScrutiny
 		}
