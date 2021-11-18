@@ -28,6 +28,11 @@ const (
 
 	// 60seconds * 60minutes * 24hours * 7 days * (52 + 52 + 4)weeks
 	RETENTION_PERIOD_25_MONTHS_IN_SECONDS = 65_318_400
+
+	DURATION_KEY_WEEK    = "week"
+	DURATION_KEY_MONTH   = "month"
+	DURATION_KEY_YEAR    = "year"
+	DURATION_KEY_FOREVER = "forever"
 )
 
 //// GormLogger is a custom logger for Gorm, making it use logrus.
@@ -63,7 +68,7 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 		//Logger: logger
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Failed to connect to database!")
+		return nil, fmt.Errorf("Failed to connect to database! - %v", err)
 	}
 
 	//database.SetLogger()
@@ -338,7 +343,7 @@ func (sr *scrutinyRepository) GetDevices(ctx context.Context) ([]models.Device, 
 	//Get a list of all the active devices.
 	devices := []models.Device{}
 	if err := sr.gormClient.WithContext(ctx).Find(&devices).Error; err != nil {
-		return nil, fmt.Errorf("Could not get device summary from DB", err)
+		return nil, fmt.Errorf("Could not get device summary from DB: %v", err)
 	}
 	return devices, nil
 }
@@ -347,7 +352,7 @@ func (sr *scrutinyRepository) GetDevices(ctx context.Context) ([]models.Device, 
 func (sr *scrutinyRepository) UpdateDevice(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (models.Device, error) {
 	var device models.Device
 	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
-		return device, fmt.Errorf("Could not get device from DB", err)
+		return device, fmt.Errorf("Could not get device from DB: %v", err)
 	}
 
 	//TODO catch GormClient err
@@ -362,7 +367,7 @@ func (sr *scrutinyRepository) UpdateDevice(ctx context.Context, wwn string, coll
 func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, wwn string, status pkg.DeviceStatus) (models.Device, error) {
 	var device models.Device
 	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
-		return device, fmt.Errorf("Could not get device from DB", err)
+		return device, fmt.Errorf("Could not get device from DB: %v", err)
 	}
 
 	device.DeviceStatus = pkg.Set(device.DeviceStatus, status)
@@ -516,7 +521,7 @@ func (sr *scrutinyRepository) SaveSmartTemperature(ctx context.Context, wwn stri
 }
 
 func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[string][]measurements.SmartTemperature, error) {
-	//we can get temp history for "week", "month", "year", "forever"
+	//we can get temp history for "week", "month", DURATION_KEY_YEAR, "forever"
 
 	deviceTempHistory := map[string][]measurements.SmartTemperature{}
 
@@ -622,7 +627,7 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 		return nil, err
 	}
 
-	deviceTempHistory, err := sr.GetSmartTemperatureHistory(ctx, "week")
+	deviceTempHistory, err := sr.GetSmartTemperatureHistory(ctx, DURATION_KEY_WEEK)
 	if err != nil {
 		sr.logger.Printf("========================>>>>>>>>======================")
 		sr.logger.Printf("========================>>>>>>>>======================")
@@ -644,16 +649,16 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 
 func (sr *scrutinyRepository) lookupBucketName(durationKey string) string {
 	switch durationKey {
-	case "week":
+	case DURATION_KEY_WEEK:
 		//data stored in the last week
 		return sr.appConfig.GetString("web.influxdb.bucket")
-	case "month":
+	case DURATION_KEY_MONTH:
 		// data stored in the last month (after the first week)
 		return fmt.Sprintf("%s_weekly", sr.appConfig.GetString("web.influxdb.bucket"))
-	case "year":
+	case DURATION_KEY_YEAR:
 		// data stored in the last year (after the first month)
 		return fmt.Sprintf("%s_monthly", sr.appConfig.GetString("web.influxdb.bucket"))
-	case "forever":
+	case DURATION_KEY_FOREVER:
 		//data stored before the last year
 		return fmt.Sprintf("%s_yearly", sr.appConfig.GetString("web.influxdb.bucket"))
 	}
@@ -663,16 +668,16 @@ func (sr *scrutinyRepository) lookupBucketName(durationKey string) string {
 func (sr *scrutinyRepository) lookupDuration(durationKey string) []string {
 
 	switch durationKey {
-	case "week":
+	case DURATION_KEY_WEEK:
 		//data stored in the last week
 		return []string{"-1w", "now()"}
-	case "month":
+	case DURATION_KEY_MONTH:
 		// data stored in the last month (after the first week)
 		return []string{"-1mo", "-1w"}
-	case "year":
+	case DURATION_KEY_YEAR:
 		// data stored in the last year (after the first month)
 		return []string{"-1y", "-1mo"}
-	case "forever":
+	case DURATION_KEY_FOREVER:
 		//data stored before the last year
 		return []string{"-10y", "-1y"}
 	}
@@ -681,20 +686,20 @@ func (sr *scrutinyRepository) lookupDuration(durationKey string) []string {
 
 func (sr *scrutinyRepository) lookupNestedDurationKeys(durationKey string) []string {
 	switch durationKey {
-	case "week":
+	case DURATION_KEY_WEEK:
 		//all data is stored in a single bucket
-		return []string{"week"}
-	case "month":
+		return []string{DURATION_KEY_WEEK}
+	case DURATION_KEY_MONTH:
 		//data is stored in the week bucket and the month bucket
-		return []string{"week", "month"}
-	case "year":
+		return []string{DURATION_KEY_WEEK, DURATION_KEY_MONTH}
+	case DURATION_KEY_YEAR:
 		// data stored in the last year (after the first month)
-		return []string{"week", "month", "year"}
-	case "forever":
+		return []string{DURATION_KEY_WEEK, DURATION_KEY_MONTH, DURATION_KEY_YEAR}
+	case DURATION_KEY_FOREVER:
 		//data stored before the last year
-		return []string{"week", "month", "year"}
+		return []string{DURATION_KEY_WEEK, DURATION_KEY_MONTH, DURATION_KEY_YEAR}
 	}
-	return []string{"week"}
+	return []string{DURATION_KEY_WEEK}
 }
 
 func (sr *scrutinyRepository) aggregateTempQuery(durationKey string) string {
