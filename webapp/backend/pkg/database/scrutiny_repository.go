@@ -295,8 +295,7 @@ func (sr *scrutinyRepository) DownsampleScript(aggregationType string) string {
   smart_data = from(bucket: sourceBucket)
   |> range(start: rangeStart, stop: rangeEnd)
   |> filter(fn: (r) => r["_measurement"] == "smart" )
-  |> filter(fn: (r) => r["_field"] !~ /(raw_string|_measurement|device_protocol|status_reason|device_wwn|attribute_id|when_failed)/)
-  |> last()
+  |> filter(fn: (r) => r["_field"] !~ /(_measurement|device_protocol|device_wwn|attribute_id|raw_string|status_reason|when_failed)/)
   |> yield(name: "last")
 
   smart_data
@@ -306,7 +305,7 @@ func (sr *scrutinyRepository) DownsampleScript(aggregationType string) string {
   temp_data = from(bucket: sourceBucket)
   |> range(start: rangeStart, stop: rangeEnd)
   |> filter(fn: (r) => r["_measurement"] == "temp")
-  |> last()
+  |> toInt()
   |> yield(name: "mean")
 
   temp_data
@@ -704,20 +703,28 @@ func (sr *scrutinyRepository) lookupNestedDurationKeys(durationKey string) []str
 
 func (sr *scrutinyRepository) aggregateTempQuery(durationKey string) string {
 
-	//TODO: change the query range to a variable.
-	//queryStr := fmt.Sprintf(`
-	//import "influxdata/influxdb/schema"
-	//from(bucket: "%s")
-	//|> range(start: %s, stop: now())
-	//|> filter(fn: (r) => r["_measurement"] == "temp" )
-	//|> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
-	//|> schema.fieldsAsCols()
-	//|> group(columns: ["device_wwn"])
-	//|> yield(name: "last")
-	//	`,
-	//	sr.lookupBucketName(durationKey),
-	//	sr.lookupDuration(durationKey),
-	//)
+	/*
+		import "influxdata/influxdb/schema"
+		weekData = from(bucket: "metrics")
+		  |> range(start: -1w, stop: now())
+		  |> filter(fn: (r) => r["_measurement"] == "temp" )
+		  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
+		  |> group(columns: ["device_wwn"])
+		  |> toInt()
+
+		monthData = from(bucket: "metrics_weekly")
+		  |> range(start: -1mo, stop: now())
+		  |> filter(fn: (r) => r["_measurement"] == "temp" )
+		  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
+		  |> group(columns: ["device_wwn"])
+		  |> toInt()
+
+		union(tables: [weekData, monthData])
+		  |> group(columns: ["device_wwn"])
+		  |> sort(columns: ["_time"], desc: false)
+		  |> schema.fieldsAsCols()
+
+	*/
 
 	partialQueryStr := []string{`import "influxdata/influxdb/schema"`}
 
