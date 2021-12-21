@@ -34,7 +34,8 @@ jobs:
         with:
           version_bump_type: ${{ github.event.inputs.version_bump_type }}
           version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
-          github_token: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
       - name: Test
         run: |
           mkdir -p $(dirname "$PROJECT_PATH")

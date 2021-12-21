@@ -14,10 +14,11 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/AnalogJ/scrutiny?style=flat-square)](https://goreportcard.com/report/github.com/AnalogJ/scrutiny)
 [![GitHub release](http://img.shields.io/github/release/AnalogJ/scrutiny.svg?style=flat-square)](https://github.com/AnalogJ/scrutiny/releases)
 
-
 WebUI for smartd S.M.A.R.T monitoring
 
 > NOTE: Scrutiny is a Work-in-Progress and still has some rough edges.
+>
+> WARNING: Once the [InfluxDB](https://github.com/AnalogJ/scrutiny/tree/influxdb) branch is merged, Scrutiny will use both sqlite and InfluxDB for data storage. Unfortunately, this may not be backwards compatible with the database structures in the master (sqlite only) branch. 
 
 [![](docs/dashboard.png)](https://imgur.com/a/5k8qMzS)
 
