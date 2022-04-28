@@ -257,6 +257,37 @@ func (sr *scrutinyRepository) EnsureTasks(ctx context.Context, orgID string) err
 	return nil
 }
 
+/*
+
+
+sourceBucket = "metrics"
+rangeStart = -2w
+rangeEnd = -1w
+aggWindow = 1w
+destBucket = "metrics_weekly"
+destOrg = "scrutiny"
+
+smart_data = from(bucket: sourceBucket)
+|> range(start: rangeStart, stop: rangeEnd)
+|> filter(fn: (r) => r["_measurement"] == "smart" )
+|> filter(fn: (r) => r["_field"] !~ /(_measurement|device_protocol|device_wwn|attribute_id|raw_string|status_reason|when_failed)/)
+|> yield(name: "last")
+
+smart_data
+|> aggregateWindow(fn: mean, every: aggWindow)
+|> to(bucket: destBucket, org: destOrg)
+
+temp_data = from(bucket: sourceBucket)
+|> range(start: rangeStart, stop: rangeEnd)
+|> filter(fn: (r) => r["_measurement"] == "temp")
+|> toInt()
+|> yield(name: "mean")
+
+temp_data
+|> aggregateWindow(fn: mean, every: aggWindow)
+|> to(bucket: destBucket, org: destOrg)
+
+*/
 func (sr *scrutinyRepository) DownsampleScript(aggregationType string) string {
 	var sourceBucket string // the source of the data
 	var destBucket string   // the destination for the aggregated data
@@ -284,7 +315,7 @@ func (sr *scrutinyRepository) DownsampleScript(aggregationType string) string {
 		aggWindow = "1y"
 	}
 
-	return fmt.Sprintf(`
+	return fmt.Sprintf(`import "types"
   sourceBucket = "%s"
   rangeStart = %s
   rangeEnd = %s
@@ -295,18 +326,24 @@ func (sr *scrutinyRepository) DownsampleScript(aggregationType string) string {
   smart_data = from(bucket: sourceBucket)
   |> range(start: rangeStart, stop: rangeEnd)
   |> filter(fn: (r) => r["_measurement"] == "smart" )
-  |> filter(fn: (r) => r["_field"] !~ /(_measurement|device_protocol|device_wwn|attribute_id|raw_string|status_reason|when_failed)/)
-  |> yield(name: "last")
+  |> group(columns: ["device_wwn", "_field"])
 
-  smart_data
-  |> aggregateWindow(fn: mean, every: aggWindow)
+  non_numeric_smart_data = smart_data
+    |> filter(fn: (r) => types.isType(v: r._value, type: "string") or types.isType(v: r._value, type: "bool"))
+    |> aggregateWindow(every: aggWindow, fn: last, createEmpty: false)
+
+  numeric_smart_data = smart_data
+    |> filter(fn: (r) => types.isType(v: r._value, type: "int") or types.isType(v: r._value, type: "float"))
+    |> aggregateWindow(every: aggWindow, fn: mean, createEmpty: false)
+
+  union(tables: [non_numeric_smart_data, numeric_smart_data])
   |> to(bucket: destBucket, org: destOrg)
 
   temp_data = from(bucket: sourceBucket)
   |> range(start: rangeStart, stop: rangeEnd)
   |> filter(fn: (r) => r["_measurement"] == "temp")
+  |> group(columns: ["device_wwn"])
   |> toInt()
-  |> yield(name: "mean")
 
   temp_data
   |> aggregateWindow(fn: mean, every: aggWindow)
@@ -726,7 +763,9 @@ func (sr *scrutinyRepository) aggregateTempQuery(durationKey string) string {
 
 	*/
 
-	partialQueryStr := []string{`import "influxdata/influxdb/schema"`}
+	partialQueryStr := []string{
+		`import "influxdata/influxdb/schema"`,
+	}
 
 	nestedDurationKeys := sr.lookupNestedDurationKeys(durationKey)
 

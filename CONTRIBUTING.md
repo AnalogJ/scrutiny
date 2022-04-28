@@ -76,17 +76,19 @@ If you'd like to populate the database with some test data,  you can run the fol
 
 > NOTE: you may need to update the `local_time` key within the JSON file, any timestamps older than ~3 weeks will be automatically ignored
 > (since the downsampling & retention policy takes effect at 2 weeks)
+> This is done automatically by the `webapp/backend/pkg/models/testdata/helper.go` script
 
 ```
-docker run -p 8086:8086 --rm influxdb:2.0
+docker run -p 8086:8086 --rm influxdb:2.2
 
 
 docker run --rm -p 8086:8086 \
+      -e DOCKER_INFLUXDB_INIT_MODE=setup \
       -e DOCKER_INFLUXDB_INIT_USERNAME=admin \
       -e DOCKER_INFLUXDB_INIT_PASSWORD=password12345 \
       -e DOCKER_INFLUXDB_INIT_ORG=scrutiny \
       -e DOCKER_INFLUXDB_INIT_BUCKET=metrics \
-      influxdb:2.0
+      influxdb:2.2
 
 
 # curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/web/testdata/register-devices-req.json localhost:8080/api/devices/register
