@@ -11,7 +11,7 @@ jobs:
     # Service containers to run with `build` (Required for end-to-end testing)
     services:
       influxdb:
-        image: influxdb:2.0
+        image: influxdb:2.2
         env:
           DOCKER_INFLUXDB_INIT_MODE: setup
           DOCKER_INFLUXDB_INIT_USERNAME: admin
@@ -24,7 +24,6 @@ jobs:
     env:
       PROJECT_PATH: /go/src/github.com/analogj/scrutiny
       CGO_ENABLED: 1
-      SCRUTINY_WEB_INFLUXDB_HOST: influxdb
     steps:
       - name: Git
         run: |

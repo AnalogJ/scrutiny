@@ -70,13 +70,19 @@ func TestHealthRoute(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
-	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
 
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -103,13 +109,18 @@ func TestRegisterDevicesRoute(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
-	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
 
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -136,13 +147,18 @@ func TestUploadDeviceMetricsRoute(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
-	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
 
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -178,13 +194,18 @@ func TestPopulateMultiple(t *testing.T) {
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").Return([]string{}).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
-	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
 
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -267,7 +288,6 @@ func TestSendTestNotificationRoute_WebhookFailure(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
-	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
@@ -275,6 +295,13 @@ func TestSendTestNotificationRoute_WebhookFailure(t *testing.T) {
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"https://unroutable.domain.example.asdfghj"})
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
+
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -298,7 +325,6 @@ func TestSendTestNotificationRoute_ScriptFailure(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
-	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
@@ -306,6 +332,13 @@ func TestSendTestNotificationRoute_ScriptFailure(t *testing.T) {
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"script:///missing/path/on/disk"})
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
+
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -329,15 +362,20 @@ func TestSendTestNotificationRoute_ScriptSuccess(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
-	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
-
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"script:///usr/bin/env"})
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
+
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -361,15 +399,19 @@ func TestSendTestNotificationRoute_ShoutrrrFailure(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
-	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
-
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"discord://invalidtoken@channel"})
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
@@ -393,7 +435,6 @@ func TestGetDevicesSummaryRoute_Nvme(t *testing.T) {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
-	fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
@@ -401,6 +442,12 @@ func TestGetDevicesSummaryRoute_Nvme(t *testing.T) {
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{})
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
 
 	ae := web.AppEngine{
 		Config: fakeConfig,
