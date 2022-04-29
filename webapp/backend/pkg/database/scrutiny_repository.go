@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
@@ -14,7 +13,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"strings"
 	"time"
 )
@@ -173,8 +171,8 @@ func (sr *scrutinyRepository) EnsureBuckets(ctx context.Context, org *domain.Org
 	var monthlyBucketRetentionRule domain.RetentionRule
 	if sr.appConfig.GetBool("web.influxdb.retention_policy") {
 
-		// for tetsting purposes, we may not want to set a retention policy, this will allow to set data with old timestamps,
-		//then manually run the downsampling scripts
+		// in tests, we may not want to set a retention policy. If "false", we can set data with old timestamps,
+		// then manually run the down sampling scripts. This should be true for production environments.
 		mainBucketRetentionRule = domain.RetentionRule{EverySeconds: RETENTION_PERIOD_15_DAYS_IN_SECONDS}
 		weeklyBucketRetentionRule = domain.RetentionRule{EverySeconds: RETENTION_PERIOD_9_WEEKS_IN_SECONDS}
 		monthlyBucketRetentionRule = domain.RetentionRule{EverySeconds: RETENTION_PERIOD_25_MONTHS_IN_SECONDS}
@@ -222,204 +220,6 @@ func (sr *scrutinyRepository) EnsureBuckets(ctx context.Context, org *domain.Org
 	}
 
 	return nil
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Tasks
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-func (sr *scrutinyRepository) EnsureTasks(ctx context.Context, orgID string) error {
-	weeklyTaskName := "tsk-weekly-aggr"
-	if found, findErr := sr.influxTaskApi.FindTasks(ctx, &api.TaskFilter{Name: weeklyTaskName}); findErr == nil && len(found) == 0 {
-		//weekly on Sunday at 1:00am
-		_, err := sr.influxTaskApi.CreateTaskWithCron(ctx, weeklyTaskName, sr.DownsampleScript("weekly"), "0 1 * * 0", orgID)
-		if err != nil {
-			return err
-		}
-	}
-
-	monthlyTaskName := "tsk-monthly-aggr"
-	if found, findErr := sr.influxTaskApi.FindTasks(ctx, &api.TaskFilter{Name: monthlyTaskName}); findErr == nil && len(found) == 0 {
-		//monthly on first day of the month at 1:30am
-		_, err := sr.influxTaskApi.CreateTaskWithCron(ctx, monthlyTaskName, sr.DownsampleScript("monthly"), "30 1 1 * *", orgID)
-		if err != nil {
-			return err
-		}
-	}
-
-	yearlyTaskName := "tsk-yearly-aggr"
-	if found, findErr := sr.influxTaskApi.FindTasks(ctx, &api.TaskFilter{Name: yearlyTaskName}); findErr == nil && len(found) == 0 {
-		//yearly on the first day of the year at 2:00am
-		_, err := sr.influxTaskApi.CreateTaskWithCron(ctx, yearlyTaskName, sr.DownsampleScript("yearly"), "0 2 1 1 *", orgID)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-/*
-
-
-sourceBucket = "metrics"
-rangeStart = -2w
-rangeEnd = -1w
-aggWindow = 1w
-destBucket = "metrics_weekly"
-destOrg = "scrutiny"
-
-smart_data = from(bucket: sourceBucket)
-|> range(start: rangeStart, stop: rangeEnd)
-|> filter(fn: (r) => r["_measurement"] == "smart" )
-|> filter(fn: (r) => r["_field"] !~ /(_measurement|device_protocol|device_wwn|attribute_id|raw_string|status_reason|when_failed)/)
-|> yield(name: "last")
-
-smart_data
-|> aggregateWindow(fn: mean, every: aggWindow)
-|> to(bucket: destBucket, org: destOrg)
-
-temp_data = from(bucket: sourceBucket)
-|> range(start: rangeStart, stop: rangeEnd)
-|> filter(fn: (r) => r["_measurement"] == "temp")
-|> toInt()
-|> yield(name: "mean")
-
-temp_data
-|> aggregateWindow(fn: mean, every: aggWindow)
-|> to(bucket: destBucket, org: destOrg)
-
-*/
-func (sr *scrutinyRepository) DownsampleScript(aggregationType string) string {
-	var sourceBucket string // the source of the data
-	var destBucket string   // the destination for the aggregated data
-	var rangeStart string
-	var rangeEnd string
-	var aggWindow string
-	switch aggregationType {
-	case "weekly":
-		sourceBucket = sr.appConfig.GetString("web.influxdb.bucket")
-		destBucket = fmt.Sprintf("%s_weekly", sr.appConfig.GetString("web.influxdb.bucket"))
-		rangeStart = "-2w"
-		rangeEnd = "-1w"
-		aggWindow = "1w"
-	case "monthly":
-		sourceBucket = fmt.Sprintf("%s_weekly", sr.appConfig.GetString("web.influxdb.bucket"))
-		destBucket = fmt.Sprintf("%s_monthly", sr.appConfig.GetString("web.influxdb.bucket"))
-		rangeStart = "-2mo"
-		rangeEnd = "-1mo"
-		aggWindow = "1mo"
-	case "yearly":
-		sourceBucket = fmt.Sprintf("%s_monthly", sr.appConfig.GetString("web.influxdb.bucket"))
-		destBucket = fmt.Sprintf("%s_yearly", sr.appConfig.GetString("web.influxdb.bucket"))
-		rangeStart = "-2y"
-		rangeEnd = "-1y"
-		aggWindow = "1y"
-	}
-
-	return fmt.Sprintf(`import "types"
-  sourceBucket = "%s"
-  rangeStart = %s
-  rangeEnd = %s
-  aggWindow = %s
-  destBucket = "%s"
-  destOrg = "%s"
-
-  smart_data = from(bucket: sourceBucket)
-  |> range(start: rangeStart, stop: rangeEnd)
-  |> filter(fn: (r) => r["_measurement"] == "smart" )
-  |> group(columns: ["device_wwn", "_field"])
-
-  non_numeric_smart_data = smart_data
-    |> filter(fn: (r) => types.isType(v: r._value, type: "string") or types.isType(v: r._value, type: "bool"))
-    |> aggregateWindow(every: aggWindow, fn: last, createEmpty: false)
-
-  numeric_smart_data = smart_data
-    |> filter(fn: (r) => types.isType(v: r._value, type: "int") or types.isType(v: r._value, type: "float"))
-    |> aggregateWindow(every: aggWindow, fn: mean, createEmpty: false)
-
-  union(tables: [non_numeric_smart_data, numeric_smart_data])
-  |> to(bucket: destBucket, org: destOrg)
-
-  temp_data = from(bucket: sourceBucket)
-  |> range(start: rangeStart, stop: rangeEnd)
-  |> filter(fn: (r) => r["_measurement"] == "temp")
-  |> group(columns: ["device_wwn"])
-  |> toInt()
-
-  temp_data
-  |> aggregateWindow(fn: mean, every: aggWindow)
-  |> to(bucket: destBucket, org: destOrg)
-		`,
-		sourceBucket,
-		rangeStart,
-		rangeEnd,
-		aggWindow,
-		destBucket,
-		sr.appConfig.GetString("web.influxdb.org"),
-	)
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Device
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//insert device into DB (and update specified columns if device is already registered)
-// update device fields that may change: (DeviceType, HostID)
-func (sr *scrutinyRepository) RegisterDevice(ctx context.Context, dev models.Device) error {
-	if err := sr.gormClient.WithContext(ctx).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "wwn"}},
-		DoUpdates: clause.AssignmentColumns([]string{"host_id", "device_name", "device_type"}),
-	}).Create(&dev).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
-// get a list of all devices (only device metadata, no SMART data)
-func (sr *scrutinyRepository) GetDevices(ctx context.Context) ([]models.Device, error) {
-	//Get a list of all the active devices.
-	devices := []models.Device{}
-	if err := sr.gormClient.WithContext(ctx).Find(&devices).Error; err != nil {
-		return nil, fmt.Errorf("Could not get device summary from DB: %v", err)
-	}
-	return devices, nil
-}
-
-// update device (only metadata) from collector
-func (sr *scrutinyRepository) UpdateDevice(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (models.Device, error) {
-	var device models.Device
-	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
-		return device, fmt.Errorf("Could not get device from DB: %v", err)
-	}
-
-	//TODO catch GormClient err
-	err := device.UpdateFromCollectorSmartInfo(collectorSmartData)
-	if err != nil {
-		return device, err
-	}
-	return device, sr.gormClient.Model(&device).Updates(device).Error
-}
-
-//Update Device Status
-func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, wwn string, status pkg.DeviceStatus) (models.Device, error) {
-	var device models.Device
-	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
-		return device, fmt.Errorf("Could not get device from DB: %v", err)
-	}
-
-	device.DeviceStatus = pkg.Set(device.DeviceStatus, status)
-	return device, sr.gormClient.Model(&device).Updates(device).Error
-}
-
-func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, wwn string) (models.Device, error) {
-	var device models.Device
-
-	fmt.Println("GetDeviceDetails from GORM")
-
-	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
-		return models.Device{}, err
-	}
-
-	return device, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -509,91 +309,6 @@ func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn 
 	//	c.JSON(http.StatusInternalServerError, gin.H{"success": false})
 	//	return
 	//}
-
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Temperature Data
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-func (sr *scrutinyRepository) SaveSmartTemperature(ctx context.Context, wwn string, deviceProtocol string, collectorSmartData collector.SmartInfo) error {
-	if len(collectorSmartData.AtaSctTemperatureHistory.Table) > 0 {
-
-		for ndx, temp := range collectorSmartData.AtaSctTemperatureHistory.Table {
-
-			minutesOffset := collectorSmartData.AtaSctTemperatureHistory.LoggingIntervalMinutes * int64(ndx) * 60
-			smartTemp := measurements.SmartTemperature{
-				Date: time.Unix(collectorSmartData.LocalTime.TimeT-minutesOffset, 0),
-				Temp: temp,
-			}
-
-			tags, fields := smartTemp.Flatten()
-			tags["device_wwn"] = wwn
-			p := influxdb2.NewPoint("temp",
-				tags,
-				fields,
-				smartTemp.Date)
-			err := sr.influxWriteApi.WritePoint(ctx, p)
-			if err != nil {
-				return err
-			}
-		}
-		// also add the current temperature.
-	} else {
-
-		smartTemp := measurements.SmartTemperature{
-			Date: time.Unix(collectorSmartData.LocalTime.TimeT, 0),
-			Temp: collectorSmartData.Temperature.Current,
-		}
-
-		tags, fields := smartTemp.Flatten()
-		tags["device_wwn"] = wwn
-		p := influxdb2.NewPoint("temp",
-			tags,
-			fields,
-			smartTemp.Date)
-		return sr.influxWriteApi.WritePoint(ctx, p)
-	}
-	return nil
-}
-
-func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[string][]measurements.SmartTemperature, error) {
-	//we can get temp history for "week", "month", DURATION_KEY_YEAR, "forever"
-
-	deviceTempHistory := map[string][]measurements.SmartTemperature{}
-
-	//TODO: change the query range to a variable.
-	queryStr := sr.aggregateTempQuery(durationKey)
-
-	result, err := sr.influxQueryApi.Query(ctx, queryStr)
-	if err == nil {
-		// Use Next() to iterate over query result lines
-		for result.Next() {
-
-			if deviceWWN, ok := result.Record().Values()["device_wwn"]; ok {
-
-				//check if deviceWWN has been seen and initialized already
-				if _, ok := deviceTempHistory[deviceWWN.(string)]; !ok {
-					deviceTempHistory[deviceWWN.(string)] = []measurements.SmartTemperature{}
-				}
-
-				currentTempHistory := deviceTempHistory[deviceWWN.(string)]
-				smartTemp := measurements.SmartTemperature{}
-
-				for key, val := range result.Record().Values() {
-					smartTemp.Inflate(key, val)
-				}
-				smartTemp.Date = result.Record().Values()["_time"].(time.Time)
-				currentTempHistory = append(currentTempHistory, smartTemp)
-				deviceTempHistory[deviceWWN.(string)] = currentTempHistory
-			}
-		}
-		if result.Err() != nil {
-			fmt.Printf("Query error: %s\n", result.Err().Error())
-		}
-	} else {
-		return nil, err
-	}
-	return deviceTempHistory, nil
 
 }
 
