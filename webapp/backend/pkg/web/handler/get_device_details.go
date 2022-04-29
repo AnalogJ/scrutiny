@@ -19,7 +19,17 @@ func GetDeviceDetails(c *gin.Context) {
 		return
 	}
 
-	smartResults, err := deviceRepo.GetSmartAttributeHistory(c, c.Param("wwn"), "", nil)
+	durationKey, exists := c.GetQuery("duration_key")
+	if !exists {
+		durationKey = "forever"
+	}
+
+	smartResults, err := deviceRepo.GetSmartAttributeHistory(c, c.Param("wwn"), durationKey, nil)
+	if err != nil {
+		logger.Errorln("An error occurred while retrieving device smart results", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
+		return
+	}
 
 	var deviceMetadata interface{}
 	if device.IsAta() {

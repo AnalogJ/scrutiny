@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/domain"
@@ -219,96 +217,6 @@ func (sr *scrutinyRepository) EnsureBuckets(ctx context.Context, org *domain.Org
 	}
 
 	return nil
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// SMART
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-func (sr *scrutinyRepository) SaveSmartAttributes(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (measurements.Smart, error) {
-	deviceSmartData := measurements.Smart{}
-	err := deviceSmartData.FromCollectorSmartInfo(wwn, collectorSmartData)
-	if err != nil {
-		sr.logger.Errorln("Could not process SMART metrics", err)
-		return measurements.Smart{}, err
-	}
-
-	tags, fields := deviceSmartData.Flatten()
-	p := influxdb2.NewPoint("smart",
-		tags,
-		fields,
-		deviceSmartData.Date)
-
-	// write point immediately
-	return deviceSmartData, sr.influxWriteApi.WritePoint(ctx, p)
-}
-
-func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn string, startAt string, attributes []string) ([]measurements.Smart, error) {
-	// Get SMartResults from InfluxDB
-
-	fmt.Println("GetDeviceDetails from INFLUXDB")
-
-	//TODO: change the filter startrange to a real number.
-
-	// Get parser flux query result
-	//appConfig.GetString("web.influxdb.bucket")
-	queryStr := fmt.Sprintf(`
-  import "influxdata/influxdb/schema"
-  from(bucket: "%s")
-  |> range(start: -2y, stop: now())
-  |> filter(fn: (r) => r["_measurement"] == "smart" )
-  |> filter(fn: (r) => r["device_wwn"] == "%s" )
-  |> schema.fieldsAsCols()
-  |> group(columns: ["device_wwn"])
-  |> yield(name: "last")
-		`,
-		sr.appConfig.GetString("web.influxdb.bucket"),
-		wwn,
-	)
-
-	smartResults := []measurements.Smart{}
-
-	result, err := sr.influxQueryApi.Query(ctx, queryStr)
-	if err == nil {
-		fmt.Println("GetDeviceDetails NO EROR")
-
-		// Use Next() to iterate over query result lines
-		for result.Next() {
-			fmt.Println("GetDeviceDetails NEXT")
-
-			// Observe when there is new grouping key producing new table
-			if result.TableChanged() {
-				//fmt.Printf("table: %s\n", result.TableMetadata().String())
-			}
-
-			fmt.Printf("DECODINIG TABLE VALUES: %v", result.Record().Values())
-			smartData, err := measurements.NewSmartFromInfluxDB(result.Record().Values())
-			if err != nil {
-				return nil, err
-			}
-			smartResults = append(smartResults, *smartData)
-
-		}
-		if result.Err() != nil {
-			fmt.Printf("Query error: %s\n", result.Err().Error())
-		}
-	} else {
-		return nil, err
-	}
-
-	return smartResults, nil
-
-	//if err := device.SquashHistory(); err != nil {
-	//	logger.Errorln("An error occurred while squashing device history", err)
-	//	c.JSON(http.StatusInternalServerError, gin.H{"success": false})
-	//	return
-	//}
-	//
-	//if err := device.ApplyMetadataRules(); err != nil {
-	//	logger.Errorln("An error occurred while applying scrutiny thresholds & rules", err)
-	//	c.JSON(http.StatusInternalServerError, gin.H{"success": false})
-	//	return
-	//}
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
