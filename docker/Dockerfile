@@ -37,8 +37,8 @@ RUN apt-get update && apt-get install -y cron smartmontools=7.0-0ubuntu1~ubuntu1
 ADD https://github.com/just-containers/s6-overlay/releases/download/v1.21.8.0/s6-overlay-amd64.tar.gz /tmp/
 RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
 
-ADD https://dl.influxdata.com/influxdb/releases/influxdb2-2.0.4-amd64.deb /tmp/
-RUN dpkg -i /tmp/influxdb2-2.0.4-amd64.deb && rm -rf /tmp/influxdb2-2.0.4-amd64.deb
+ADD https://dl.influxdata.com/influxdb/releases/influxdb2-2.2.0-amd64.deb /tmp/
+RUN dpkg -i /tmp/influxdb2-2.2.0-amd64.deb && rm -rf /tmp/influxdb2-2.2.0-amd64.deb
 
 COPY /rootfs /
 
