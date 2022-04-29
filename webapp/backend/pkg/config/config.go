@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	"strings"
 )
 
 // When initializing this class the following methods must be called:
@@ -63,6 +64,11 @@ func (c *configuration) Init() error {
 	c.SetConfigType("yaml")
 	//c.SetConfigName("drawbridge")
 	//c.AddConfigPath("$HOME/")
+
+	//configure env variable parsing.
+	c.SetEnvPrefix("SCRUTINY")
+	c.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
+	c.AutomaticEnv()
 
 	//CLI options will be added via the `Set()` function
 	return nil

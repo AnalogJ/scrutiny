@@ -24,6 +24,7 @@ jobs:
     env:
       PROJECT_PATH: /go/src/github.com/analogj/scrutiny
       CGO_ENABLED: 1
+      SCRUTINY_WEB_INFLUXDB_HOST: influxdb
     steps:
       - name: Git
         run: |
