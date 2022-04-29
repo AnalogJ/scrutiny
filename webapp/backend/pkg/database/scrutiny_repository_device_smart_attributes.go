@@ -6,6 +6,7 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
+	log "github.com/sirupsen/logrus"
 	"strings"
 )
 
@@ -40,6 +41,7 @@ func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn 
 	// Get parser flux query result
 	//appConfig.GetString("web.influxdb.bucket")
 	queryStr := sr.aggregateSmartAttributesQuery(wwn, durationKey)
+	log.Infoln(queryStr)
 
 	smartResults := []measurements.Smart{}
 
@@ -136,10 +138,7 @@ func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, duration
 			fmt.Sprintf(`|> range(start: %s, stop: %s)`, durationRange[0], durationRange[1]),
 			`|> filter(fn: (r) => r["_measurement"] == "smart" )`,
 			fmt.Sprintf(`|> filter(fn: (r) => r["device_wwn"] == "%s" )`, wwn),
-			`|> aggregateWindow(every: 1h, fn: last, createEmpty: false)`,
-			`|> group(columns: ["device_wwn"])`,
-			`|> toInt()`,
-			"",
+			"|> schema.fieldsAsCols()",
 		}...)
 	}
 
@@ -147,15 +146,13 @@ func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, duration
 		//there's only one bucket being queried, no need to union, just aggregate the dataset and return
 		partialQueryStr = append(partialQueryStr, []string{
 			subQueryNames[0],
-			"|> schema.fieldsAsCols()",
-			"|> yield()",
+			`|> yield()`,
 		}...)
 	} else {
 		partialQueryStr = append(partialQueryStr, []string{
 			fmt.Sprintf("union(tables: [%s])", strings.Join(subQueryNames, ", ")),
-			`|> group(columns: ["device_wwn"])`,
 			`|> sort(columns: ["_time"], desc: false)`,
-			"|> schema.fieldsAsCols()",
+			`|> yield(name: "last")`,
 		}...)
 	}
 
