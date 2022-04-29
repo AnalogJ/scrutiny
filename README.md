@@ -72,12 +72,12 @@ If you're using Docker, getting started is as simple as running the following co
 
 ```bash
 docker run -it --rm -p 8080:8080 \
--v /run/udev:/run/udev:ro \
---cap-add SYS_RAWIO \
---device=/dev/sda \
---device=/dev/sdb \
---name scrutiny \
-analogj/scrutiny
+  -v /run/udev:/run/udev:ro \
+  --cap-add SYS_RAWIO \
+  --device=/dev/sda \
+  --device=/dev/sdb \
+  --name scrutiny \
+  analogj/scrutiny
 ```
 
 - `/run/udev` is necessary to provide the Scrutiny collector with access to your device metadata
@@ -95,17 +95,17 @@ In addition to the Omnibus image (available under the `latest` tag) there are 2 
 
 ```bash
 docker run -it --rm -p 8080:8080 \
---name scrutiny-web \
-analogj/scrutiny:web
+  --name scrutiny-web \
+  analogj/scrutiny:web
 
 docker run -it --rm \
--v /run/udev:/run/udev:ro \
---cap-add SYS_RAWIO \
---device=/dev/sda \
---device=/dev/sdb \
--e SCRUTINY_API_ENDPOINT=http://SCRUTINY_WEB_IPADDRESS:8080 \
---name scrutiny-collector \
-analogj/scrutiny:collector
+  -v /run/udev:/run/udev:ro \
+  --cap-add SYS_RAWIO \
+  --device=/dev/sda \
+  --device=/dev/sdb \
+  -e SCRUTINY_API_ENDPOINT=http://SCRUTINY_WEB_IPADDRESS:8080 \
+  --name scrutiny-collector \
+  analogj/scrutiny:collector
 ```
 
 ## Manual Installation (without-Docker)
@@ -126,7 +126,7 @@ drive that Scrutiny detected. The collector is configured to run once a day, but
 For users of the docker Hub/Spoke deployment or manual install: initially the dashboard will be empty.
 After the first collector run, you'll be greeted with a list of all your hard drives and their current smart status.
 
-```
+```bash
 docker exec scrutiny /scrutiny/bin/scrutiny-collector-metrics run
 ```
 
@@ -165,7 +165,7 @@ Check the `notify.urls` section of [example.scrutiny.yml](example.scrutiny.yaml)
 
 You can test that your notifications are configured correctly by posting an empty payload to the notifications health check API.
 
-```
+```bash
 curl -X POST http://localhost:8080/api/health/notify
 ```
 
@@ -176,14 +176,14 @@ Scrutiny provides various methods to change the log level to debug and generate 
 
 You can use environmental variables to enable debug logging and/or log files for the web server:
 
-```
+```bash
 DEBUG=true
 SCRUTINY_LOG_FILE=/tmp/web.log
 ```
 
 You can configure the log level and log file in the config file:
 
-```
+```yml
 log:
   file: '/tmp/web.log'
   level: DEBUG
@@ -191,7 +191,7 @@ log:
 
 Or if you're not using docker, you can pass CLI arguments to the web server during startup:
 
-```
+```bash
 scrutiny start --debug --log-file /tmp/web.log
 ```
 
@@ -199,14 +199,14 @@ scrutiny start --debug --log-file /tmp/web.log
 
 You can use environmental variables to enable debug logging and/or log files for the collector:
 
-```
+```bash
 DEBUG=true
 COLLECTOR_LOG_FILE=/tmp/collector.log
 ```
 
 Or if you're not using docker, you can pass CLI arguments to the collector during startup:
 
-```
+```bash
 scrutiny-collector-metrics run --debug --log-file /tmp/collector.log
 ```
 
