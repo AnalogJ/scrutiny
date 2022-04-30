@@ -99,7 +99,9 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 		}
 
 		appConfig.Set("web.influxdb.token", *onboardingResponse.Auth.Token)
-		//todo: determine if we should write the config file out here.
+		// we should write the config file out here. Ignore failures.
+		_ = appConfig.WriteConfig()
+
 	}
 
 	// Use blocking write client for writes to desired bucket
