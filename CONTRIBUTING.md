@@ -131,3 +131,16 @@ Finally, you can copy the files from the scrutiny container to your host using t
 docker cp scrutiny:/tmp/collector.log collector.log
 docker cp scrutiny:/tmp/web.log web.log
 ```
+
+# InfluxDB - Downsampling
+
+Scrutiny will automatically configure downsampling scripts for ensuring the database size will not grow unbounded. 
+
+| Bucket Name | Description | Retention Period | Downsampling Frequency | Max Number of Datapoints (per Disk) |
+| --- | --- | --- | --- | --- |
+| `scrutiny` | Main bucket, where all data is written | 15 days | `0 1 * * 0` | **7**+7+1 |
+| `scrutiny_weekly` | Weekly data, downsampled from `scrutiny` | 9 weeks | `30 1 1 * *` | **4**+4+1 |
+| `scrutiny_monthly` | Monthly data, downsampled from `_weekly` | 25 months | `0 2 1 1 *` | **12**+12+1 |
+| `scrutiny_yearly` | Yearly data, downsampled from `_monthly` | forever | `never` | ∞ |
+
+
