@@ -17,7 +17,7 @@ ensuring historical data is present for comparisons.
 
 | Bucket Name | Retention Period | Downsampling Range | Downsampling Aggregation Window | Downsampling Cron | Comments |
 | --- | --- | --- | --- | --- | --- |
-| `metrics` | 15 days | `-2w -1w` | `1w` | weekly on Sunday at 1:00am |
+| `metrics` | 15 days | `-2w -1w` | `1w` | main bucket, weekly on Sunday at 1:00am |
 | `metrics_weekly` | 9 weeks | `-2mo -1mo` | `1mo` | monthly on first day of the month at 1:30am
 | `metrics_monthly` | 25 months | `-2y -1y` | `1y` | yearly on the first day of the year at 2:00am
 | `metrics_yearly` | forever | - | - | - | |
@@ -39,4 +39,5 @@ After 5 years, here's how may data points should exist in each bucket for one di
 | `metrics` | - | - |
 | `metrics_weekly` | - | 
 | `metrics_monthly` | - |
-| `metrics_yearly` | - | 
+| `metrics_yearly` | - |
+
