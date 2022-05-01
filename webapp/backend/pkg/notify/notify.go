@@ -258,7 +258,6 @@ func (n *Notify) GenShoutrrrNotificationParams(shoutrrrUrl string) (string, *sho
 		(*params)["title"] = subject
 	case "slack":
 		(*params)["title"] = subject
-		(*params)["thumb_url"] = logoUrl
 	case "smtp":
 		(*params)["subject"] = subject
 	case "standard":

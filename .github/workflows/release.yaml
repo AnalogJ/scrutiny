@@ -16,7 +16,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    container: karalabe/xgo-1.13.x
+    container: techknowlogick/xgo:go-1.13.x
     env:
       PROJECT_PATH: /go/src/github.com/analogj/scrutiny
       CGO_ENABLED: 1
@@ -28,13 +28,16 @@ jobs:
           git --version
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Bump version
         id: bump_version
         uses: packagrio/action-bumpr-go@master
         with:
           version_bump_type: ${{ github.event.inputs.version_bump_type }}
           version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
-          github_token: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
       - name: Test
         run: |
           mkdir -p $(dirname "$PROJECT_PATH")
@@ -50,19 +53,27 @@ jobs:
           cd $PROJECT_PATH
           make all
 
-      - name: Commit
-        uses: EndBug/add-and-commit@v4 # You can change this to use a specific version
-        with:
+          # restore modified dir to GH workspace.
+          cp -arf $PROJECT_PATH/. $GITHUB_WORKSPACE/
 
-          author_name: Jason Kulatunga
-          author_email: jason@thesparktree.com
-          cwd: ${{ env.PROJECT_PATH }}
-          force: false
-          signoff: true
-          message: '(${{steps.bump_version.outputs.release_version}}) Automated packaging of release by Packagr'
-          tag: ${{steps.bump_version.outputs.release_version}}
+      - name: Commit Changes
+        id: commit
+        uses: packagrio/action-releasr-go@master
         env:
+          # This is necessary in order to push a commit to the repo
           GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
+        with:
+          version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
+#      - name: Publish Release
+#        id: publish
+#        uses: packagrio/action-publishr-go@master
+#        env:
+#          # This is necessary in order to push a commit to the repo
+#          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
+#        with:
+#          version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
+#          upload_assets: '/build/scrutiny-web-linux-amd64 /build/scrutiny-collector-metrics-linux-amd64 /build/scrutiny-web-linux-arm64 /build/scrutiny-collector-metrics-linux-arm64 /build/scrutiny-web-linux-arm-5 /build/scrutiny-collector-metrics-linux-arm-5 /build/scrutiny-web-linux-arm-6 /build/scrutiny-collector-metrics-linux-arm-6 /build/scrutiny-web-linux-arm-7 /build/scrutiny-collector-metrics-linux-arm-7 /build/scrutiny-web-windows-4.0-amd64.exe /build/scrutiny-collector-metrics-windows-4.0-amd64.exe'
+
 
       - name: Create Release
         id: create_release
@@ -181,23 +192,23 @@ jobs:
           asset_name: scrutiny-collector-metrics-linux-arm-7
           asset_content_type: application/octet-stream
 
-#      - name: Release Asset - Web - freebsd-amd64
-#        id: upload-release-asset7
-#        uses: actions/upload-release-asset@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-#        with:
-#          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-#          asset_path: ${{ env.PROJECT_PATH }}/scrutiny-web-freebsd-amd64
-#          asset_name: scrutiny-web-freebsd-amd64
-#          asset_content_type: application/octet-stream
-#      - name: Release Asset - Collector - freebsd-amd64
-#        id: upload-release-asset8
-#        uses: actions/upload-release-asset@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-#        with:
-#          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-#          asset_path: ${{ env.PROJECT_PATH }}/scrutiny-collector-metrics-freebsd-amd64
-#          asset_name: scrutiny-collector-metrics-freebsd-amd64
-#          asset_content_type: application/octet-stream
+      - name: Release Asset - Web - windows-amd64
+        id: upload-release-asset11
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: /build/scrutiny-web-windows-4.0-amd64.exe
+          asset_name: scrutiny-web-windows-4.0-amd64.exe
+          asset_content_type: application/octet-stream
+      - name: Release Asset - Collector - windows-amd64
+        id: upload-release-asset12
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: /build/scrutiny-collector-metrics-windows-4.0-amd64.exe
+          asset_name: scrutiny-collector-metrics-windows-4.0-amd64.exe
+          asset_content_type: application/octet-stream
