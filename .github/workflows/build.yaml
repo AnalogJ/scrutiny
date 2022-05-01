@@ -40,7 +40,8 @@ jobs:
 
           go mod vendor
           go test -race -coverprofile=coverage.txt -covermode=atomic -v -tags "static" $(go list ./... | grep -v /vendor/)
-      - uses: codecov/codecov-action@v2
+      - name: Generate coverage report
+        uses: codecov/codecov-action@v2
         with:
           files: ./coverage.txt
           flags: unittests
