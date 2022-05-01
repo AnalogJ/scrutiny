@@ -29,7 +29,7 @@ EXPOSE 8080
 WORKDIR /scrutiny
 ENV PATH="/scrutiny/bin:${PATH}"
 
-RUN apt-get update && apt-get install -y ca-certificates curl && update-ca-certificates
+RUN apt-get update && apt-get install -y ca-certificates curl tzdata && update-ca-certificates
 
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny /scrutiny/bin/
 COPY --from=frontendbuild /scrutiny/dist /scrutiny/web
