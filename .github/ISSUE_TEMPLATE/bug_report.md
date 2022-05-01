@@ -30,7 +30,7 @@ docker run -it --rm -p 8080:8080 \
 -e COLLECTOR_LOG_FILE=/tmp/collector.log \
 -e SCRUTINY_LOG_FILE=/tmp/web.log \
 --name scrutiny \
-analogj/scrutiny
+ghcr.io/analogj/scrutiny:master-omnibus
 
 # in another terminal trigger the collector
 docker exec scrutiny scrutiny-collector-metrics run

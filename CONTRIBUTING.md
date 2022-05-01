@@ -12,7 +12,7 @@ docker run -it --rm -p 8080:8080 \
 --cap-add SYS_RAWIO \
 --device=/dev/sda \
 --device=/dev/sdb \
-analogj/scrutiny
+ghcr.io/analogj/scrutiny:master-omnibus
 /scrutiny/bin/scrutiny-collector-metrics run
 ```
 

@@ -77,7 +77,7 @@ docker run -it --rm -p 8080:8080 \
   --device=/dev/sda \
   --device=/dev/sdb \
   --name scrutiny \
-  analogj/scrutiny
+  ghcr.io/analogj/scrutiny:master-omnibus
 ```
 
 - `/run/udev` is necessary to provide the Scrutiny collector with access to your device metadata
@@ -96,7 +96,7 @@ In addition to the Omnibus image (available under the `latest` tag) there are 2 
 ```bash
 docker run -it --rm -p 8080:8080 \
   --name scrutiny-web \
-  analogj/scrutiny:web
+  ghcr.io/analogj/scrutiny:master-web
 
 docker run -it --rm \
   -v /run/udev:/run/udev:ro \
@@ -105,7 +105,7 @@ docker run -it --rm \
   --device=/dev/sdb \
   -e SCRUTINY_API_ENDPOINT=http://SCRUTINY_WEB_IPADDRESS:8080 \
   --name scrutiny-collector \
-  analogj/scrutiny:collector
+  ghcr.io/analogj/scrutiny:master-collector
 ```
 
 ## Manual Installation (without-Docker)

@@ -43,7 +43,7 @@ docker run -it --rm \
   --cap-add SYS_RAWIO \
   --device=/dev/sda \
   --device=/dev/sdb \
-  analogj/scrutiny:collector smartctl --scan
+  ghcr.io/analogj/scrutiny:master-collector smartctl --scan
 ```
 
 If the output is the same, your devices will be processed by Scrutiny.
