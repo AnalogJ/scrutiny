@@ -61,12 +61,12 @@ jobs:
             /build/scrutiny-collector-metrics-linux-arm-6
             /build/scrutiny-web-linux-arm-7
             /build/scrutiny-collector-metrics-linux-arm-7
-            /build/scrutiny-web-darwin-arm64
-            /build/scrutiny-collector-metrics-darwin-arm64
-            /build/scrutiny-web-darwin-amd64
-            /build/scrutiny-collector-metrics-darwin-amd64
             /build/scrutiny-web-windows-4.0-amd64.exe
             /build/scrutiny-collector-metrics-windows-4.0-amd64.exe
+#            /build/scrutiny-web-darwin-arm64
+#            /build/scrutiny-collector-metrics-darwin-arm64
+#            /build/scrutiny-web-darwin-amd64
+#            /build/scrutiny-collector-metrics-darwin-amd64
 #            /build/scrutiny-web-freebsd-amd64
 #            /build/scrutiny-collector-metrics-freebsd-amd64
       - uses: codecov/codecov-action@v1
