@@ -43,7 +43,7 @@ jobs:
       - name: Generate coverage report
         uses: codecov/codecov-action@v2
         with:
-          files: $PROJECT_PATH/coverage.txt
+          files: ${{ env.PROJECT_PATH }}/coverage.txt
           flags: unittests
           fail_ci_if_error: true
           verbose: true
