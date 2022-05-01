@@ -48,11 +48,11 @@ docker run -it --rm \
 
 If the output is the same, your devices will be processed by Scrutiny.
 
-# Collector Config File
+### Collector Config File
 In some cases `--scan` does not correctly detect the device type, returning [incomplete SMART data](https://github.com/AnalogJ/scrutiny/issues/45).
 Scrutiny will supports overriding the detected device type via the config file.
 
-## RAID Controllers (Megaraid/3ware/HBA/Adaptec/HPE/etc)
+### RAID Controllers (Megaraid/3ware/HBA/Adaptec/HPE/etc)
 Smartctl has support for a large number of [RAID controllers](https://www.smartmontools.org/wiki/Supported_RAID-Controllers), however this 
 support is not automatic, and may require some additional device type hinting. You can provide this information to the Scrutiny collector
 using a collector config file. See [example.collector.yaml](/example.collector.yaml)
@@ -98,7 +98,7 @@ devices:
       - 'cciss,1'
 ```
 
-# NVMe Drives
+### NVMe Drives
 As mentioned in the [README.md](/README.md), NVMe devices require both `--cap-add SYS_RAWIO` and `--cap-add SYS_ADMIN` 
 to allow smartctl permission to query your NVMe device SMART data [#26](https://github.com/AnalogJ/scrutiny/issues/26)
 
@@ -109,12 +109,13 @@ instead of the block device (`/dev/nvme0n1`). See [#209](https://github.com/Anal
 >
 > In enterprise-grade hardware, there might be support for several namespaces, thin provisioning within namespaces and other features. For now, you could think namespaces as sort of meta-partitions with extra features for enterprise use.
 
+### ATA
 
+### Standby/Sleeping Disks
+- https://github.com/AnalogJ/scrutiny/issues/221
+- https://github.com/AnalogJ/scrutiny/issues/157
 
-# ATA
-
-# Standby/Sleeping Disks
-
+### Volume Mount All Devices (`/dev`) - Privileged
 
 
 ## Hub & Spoke model, with multiple Hosts.
