@@ -73,7 +73,7 @@ If you're using Docker, getting started is as simple as running the following co
 ```bash
 docker run -it --rm -p 8080:8080 \
   -v `pwd`/scrutiny:/scrutiny/config \
-  -v `pwd`/influxdb2:/var/lib/influxdb2 \
+  -v `pwd`/influxdb2:/scrutiny/influxdb \
   -v /run/udev:/run/udev:ro \
   --cap-add SYS_RAWIO \
   --device=/dev/sda \
@@ -98,7 +98,7 @@ In addition to the Omnibus image (available under the `latest` tag) there are 2 
 ```bash
 docker run --rm -p 8086:8086 \
   -v `pwd`/influxdb2:/var/lib/influxdb2 \
-  --name scrutiny-web \
+  --name scrutiny-influxdb \
   influxdb:2.2
 
 docker run --rm -p 8080:8080 \
