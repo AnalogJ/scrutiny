@@ -11,5 +11,5 @@ MAILTO=""
 # correctly route collector logs (STDOUT & STDERR) to Cron foreground (collectable by Docker STDOUT)
 # cron schedule to run daily at midnight:  '0 0 * * *'
 # System environmental variables are stripped by cron, source our dump of the docker environmental variables before each command (/env.sh)
-{SCRUTINY_COLLECTOR_CRON_SCHEDULE} root . /env.sh; /scrutiny/bin/scrutiny-collector-metrics run >/proc/1/fd/1 2>/proc/1/fd/2
+{COLLECTOR_CRON_SCHEDULE} root . /env.sh; /scrutiny/bin/scrutiny-collector-metrics run >/proc/1/fd/1 2>/proc/1/fd/2
 # An empty line is required at the end of this file for a valid cron file.
