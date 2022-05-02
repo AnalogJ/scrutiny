@@ -5,6 +5,10 @@
 
 printenv | sed 's/^\(.*\)$/export \1/g' > /env.sh
 
+# adding ability to customize the cron schedule.
+SCRUTINY_COLLECTOR_CRON_SCHEDULE=${SCRUTINY_COLLECTOR_CRON_SCHEDULE:-"0 0 * * *"}
+sed -i 's|{SCRUTINY_COLLECTOR_CRON_SCHEDULE}|'"${SCRUTINY_COLLECTOR_CRON_SCHEDULE}"'|g' /etc/cron.d/scrutiny
+
 # now that we have the env start cron in the foreground
 echo "starting cron"
 su -c "cron -l 8 -f" root
