@@ -132,6 +132,8 @@ chmod +x /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64
 
 Next, we will manually trigger the collector, to populate the Scrutiny dashboard:
 
+> NOTE: if you need to pass a config file to the scrutiny collector, you can provide it using the `--config` flag.
+
 ```
 /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 run --api-endpoint "http://localhost:8080"
 ```

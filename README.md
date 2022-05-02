@@ -72,6 +72,8 @@ If you're using Docker, getting started is as simple as running the following co
 
 ```bash
 docker run -it --rm -p 8080:8080 \
+  -v `pwd`/scrutiny:/scrutiny/config \
+  -v `pwd`/influxdb2:/var/lib/influxdb2 \
   -v /run/udev:/run/udev:ro \
   --cap-add SYS_RAWIO \
   --device=/dev/sda \
@@ -84,21 +86,27 @@ docker run -it --rm -p 8080:8080 \
 - `--cap-add SYS_RAWIO` is necessary to allow `smartctl` permission to query your device SMART data
     - NOTE: If you have **NVMe** drives, you must add `--cap-add SYS_ADMIN` as well. See issue [#26](https://github.com/AnalogJ/scrutiny/issues/26#issuecomment-696817130)
 - `--device` entries are required to ensure that your hard disk devices are accessible within the container.
-- `analogj/scrutiny` is a omnibus image, containing both the webapp server (frontend & api) as well as the S.M.A.R.T metric collector. (see below)
+- `ghcr.io/analogj/scrutiny:master-omnibus` is a omnibus image, containing both the webapp server (frontend & api) as well as the S.M.A.R.T metric collector. (see below)
 
 ### Hub/Spoke Deployment
 
 In addition to the Omnibus image (available under the `latest` tag) there are 2 other Docker images available:
 
-- `analogj/scrutiny:collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like scheduler. You can run one collector on each server.
-- `analogj/scrutiny:web` - Contains the Web UI, API and Database. Only one container necessary
+- `ghcr.io/analogj/scrutiny:master-collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like scheduler. You can run one collector on each server.
+- `ghcr.io/analogj/scrutiny:master-web` - Contains the Web UI, API and Database. Only one container necessary
 
 ```bash
-docker run -it --rm -p 8080:8080 \
+docker run --rm -p 8086:8086 \
+  -v `pwd`/influxdb2:/var/lib/influxdb2 \
+  --name scrutiny-web \
+  influxdb:2.2
+
+docker run --rm -p 8080:8080 \
+  -v `pwd`/scrutiny:/scrutiny/config \
   --name scrutiny-web \
   ghcr.io/analogj/scrutiny:master-web
 
-docker run -it --rm \
+docker run --rm \
   -v /run/udev:/run/udev:ro \
   --cap-add SYS_RAWIO \
   --device=/dev/sda \
