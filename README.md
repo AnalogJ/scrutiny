@@ -148,6 +148,13 @@ There are two configuration files available:
 
 Neither file is required, however if provided, it allows you to configure how Scrutiny functions.
 
+## Cron Schedule
+Unfortunately the Cron schedule cannot be configured via the `collector.yaml` (as the collector binary needs to be trigged by a scheduler/cron).
+However, if you are using the official `ghcr.io/analogj/scrutiny:master-collector` or `ghcr.io/analogj/scrutiny:master-omnibus` docker images, 
+you can use the `SCRUTINY_COLLECTOR_CRON_SCHEDULE` environmental variable to override the default cron schedule (daily @ midnight - `0 0 * * *`).
+
+`docker run -e SCRUTINY_COLLECTOR_CRON_SCHEDULE="0 0 * * *" ...`
+
 ## Notifications
 
 Scrutiny supports sending SMART device failure notifications via the following services:
