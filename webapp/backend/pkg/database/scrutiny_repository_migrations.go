@@ -63,12 +63,22 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				}
 
 				//TODO: migrate the data from GORM to influxdb.
-
+				//get a list of all devices:
+				//	get a list of all smart scans in the last 2 weeks:
+				//		get a list of associated smart attribute data:
+				//			translate to a collector.SmartInfo object
+				//			call scrutinyRepository.SaveSmartAttributes
+				//	get a list of all smart scans in the last 9 weeks:
+				//		do same as above (select 1 scan per week)
+				//	get a list of all smart scans in the last 25 months:
+				//		do same as above (select 1 scan per month)
+				//	get a list of all smart scans:
+				//		do same as above (select 1 scan per year)
 				return nil
 			},
 		},
 		//{
-		//	ID: "20220503120000", // v0.4.0 - influxdb schema
+		//	ID: "20220503120000", // cleanup - v0.4.0 - influxdb schema
 		//	Migrate: func(tx *gorm.DB) error {
 		//		// delete unnecessary tables.
 		//		err := tx.Migrator().DropTable(
