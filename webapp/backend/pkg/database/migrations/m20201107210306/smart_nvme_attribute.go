@@ -2,6 +2,7 @@ package m20201107210306
 
 import "gorm.io/gorm"
 
+// Deprecated: m20201107210306.SmartNvmeAttribute is deprecated, only used by db migrations
 type SmartNvmeAttribute struct {
 	gorm.Model
 

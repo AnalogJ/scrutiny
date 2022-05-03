@@ -2,6 +2,7 @@ package m20201107210306
 
 import "gorm.io/gorm"
 
+// Deprecated: m20201107210306.SmartAtaAttribute is deprecated, only used by db migrations
 type SmartAtaAttribute struct {
 	gorm.Model
 

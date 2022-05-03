@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Deprecated: m20201107210306.Smart is deprecated, only used by db migrations
 type Smart struct {
 	gorm.Model
 
