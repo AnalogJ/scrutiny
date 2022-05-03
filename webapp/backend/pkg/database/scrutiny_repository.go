@@ -57,17 +57,18 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Gorm/SQLite setup
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	fmt.Printf("Trying to connect to database stored: %s\n", appConfig.GetString("web.database.location"))
+	globalLogger.Infof("Trying to connect to scrutiny sqlite db: %s\n", appConfig.GetString("web.database.location"))
 	database, err := gorm.Open(sqlite.Open(appConfig.GetString("web.database.location")), &gorm.Config{
 		//TODO: figure out how to log database queries again.
 		//Logger: logger
+		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("Failed to connect to database! - %v", err)
 	}
+	globalLogger.Infof("Successfully connected to scrutiny sqlite db: %s\n", appConfig.GetString("web.database.location"))
 
 	//database.SetLogger()
-	database.AutoMigrate(&models.Device{})
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// InfluxDB setup
@@ -143,6 +144,16 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 	if err != nil {
 		return nil, err
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// InfluxDB & SQLite migrations
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//database.AutoMigrate(&models.Device{})
+	err = deviceRepo.Migrate(backgroundContext)
+	if err != nil {
+		return nil, err
+	}
+
 	return &deviceRepo, nil
 }
 
