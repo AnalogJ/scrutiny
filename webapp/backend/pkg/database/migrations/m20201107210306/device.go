@@ -29,3 +29,19 @@ type Device struct {
 	DeviceType     string  `json:"device_type"`     //device type is used for querying with -d/t flag, should only be used by collector.
 	SmartResults   []Smart `gorm:"foreignkey:DeviceWWN" json:"smart_results"`
 }
+
+const DeviceProtocolAta = "ATA"
+const DeviceProtocolScsi = "SCSI"
+const DeviceProtocolNvme = "NVMe"
+
+func (dv *Device) IsAta() bool {
+	return dv.DeviceProtocol == DeviceProtocolAta
+}
+
+func (dv *Device) IsScsi() bool {
+	return dv.DeviceProtocol == DeviceProtocolScsi
+}
+
+func (dv *Device) IsNvme() bool {
+	return dv.DeviceProtocol == DeviceProtocolNvme
+}

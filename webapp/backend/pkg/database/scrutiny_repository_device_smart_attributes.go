@@ -6,8 +6,10 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
+	"github.com/influxdata/influxdb-client-go/v2/api"
 	log "github.com/sirupsen/logrus"
 	"strings"
+	"time"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,13 +24,9 @@ func (sr *scrutinyRepository) SaveSmartAttributes(ctx context.Context, wwn strin
 	}
 
 	tags, fields := deviceSmartData.Flatten()
-	p := influxdb2.NewPoint("smart",
-		tags,
-		fields,
-		deviceSmartData.Date)
 
 	// write point immediately
-	return deviceSmartData, sr.influxWriteApi.WritePoint(ctx, p)
+	return deviceSmartData, sr.saveDatapoint(sr.influxWriteApi, "smart", tags, fields, deviceSmartData.Date, ctx)
 }
 
 func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn string, durationKey string, attributes []string) ([]measurements.Smart, error) {
@@ -92,6 +90,17 @@ func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Helper Methods
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (sr *scrutinyRepository) saveDatapoint(influxWriteApi api.WriteAPIBlocking, measurement string, tags map[string]string, fields map[string]interface{}, date time.Time, ctx context.Context) error {
+	sr.logger.Debugf("Storing datapoint in measurement '%s'. tags: %d fields: %d", measurement, len(tags), len(fields))
+	p := influxdb2.NewPoint(measurement,
+		tags,
+		fields,
+		date)
+
+	// write point immediately
+	return influxWriteApi.WritePoint(ctx, p)
+}
 
 func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, durationKey string) string {
 
