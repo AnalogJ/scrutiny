@@ -95,7 +95,8 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				monthlyBucketMax := today.Add(-RETENTION_PERIOD_25_MONTHS_IN_SECONDS * time.Second) //25 weeks
 
 				for _, preDevice := range preDevices {
-					sr.logger.Infof("\n====================================\n\nBegin processing device %s\n\n====================================\n", preDevice.WWN)
+					sr.logger.Debugf("====================================")
+					sr.logger.Infof("begin processing device: %s", preDevice.WWN)
 
 					//weekly, monthly, yearly lookup storage, so we don't add more data to the buckets than necessary.
 					weeklyLookup := map[string]bool{}
@@ -104,8 +105,6 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 					for _, preSmartResult := range preDevice.SmartResults { //pre-migration smart results
 
 						//we're looping in ASC mode, so from oldest entry to most current.
-
-						//TODO: skip any results that are outside of the range that we care about for each bucket.
 
 						err, postSmartResults := m20201107210306_FromPreInfluxDBSmartResultsCreatePostInfluxDBSmartResults(tx, preDevice, preSmartResult)
 						if err != nil {
@@ -236,31 +235,31 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 							}
 						}
 					}
-					fmt.Printf("finished processing device %s. weekly: %d, monthly: %d, yearly: %d", preDevice.WWN, len(weeklyLookup), len(monthlyLookup), len(yearlyLookup))
+					sr.logger.Infof("finished processing device %s. weekly: %d, monthly: %d, yearly: %d", preDevice.WWN, len(weeklyLookup), len(monthlyLookup), len(yearlyLookup))
 
 				}
 
 				return nil
 			},
 		},
-		//{
-		//	ID: "20220503120000", // cleanup - v0.4.0 - influxdb schema
-		//	Migrate: func(tx *gorm.DB) error {
-		//		// delete unnecessary tables.
-		//		err := tx.Migrator().DropTable(
-		//			&m20201107210306.Smart{},
-		//			&m20201107210306.SmartAtaAttribute{},
-		//			&m20201107210306.SmartNvmeAttribute{},
-		//			&m20201107210306.SmartNvmeAttribute{},
-		//		)
-		//		if err != nil {
-		//			return err
-		//		}
-		//
-		//		//migrate the device database to the final version
-		//		return tx.AutoMigrate(models.Device{})
-		//	},
-		//},
+		{
+			ID: "20220503120000", // cleanup - v0.4.0 - influxdb schema
+			Migrate: func(tx *gorm.DB) error {
+				// delete unnecessary tables.
+				err := tx.Migrator().DropTable(
+					&m20201107210306.Smart{},
+					&m20201107210306.SmartAtaAttribute{},
+					&m20201107210306.SmartNvmeAttribute{},
+					&m20201107210306.SmartScsiAttribute{},
+				)
+				if err != nil {
+					return err
+				}
+
+				//migrate the device database to the final version
+				return tx.AutoMigrate(models.Device{})
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
