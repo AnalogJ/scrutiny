@@ -108,25 +108,32 @@ func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, duration
 
 		import "influxdata/influxdb/schema"
 		weekData = from(bucket: "metrics")
-		  |> range(start: -1w, stop: now())
-		  |> filter(fn: (r) => r["_measurement"] == "smart" )
-		  |> filter(fn: (r) => r["device_wwn"] == "%s" )
-		  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
-		  |> group(columns: ["device_wwn"])
-		  |> toInt()
+		|> range(start: -1w, stop: now())
+		|> filter(fn: (r) => r["_measurement"] == "smart" )
+		|> filter(fn: (r) => r["device_wwn"] == "0x5000c5002df89099" )
+		|> schema.fieldsAsCols()
 
 		monthData = from(bucket: "metrics_weekly")
-		  |> range(start: -1mo, stop: now())
-		  |> filter(fn: (r) => r["_measurement"] == "smart" )
-		  |> filter(fn: (r) => r["device_wwn"] == "%s" )
-		  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
-		  |> group(columns: ["device_wwn"])
-		  |> toInt()
+		|> range(start: -1mo, stop: -1w)
+		|> filter(fn: (r) => r["_measurement"] == "smart" )
+		|> filter(fn: (r) => r["device_wwn"] == "0x5000c5002df89099" )
+		|> schema.fieldsAsCols()
 
-		union(tables: [weekData, monthData])
-		  |> group(columns: ["device_wwn"])
-		  |> sort(columns: ["_time"], desc: false)
-		  |> schema.fieldsAsCols()
+		yearData = from(bucket: "metrics_monthly")
+		|> range(start: -1y, stop: -1mo)
+		|> filter(fn: (r) => r["_measurement"] == "smart" )
+		|> filter(fn: (r) => r["device_wwn"] == "0x5000c5002df89099" )
+		|> schema.fieldsAsCols()
+
+		foreverData = from(bucket: "metrics_yearly")
+		|> range(start: -10y, stop: -1y)
+		|> filter(fn: (r) => r["_measurement"] == "smart" )
+		|> filter(fn: (r) => r["device_wwn"] == "0x5000c5002df89099" )
+		|> schema.fieldsAsCols()
+
+		union(tables: [weekData, monthData, yearData, foreverData])
+		|> sort(columns: ["_time"], desc: false)
+		|> yield(name: "last")
 
 	*/
 
