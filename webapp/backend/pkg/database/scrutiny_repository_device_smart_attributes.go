@@ -6,8 +6,10 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
+	"github.com/influxdata/influxdb-client-go/v2/api"
 	log "github.com/sirupsen/logrus"
 	"strings"
+	"time"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,19 +24,13 @@ func (sr *scrutinyRepository) SaveSmartAttributes(ctx context.Context, wwn strin
 	}
 
 	tags, fields := deviceSmartData.Flatten()
-	p := influxdb2.NewPoint("smart",
-		tags,
-		fields,
-		deviceSmartData.Date)
 
 	// write point immediately
-	return deviceSmartData, sr.influxWriteApi.WritePoint(ctx, p)
+	return deviceSmartData, sr.saveDatapoint(sr.influxWriteApi, "smart", tags, fields, deviceSmartData.Date, ctx)
 }
 
 func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn string, durationKey string, attributes []string) ([]measurements.Smart, error) {
 	// Get SMartResults from InfluxDB
-
-	fmt.Println("GetDeviceDetails from INFLUXDB")
 
 	//TODO: change the filter startrange to a real number.
 
@@ -47,18 +43,13 @@ func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn 
 
 	result, err := sr.influxQueryApi.Query(ctx, queryStr)
 	if err == nil {
-		fmt.Println("GetDeviceDetails NO EROR")
-
 		// Use Next() to iterate over query result lines
 		for result.Next() {
-			fmt.Println("GetDeviceDetails NEXT")
-
 			// Observe when there is new grouping key producing new table
 			if result.TableChanged() {
 				//fmt.Printf("table: %s\n", result.TableMetadata().String())
 			}
 
-			fmt.Printf("DECODINIG TABLE VALUES: %v", result.Record().Values())
 			smartData, err := measurements.NewSmartFromInfluxDB(result.Record().Values())
 			if err != nil {
 				return nil, err
@@ -93,31 +84,49 @@ func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn 
 // Helper Methods
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func (sr *scrutinyRepository) saveDatapoint(influxWriteApi api.WriteAPIBlocking, measurement string, tags map[string]string, fields map[string]interface{}, date time.Time, ctx context.Context) error {
+	//sr.logger.Debugf("Storing datapoint in measurement '%s'. tags: %d fields: %d", measurement, len(tags), len(fields))
+	p := influxdb2.NewPoint(measurement,
+		tags,
+		fields,
+		date)
+
+	// write point immediately
+	return influxWriteApi.WritePoint(ctx, p)
+}
+
 func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, durationKey string) string {
 
 	/*
 
 		import "influxdata/influxdb/schema"
 		weekData = from(bucket: "metrics")
-		  |> range(start: -1w, stop: now())
-		  |> filter(fn: (r) => r["_measurement"] == "smart" )
-		  |> filter(fn: (r) => r["device_wwn"] == "%s" )
-		  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
-		  |> group(columns: ["device_wwn"])
-		  |> toInt()
+		|> range(start: -1w, stop: now())
+		|> filter(fn: (r) => r["_measurement"] == "smart" )
+		|> filter(fn: (r) => r["device_wwn"] == "0x5000c5002df89099" )
+		|> schema.fieldsAsCols()
 
 		monthData = from(bucket: "metrics_weekly")
-		  |> range(start: -1mo, stop: now())
-		  |> filter(fn: (r) => r["_measurement"] == "smart" )
-		  |> filter(fn: (r) => r["device_wwn"] == "%s" )
-		  |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
-		  |> group(columns: ["device_wwn"])
-		  |> toInt()
+		|> range(start: -1mo, stop: -1w)
+		|> filter(fn: (r) => r["_measurement"] == "smart" )
+		|> filter(fn: (r) => r["device_wwn"] == "0x5000c5002df89099" )
+		|> schema.fieldsAsCols()
 
-		union(tables: [weekData, monthData])
-		  |> group(columns: ["device_wwn"])
-		  |> sort(columns: ["_time"], desc: false)
-		  |> schema.fieldsAsCols()
+		yearData = from(bucket: "metrics_monthly")
+		|> range(start: -1y, stop: -1mo)
+		|> filter(fn: (r) => r["_measurement"] == "smart" )
+		|> filter(fn: (r) => r["device_wwn"] == "0x5000c5002df89099" )
+		|> schema.fieldsAsCols()
+
+		foreverData = from(bucket: "metrics_yearly")
+		|> range(start: -10y, stop: -1y)
+		|> filter(fn: (r) => r["_measurement"] == "smart" )
+		|> filter(fn: (r) => r["device_wwn"] == "0x5000c5002df89099" )
+		|> schema.fieldsAsCols()
+
+		union(tables: [weekData, monthData, yearData, foreverData])
+		|> sort(columns: ["_time"], desc: false)
+		|> yield(name: "last")
 
 	*/
 

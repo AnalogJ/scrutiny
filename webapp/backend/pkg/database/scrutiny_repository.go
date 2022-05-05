@@ -57,17 +57,18 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Gorm/SQLite setup
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	fmt.Printf("Trying to connect to database stored: %s\n", appConfig.GetString("web.database.location"))
+	globalLogger.Infof("Trying to connect to scrutiny sqlite db: %s\n", appConfig.GetString("web.database.location"))
 	database, err := gorm.Open(sqlite.Open(appConfig.GetString("web.database.location")), &gorm.Config{
 		//TODO: figure out how to log database queries again.
 		//Logger: logger
+		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("Failed to connect to database! - %v", err)
 	}
+	globalLogger.Infof("Successfully connected to scrutiny sqlite db: %s\n", appConfig.GetString("web.database.location"))
 
 	//database.SetLogger()
-	database.AutoMigrate(&models.Device{})
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// InfluxDB setup
@@ -143,6 +144,16 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 	if err != nil {
 		return nil, err
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// InfluxDB & SQLite migrations
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//database.AutoMigrate(&models.Device{})
+	err = deviceRepo.Migrate(backgroundContext)
+	if err != nil {
+		return nil, err
+	}
+
 	return &deviceRepo, nil
 }
 
@@ -241,15 +252,46 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 	// Get parser flux query result
 	//appConfig.GetString("web.influxdb.bucket")
 	queryStr := fmt.Sprintf(`
-  import "influxdata/influxdb/schema"
-  from(bucket: "%s")
-  |> range(start: -1y, stop: now())
-  |> filter(fn: (r) => r["_measurement"] == "smart" )
-  |> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
-  |> last()
-  |> schema.fieldsAsCols()
-  |> group(columns: ["device_wwn"])
-  |> yield(name: "last")
+  	import "influxdata/influxdb/schema"
+  	bucketBaseName = "%s"
+
+	dailyData = from(bucket: bucketBaseName)
+	|> range(start: -10y, stop: now())
+	|> filter(fn: (r) => r["_measurement"] == "smart" )
+	|> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
+	|> last()
+	|> schema.fieldsAsCols()
+	|> group(columns: ["device_wwn"])
+	
+	weeklyData = from(bucket: bucketBaseName + "_weekly")
+	|> range(start: -10y, stop: now())
+	|> filter(fn: (r) => r["_measurement"] == "smart" )
+	|> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
+	|> last()
+	|> schema.fieldsAsCols()
+	|> group(columns: ["device_wwn"])
+	
+	monthlyData = from(bucket: bucketBaseName + "_monthly")
+	|> range(start: -10y, stop: now())
+	|> filter(fn: (r) => r["_measurement"] == "smart" )
+	|> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
+	|> last()
+	|> schema.fieldsAsCols()
+	|> group(columns: ["device_wwn"])
+	
+	yearlyData = from(bucket: bucketBaseName + "_yearly")
+	|> range(start: -10y, stop: now())
+	|> filter(fn: (r) => r["_measurement"] == "smart" )
+	|> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
+	|> last()
+	|> schema.fieldsAsCols()
+	|> group(columns: ["device_wwn"])
+	
+	union(tables: [dailyData, weeklyData, monthlyData, yearlyData])
+	|> sort(columns: ["_time"], desc: false)
+	|> group(columns: ["device_wwn"])
+	|> last(column: "device_wwn")
+	|> yield(name: "last")
 		`,
 		sr.appConfig.GetString("web.influxdb.bucket"),
 	)
@@ -357,7 +399,7 @@ func (sr *scrutinyRepository) lookupNestedDurationKeys(durationKey string) []str
 		return []string{DURATION_KEY_WEEK, DURATION_KEY_MONTH, DURATION_KEY_YEAR}
 	case DURATION_KEY_FOREVER:
 		//data stored before the last year
-		return []string{DURATION_KEY_WEEK, DURATION_KEY_MONTH, DURATION_KEY_YEAR}
+		return []string{DURATION_KEY_WEEK, DURATION_KEY_MONTH, DURATION_KEY_YEAR, DURATION_KEY_FOREVER}
 	}
 	return []string{DURATION_KEY_WEEK}
 }

@@ -134,29 +134,8 @@ type SmartInfo struct {
 		Table []int64 `json:"table"`
 	} `json:"ata_sct_temperature_history"`
 	AtaSmartAttributes struct {
-		Revision int `json:"revision"`
-		Table    []struct {
-			ID         int    `json:"id"`
-			Name       string `json:"name"`
-			Value      int64  `json:"value"`
-			Worst      int64  `json:"worst"`
-			Thresh     int64  `json:"thresh"`
-			WhenFailed string `json:"when_failed"`
-			Flags      struct {
-				Value         int    `json:"value"`
-				String        string `json:"string"`
-				Prefailure    bool   `json:"prefailure"`
-				UpdatedOnline bool   `json:"updated_online"`
-				Performance   bool   `json:"performance"`
-				ErrorRate     bool   `json:"error_rate"`
-				EventCount    bool   `json:"event_count"`
-				AutoKeep      bool   `json:"auto_keep"`
-			} `json:"flags"`
-			Raw struct {
-				Value  int64  `json:"value"`
-				String string `json:"string"`
-			} `json:"raw"`
-		} `json:"table"`
+		Revision int                           `json:"revision"`
+		Table    []AtaSmartAttributesTableItem `json:"table"`
 	} `json:"ata_smart_attributes"`
 	AtaSmartErrorLog struct {
 		Summary struct {
@@ -250,49 +229,77 @@ type SmartInfo struct {
 		} `json:"utilization"`
 		FormattedLbaSize int `json:"formatted_lba_size"`
 	} `json:"nvme_namespaces"`
-	NvmeSmartHealthInformationLog struct {
-		CriticalWarning         int64 `json:"critical_warning"`
-		Temperature             int64 `json:"temperature"`
-		AvailableSpare          int64 `json:"available_spare"`
-		AvailableSpareThreshold int64 `json:"available_spare_threshold"`
-		PercentageUsed          int64 `json:"percentage_used"`
-		DataUnitsRead           int64 `json:"data_units_read"`
-		DataUnitsWritten        int64 `json:"data_units_written"`
-		HostReads               int64 `json:"host_reads"`
-		HostWrites              int64 `json:"host_writes"`
-		ControllerBusyTime      int64 `json:"controller_busy_time"`
-		PowerCycles             int64 `json:"power_cycles"`
-		PowerOnHours            int64 `json:"power_on_hours"`
-		UnsafeShutdowns         int64 `json:"unsafe_shutdowns"`
-		MediaErrors             int64 `json:"media_errors"`
-		NumErrLogEntries        int64 `json:"num_err_log_entries"`
-		WarningTempTime         int64 `json:"warning_temp_time"`
-		CriticalCompTime        int64 `json:"critical_comp_time"`
-	} `json:"nvme_smart_health_information_log"`
+	NvmeSmartHealthInformationLog NvmeSmartHealthInformationLog `json:"nvme_smart_health_information_log"`
 
 	// SCSI Protocol Specific Fields
-	Vendor              string `json:"vendor"`
-	Product             string `json:"product"`
-	ScsiVersion         string `json:"scsi_version"`
-	ScsiGrownDefectList int64  `json:"scsi_grown_defect_list"`
-	ScsiErrorCounterLog struct {
-		Read struct {
-			ErrorsCorrectedByEccfast         int64  `json:"errors_corrected_by_eccfast"`
-			ErrorsCorrectedByEccdelayed      int64  `json:"errors_corrected_by_eccdelayed"`
-			ErrorsCorrectedByRereadsRewrites int64  `json:"errors_corrected_by_rereads_rewrites"`
-			TotalErrorsCorrected             int64  `json:"total_errors_corrected"`
-			CorrectionAlgorithmInvocations   int64  `json:"correction_algorithm_invocations"`
-			GigabytesProcessed               string `json:"gigabytes_processed"`
-			TotalUncorrectedErrors           int64  `json:"total_uncorrected_errors"`
-		} `json:"read"`
-		Write struct {
-			ErrorsCorrectedByEccfast         int64  `json:"errors_corrected_by_eccfast"`
-			ErrorsCorrectedByEccdelayed      int64  `json:"errors_corrected_by_eccdelayed"`
-			ErrorsCorrectedByRereadsRewrites int64  `json:"errors_corrected_by_rereads_rewrites"`
-			TotalErrorsCorrected             int64  `json:"total_errors_corrected"`
-			CorrectionAlgorithmInvocations   int64  `json:"correction_algorithm_invocations"`
-			GigabytesProcessed               string `json:"gigabytes_processed"`
-			TotalUncorrectedErrors           int64  `json:"total_uncorrected_errors"`
-		} `json:"write"`
-	} `json:"scsi_error_counter_log"`
+	Vendor              string              `json:"vendor"`
+	Product             string              `json:"product"`
+	ScsiVersion         string              `json:"scsi_version"`
+	ScsiGrownDefectList int64               `json:"scsi_grown_defect_list"`
+	ScsiErrorCounterLog ScsiErrorCounterLog `json:"scsi_error_counter_log"`
+}
+
+//Primary Attribute Structs
+type AtaSmartAttributesTableItem struct {
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Value      int64  `json:"value"`
+	Worst      int64  `json:"worst"`
+	Thresh     int64  `json:"thresh"`
+	WhenFailed string `json:"when_failed"`
+	Flags      struct {
+		Value         int    `json:"value"`
+		String        string `json:"string"`
+		Prefailure    bool   `json:"prefailure"`
+		UpdatedOnline bool   `json:"updated_online"`
+		Performance   bool   `json:"performance"`
+		ErrorRate     bool   `json:"error_rate"`
+		EventCount    bool   `json:"event_count"`
+		AutoKeep      bool   `json:"auto_keep"`
+	} `json:"flags"`
+	Raw struct {
+		Value  int64  `json:"value"`
+		String string `json:"string"`
+	} `json:"raw"`
+}
+
+type NvmeSmartHealthInformationLog struct {
+	CriticalWarning         int64 `json:"critical_warning"`
+	Temperature             int64 `json:"temperature"`
+	AvailableSpare          int64 `json:"available_spare"`
+	AvailableSpareThreshold int64 `json:"available_spare_threshold"`
+	PercentageUsed          int64 `json:"percentage_used"`
+	DataUnitsRead           int64 `json:"data_units_read"`
+	DataUnitsWritten        int64 `json:"data_units_written"`
+	HostReads               int64 `json:"host_reads"`
+	HostWrites              int64 `json:"host_writes"`
+	ControllerBusyTime      int64 `json:"controller_busy_time"`
+	PowerCycles             int64 `json:"power_cycles"`
+	PowerOnHours            int64 `json:"power_on_hours"`
+	UnsafeShutdowns         int64 `json:"unsafe_shutdowns"`
+	MediaErrors             int64 `json:"media_errors"`
+	NumErrLogEntries        int64 `json:"num_err_log_entries"`
+	WarningTempTime         int64 `json:"warning_temp_time"`
+	CriticalCompTime        int64 `json:"critical_comp_time"`
+}
+
+type ScsiErrorCounterLog struct {
+	Read struct {
+		ErrorsCorrectedByEccfast         int64  `json:"errors_corrected_by_eccfast"`
+		ErrorsCorrectedByEccdelayed      int64  `json:"errors_corrected_by_eccdelayed"`
+		ErrorsCorrectedByRereadsRewrites int64  `json:"errors_corrected_by_rereads_rewrites"`
+		TotalErrorsCorrected             int64  `json:"total_errors_corrected"`
+		CorrectionAlgorithmInvocations   int64  `json:"correction_algorithm_invocations"`
+		GigabytesProcessed               string `json:"gigabytes_processed"`
+		TotalUncorrectedErrors           int64  `json:"total_uncorrected_errors"`
+	} `json:"read"`
+	Write struct {
+		ErrorsCorrectedByEccfast         int64  `json:"errors_corrected_by_eccfast"`
+		ErrorsCorrectedByEccdelayed      int64  `json:"errors_corrected_by_eccdelayed"`
+		ErrorsCorrectedByRereadsRewrites int64  `json:"errors_corrected_by_rereads_rewrites"`
+		TotalErrorsCorrected             int64  `json:"total_errors_corrected"`
+		CorrectionAlgorithmInvocations   int64  `json:"correction_algorithm_invocations"`
+		GigabytesProcessed               string `json:"gigabytes_processed"`
+		TotalUncorrectedErrors           int64  `json:"total_uncorrected_errors"`
+	} `json:"write"`
 }
