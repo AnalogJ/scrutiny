@@ -92,7 +92,7 @@ func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (sr *scrutinyRepository) saveDatapoint(influxWriteApi api.WriteAPIBlocking, measurement string, tags map[string]string, fields map[string]interface{}, date time.Time, ctx context.Context) error {
-	sr.logger.Debugf("Storing datapoint in measurement '%s'. tags: %d fields: %d", measurement, len(tags), len(fields))
+	//sr.logger.Debugf("Storing datapoint in measurement '%s'. tags: %d fields: %d", measurement, len(tags), len(fields))
 	p := influxdb2.NewPoint(measurement,
 		tags,
 		fields,

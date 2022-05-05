@@ -368,7 +368,7 @@ func (sr *scrutinyRepository) lookupNestedDurationKeys(durationKey string) []str
 		return []string{DURATION_KEY_WEEK, DURATION_KEY_MONTH, DURATION_KEY_YEAR}
 	case DURATION_KEY_FOREVER:
 		//data stored before the last year
-		return []string{DURATION_KEY_WEEK, DURATION_KEY_MONTH, DURATION_KEY_YEAR}
+		return []string{DURATION_KEY_WEEK, DURATION_KEY_MONTH, DURATION_KEY_YEAR, DURATION_KEY_FOREVER}
 	}
 	return []string{DURATION_KEY_WEEK}
 }

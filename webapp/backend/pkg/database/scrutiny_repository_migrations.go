@@ -88,11 +88,6 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 					return err
 				}
 
-				//weekly, monthly, yearly lookup storage, so we don't add more data to the buckets than necessary.
-				weeklyLookup := map[string]bool{}
-				monthlyLookup := map[string]bool{}
-				yearlyLookup := map[string]bool{}
-
 				//calculate bucket oldest dates
 				today := time.Now()
 				dailyBucketMax := today.Add(-RETENTION_PERIOD_15_DAYS_IN_SECONDS * time.Second)     //15 days
@@ -100,6 +95,12 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				monthlyBucketMax := today.Add(-RETENTION_PERIOD_25_MONTHS_IN_SECONDS * time.Second) //25 weeks
 
 				for _, preDevice := range preDevices {
+					sr.logger.Infof("\n====================================\n\nBegin processing device %s\n\n====================================\n", preDevice.WWN)
+
+					//weekly, monthly, yearly lookup storage, so we don't add more data to the buckets than necessary.
+					weeklyLookup := map[string]bool{}
+					monthlyLookup := map[string]bool{}
+					yearlyLookup := map[string]bool{}
 					for _, preSmartResult := range preDevice.SmartResults { //pre-migration smart results
 
 						//we're looping in ASC mode, so from oldest entry to most current.
@@ -183,6 +184,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						//write data to the monthly bucket if in the last 9 weeks, and week has not been processed yet
 						if _, monthExists := monthlyLookup[yearMonthStr]; !monthExists && postSmartResults.Date.After(monthlyBucketMax) {
 							sr.logger.Debugf("device (%s) smart data added to bucket: monthly", preDevice.WWN)
+
 							//this month/year pair has not been processed
 							monthlyLookup[yearMonthStr] = true
 							// write point immediately
@@ -209,6 +211,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 
 						if _, yearExists := yearlyLookup[yearStr]; !yearExists && year != today.Year() {
 							sr.logger.Debugf("device (%s) smart data added to bucket: yearly", preDevice.WWN)
+
 							//this year has not been processed
 							yearlyLookup[yearStr] = true
 							// write point immediately
@@ -233,6 +236,8 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 							}
 						}
 					}
+					fmt.Printf("finished processing device %s. weekly: %d, monthly: %d, yearly: %d", preDevice.WWN, len(weeklyLookup), len(monthlyLookup), len(yearlyLookup))
+
 				}
 
 				return nil
