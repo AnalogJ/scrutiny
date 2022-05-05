@@ -61,12 +61,7 @@ func NewSmartFromInfluxDB(attrs map[string]interface{}) (*Smart, error) {
 		Attributes: map[string]SmartAttribute{},
 	}
 
-	log.Printf("Prefetched Smart: %v\n", sm)
-
-	//two steps (because we dont know the
 	for key, val := range attrs {
-		log.Printf("Found Attribute (%s = %v)\n", key, val)
-
 		switch key {
 		case "temp":
 			sm.Temp = val.(int64)
@@ -100,13 +95,7 @@ func NewSmartFromInfluxDB(attrs map[string]interface{}) (*Smart, error) {
 
 	}
 
-	log.Printf("########NUMBER OF ATTRIBUTES: %v", len(sm.Attributes))
-	log.Printf("########SMART: %v", sm)
-
-	//panic("ERROR HERE.")
-
-	//log.Printf("Sm.Attributes: %v", sm.Attributes)
-	//log.Printf("sm.Attributes[attributeId]: %v", sm.Attributes[attributeId])
+	log.Printf("Found Smart Device (%s) Attributes (%v)", sm.DeviceWWN, len(sm.Attributes))
 
 	return &sm, nil
 }

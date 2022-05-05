@@ -32,8 +32,6 @@ func (sr *scrutinyRepository) SaveSmartAttributes(ctx context.Context, wwn strin
 func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn string, durationKey string, attributes []string) ([]measurements.Smart, error) {
 	// Get SMartResults from InfluxDB
 
-	fmt.Println("GetDeviceDetails from INFLUXDB")
-
 	//TODO: change the filter startrange to a real number.
 
 	// Get parser flux query result
@@ -45,18 +43,13 @@ func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn 
 
 	result, err := sr.influxQueryApi.Query(ctx, queryStr)
 	if err == nil {
-		fmt.Println("GetDeviceDetails NO EROR")
-
 		// Use Next() to iterate over query result lines
 		for result.Next() {
-			fmt.Println("GetDeviceDetails NEXT")
-
 			// Observe when there is new grouping key producing new table
 			if result.TableChanged() {
 				//fmt.Printf("table: %s\n", result.TableMetadata().String())
 			}
 
-			fmt.Printf("DECODINIG TABLE VALUES: %v", result.Record().Values())
 			smartData, err := measurements.NewSmartFromInfluxDB(result.Record().Values())
 			if err != nil {
 				return nil, err
