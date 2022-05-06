@@ -31,7 +31,7 @@ func UploadDeviceMetrics(c *gin.Context) {
 	//update the device information if necessary
 	updatedDevice, err := deviceRepo.UpdateDevice(c, c.Param("wwn"), collectorSmartData)
 	if err != nil {
-		logger.Errorln("An error occurred while updating device data from smartctl metrics", err)
+		logger.Errorln("An error occurred while updating device data from smartctl metrics:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
 		return
 	}

@@ -107,6 +107,10 @@ func (mc *MetricsCollector) Validate() error {
 //func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
 func (mc *MetricsCollector) Collect(deviceWWN string, deviceName string, deviceType string) {
 	//defer wg.Done()
+	if len(deviceWWN) == 0 {
+		mc.logger.Errorf("no device WWN detected for %s. Skipping collection for this device (no data association possible).\n", deviceName)
+		return
+	}
 	mc.logger.Infof("Collecting smartctl results for %s\n", deviceName)
 
 	args := []string{"-x", "-j"}
