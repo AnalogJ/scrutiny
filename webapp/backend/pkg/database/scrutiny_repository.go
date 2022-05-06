@@ -331,7 +331,7 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 		return nil, err
 	}
 
-	deviceTempHistory, err := sr.GetSmartTemperatureHistory(ctx, DURATION_KEY_WEEK)
+	deviceTempHistory, err := sr.GetSmartTemperatureHistory(ctx, DURATION_KEY_FOREVER)
 	if err != nil {
 		sr.logger.Printf("========================>>>>>>>>======================")
 		sr.logger.Printf("========================>>>>>>>>======================")
