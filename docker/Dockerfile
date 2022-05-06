@@ -39,7 +39,7 @@ RUN apt-get update && apt-get install -y cron smartmontools=7.0-0ubuntu1~ubuntu1
                 "amd64")  S6_ARCH=amd64  ;; \
                 "arm64")  S6_ARCH=aarch64  ;; \
            esac \
-    && wget -q https://github.com/just-containers/s6-overlay/releases/download/v1.21.8.0/s6-overlay-${S6_ARCH}.tar.gz -O /tmp/ \
+    && wget -q https://github.com/just-containers/s6-overlay/releases/download/v1.21.8.0/s6-overlay-${S6_ARCH}.tar.gz -O /tmp/s6-overlay-${S6_ARCH}.tar.gz \
     && tar xzf /tmp/s6-overlay-${S6_ARCH}.tar.gz -C /
 
 ADD https://dl.influxdata.com/influxdb/releases/influxdb2-2.2.0-${TARGETARCH}.deb /tmp/
