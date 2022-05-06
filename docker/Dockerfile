@@ -27,18 +27,23 @@ RUN npm install -g @angular/cli@9.1.4 && \
 
 ########
 FROM ubuntu:bionic as runtime
+ARG TARGETARCH
 EXPOSE 8080
 WORKDIR /scrutiny
 ENV PATH="/scrutiny/bin:${PATH}"
 ENV INFLUXD_CONFIG_PATH=/scrutiny/influxdb
 
-RUN apt-get update && apt-get install -y cron smartmontools=7.0-0ubuntu1~ubuntu18.04.1 ca-certificates curl tzdata && update-ca-certificates
+RUN apt-get update && apt-get install -y cron smartmontools=7.0-0ubuntu1~ubuntu18.04.1 ca-certificates curl tzdata \
+    && update-ca-certificates \
+    && case ${TARGETARCH} in \
+                "amd64")  S6_ARCH=amd64  ;; \
+                "arm64")  S6_ARCH=aarch64  ;; \
+           esac \
+    && wget -q https://github.com/just-containers/s6-overlay/releases/download/v1.21.8.0/s6-overlay-${S6_ARCH}.tar.gz -O /tmp/ \
+    && tar xzf /tmp/s6-overlay-${S6_ARCH}.tar.gz -C /
 
-ADD https://github.com/just-containers/s6-overlay/releases/download/v1.21.8.0/s6-overlay-amd64.tar.gz /tmp/
-RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
-
-ADD https://dl.influxdata.com/influxdb/releases/influxdb2-2.2.0-amd64.deb /tmp/
-RUN dpkg -i /tmp/influxdb2-2.2.0-amd64.deb && rm -rf /tmp/influxdb2-2.2.0-amd64.deb
+ADD https://dl.influxdata.com/influxdb/releases/influxdb2-2.2.0-${TARGETARCH}.deb /tmp/
+RUN dpkg -i /tmp/influxdb2-2.2.0-${TARGETARCH}.deb && rm -rf /tmp/influxdb2-2.2.0-${TARGETARCH}.deb
 
 COPY /rootfs /
 
