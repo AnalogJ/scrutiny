@@ -104,6 +104,8 @@ func (c *configuration) ReadConfig(configFilePath string) error {
 	if err != nil {
 		return err
 	}
+	//make sure that we specify that this is the correct config path (for eventual WriteConfig() calls)
+	c.SetConfigFile(configFilePath)
 
 	return c.ValidateConfig()
 }
