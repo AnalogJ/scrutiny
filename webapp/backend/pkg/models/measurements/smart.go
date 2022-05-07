@@ -109,6 +109,9 @@ func (sm *Smart) FromCollectorSmartInfo(wwn string, info collector.SmartInfo) er
 	sm.Temp = info.Temperature.Current
 	sm.PowerCycleCount = info.PowerCycleCount
 	sm.PowerOnHours = info.PowerOnTime.Hours
+	if !info.SmartStatus.Passed {
+		sm.Status = pkg.DeviceStatusFailedSmart
+	}
 
 	sm.DeviceProtocol = info.Device.Protocol
 	// process ATA/NVME/SCSI protocol data
@@ -126,7 +129,6 @@ func (sm *Smart) FromCollectorSmartInfo(wwn string, info collector.SmartInfo) er
 
 //generate SmartAtaAttribute entries from Scrutiny Collector Smart data.
 func (sm *Smart) ProcessAtaSmartInfo(tableItems []collector.AtaSmartAttributesTableItem) {
-	sm.Status = pkg.DeviceStatusPassed
 	for _, collectorAttr := range tableItems {
 		attrModel := SmartAtaAttribute{
 			AttributeId: collectorAttr.ID,
@@ -147,7 +149,7 @@ func (sm *Smart) ProcessAtaSmartInfo(tableItems []collector.AtaSmartAttributesTa
 		attrModel.PopulateAttributeStatus()
 		sm.Attributes[strconv.Itoa(collectorAttr.ID)] = &attrModel
 		if attrModel.Status == pkg.SmartAttributeStatusFailed {
-			sm.Status = pkg.DeviceStatusFailedScrutiny
+			sm.Status = pkg.Set(sm.Status, pkg.DeviceStatusFailedScrutiny)
 		}
 	}
 }
@@ -177,7 +179,7 @@ func (sm *Smart) ProcessNvmeSmartInfo(nvmeSmartHealthInformationLog collector.Nv
 	//find analyzed attribute status
 	for _, val := range sm.Attributes {
 		if val.GetStatus() == pkg.SmartAttributeStatusFailed {
-			sm.Status = pkg.DeviceStatusFailedScrutiny
+			sm.Status = pkg.Set(sm.Status, pkg.DeviceStatusFailedScrutiny)
 		}
 	}
 }
@@ -203,7 +205,7 @@ func (sm *Smart) ProcessScsiSmartInfo(defectGrownList int64, scsiErrorCounterLog
 	//find analyzed attribute status
 	for _, val := range sm.Attributes {
 		if val.GetStatus() == pkg.SmartAttributeStatusFailed {
-			sm.Status = pkg.DeviceStatusFailedScrutiny
+			sm.Status = pkg.Set(sm.Status, pkg.DeviceStatusFailedScrutiny)
 		}
 	}
 }
