@@ -67,8 +67,7 @@
                             <div class="flex flex-col">
                                 <a [routerLink]="'/device/'+ summary.value.device.wwn"
                                    class="font-bold text-md text-secondary uppercase tracking-wider">{{deviceTitle(summary.value.device)}}</a>
-                                <div [ngClass]="{'text-green': summary.value.device.device_status == 0 && summary.value.smart,
-                                    'text-red': summary.value.device.device_status != 0 }" class="font-medium text-sm" *ngIf="summary.value.smart">
+                                <div [ngClass]="classDeviceLastUpdatedOn(summary.value)" class="font-medium text-sm" *ngIf="summary.value.smart">
                                     Last Updated on {{summary.value.smart.collector_date | date:'MMMM dd, yyyy - HH:mm' }}
                                 </div>
                             </div>

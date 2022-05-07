@@ -196,6 +196,26 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         }
     }
 
+    classDeviceLastUpdatedOn(deviceSummary){
+        if (deviceSummary.device.device_status !== 0) {
+            return 'text-red' // if the device has failed, always highlight in red
+        } else if(deviceSummary.device.device_status === 0 && deviceSummary.smart){
+            if(moment().subtract(14, 'd').isBefore(deviceSummary.smart.collector_date)){
+                // this device was updated in the last 2 weeks.
+                return 'text-green'
+            } else if(moment().subtract(1, 'm').isBefore(deviceSummary.smart.collector_date)){
+                // this device was updated in the last month
+                return 'text-yellow'
+            } else{
+                // last updated more than a month ago.
+                return 'text-red'
+            }
+
+        } else {
+            return ''
+        }
+    }
+
     /**
      * Track by function for ngFor loops
      *
