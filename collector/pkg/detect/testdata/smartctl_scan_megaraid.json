@@ -1,0 +1,35 @@
+{
+  "json_format_version": [
+    1,
+    0
+  ],
+  "smartctl": {
+    "version": [
+      7,
+      1
+    ],
+    "svn_revision": "5022",
+    "platform_info": "x86_64-linux-5.4.0-45-generic",
+    "build_info": "(local build)",
+    "argv": [
+      "smartctl",
+      "-j",
+      "--scan"
+    ],
+    "exit_status": 0
+  },
+  "devices": [
+    {
+      "name": "/dev/bus/0",
+      "info_name": "/dev/bus/0 [megaraid_disk_00]",
+      "type": "megaraid,0",
+      "protocol": "SCSI"
+    },
+    {
+      "name": "/dev/bus/0",
+      "info_name": "/dev/bus/0 [megaraid_disk_01]",
+      "type": "megaraid,1",
+      "protocol": "SCSI"
+    }
+  ]
+}

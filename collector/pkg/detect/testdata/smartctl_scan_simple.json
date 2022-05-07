@@ -1,0 +1,65 @@
+{
+  "json_format_version": [
+    1,
+    0
+  ],
+  "smartctl": {
+    "version": [
+      7,
+      0
+    ],
+    "svn_revision": "4883",
+    "platform_info": "x86_64-linux-5.15.32-flatcar",
+    "build_info": "(local build)",
+    "argv": [
+      "smartctl",
+      "--scan",
+      "-j"
+    ],
+    "exit_status": 0
+  },
+  "devices": [
+    {
+      "name": "/dev/sda",
+      "info_name": "/dev/sda",
+      "type": "scsi",
+      "protocol": "SCSI"
+    },
+    {
+      "name": "/dev/sdb",
+      "info_name": "/dev/sdb",
+      "type": "scsi",
+      "protocol": "SCSI"
+    },
+    {
+      "name": "/dev/sdc",
+      "info_name": "/dev/sdc",
+      "type": "scsi",
+      "protocol": "SCSI"
+    },
+    {
+      "name": "/dev/sdd",
+      "info_name": "/dev/sdd",
+      "type": "scsi",
+      "protocol": "SCSI"
+    },
+    {
+      "name": "/dev/sde",
+      "info_name": "/dev/sde",
+      "type": "scsi",
+      "protocol": "SCSI"
+    },
+    {
+      "name": "/dev/sdf",
+      "info_name": "/dev/sdf",
+      "type": "scsi",
+      "protocol": "SCSI"
+    },
+    {
+      "name": "/dev/sdg",
+      "info_name": "/dev/sdg",
+      "type": "scsi",
+      "protocol": "SCSI"
+    }
+  ]
+}

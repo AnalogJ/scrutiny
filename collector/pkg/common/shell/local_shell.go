@@ -1,4 +1,4 @@
-package common
+package shell
 
 import (
 	"bytes"
@@ -10,7 +10,9 @@ import (
 	"strings"
 )
 
-func ExecCmd(logger *logrus.Entry, cmdName string, cmdArgs []string, workingDir string, environ []string) (string, error) {
+type localShell struct{}
+
+func (s *localShell) Command(logger *logrus.Entry, cmdName string, cmdArgs []string, workingDir string, environ []string) (string, error) {
 	logger.Infof("Executing command: %s %s", cmdName, strings.Join(cmdArgs, " "))
 
 	cmd := exec.Command(cmdName, cmdArgs...)

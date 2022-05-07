@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/analogj/scrutiny/collector/pkg/common"
+	"github.com/analogj/scrutiny/collector/pkg/common/shell"
 	"github.com/analogj/scrutiny/collector/pkg/config"
 	"github.com/analogj/scrutiny/collector/pkg/detect"
 	"github.com/analogj/scrutiny/collector/pkg/errors"
@@ -20,6 +20,7 @@ type MetricsCollector struct {
 	config config.Interface
 	BaseCollector
 	apiEndpoint *url.URL
+	shell       shell.Interface
 }
 
 func CreateMetricsCollector(appConfig config.Interface, logger *logrus.Entry, apiEndpoint string) (MetricsCollector, error) {
@@ -34,6 +35,7 @@ func CreateMetricsCollector(appConfig config.Interface, logger *logrus.Entry, ap
 		BaseCollector: BaseCollector{
 			logger: logger,
 		},
+		shell: shell.Create(),
 	}
 
 	return sc, nil
@@ -120,7 +122,7 @@ func (mc *MetricsCollector) Collect(deviceWWN string, deviceName string, deviceT
 	}
 	args = append(args, fmt.Sprintf("%s%s", detect.DevicePrefix(), deviceName))
 
-	result, err := common.ExecCmd(mc.logger, "smartctl", args, "", os.Environ())
+	result, err := mc.shell.Command(mc.logger, "smartctl", args, "", os.Environ())
 	resultBytes := []byte(result)
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {

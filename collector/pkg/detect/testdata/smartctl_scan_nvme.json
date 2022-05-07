@@ -1,0 +1,29 @@
+{
+  "json_format_version": [
+    1,
+    0
+  ],
+  "smartctl": {
+    "version": [
+      7,
+      0
+    ],
+    "svn_revision": "4883",
+    "platform_info": "x86_64-linux-4.19.107-Unraid",
+    "build_info": "(local build)",
+    "argv": [
+      "smartctl",
+      "-j",
+      "--scan"
+    ],
+    "exit_status": 0
+  },
+  "devices": [
+    {
+      "name": "/dev/nvme0",
+      "info_name": "/dev/nvme0",
+      "type": "nvme",
+      "protocol": "NVMe"
+    }
+  ]
+}
