@@ -76,7 +76,7 @@ jobs:
 #            /build/scrutiny-collector-metrics-darwin-amd64
 #            /build/scrutiny-web-freebsd-amd64
 #            /build/scrutiny-collector-metrics-freebsd-amd64
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v2
         with:
           file: ${{ env.PROJECT_PATH }}/coverage.txt
           flags: unittests
