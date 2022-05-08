@@ -75,6 +75,9 @@ func (c *configuration) Init() error {
 }
 
 func (c *configuration) ReadConfig(configFilePath string) error {
+	//make sure that we specify that this is the correct config path (for eventual WriteConfig() calls)
+	c.SetConfigFile(configFilePath)
+
 	configFilePath, err := utils.ExpandPath(configFilePath)
 	if err != nil {
 		return err
@@ -104,8 +107,6 @@ func (c *configuration) ReadConfig(configFilePath string) error {
 	if err != nil {
 		return err
 	}
-	//make sure that we specify that this is the correct config path (for eventual WriteConfig() calls)
-	c.SetConfigFile(configFilePath)
 
 	return c.ValidateConfig()
 }
