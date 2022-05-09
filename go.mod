@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/analogj/go-util v0.0.0-20190301173314-5295e364eb14
-	github.com/citilinkru/libudev v1.0.0
+	github.com/citilinkru/libudev v1.0.0 // indirect
 	github.com/containrrr/shoutrrr v0.4.4
 	github.com/fatih/color v1.10.0
 	github.com/gin-gonic/gin v1.6.3
