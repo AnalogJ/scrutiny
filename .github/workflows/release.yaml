@@ -77,192 +77,24 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
         with:
           version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
-#      - name: Publish Release
-#        id: publish
-#        uses: packagrio/action-publishr-go@master
-#        env:
-#          # This is necessary in order to push a commit to the repo
-#          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
-#        with:
-#          version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
-#          upload_assets: '/build/scrutiny-web-linux-amd64 /build/scrutiny-collector-metrics-linux-amd64 /build/scrutiny-web-linux-arm64 /build/scrutiny-collector-metrics-linux-arm64 /build/scrutiny-web-linux-arm-5 /build/scrutiny-collector-metrics-linux-arm-5 /build/scrutiny-web-linux-arm-6 /build/scrutiny-collector-metrics-linux-arm-6 /build/scrutiny-web-linux-arm-7 /build/scrutiny-collector-metrics-linux-arm-7 /build/scrutiny-web-windows-4.0-amd64.exe /build/scrutiny-collector-metrics-windows-4.0-amd64.exe'
-
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Publish Release
+        id: publish
+        uses: packagrio/action-publishr-go@master
         env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+          # This is necessary in order to push a commit to the repo
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
         with:
-          tag_name: ${{ steps.bump_version.outputs.release_version }}
-          release_name: Release ${{ steps.bump_version.outputs.release_version }}
-          draft: false
-          prerelease: false
-
-      - name: Release Asset - Web - linux-amd64
-        id: upload-release-asset1
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: /build/scrutiny-web-linux-amd64
-          asset_name: scrutiny-web-linux-amd64
-          asset_content_type: application/octet-stream
-      - name: Release Asset - Collector - linux-amd64
-        id: upload-release-asset2
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: /build/scrutiny-collector-metrics-linux-amd64
-          asset_name: scrutiny-collector-metrics-linux-amd64
-          asset_content_type: application/octet-stream
-
-
-      - name: Release Asset - Web - linux-arm64
-        id: upload-release-asset3
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: /build/scrutiny-web-linux-arm64
-          asset_name: scrutiny-web-linux-arm64
-          asset_content_type: application/octet-stream
-      - name: Release Asset - Collector - linux-arm64
-        id: upload-release-asset4
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: /build/scrutiny-collector-metrics-linux-arm64
-          asset_name: scrutiny-collector-metrics-linux-arm64
-          asset_content_type: application/octet-stream
-
-      - name: Release Asset - Web - linux-arm-5
-        id: upload-release-asset5
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: /build/scrutiny-web-linux-arm-5
-          asset_name: scrutiny-web-linux-arm-5
-          asset_content_type: application/octet-stream
-      - name: Release Asset - Collector - linux-arm-5
-        id: upload-release-asset6
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: /build/scrutiny-collector-metrics-linux-arm-5
-          asset_name: scrutiny-collector-metrics-linux-arm-5
-          asset_content_type: application/octet-stream
-
-      - name: Release Asset - Web - linux-arm-6
-        id: upload-release-asset7
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: /build/scrutiny-web-linux-arm-6
-          asset_name: scrutiny-web-linux-arm-6
-          asset_content_type: application/octet-stream
-      - name: Release Asset - Collector - linux-arm-6
-        id: upload-release-asset8
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: /build/scrutiny-collector-metrics-linux-arm-6
-          asset_name: scrutiny-collector-metrics-linux-arm-6
-          asset_content_type: application/octet-stream
-
-      - name: Release Asset - Web - linux-arm-7
-        id: upload-release-asset9
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: /build/scrutiny-web-linux-arm-7
-          asset_name: scrutiny-web-linux-arm-7
-          asset_content_type: application/octet-stream
-      - name: Release Asset - Collector - linux-arm-7
-        id: upload-release-asset10
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: /build/scrutiny-collector-metrics-linux-arm-7
-          asset_name: scrutiny-collector-metrics-linux-arm-7
-          asset_content_type: application/octet-stream
-
-      - name: Release Asset - Web - windows-amd64
-        id: upload-release-asset11
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: /build/scrutiny-web-windows-4.0-amd64.exe
-          asset_name: scrutiny-web-windows-4.0-amd64.exe
-          asset_content_type: application/octet-stream
-      - name: Release Asset - Collector - windows-amd64
-        id: upload-release-asset12
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: /build/scrutiny-collector-metrics-windows-4.0-amd64.exe
-          asset_name: scrutiny-collector-metrics-windows-4.0-amd64.exe
-          asset_content_type: application/octet-stream
-#
-#      - name: Release Asset - Web - darwin-arm64
-#        id: upload-release-asset13
-#        uses: actions/upload-release-asset@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-#        with:
-#          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-#          asset_path: /build/scrutiny-web-darwin-arm64
-#          asset_name: scrutiny-web-darwin-arm64
-#          asset_content_type: application/octet-stream
-#      - name: Release Asset - Collector - darwin-arm64
-#        id: upload-release-asset14
-#        uses: actions/upload-release-asset@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-#        with:
-#          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-#          asset_path: /build/scrutiny-collector-metrics-darwin-arm64
-#          asset_name: scrutiny-collector-metrics-darwin-arm64
-#          asset_content_type: application/octet-stream
-#      - name: Release Asset - Web - darwin-amd64
-#        id: upload-release-asset15
-#        uses: actions/upload-release-asset@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-#        with:
-#          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-#          asset_path: /build/scrutiny-web-darwin-amd64
-#          asset_name: scrutiny-web-darwin-amd64
-#          asset_content_type: application/octet-stream
-#      - name: Release Asset - Collector - darwin-amd64
-#        id: upload-release-asset16
-#        uses: actions/upload-release-asset@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-#        with:
-#          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-#          asset_path: /build/scrutiny-collector-metrics-darwin-amd64
-#          asset_name: scrutiny-collector-metrics-darwin-amd64
-#          asset_content_type: application/octet-stream
+          version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
+          upload_assets:
+            /build/scrutiny-web-linux-amd64
+            /build/scrutiny-collector-metrics-linux-amd64
+            /build/scrutiny-web-linux-arm64
+            /build/scrutiny-collector-metrics-linux-arm64
+            /build/scrutiny-web-linux-arm-5
+            /build/scrutiny-collector-metrics-linux-arm-5
+            /build/scrutiny-web-linux-arm-6
+            /build/scrutiny-collector-metrics-linux-arm-6
+            /build/scrutiny-web-linux-arm-7
+            /build/scrutiny-collector-metrics-linux-arm-7
+            /build/scrutiny-web-windows-4.0-amd64.exe
+            /build/scrutiny-collector-metrics-windows-4.0-amd64.exe
