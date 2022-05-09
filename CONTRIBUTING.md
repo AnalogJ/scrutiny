@@ -6,14 +6,14 @@ There are multiple ways to develop on the scrutiny codebase locally. The two mos
 
 ## Docker Development
 ```
-docker build -f docker/Dockerfile . -t analogj/scrutiny
+docker build -f docker/Dockerfile . -t chcr.io/analogj/scrutiny:master-omnibus
 docker run -it --rm -p 8080:8080 \
 -v /run/udev:/run/udev:ro \
 --cap-add SYS_RAWIO \
 --device=/dev/sda \
 --device=/dev/sdb \
 ghcr.io/analogj/scrutiny:master-omnibus
-/scrutiny/bin/scrutiny-collector-metrics run
+/opt/scrutiny/bin/scrutiny-collector-metrics run
 ```
 
 

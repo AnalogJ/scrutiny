@@ -1,6 +1,6 @@
 # Commented Scrutiny Configuration File
 #
-# The default location for this file is /scrutiny/config/scrutiny.yaml.
+# The default location for this file is /opt/scrutiny/config/scrutiny.yaml.
 # In some cases to improve clarity default values are specified,
 # uncommented. Other example values are commented out.
 #
@@ -22,10 +22,10 @@ web:
     host: 0.0.0.0
   database:
     # can also set absolute path here
-    location: /scrutiny/config/scrutiny.db
+    location: /opt/scrutiny/config/scrutiny.db
   src:
     frontend:
-      path: /scrutiny/web
+      path: /opt/scrutiny/web
   influxdb:
     host: 0.0.0.0
     port: 8086

@@ -16,22 +16,22 @@ FROM node:lts-slim as frontendbuild
 #reduce logging, disable angular-cli analytics for ci environment
 ENV NPM_CONFIG_LOGLEVEL=warn NG_CLI_ANALYTICS=false
 
-WORKDIR /scrutiny/src
-COPY webapp/frontend /scrutiny/src
+WORKDIR /opt/scrutiny/src
+COPY webapp/frontend /opt/scrutiny/src
 
 RUN npm install -g @angular/cli@9.1.4 && \
     mkdir -p /scrutiny/dist && \
     npm install && \
-    ng build --output-path=/scrutiny/dist --deploy-url="/web/" --base-href="/web/" --prod
+    ng build --output-path=/opt/scrutiny/dist --deploy-url="/web/" --base-href="/web/" --prod
 
 
 ########
 FROM ubuntu:bionic as runtime
 ARG TARGETARCH
 EXPOSE 8080
-WORKDIR /scrutiny
-ENV PATH="/scrutiny/bin:${PATH}"
-ENV INFLUXD_CONFIG_PATH=/scrutiny/influxdb
+WORKDIR /opt/scrutiny
+ENV PATH="/opt/scrutiny/bin:${PATH}"
+ENV INFLUXD_CONFIG_PATH=/opt/scrutiny/influxdb
 
 RUN apt-get update && apt-get install -y cron smartmontools=7.0-0ubuntu1~ubuntu18.04.1 ca-certificates curl tzdata \
     && update-ca-certificates \
@@ -48,18 +48,18 @@ RUN dpkg -i /tmp/influxdb2-2.2.0-${TARGETARCH}.deb && rm -rf /tmp/influxdb2-2.2.
 COPY /rootfs /
 
 COPY /rootfs/etc/cron.d/scrutiny /etc/cron.d/scrutiny
-COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny /scrutiny/bin/
-COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-selftest /scrutiny/bin/
-COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-metrics /scrutiny/bin/
-COPY --from=frontendbuild /scrutiny/dist /scrutiny/web
-RUN chmod +x /scrutiny/bin/scrutiny && \
-    chmod +x /scrutiny/bin/scrutiny-collector-selftest && \
-    chmod +x /scrutiny/bin/scrutiny-collector-metrics && \
+COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny /opt/scrutiny/bin/
+COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-selftest /opt/scrutiny/bin/
+COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-metrics /opt/scrutiny/bin/
+COPY --from=frontendbuild /opt/scrutiny/dist /opt/scrutiny/web
+RUN chmod +x /opt/scrutiny/bin/scrutiny && \
+    chmod +x /opt/scrutiny/bin/scrutiny-collector-selftest && \
+    chmod +x /opt/scrutiny/bin/scrutiny-collector-metrics && \
     chmod 0644 /etc/cron.d/scrutiny && \
     rm -f /etc/cron.daily/* && \
-    mkdir -p /scrutiny/web && \
-    mkdir -p /scrutiny/config && \
-    chmod -R ugo+rwx /scrutiny/config
+    mkdir -p /opt/scrutiny/web && \
+    mkdir -p /opt/scrutiny/config && \
+    chmod -R ugo+rwx /opt/scrutiny/config
 
 
 CMD ["/init"]

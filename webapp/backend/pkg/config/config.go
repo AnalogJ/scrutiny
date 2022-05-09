@@ -30,8 +30,8 @@ func (c *configuration) Init() error {
 	//set defaults
 	c.SetDefault("web.listen.port", "8080")
 	c.SetDefault("web.listen.host", "0.0.0.0")
-	c.SetDefault("web.src.frontend.path", "/scrutiny/web")
-	c.SetDefault("web.database.location", "/scrutiny/config/scrutiny.db")
+	c.SetDefault("web.src.frontend.path", "/opt/scrutiny/web")
+	c.SetDefault("web.database.location", "/opt/scrutiny/config/scrutiny.db")
 
 	c.SetDefault("log.level", "INFO")
 	c.SetDefault("log.file", "")
@@ -49,9 +49,9 @@ func (c *configuration) Init() error {
 	//c.SetDefault("disks.include", []string{})
 	//c.SetDefault("disks.exclude", []string{})
 
-	//c.SetDefault("notify.metric.script", "/scrutiny/config/notify-metrics.sh")
-	//c.SetDefault("notify.long.script", "/scrutiny/config/notify-long-test.sh")
-	//c.SetDefault("notify.short.script", "/scrutiny/config/notify-short-test.sh")
+	//c.SetDefault("notify.metric.script", "/opt/scrutiny/config/notify-metrics.sh")
+	//c.SetDefault("notify.long.script", "/opt/scrutiny/config/notify-long-test.sh")
+	//c.SetDefault("notify.short.script", "/opt/scrutiny/config/notify-short-test.sh")
 
 	//c.SetDefault("collect.metric.enable", true)
 	//c.SetDefault("collect.metric.command", "-a -o on -S on")

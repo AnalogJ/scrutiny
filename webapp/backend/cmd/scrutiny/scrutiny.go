@@ -27,8 +27,8 @@ func main() {
 	}
 
 	//we're going to load the config file manually, since we need to validate it.
-	err = config.ReadConfig("/scrutiny/config/scrutiny.yaml") // Find and read the config file
-	if _, ok := err.(errors.ConfigFileMissingError); ok {     // Handle errors reading the config file
+	err = config.ReadConfig("/opt/scrutiny/config/scrutiny.yaml") // Find and read the config file
+	if _, ok := err.(errors.ConfigFileMissingError); ok {         // Handle errors reading the config file
 		//ignore "could not find config file"
 	} else if err != nil {
 		os.Exit(1)
