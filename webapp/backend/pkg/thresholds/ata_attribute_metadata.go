@@ -1,4 +1,4 @@
-package metadata
+package thresholds
 
 const AtaSmartAttributeDisplayTypeRaw = "raw"
 const AtaSmartAttributeDisplayTypeNormalized = "normalized"
@@ -6,15 +6,15 @@ const AtaSmartAttributeDisplayTypeTransformed = "transformed"
 
 type AtaAttributeMetadata struct {
 	ID          int64  `json:"-"`
-	DisplayName string `json:"-"`
+	DisplayName string `json:"display_name"`
 	Ideal       string `json:"ideal"`
 	Critical    bool   `json:"critical"`
 	Description string `json:"description"`
 
-	Transform          func(int, int64, string) int64 `json:"-"` //this should be a method to extract/tranform the normalized or raw data to a chartable format. Str
-	TransformValueUnit string                         `json:"transform_value_unit,omitempty"`
-	ObservedThresholds []ObservedThreshold            `json:"observed_thresholds,omitempty"` //these thresholds must match the DisplayType
-	DisplayType        string                         `json:"display_type"`                  //"raw" "normalized" or "transformed"
+	Transform          func(int64, int64, string) int64 `json:"-"` //this should be a method to extract/tranform the normalized or raw data to a chartable format. Str
+	TransformValueUnit string                           `json:"transform_value_unit,omitempty"`
+	ObservedThresholds []ObservedThreshold              `json:"observed_thresholds,omitempty"` //these thresholds must match the DisplayType
+	DisplayType        string                           `json:"display_type"`                  //"raw" "normalized" or "transformed"
 }
 
 const ObservedThresholdIdealLow = "low"
@@ -1014,7 +1014,7 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 		Ideal:       ObservedThresholdIdealLow,
 		Critical:    false,
 		Description: "Indicates the device temperature, if the appropriate sensor is fitted. Lowest byte of the raw value contains the exact temperature value (Celsius degrees).",
-		Transform: func(normValue int, rawValue int64, rawString string) int64 {
+		Transform: func(normValue int64, rawValue int64, rawString string) int64 {
 			return rawValue & 0b11111111
 		},
 		TransformValueUnit: "°C",

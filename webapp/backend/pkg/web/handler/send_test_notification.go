@@ -1,8 +1,9 @@
 package handler
 
 import (
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
-	dbModels "github.com/analogj/scrutiny/webapp/backend/pkg/models/db"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/notify"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -20,7 +21,7 @@ func SendTestNotification(c *gin.Context) {
 		Payload: notify.Payload{
 			FailureType:  "EmailTest",
 			DeviceSerial: "FAKEWDDJ324KSO",
-			DeviceType:   dbModels.DeviceProtocolAta,
+			DeviceType:   pkg.DeviceProtocolAta,
 			DeviceName:   "/dev/sda",
 			Test:         true,
 		},
@@ -33,7 +34,7 @@ func SendTestNotification(c *gin.Context) {
 			"errors":  []string{err.Error()},
 		})
 	} else {
-		c.JSON(http.StatusOK, dbModels.DeviceWrapper{
+		c.JSON(http.StatusOK, models.DeviceWrapper{
 			Success: true,
 		})
 	}

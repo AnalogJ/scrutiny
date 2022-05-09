@@ -12,7 +12,7 @@ docker run -it --rm -p 8080:8080 \
 --cap-add SYS_RAWIO \
 --device=/dev/sda \
 --device=/dev/sdb \
-analogj/scrutiny
+ghcr.io/analogj/scrutiny:master-omnibus
 /scrutiny/bin/scrutiny-collector-metrics run
 ```
 
@@ -54,7 +54,8 @@ web:
   src:
     frontend:
       path: ./dist
-
+  influxdb:
+    retention_policy: false
 
 log:
   file: 'web.log' #absolute or relative paths allowed, eg. web.log
@@ -70,6 +71,39 @@ go run webapp/backend/cmd/scrutiny/scrutiny.go start --config ./scrutiny.yaml
 
 Now visit http://localhost:8080
 
+
+If you'd like to populate the database with some test data,  you can run the following commands:
+
+> NOTE: you may need to update the `local_time` key within the JSON file, any timestamps older than ~3 weeks will be automatically ignored
+> (since the downsampling & retention policy takes effect at 2 weeks)
+> This is done automatically by the `webapp/backend/pkg/models/testdata/helper.go` script
+
+```
+docker run -p 8086:8086 --rm influxdb:2.2
+
+
+docker run --rm -p 8086:8086 \
+      -e DOCKER_INFLUXDB_INIT_MODE=setup \
+      -e DOCKER_INFLUXDB_INIT_USERNAME=admin \
+      -e DOCKER_INFLUXDB_INIT_PASSWORD=password12345 \
+      -e DOCKER_INFLUXDB_INIT_ORG=scrutiny \
+      -e DOCKER_INFLUXDB_INIT_BUCKET=metrics \
+      influxdb:2.2
+
+
+# curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/web/testdata/register-devices-req.json localhost:8080/api/devices/register
+# curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-ata.json localhost:8080/api/device/0x5000cca264eb01d7/smart
+# curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-ata-date.json localhost:8080/api/device/0x5000cca264eb01d7/smart
+# curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-ata-date2.json localhost:8080/api/device/0x5000cca264eb01d7/smart
+# curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-fail2.json localhost:8080/api/device/0x5000cca264ec3183/smart
+# curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-nvme.json localhost:8080/api/device/0x5002538e40a22954/smart
+# curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-scsi.json localhost:8080/api/device/0x5000cca252c859cc/smart
+# curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/models/testdata/smart-scsi2.json localhost:8080/api/device/0x5000cca264ebc248/smart
+go run webapp/backend/pkg/models/testdata/helper.go
+
+curl localhost:8080/api/summary
+
+```
 
 ### Collector
 ```

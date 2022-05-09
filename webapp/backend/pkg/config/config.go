@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	"strings"
 )
 
 // When initializing this class the following methods must be called:
@@ -37,6 +38,14 @@ func (c *configuration) Init() error {
 
 	c.SetDefault("notify.urls", []string{})
 
+	c.SetDefault("web.influxdb.host", "0.0.0.0")
+	c.SetDefault("web.influxdb.port", "8086")
+	c.SetDefault("web.influxdb.org", "scrutiny")
+	c.SetDefault("web.influxdb.bucket", "metrics")
+	c.SetDefault("web.influxdb.init_username", "admin")
+	c.SetDefault("web.influxdb.init_password", "password12345")
+	c.SetDefault("web.influxdb.retention_policy", true)
+
 	//c.SetDefault("disks.include", []string{})
 	//c.SetDefault("disks.exclude", []string{})
 
@@ -56,11 +65,19 @@ func (c *configuration) Init() error {
 	//c.SetConfigName("drawbridge")
 	//c.AddConfigPath("$HOME/")
 
+	//configure env variable parsing.
+	c.SetEnvPrefix("SCRUTINY")
+	c.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
+	c.AutomaticEnv()
+
 	//CLI options will be added via the `Set()` function
 	return nil
 }
 
 func (c *configuration) ReadConfig(configFilePath string) error {
+	//make sure that we specify that this is the correct config path (for eventual WriteConfig() calls)
+	c.SetConfigFile(configFilePath)
+
 	configFilePath, err := utils.ExpandPath(configFilePath)
 	if err != nil {
 		return err

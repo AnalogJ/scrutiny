@@ -1,33 +1,33 @@
-package common_test
+package shell
 
 import (
-	"github.com/analogj/scrutiny/collector/pkg/common"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"os/exec"
 	"testing"
 )
 
-func TestExecCmd(t *testing.T) {
+func TestLocalShellCommand(t *testing.T) {
 	t.Parallel()
 
 	//setup
-
+	testShell := localShell{}
 	//test
-	result, err := common.ExecCmd(logrus.WithField("exec", "test"), "echo", []string{"hello world"}, "", nil)
+	result, err := testShell.Command(logrus.WithField("exec", "test"), "echo", []string{"hello world"}, "", nil)
 
 	//assert
 	require.NoError(t, err)
 	require.Equal(t, "hello world\n", result)
 }
 
-func TestExecCmd_Date(t *testing.T) {
+func TestLocalShellCommand_Date(t *testing.T) {
 	t.Parallel()
 
 	//setup
+	testShell := localShell{}
 
 	//test
-	_, err := common.ExecCmd(logrus.WithField("exec", "test"), "date", []string{}, "", nil)
+	_, err := testShell.Command(logrus.WithField("exec", "test"), "date", []string{}, "", nil)
 
 	//assert
 	require.NoError(t, err)
@@ -51,13 +51,14 @@ func TestExecCmd_Date(t *testing.T) {
 //}
 //
 
-func TestExecCmd_InvalidCommand(t *testing.T) {
+func TestLocalShellCommand_InvalidCommand(t *testing.T) {
 	t.Parallel()
 
 	//setup
+	testShell := localShell{}
 
 	//test
-	_, err := common.ExecCmd(logrus.WithField("exec", "test"), "invalid_binary", []string{}, "", nil)
+	_, err := testShell.Command(logrus.WithField("exec", "test"), "invalid_binary", []string{}, "", nil)
 
 	//assert
 	_, castOk := err.(*exec.ExitError)

@@ -40,6 +40,7 @@ func (c *BaseCollector) postJson(url string, body interface{}, target interface{
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
+// http://www.linuxguide.it/command_line/linux-manpage/do.php?file=smartctl#sect7
 func (c *BaseCollector) LogSmartctlExitCode(exitCode int) {
 	if exitCode&0x01 != 0 {
 		c.logger.Errorln("smartctl could not parse commandline")

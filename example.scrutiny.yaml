@@ -26,7 +26,13 @@ web:
   src:
     frontend:
       path: /scrutiny/web
-
+  influxdb:
+    host: 0.0.0.0
+    port: 8086
+#    token: 'my-token'
+#    org: 'my-org'
+#    bucket: 'bucket'
+    retention_policy: true
 
 log:
   file: '' #absolute or relative paths allowed, eg. web.log

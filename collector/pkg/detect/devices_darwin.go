@@ -1,6 +1,7 @@
 package detect
 
 import (
+	"github.com/analogj/scrutiny/collector/pkg/common/shell"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/jaypipes/ghw"
 	"strings"
@@ -11,6 +12,7 @@ func DevicePrefix() string {
 }
 
 func (d *Detect) Start() ([]models.Device, error) {
+	d.Shell = shell.Create()
 	// call the base/common functionality to get a list of devicess
 	detectedDevices, err := d.SmartctlScan()
 	if err != nil {

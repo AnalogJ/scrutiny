@@ -19,7 +19,12 @@ import humanizeDuration from 'humanize-duration';
 export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     onlyCritical: boolean = true;
-    data: any;
+    // data: any;
+
+    metadata: any;
+    device: any;
+    smart_results: any[];
+
     commonSparklineOptions: Partial<ApexOptions>;
     smartAttributeDataSource: MatTableDataSource<any>;
     smartAttributeTableColumns: string[];
@@ -66,10 +71,14 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
             .subscribe((data) => {
 
                 // Store the data
-                this.data = data;
+                // this.data = data;
+                this.device = data.data.device;
+                this.smart_results = data.data.smart_results
+                this.metadata = data.metadata;
+
 
                 // Store the table data
-                this.smartAttributeDataSource.data = this._generateSmartAttributeTableDataSource(data.data.smart_results);
+                this.smartAttributeDataSource.data = this._generateSmartAttributeTableDataSource(this.smart_results);
 
                 // Prepare the chart data
                 this._prepareChartData();
@@ -98,8 +107,28 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // -----------------------------------------------------------------------------------------------------
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
+    getAttributeStatusName(attribute_status){
+        if(attribute_status == 0){
+            return "passed"
+        } else if (attribute_status == 1){
+            return "warn"
+        } else if (attribute_status == 2){
+            return "failed"
+        }
+        return
+    }
+
+    getAttributeName(attribute_data){
+        let attribute_metadata = this.metadata[attribute_data.attribute_id]
+        if(!attribute_metadata){
+            return 'Unknown Attribute Name'
+        } else {
+            return attribute_metadata.display_name
+        }
+        return
+    }
     getAttributeDescription(attribute_data){
-        let attribute_metadata = this.data.metadata[attribute_data.attribute_id]
+        let attribute_metadata = this.metadata[attribute_data.attribute_id]
         if(!attribute_metadata){
             return 'Unknown'
         } else {
@@ -110,7 +139,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     getAttributeValue(attribute_data){
         if(this.isAta()) {
-            let attribute_metadata = this.data.metadata[attribute_data.attribute_id]
+            let attribute_metadata = this.metadata[attribute_data.attribute_id]
             if(!attribute_metadata){
                 return attribute_data.value
             } else if (attribute_metadata.display_type == "raw") {
@@ -128,7 +157,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     getAttributeValueType(attribute_data){
         if(this.isAta()) {
-            let attribute_metadata = this.data.metadata[attribute_data.attribute_id]
+            let attribute_metadata = this.metadata[attribute_data.attribute_id]
             if(!attribute_metadata){
                 return ''
             } else {
@@ -141,14 +170,14 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     getAttributeIdeal(attribute_data){
         if(this.isAta()){
-            return this.data.metadata[attribute_data.attribute_id]?.display_type == "raw" ? this.data.metadata[attribute_data.attribute_id]?.ideal : ''
+            return this.metadata[attribute_data.attribute_id]?.display_type == "raw" ? this.metadata[attribute_data.attribute_id]?.ideal : ''
         } else {
-            return this.data.metadata[attribute_data.attribute_id]?.ideal
+            return this.metadata[attribute_data.attribute_id]?.ideal
         }
     }
 
     getAttributeWorst(attribute_data){
-        let attribute_metadata = this.data.metadata[attribute_data.attribute_id]
+        let attribute_metadata = this.metadata[attribute_data.attribute_id]
         if(!attribute_metadata){
             return attribute_data.worst
         } else {
@@ -158,7 +187,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     getAttributeThreshold(attribute_data){
         if(this.isAta()){
-            let attribute_metadata = this.data.metadata[attribute_data.attribute_id]
+            let attribute_metadata = this.metadata[attribute_data.attribute_id]
             if(!attribute_metadata || attribute_metadata.display_type == "normalized"){
                 return attribute_data.thresh
             } else {
@@ -175,29 +204,30 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     getAttributeCritical(attribute_data){
-        return this.data.metadata[attribute_data.attribute_id]?.critical
+        return this.metadata[attribute_data.attribute_id]?.critical
     }
     getHiddenAttributes(){
-        let attributes_list
-        if(this.isAta()){
-            attributes_list = this.data.data.smart_results[0]?.ata_attributes
-        } else if(this.isNvme()){
-            attributes_list = this.data.data.smart_results[0]?.nvme_attributes
-        } else {
-            attributes_list = this.data.data.smart_results[0]?.scsi_attributes
+        if (!this.smart_results || this.smart_results.length == 0) {
+            return 0
         }
 
-        return attributes_list.length - this.smartAttributeDataSource.data.length
+        let attributes_length = 0
+        let attributes = this.smart_results[0]?.attrs
+        if (attributes) {
+            attributes_length = Object.keys(attributes).length
+        }
+
+        return attributes_length - this.smartAttributeDataSource.data.length
     }
 
     isAta(): boolean {
-        return this.data.data.device_protocol == 'ATA'
+        return this.device.device_protocol == 'ATA'
     }
     isScsi(): boolean {
-        return this.data.data.device_protocol == 'SCSI'
+        return this.device.device_protocol == 'SCSI'
     }
     isNvme(): boolean {
-        return this.data.data.device_protocol == 'NVMe'
+        return this.device.device_protocol == 'NVMe'
     }
 
     private _generateSmartAttributeTableDataSource(smart_results){
@@ -207,35 +237,44 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
             return smartAttributeDataSource
         }
         var latest_smart_result = smart_results[0];
-        let attributes_list = []
+        let attributes = {}
         if(this.isScsi()) {
             this.smartAttributeTableColumns = ['status', 'name', 'value', 'thresh', 'history'];
-            attributes_list = latest_smart_result.scsi_attributes
+            attributes = latest_smart_result.attrs
         } else if(this.isNvme()){
             this.smartAttributeTableColumns = ['status', 'name', 'value', 'thresh', 'ideal', 'history'];
-            attributes_list = latest_smart_result.nvme_attributes
+            attributes = latest_smart_result.attrs
         } else {
             //ATA
-            attributes_list = latest_smart_result.ata_attributes
+            attributes = latest_smart_result.attrs
             this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh','ideal', 'failure', 'history'];
         }
 
+        for(const attrId in attributes){
+            var attr = attributes[attrId]
 
-        for(let attr of attributes_list){
             //chart history data
             if (!attr.chartData) {
-                var rawHistory = (attr.history || []).map(hist_attr => this.getAttributeValue(hist_attr)).reverse()
-                rawHistory.push(this.getAttributeValue(attr))
-                attr.chartData = [
+
+
+                var attrHistory = []
+                for (let smart_result of smart_results){
+                    attrHistory.push(this.getAttributeValue(smart_result.attrs[attrId]))
+                }
+
+                // var rawHistory = (attr.history || []).map(hist_attr => this.getAttributeValue(hist_attr)).reverse()
+                // rawHistory.push(this.getAttributeValue(attr))
+
+                attributes[attrId].chartData = [
                     {
                         name: "chart-line-sparkline",
-                        data: rawHistory
+                        data: attrHistory
                     }
                 ]
             }
             //determine when to include the attributes in table.
 
-            if(!this.onlyCritical || this.onlyCritical && this.data.metadata[attr.attribute_id]?.critical || attr.value < attr.thresh){
+            if(!this.onlyCritical || this.onlyCritical && this.metadata[attr.attribute_id]?.critical || attr.value < attr.thresh){
                 smartAttributeDataSource.push(attr)
             }
         }
@@ -297,7 +336,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     toggleOnlyCritical(){
         this.onlyCritical = !this.onlyCritical
-        this.smartAttributeDataSource.data = this._generateSmartAttributeTableDataSource(this.data.data.smart_results);
+        this.smartAttributeDataSource.data = this._generateSmartAttributeTableDataSource(this.smart_results);
 
     }
 

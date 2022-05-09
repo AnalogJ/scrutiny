@@ -3,7 +3,7 @@ version: '3.5'
 services:
   scrutiny:
     container_name: scrutiny
-    image: analogj/scrutiny
+    image: ghcr.io/analogj/scrutiny:master-omnibus
     cap_add:
       - SYS_RAWIO
     ports:
@@ -11,6 +11,7 @@ services:
     volumes:
       - /run/udev:/run/udev:ro
       - ./config:/scrutiny/config
+      - ./influxdb:/var/lib/influxdb2
     devices:
       - "/dev/sda"
       - "/dev/sdb"
