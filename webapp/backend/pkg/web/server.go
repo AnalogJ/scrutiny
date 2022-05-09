@@ -27,8 +27,9 @@ func (ae *AppEngine) Setup(logger logrus.FieldLogger) *gin.Engine {
 	r.Use(middleware.ConfigMiddleware(ae.Config))
 	r.Use(gin.Recovery())
 
-	basePath := ae.Config.GetString("web.src.backend.basepath")
+	basePath := ae.Config.GetString("web.listen.basepath")
 	logger.Debugf("basepath: %s", basePath)
+
 	base := r.Group(basePath)
 	{
 		api := base.Group("/api")
@@ -40,12 +41,12 @@ func (ae *AppEngine) Setup(logger logrus.FieldLogger) *gin.Engine {
 			})
 			api.POST("/health/notify", handler.SendTestNotification) //check if notifications are configured correctly
 
-      api.POST("/devices/register", handler.RegisterDevices)         //used by Collector to register new devices and retrieve filtered list
-      api.GET("/summary", handler.GetDevicesSummary)                 //used by Dashboard
-      api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory) //used by Dashboard (Temperature history dropdown)
-      api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics)    //used by Collector to upload data
-      api.POST("/device/:wwn/selftest", handler.UploadDeviceSelfTests)
-      api.GET("/device/:wwn/details", handler.GetDeviceDetails) //used by Details
+			api.POST("/devices/register", handler.RegisterDevices)         //used by Collector to register new devices and retrieve filtered list
+			api.GET("/summary", handler.GetDevicesSummary)                 //used by Dashboard
+			api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory) //used by Dashboard (Temperature history dropdown)
+			api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics)    //used by Collector to upload data
+			api.POST("/device/:wwn/selftest", handler.UploadDeviceSelfTests)
+			api.GET("/device/:wwn/details", handler.GetDeviceDetails) //used by Details
 		}
 	}
 
@@ -54,7 +55,7 @@ func (ae *AppEngine) Setup(logger logrus.FieldLogger) *gin.Engine {
 
 	//redirect base url to /web
 	base.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusFound, basePath + "/web")
+		c.Redirect(http.StatusFound, basePath+"/web")
 	})
 
 	//catch-all, serve index page.

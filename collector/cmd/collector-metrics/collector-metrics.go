@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	utils "github.com/analogj/go-util/utils"
@@ -113,7 +114,10 @@ OPTIONS:
 					}
 
 					if c.IsSet("api-endpoint") {
-						config.Set("api.endpoint", c.String("api-endpoint"))
+						//if the user is providing an api-endpoint with a basepath (eg. http://localhost:8080/scrutiny),
+						//we need to ensure the basepath has a trailing slash, otherwise the url.Parse() path concatenation doesnt work.
+						apiEndpoint := strings.TrimSuffix(c.String("api-endpoint"), "/") + "/"
+						config.Set("api.endpoint", apiEndpoint)
 					}
 
 					collectorLogger := logrus.WithFields(logrus.Fields{

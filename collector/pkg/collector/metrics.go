@@ -48,7 +48,7 @@ func (mc *MetricsCollector) Run() error {
 	}
 
 	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
-	apiEndpoint.Path = "/api/devices/register"
+	apiEndpoint, _ = apiEndpoint.Parse("api/devices/register") //this acts like filepath.Join()
 
 	deviceRespWrapper := new(models.DeviceWrapper)
 
@@ -73,6 +73,7 @@ func (mc *MetricsCollector) Run() error {
 
 	if !deviceRespWrapper.Success {
 		mc.logger.Errorln("An error occurred while retrieving filtered devices")
+		mc.logger.Debugln(deviceRespWrapper)
 		return errors.ApiServerCommunicationError("An error occurred while retrieving filtered devices")
 	} else {
 		mc.logger.Debugln(deviceRespWrapper)
@@ -146,7 +147,7 @@ func (mc *MetricsCollector) Publish(deviceWWN string, payload []byte) error {
 	mc.logger.Infof("Publishing smartctl results for %s\n", deviceWWN)
 
 	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
-	apiEndpoint.Path = fmt.Sprintf("/api/device/%s/smart", strings.ToLower(deviceWWN))
+	apiEndpoint, _ = apiEndpoint.Parse(fmt.Sprintf("api/device/%s/smart", strings.ToLower(deviceWWN)))
 
 	resp, err := httpClient.Post(apiEndpoint.String(), "application/json", bytes.NewBuffer(payload))
 	if err != nil {
