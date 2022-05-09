@@ -42,6 +42,7 @@ jobs:
         with:
           tags: |
             type=ref,enable=true,event=branch,suffix=-collector
+            type=ref,enable=true,event=tag,suffix=-collector
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       # Build and push Docker image with Buildx (don't push on PR)
@@ -86,6 +87,7 @@ jobs:
         with:
           tags: |
             type=ref,enable=true,event=branch,suffix=-web
+            type=ref,enable=true,event=tag,suffix=-web
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       # Build and push Docker image with Buildx (don't push on PR)
@@ -130,6 +132,7 @@ jobs:
         with:
           tags: |
             type=ref,enable=true,event=branch,suffix=-omnibus
+            type=ref,enable=true,event=tag,suffix=-omnibus
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       # Build and push Docker image with Buildx (don't push on PR)
