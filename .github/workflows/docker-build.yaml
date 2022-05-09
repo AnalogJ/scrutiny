@@ -3,7 +3,7 @@ on:
   schedule:
     - cron: '36 12 * * *'
   push:
-    branches: [ master, influxdb ]
+    branches: [ master, beta ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
 
