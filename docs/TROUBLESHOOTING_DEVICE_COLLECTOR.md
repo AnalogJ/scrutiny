@@ -64,7 +64,7 @@ using a collector config file. See [example.collector.yaml](/example.collector.y
 > If you're unsure, run `smartctl --scan` on your host, and pass all listed devices to the container.
 
 ```yaml
-# /scrutiny/config/collector.yaml
+# /opt/scrutiny/config/collector.yaml
 devices:
   # Dell PERC/Broadcom Megaraid example: https://github.com/AnalogJ/scrutiny/issues/30
   - device: /dev/bus/0

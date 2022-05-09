@@ -14,27 +14,27 @@ FROM node:lts-slim as frontendbuild
 #reduce logging, disable angular-cli analytics for ci environment
 ENV NPM_CONFIG_LOGLEVEL=warn NG_CLI_ANALYTICS=false
 
-WORKDIR /scrutiny/src
-COPY webapp/frontend /scrutiny/src
+WORKDIR /opt/scrutiny/src
+COPY webapp/frontend /opt/scrutiny/src
 
 RUN npm install -g @angular/cli@9.1.4 && \
-    mkdir -p /scrutiny/dist && \
+    mkdir -p /opt/scrutiny/dist && \
     npm install && \
-    ng build --output-path=/scrutiny/dist --deploy-url="/web/" --base-href="/web/" --prod
+    ng build --output-path=/opt/scrutiny/dist --deploy-url="/web/" --base-href="/web/" --prod
 
 
 ########
 FROM ubuntu:bionic as runtime
 EXPOSE 8080
-WORKDIR /scrutiny
-ENV PATH="/scrutiny/bin:${PATH}"
+WORKDIR /opt/scrutiny
+ENV PATH="/opt/scrutiny/bin:${PATH}"
 
 RUN apt-get update && apt-get install -y ca-certificates curl tzdata && update-ca-certificates
 
-COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny /scrutiny/bin/
-COPY --from=frontendbuild /scrutiny/dist /scrutiny/web
-RUN chmod +x /scrutiny/bin/scrutiny && \
-    mkdir -p /scrutiny/web && \
-    mkdir -p /scrutiny/config && \
-    chmod -R ugo+rwx /scrutiny/config
-CMD ["/scrutiny/bin/scrutiny", "start"]
+COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny /opt/scrutiny/bin/
+COPY --from=frontendbuild /opt/scrutiny/dist /opt/scrutiny/web
+RUN chmod +x /opt/scrutiny/bin/scrutiny && \
+    mkdir -p /opt/scrutiny/web && \
+    mkdir -p /opt/scrutiny/config && \
+    chmod -R ugo+rwx /opt/scrutiny/config
+CMD ["/opt/scrutiny/bin/scrutiny", "start"]

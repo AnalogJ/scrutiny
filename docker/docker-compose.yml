@@ -10,7 +10,7 @@ services:
       - "8080:8080"
     volumes:
       - /run/udev:/run/udev:ro
-      - ./config:/scrutiny/config
+      - ./config:/opt/scrutiny/config
       - ./influxdb:/var/lib/influxdb2
     devices:
       - "/dev/sda"

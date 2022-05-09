@@ -72,8 +72,8 @@ If you're using Docker, getting started is as simple as running the following co
 
 ```bash
 docker run -it --rm -p 8080:8080 \
-  -v `pwd`/scrutiny:/scrutiny/config \
-  -v `pwd`/influxdb2:/scrutiny/influxdb \
+  -v `pwd`/scrutiny:/opt/scrutiny/config \
+  -v `pwd`/influxdb2:/opt/scrutiny/influxdb \
   -v /run/udev:/run/udev:ro \
   --cap-add SYS_RAWIO \
   --device=/dev/sda \
@@ -102,7 +102,7 @@ docker run --rm -p 8086:8086 \
   influxdb:2.2
 
 docker run --rm -p 8080:8080 \
-  -v `pwd`/scrutiny:/scrutiny/config \
+  -v `pwd`/scrutiny:/opt/scrutiny/config \
   --name scrutiny-web \
   ghcr.io/analogj/scrutiny:master-web
 
@@ -135,11 +135,11 @@ For users of the docker Hub/Spoke deployment or manual install: initially the da
 After the first collector run, you'll be greeted with a list of all your hard drives and their current smart status.
 
 ```bash
-docker exec scrutiny /scrutiny/bin/scrutiny-collector-metrics run
+docker exec scrutiny /opt/scrutiny/bin/scrutiny-collector-metrics run
 ```
 
 # Configuration
-By default Scrutiny looks for its YAML configuration files in `/scrutiny/config`
+By default Scrutiny looks for its YAML configuration files in `/opt/scrutiny/config`
 
 There are two configuration files available:
 
