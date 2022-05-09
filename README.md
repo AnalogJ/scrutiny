@@ -111,7 +111,7 @@ docker run --rm \
   --cap-add SYS_RAWIO \
   --device=/dev/sda \
   --device=/dev/sdb \
-  -e SCRUTINY_API_ENDPOINT=http://SCRUTINY_WEB_IPADDRESS:8080 \
+  -e COLLECTOR_API_ENDPOINT=http://SCRUTINY_WEB_IPADDRESS:8080 \
   --name scrutiny-collector \
   ghcr.io/analogj/scrutiny:master-collector
 ```

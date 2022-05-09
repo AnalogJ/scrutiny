@@ -114,7 +114,7 @@ OPTIONS:
 						Name:    "api-endpoint",
 						Usage:   "The api server endpoint",
 						Value:   "http://localhost:8080",
-						EnvVars: []string{"SCRUTINY_API_ENDPOINT"},
+						EnvVars: []string{"COLLECTOR_API_ENDPOINT"},
 					},
 
 					&cli.StringFlag{

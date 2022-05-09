@@ -60,6 +60,10 @@ devices:
 #
 #api:
 #  endpoint: 'http://localhost:8080'
+#  endpoint: 'http://localhost:8080/custombasepath'
+# if you need to use a custom base path (for a reverse proxy), you can add a suffix to the endpoint.
+#  See docs/TROUBLESHOOTING_REVERSE_PROXY.md for more info,
+
 
 ########################################################################################################################
 # FEATURES COMING SOON

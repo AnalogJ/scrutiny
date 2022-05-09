@@ -161,7 +161,8 @@ OPTIONS:
 					&cli.StringFlag{
 						Name:    "api-endpoint",
 						Usage:   "The api server endpoint",
-						EnvVars: []string{"SCRUTINY_API_ENDPOINT"},
+						EnvVars: []string{"COLLECTOR_API_ENDPOINT", "SCRUTINY_API_ENDPOINT"},
+						//SCRUTINY_API_ENDPOINT is deprecated, but kept for backwards compatibility
 					},
 
 					&cli.StringFlag{
