@@ -17,6 +17,19 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     container: techknowlogick/xgo:go-1.13.x
+    # Service containers to run with `build` (Required for end-to-end testing)
+    services:
+      influxdb:
+        image: influxdb:2.2
+        env:
+          DOCKER_INFLUXDB_INIT_MODE: setup
+          DOCKER_INFLUXDB_INIT_USERNAME: admin
+          DOCKER_INFLUXDB_INIT_PASSWORD: password12345
+          DOCKER_INFLUXDB_INIT_ORG: scrutiny
+          DOCKER_INFLUXDB_INIT_BUCKET: metrics
+          DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-super-secret-auth-token
+        ports:
+          - 8086:8086
     env:
       PROJECT_PATH: /go/src/github.com/analogj/scrutiny
       CGO_ENABLED: 1
