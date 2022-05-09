@@ -11,6 +11,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -61,15 +62,36 @@ func helperReadSmartDataFileFixTimestamp(t *testing.T, smartDataFilepath string)
 	return bytes.NewReader(updatedSmartDataBytes)
 }
 
-func TestHealthRoute(t *testing.T) {
+// Define the suite, and absorb the built-in basic suite
+// functionality from testify - including a T() method which
+// returns the current testing context
+type ServerTestSuite struct {
+	suite.Suite
+	Basepath string
+}
+
+func TestServerTestSuite_WithEmptyBasePath(t *testing.T) {
+	emptyBasePathSuite := new(ServerTestSuite)
+	emptyBasePathSuite.Basepath = ""
+	suite.Run(t, emptyBasePathSuite)
+}
+
+func TestServerTestSuite_WithCustomBasePath(t *testing.T) {
+	emptyBasePathSuite := new(ServerTestSuite)
+	emptyBasePathSuite.Basepath = "/basepath"
+	suite.Run(t, emptyBasePathSuite)
+}
+
+func (suite *ServerTestSuite) TestHealthRoute() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
-	mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
 
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
@@ -92,23 +114,24 @@ func TestHealthRoute(t *testing.T) {
 
 	//test
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/health", nil)
+	req, _ := http.NewRequest("GET", suite.Basepath+"/api/health", nil)
 	router.ServeHTTP(w, req)
 
 	//assert
-	require.Equal(t, 200, w.Code)
-	require.Equal(t, "{\"success\":true}", w.Body.String())
+	require.Equal(suite.T(), 200, w.Code)
+	require.Equal(suite.T(), "{\"success\":true}", w.Body.String())
 }
 
-func TestRegisterDevicesRoute(t *testing.T) {
+func (suite *ServerTestSuite) TestRegisterDevicesRoute() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
-	mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
@@ -127,26 +150,27 @@ func TestRegisterDevicesRoute(t *testing.T) {
 	}
 	router := ae.Setup(logrus.New())
 	file, err := os.Open("testdata/register-devices-req.json")
-	require.NoError(t, err)
+	require.NoError(suite.T(), err)
 
 	//test
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/devices/register", file)
+	req, _ := http.NewRequest("POST", suite.Basepath+"/api/devices/register", file)
 	router.ServeHTTP(w, req)
 
 	//assert
-	require.Equal(t, 200, w.Code)
+	require.Equal(suite.T(), 200, w.Code)
 }
 
-func TestUploadDeviceMetricsRoute(t *testing.T) {
+func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
-	mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
@@ -165,35 +189,36 @@ func TestUploadDeviceMetricsRoute(t *testing.T) {
 	}
 	router := ae.Setup(logrus.New())
 	devicesfile, err := os.Open("testdata/register-devices-single-req.json")
-	require.NoError(t, err)
+	require.NoError(suite.T(), err)
 
-	metricsfile := helperReadSmartDataFileFixTimestamp(t, "testdata/upload-device-metrics-req.json")
+	metricsfile := helperReadSmartDataFileFixTimestamp(suite.T(), "testdata/upload-device-metrics-req.json")
 
 	//test
 	wr := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/devices/register", devicesfile)
+	req, _ := http.NewRequest("POST", suite.Basepath+"/api/devices/register", devicesfile)
 	router.ServeHTTP(wr, req)
-	require.Equal(t, 200, wr.Code)
+	require.Equal(suite.T(), 200, wr.Code)
 
 	mr := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", "/api/device/0x5000cca264eb01d7/smart", metricsfile)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/0x5000cca264eb01d7/smart", metricsfile)
 	router.ServeHTTP(mr, req)
-	require.Equal(t, 200, mr.Code)
+	require.Equal(suite.T(), 200, mr.Code)
 
 	//assert
 }
 
-func TestPopulateMultiple(t *testing.T) {
+func (suite *ServerTestSuite) TestPopulateMultiple() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
-	mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	//fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return("testdata/scrutiny_test.db")
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").Return([]string{}).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
@@ -212,44 +237,44 @@ func TestPopulateMultiple(t *testing.T) {
 	}
 	router := ae.Setup(logrus.New())
 	devicesfile, err := os.Open("testdata/register-devices-req.json")
-	require.NoError(t, err)
+	require.NoError(suite.T(), err)
 
-	metricsfile := helperReadSmartDataFileFixTimestamp(t, "../models/testdata/smart-ata.json")
-	failfile := helperReadSmartDataFileFixTimestamp(t, "../models/testdata/smart-fail2.json")
-	nvmefile := helperReadSmartDataFileFixTimestamp(t, "../models/testdata/smart-nvme.json")
-	scsifile := helperReadSmartDataFileFixTimestamp(t, "../models/testdata/smart-scsi.json")
-	scsi2file := helperReadSmartDataFileFixTimestamp(t, "../models/testdata/smart-scsi2.json")
+	metricsfile := helperReadSmartDataFileFixTimestamp(suite.T(), "../models/testdata/smart-ata.json")
+	failfile := helperReadSmartDataFileFixTimestamp(suite.T(), "../models/testdata/smart-fail2.json")
+	nvmefile := helperReadSmartDataFileFixTimestamp(suite.T(), "../models/testdata/smart-nvme.json")
+	scsifile := helperReadSmartDataFileFixTimestamp(suite.T(), "../models/testdata/smart-scsi.json")
+	scsi2file := helperReadSmartDataFileFixTimestamp(suite.T(), "../models/testdata/smart-scsi2.json")
 
 	//test
 	wr := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/devices/register", devicesfile)
+	req, _ := http.NewRequest("POST", suite.Basepath+"/api/devices/register", devicesfile)
 	router.ServeHTTP(wr, req)
-	require.Equal(t, 200, wr.Code)
+	require.Equal(suite.T(), 200, wr.Code)
 
 	mr := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", "/api/device/0x5000cca264eb01d7/smart", metricsfile)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/0x5000cca264eb01d7/smart", metricsfile)
 	router.ServeHTTP(mr, req)
-	require.Equal(t, 200, mr.Code)
+	require.Equal(suite.T(), 200, mr.Code)
 
 	fr := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", "/api/device/0x5000cca264ec3183/smart", failfile)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/0x5000cca264ec3183/smart", failfile)
 	router.ServeHTTP(fr, req)
-	require.Equal(t, 200, fr.Code)
+	require.Equal(suite.T(), 200, fr.Code)
 
 	nr := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", "/api/device/0x5002538e40a22954/smart", nvmefile)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/0x5002538e40a22954/smart", nvmefile)
 	router.ServeHTTP(nr, req)
-	require.Equal(t, 200, nr.Code)
+	require.Equal(suite.T(), 200, nr.Code)
 
 	sr := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", "/api/device/0x5000cca252c859cc/smart", scsifile)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/0x5000cca252c859cc/smart", scsifile)
 	router.ServeHTTP(sr, req)
-	require.Equal(t, 200, sr.Code)
+	require.Equal(suite.T(), 200, sr.Code)
 
 	s2r := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", "/api/device/0x5000cca264ebc248/smart", scsi2file)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/0x5000cca264ebc248/smart", scsi2file)
 	router.ServeHTTP(s2r, req)
-	require.Equal(t, 200, s2r.Code)
+	require.Equal(suite.T(), 200, s2r.Code)
 
 	//assert
 }
@@ -279,15 +304,16 @@ func TestPopulateMultiple(t *testing.T) {
 //	require.Equal(t, 200, wr.Code)
 //}
 
-func TestSendTestNotificationRoute_WebhookFailure(t *testing.T) {
+func (suite *ServerTestSuite) TestSendTestNotificationRoute_WebhookFailure() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
-	mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
@@ -309,22 +335,23 @@ func TestSendTestNotificationRoute_WebhookFailure(t *testing.T) {
 
 	//test
 	wr := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/health/notify", strings.NewReader("{}"))
+	req, _ := http.NewRequest("POST", suite.Basepath+"/api/health/notify", strings.NewReader("{}"))
 	router.ServeHTTP(wr, req)
 
 	//assert
-	require.Equal(t, 500, wr.Code)
+	require.Equal(suite.T(), 500, wr.Code)
 }
 
-func TestSendTestNotificationRoute_ScriptFailure(t *testing.T) {
+func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptFailure() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
-	mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
@@ -346,22 +373,23 @@ func TestSendTestNotificationRoute_ScriptFailure(t *testing.T) {
 
 	//test
 	wr := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/health/notify", strings.NewReader("{}"))
+	req, _ := http.NewRequest("POST", suite.Basepath+"/api/health/notify", strings.NewReader("{}"))
 	router.ServeHTTP(wr, req)
 
 	//assert
-	require.Equal(t, 500, wr.Code)
+	require.Equal(suite.T(), 500, wr.Code)
 }
 
-func TestSendTestNotificationRoute_ScriptSuccess(t *testing.T) {
+func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptSuccess() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
-	mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
@@ -383,22 +411,23 @@ func TestSendTestNotificationRoute_ScriptSuccess(t *testing.T) {
 
 	//test
 	wr := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/health/notify", strings.NewReader("{}"))
+	req, _ := http.NewRequest("POST", suite.Basepath+"/api/health/notify", strings.NewReader("{}"))
 	router.ServeHTTP(wr, req)
 
 	//assert
-	require.Equal(t, 200, wr.Code)
+	require.Equal(suite.T(), 200, wr.Code)
 }
 
-func TestSendTestNotificationRoute_ShoutrrrFailure(t *testing.T) {
+func (suite *ServerTestSuite) TestSendTestNotificationRoute_ShoutrrrFailure() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
-	mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
@@ -419,22 +448,23 @@ func TestSendTestNotificationRoute_ShoutrrrFailure(t *testing.T) {
 
 	//test
 	wr := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/health/notify", strings.NewReader("{}"))
+	req, _ := http.NewRequest("POST", suite.Basepath+"/api/health/notify", strings.NewReader("{}"))
 	router.ServeHTTP(wr, req)
 
 	//assert
-	require.Equal(t, 500, wr.Code)
+	require.Equal(suite.T(), 500, wr.Code)
 }
 
-func TestGetDevicesSummaryRoute_Nvme(t *testing.T) {
+func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
-	mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
 	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
@@ -454,30 +484,30 @@ func TestGetDevicesSummaryRoute_Nvme(t *testing.T) {
 	}
 	router := ae.Setup(logrus.New())
 	devicesfile, err := os.Open("testdata/register-devices-req-2.json")
-	require.NoError(t, err)
+	require.NoError(suite.T(), err)
 
-	metricsfile := helperReadSmartDataFileFixTimestamp(t, "../models/testdata/smart-nvme2.json")
+	metricsfile := helperReadSmartDataFileFixTimestamp(suite.T(), "../models/testdata/smart-nvme2.json")
 
 	//test
 	wr := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/devices/register", devicesfile)
+	req, _ := http.NewRequest("POST", suite.Basepath+"/api/devices/register", devicesfile)
 	router.ServeHTTP(wr, req)
-	require.Equal(t, 200, wr.Code)
+	require.Equal(suite.T(), 200, wr.Code)
 
 	mr := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", "/api/device/a4c8e8ed-11a0-4c97-9bba-306440f1b944/smart", metricsfile)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/a4c8e8ed-11a0-4c97-9bba-306440f1b944/smart", metricsfile)
 	router.ServeHTTP(mr, req)
-	require.Equal(t, 200, mr.Code)
+	require.Equal(suite.T(), 200, mr.Code)
 
 	sr := httptest.NewRecorder()
-	req, _ = http.NewRequest("GET", "/api/summary", nil)
+	req, _ = http.NewRequest("GET", suite.Basepath+"/api/summary", nil)
 	router.ServeHTTP(sr, req)
-	require.Equal(t, 200, sr.Code)
+	require.Equal(suite.T(), 200, sr.Code)
 	var deviceSummary models.DeviceSummaryWrapper
 	err = json.Unmarshal(sr.Body.Bytes(), &deviceSummary)
-	require.NoError(t, err)
+	require.NoError(suite.T(), err)
 
 	//assert
-	require.Equal(t, "a4c8e8ed-11a0-4c97-9bba-306440f1b944", deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.WWN)
-	require.Equal(t, pkg.DeviceStatusFailedScrutiny, deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.DeviceStatus)
+	require.Equal(suite.T(), "a4c8e8ed-11a0-4c97-9bba-306440f1b944", deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.WWN)
+	require.Equal(suite.T(), pkg.DeviceStatusFailedScrutiny, deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.DeviceStatus)
 }

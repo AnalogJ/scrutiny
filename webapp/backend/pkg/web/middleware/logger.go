@@ -89,7 +89,7 @@ func LoggerMiddleware(logger logrus.FieldLogger) gin.HandlerFunc {
 				entry.Info(msg)
 			}
 		}
-		if strings.HasPrefix(path, "/api/") {
+		if strings.Contains(path, "/api/") {
 			//only debug log request/response from api endpoint.
 			if len(reqBody) > 0 {
 				entry.WithField("bodyType", "request").Debugln(reqBody) // Print request body

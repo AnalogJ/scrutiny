@@ -3,6 +3,17 @@ import { LayoutComponent } from 'app/layout/layout.component';
 import { EmptyLayoutComponent } from 'app/layout/layouts/empty/empty.component';
 
 // @formatter:off
+export function getAppBaseHref(): string {
+    return getBasePath() + '/web';
+}
+
+// @formatter:off
+// tslint:disable:max-line-length
+export function getBasePath(): string {
+    return window.location.pathname.split('/web').slice(0, 1)[0];
+}
+
+// @formatter:off
 // tslint:disable:max-line-length
 export const appRoutes: Route[] = [
 

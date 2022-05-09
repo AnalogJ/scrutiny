@@ -2,6 +2,7 @@ import { NgModule, enableProdMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ExtraOptions, PreloadAllModules, RouterModule } from '@angular/router';
+import { APP_BASE_HREF } from '@angular/common';
 import { MarkdownModule } from 'ngx-markdown';
 import { TreoModule } from '@treo';
 import { TreoConfigModule } from '@treo/services/config';
@@ -11,7 +12,7 @@ import { appConfig } from 'app/core/config/app.config';
 import { mockDataServices } from 'app/data/mock';
 import { LayoutModule } from 'app/layout/layout.module';
 import { AppComponent } from 'app/app.component';
-import { appRoutes } from 'app/app.routing';
+import { appRoutes, getAppBaseHref } from 'app/app.routing';
 
 const routerConfig: ExtraOptions = {
     scrollPositionRestoration: 'enabled',
@@ -54,7 +55,13 @@ if (process.env.NODE_ENV === 'production') {
     ],
     bootstrap   : [
         AppComponent
-    ]
+    ],
+    providers: [
+        {
+            provide: APP_BASE_HREF,
+            useValue: getAppBaseHref()
+        }
+    ],
 })
 export class AppModule
 {

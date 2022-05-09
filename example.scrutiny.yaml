@@ -20,10 +20,18 @@ web:
   listen:
     port: 8080
     host: 0.0.0.0
+
+    # if you're using a reverse proxy like apache/nginx, you can override this value to serve scrutiny on a subpath.
+    # eg. http://example.com/scrutiny/* vs http://example.com:8080
+    # see docs/TROUBLESHOOTING_REVERSE_PROXY.md
+    # basepath: `/scrutiny`
+    # leave empty unless behind a path prefixed proxy
+    basepath: ''
   database:
     # can also set absolute path here
     location: /opt/scrutiny/config/scrutiny.db
   src:
+    # the location on the filesystem where scrutiny javascript + css is located
     frontend:
       path: /opt/scrutiny/web
   influxdb:
