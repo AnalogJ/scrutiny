@@ -16,40 +16,50 @@ FROM node:lts-slim as frontendbuild
 #reduce logging, disable angular-cli analytics for ci environment
 ENV NPM_CONFIG_LOGLEVEL=warn NG_CLI_ANALYTICS=false
 
-WORKDIR /scrutiny/src
-COPY webapp/frontend /scrutiny/src
+WORKDIR /opt/scrutiny/src
+COPY webapp/frontend /opt/scrutiny/src
 
 RUN npm install -g @angular/cli@9.1.4 && \
     mkdir -p /scrutiny/dist && \
     npm install && \
-    ng build --output-path=/scrutiny/dist --prod
+    ng build --output-path=/opt/scrutiny/dist --prod
 
 
 ########
 FROM ubuntu:bionic as runtime
+ARG TARGETARCH
 EXPOSE 8080
-WORKDIR /scrutiny
-ENV PATH="/scrutiny/bin:${PATH}"
+WORKDIR /opt/scrutiny
+ENV PATH="/opt/scrutiny/bin:${PATH}"
+ENV INFLUXD_CONFIG_PATH=/opt/scrutiny/influxdb
 
-RUN apt-get update && apt-get install -y cron smartmontools=7.0-0ubuntu1~ubuntu18.04.1 ca-certificates curl && update-ca-certificates
+RUN apt-get update && apt-get install -y cron smartmontools=7.0-0ubuntu1~ubuntu18.04.1 ca-certificates curl tzdata \
+    && update-ca-certificates \
+    &&  case ${TARGETARCH} in \
+            "amd64")  S6_ARCH=amd64  ;; \
+            "arm64")  S6_ARCH=aarch64  ;; \
+        esac \
+    && curl https://github.com/just-containers/s6-overlay/releases/download/v1.21.8.0/s6-overlay-${S6_ARCH}.tar.gz -L -s --output /tmp/s6-overlay-${S6_ARCH}.tar.gz \
+    && tar xzf /tmp/s6-overlay-${S6_ARCH}.tar.gz -C /
 
-ADD https://github.com/just-containers/s6-overlay/releases/download/v1.21.8.0/s6-overlay-amd64.tar.gz /tmp/
-RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
+ADD https://dl.influxdata.com/influxdb/releases/influxdb2-2.2.0-${TARGETARCH}.deb /tmp/
+RUN dpkg -i /tmp/influxdb2-2.2.0-${TARGETARCH}.deb && rm -rf /tmp/influxdb2-2.2.0-${TARGETARCH}.deb
+
 COPY /rootfs /
 
 COPY /rootfs/etc/cron.d/scrutiny /etc/cron.d/scrutiny
-COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny /scrutiny/bin/
-COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-selftest /scrutiny/bin/
-COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-metrics /scrutiny/bin/
-COPY --from=frontendbuild /scrutiny/dist /scrutiny/web
-RUN chmod +x /scrutiny/bin/scrutiny && \
-    chmod +x /scrutiny/bin/scrutiny-collector-selftest && \
-    chmod +x /scrutiny/bin/scrutiny-collector-metrics && \
+COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny /opt/scrutiny/bin/
+COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-selftest /opt/scrutiny/bin/
+COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-metrics /opt/scrutiny/bin/
+COPY --from=frontendbuild /opt/scrutiny/dist /opt/scrutiny/web
+RUN chmod +x /opt/scrutiny/bin/scrutiny && \
+    chmod +x /opt/scrutiny/bin/scrutiny-collector-selftest && \
+    chmod +x /opt/scrutiny/bin/scrutiny-collector-metrics && \
     chmod 0644 /etc/cron.d/scrutiny && \
     rm -f /etc/cron.daily/* && \
-    mkdir -p /scrutiny/web && \
-    mkdir -p /scrutiny/config && \
-    chmod -R ugo+rwx /scrutiny/config
+    mkdir -p /opt/scrutiny/web && \
+    mkdir -p /opt/scrutiny/config && \
+    chmod -R ugo+rwx /opt/scrutiny/config
 
 
 CMD ["/init"]

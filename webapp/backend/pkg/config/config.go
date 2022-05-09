@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	"strings"
 )
 
 // When initializing this class the following methods must be called:
@@ -29,21 +30,29 @@ func (c *configuration) Init() error {
 	//set defaults
 	c.SetDefault("web.listen.port", "8080")
 	c.SetDefault("web.listen.host", "0.0.0.0")
-	c.SetDefault("web.src.frontend.path", "/scrutiny/web")
+	c.SetDefault("web.src.frontend.path", "/opt/scrutiny/web")
 	c.SetDefault("web.src.backend.basepath", "")
-	c.SetDefault("web.database.location", "/scrutiny/config/scrutiny.db")
+	c.SetDefault("web.database.location", "/opt/scrutiny/config/scrutiny.db")
 
 	c.SetDefault("log.level", "INFO")
 	c.SetDefault("log.file", "")
 
 	c.SetDefault("notify.urls", []string{})
 
+	c.SetDefault("web.influxdb.host", "0.0.0.0")
+	c.SetDefault("web.influxdb.port", "8086")
+	c.SetDefault("web.influxdb.org", "scrutiny")
+	c.SetDefault("web.influxdb.bucket", "metrics")
+	c.SetDefault("web.influxdb.init_username", "admin")
+	c.SetDefault("web.influxdb.init_password", "password12345")
+	c.SetDefault("web.influxdb.retention_policy", true)
+
 	//c.SetDefault("disks.include", []string{})
 	//c.SetDefault("disks.exclude", []string{})
 
-	//c.SetDefault("notify.metric.script", "/scrutiny/config/notify-metrics.sh")
-	//c.SetDefault("notify.long.script", "/scrutiny/config/notify-long-test.sh")
-	//c.SetDefault("notify.short.script", "/scrutiny/config/notify-short-test.sh")
+	//c.SetDefault("notify.metric.script", "/opt/scrutiny/config/notify-metrics.sh")
+	//c.SetDefault("notify.long.script", "/opt/scrutiny/config/notify-long-test.sh")
+	//c.SetDefault("notify.short.script", "/opt/scrutiny/config/notify-short-test.sh")
 
 	//c.SetDefault("collect.metric.enable", true)
 	//c.SetDefault("collect.metric.command", "-a -o on -S on")
@@ -57,11 +66,19 @@ func (c *configuration) Init() error {
 	//c.SetConfigName("drawbridge")
 	//c.AddConfigPath("$HOME/")
 
+	//configure env variable parsing.
+	c.SetEnvPrefix("SCRUTINY")
+	c.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
+	c.AutomaticEnv()
+
 	//CLI options will be added via the `Set()` function
 	return nil
 }
 
 func (c *configuration) ReadConfig(configFilePath string) error {
+	//make sure that we specify that this is the correct config path (for eventual WriteConfig() calls)
+	c.SetConfigFile(configFilePath)
+
 	configFilePath, err := utils.ExpandPath(configFilePath)
 	if err != nil {
 		return err

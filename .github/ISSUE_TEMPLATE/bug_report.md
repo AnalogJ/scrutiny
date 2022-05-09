@@ -18,6 +18,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Log Files**
 If related to missing devices or SMART data, please run the `collector` in DEBUG mode, and attach the log file.
+See [/docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md](docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md) for other troubleshooting tips. 
 
 ```
 docker run -it --rm -p 8080:8080 \
@@ -29,7 +30,7 @@ docker run -it --rm -p 8080:8080 \
 -e COLLECTOR_LOG_FILE=/tmp/collector.log \
 -e SCRUTINY_LOG_FILE=/tmp/web.log \
 --name scrutiny \
-analogj/scrutiny
+ghcr.io/analogj/scrutiny:master-omnibus
 
 # in another terminal trigger the collector
 docker exec scrutiny scrutiny-collector-metrics run
@@ -37,5 +38,4 @@ docker exec scrutiny scrutiny-collector-metrics run
 # then use docker cp to copy the log files out of the container.
 docker cp scrutiny:/tmp/collector.log collector.log
 docker cp scrutiny:/tmp/web.log web.log
-
 ```

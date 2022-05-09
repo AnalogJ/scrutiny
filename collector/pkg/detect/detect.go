@@ -3,7 +3,7 @@ package detect
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/analogj/scrutiny/collector/pkg/common"
+	"github.com/analogj/scrutiny/collector/pkg/common/shell"
 	"github.com/analogj/scrutiny/collector/pkg/config"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
@@ -15,6 +15,7 @@ import (
 type Detect struct {
 	Logger *logrus.Entry
 	Config config.Interface
+	Shell  shell.Interface
 }
 
 //private/common functions
@@ -27,7 +28,7 @@ type Detect struct {
 // models.Device returned from this function only contain the minimum data for smartctl to execute: device type and device name (device file).
 func (d *Detect) SmartctlScan() ([]models.Device, error) {
 	//we use smartctl to detect all the drives available.
-	detectedDeviceConnJson, err := common.ExecCmd(d.Logger, "smartctl", []string{"--scan", "-j"}, "", os.Environ())
+	detectedDeviceConnJson, err := d.Shell.Command(d.Logger, "smartctl", []string{"--scan", "-j"}, "", os.Environ())
 	if err != nil {
 		d.Logger.Errorf("Error scanning for devices: %v", err)
 		return nil, err
@@ -58,7 +59,7 @@ func (d *Detect) SmartCtlInfo(device *models.Device) error {
 	}
 	args = append(args, fmt.Sprintf("%s%s", DevicePrefix(), device.DeviceName))
 
-	availableDeviceInfoJson, err := common.ExecCmd(d.Logger, "smartctl", args, "", os.Environ())
+	availableDeviceInfoJson, err := d.Shell.Command(d.Logger, "smartctl", args, "", os.Environ())
 	if err != nil {
 		d.Logger.Errorf("Could not retrieve device information for %s: %v", device.DeviceName, err)
 		return err
@@ -99,6 +100,12 @@ func (d *Detect) SmartCtlInfo(device *models.Device) error {
 	} else {
 		d.Logger.Info("Using WWN Fallback")
 		d.wwnFallback(device)
+	}
+	if len(device.WWN) == 0 {
+		// no WWN populated after WWN lookup and fallback. we need to throw an error
+		errMsg := fmt.Sprintf("no WWN (or fallback) populated for device: %s. Device will be registered, but no data will be published for this device. ", device.DeviceName)
+		d.Logger.Errorf(errMsg)
+		return fmt.Errorf(errMsg)
 	}
 
 	return nil

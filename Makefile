@@ -9,7 +9,6 @@ BINARY=\
   linux/arm-7   \
   linux/arm64   \
 
-
 .PHONY: all $(BINARY)
 all: $(BINARY) windows/amd64
 

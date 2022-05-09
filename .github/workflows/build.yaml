@@ -6,7 +6,21 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    container: karalabe/xgo-1.13.x
+    container: techknowlogick/xgo:go-1.13.x
+
+    # Service containers to run with `build` (Required for end-to-end testing)
+    services:
+      influxdb:
+        image: influxdb:2.2
+        env:
+          DOCKER_INFLUXDB_INIT_MODE: setup
+          DOCKER_INFLUXDB_INIT_USERNAME: admin
+          DOCKER_INFLUXDB_INIT_PASSWORD: password12345
+          DOCKER_INFLUXDB_INIT_ORG: scrutiny
+          DOCKER_INFLUXDB_INIT_BUCKET: metrics
+          DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-super-secret-auth-token
+        ports:
+          - 8086:8086
     env:
       PROJECT_PATH: /go/src/github.com/analogj/scrutiny
       CGO_ENABLED: 1
@@ -26,6 +40,13 @@ jobs:
 
           go mod vendor
           go test -race -coverprofile=coverage.txt -covermode=atomic -v -tags "static" $(go list ./... | grep -v /vendor/)
+      - name: Generate coverage report
+        uses: codecov/codecov-action@v2
+        with:
+          files: ${{ env.PROJECT_PATH }}/coverage.txt
+          flags: unittests
+          fail_ci_if_error: true
+          verbose: true
       - name: Build Binaries
         run: |
 
@@ -49,9 +70,13 @@ jobs:
             /build/scrutiny-collector-metrics-linux-arm-7
             /build/scrutiny-web-windows-4.0-amd64.exe
             /build/scrutiny-collector-metrics-windows-4.0-amd64.exe
+#            /build/scrutiny-web-darwin-arm64
+#            /build/scrutiny-collector-metrics-darwin-arm64
+#            /build/scrutiny-web-darwin-amd64
+#            /build/scrutiny-collector-metrics-darwin-amd64
 #            /build/scrutiny-web-freebsd-amd64
 #            /build/scrutiny-collector-metrics-freebsd-amd64
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v2
         with:
           file: ${{ env.PROJECT_PATH }}/coverage.txt
           flags: unittests

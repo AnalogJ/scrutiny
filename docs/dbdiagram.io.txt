@@ -1,0 +1,62 @@
+
+// SQLite Table(s)
+Table device {
+  created_at timestamp
+
+  wwn varchar [pk]
+
+  //user provided
+  label varchar
+  host_id varchar
+
+  // smartctl provided
+  device_name varchar
+  manufacturer varchar
+  model_name varchar
+  interface_type varchar
+  interface_speed varchar
+  serial_number varchar
+  firmware varchar
+  rotational_speed varchar
+  capacity varchar
+  form_factor varchar
+  smart_support varchar
+  device_protocol varchar
+  device_type varchar
+
+}
+
+
+// InfluxDB Tables
+Table device_temperature {
+  //timestamp
+  created_at timestamp
+
+  //tags (indexed & queryable)
+  device_wwn varchar [pk]
+
+  //fields
+  temp bigint
+ }
+
+
+Table smart_ata_results {
+  //timestamp
+  created_at timestamp
+
+  //tags (indexed & queryable)
+  device_wwn varchar [pk]
+  smart_status varchar
+  scrutiny_status varchar
+
+
+
+  //fields
+  temp bigint
+  power_on_hours bigint
+  power_cycle_count bigint
+
+
+ }
+
+Ref: device.wwn < smart_ata_results.device_wwn

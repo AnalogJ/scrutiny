@@ -8,6 +8,19 @@ import (
 	"testing"
 )
 
+func TestConfiguration_InvalidConfigPath(t *testing.T) {
+	t.Parallel()
+
+	//setup
+	testConfig, _ := config.Create()
+
+	//test
+	err := testConfig.ReadConfig("does_not_exist.yaml")
+
+	//assert
+	require.Error(t, err, "should return an error")
+}
+
 func TestConfiguration_GetScanOverrides_Simple(t *testing.T) {
 	t.Parallel()
 

@@ -9,6 +9,7 @@ import (
 type Interface interface {
 	Init() error
 	ReadConfig(configFilePath string) error
+	WriteConfig() error
 	Set(key string, value interface{})
 	SetDefault(key string, value interface{})
 

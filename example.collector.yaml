@@ -1,6 +1,6 @@
 # Commented Scrutiny Configuration File
 #
-# The default location for this file is /scrutiny/config/collector.yaml.
+# The default location for this file is /opt/scrutiny/config/collector.yaml.
 # In some cases to improve clarity default values are specified,
 # uncommented. Other example values are commented out.
 #

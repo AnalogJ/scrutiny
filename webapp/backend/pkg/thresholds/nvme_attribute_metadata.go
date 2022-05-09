@@ -1,4 +1,4 @@
-package metadata
+package thresholds
 
 // https://media.kingston.com/support/downloads/MKP_521.6_SMART-DCP1000_attribute.pdf
 // https://www.percona.com/blog/2017/02/09/using-nvme-command-line-tools-to-check-nvme-flash-health/
@@ -6,14 +6,14 @@ package metadata
 // https://www.micromat.com/product_manuals/drive_scope_manual_01.pdf
 type NvmeAttributeMetadata struct {
 	ID          string `json:"-"`
-	DisplayName string `json:"-"`
+	DisplayName string `json:"display_name"`
 	Ideal       string `json:"ideal"`
 	Critical    bool   `json:"critical"`
 	Description string `json:"description"`
 
-	Transform          func(int, int64, string) int64 `json:"-"` //this should be a method to extract/tranform the normalized or raw data to a chartable format. Str
-	TransformValueUnit string                         `json:"transform_value_unit,omitempty"`
-	DisplayType        string                         `json:"display_type"` //"raw" "normalized" or "transformed"
+	Transform          func(int64, int64, string) int64 `json:"-"` //this should be a method to extract/tranform the normalized or raw data to a chartable format. Str
+	TransformValueUnit string                           `json:"transform_value_unit,omitempty"`
+	DisplayType        string                           `json:"display_type"` //"raw" "normalized" or "transformed"
 }
 
 var NmveMetadata = map[string]NvmeAttributeMetadata{

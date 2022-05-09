@@ -1,3 +1,5 @@
+# This vagrant file is only used for local development & testing.
+
 Vagrant.configure("2") do |config|
   config.vm.guest = :freebsd
   config.vm.synced_folder ".", "/vagrant", id: "vagrant-root", disabled: true

@@ -14,10 +14,11 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/AnalogJ/scrutiny?style=flat-square)](https://goreportcard.com/report/github.com/AnalogJ/scrutiny)
 [![GitHub release](http://img.shields.io/github/release/AnalogJ/scrutiny.svg?style=flat-square)](https://github.com/AnalogJ/scrutiny/releases)
 
-
 WebUI for smartd S.M.A.R.T monitoring
 
 > NOTE: Scrutiny is a Work-in-Progress and still has some rough edges.
+>
+> WARNING: Once the [InfluxDB](https://github.com/AnalogJ/scrutiny/tree/influxdb) branch is merged, Scrutiny will use both sqlite and InfluxDB for data storage. Unfortunately, this may not be backwards compatible with the database structures in the master (sqlite only) branch. 
 
 [![](docs/dashboard.png)](https://imgur.com/a/5k8qMzS)
 
@@ -71,40 +72,48 @@ If you're using Docker, getting started is as simple as running the following co
 
 ```bash
 docker run -it --rm -p 8080:8080 \
--v /run/udev:/run/udev:ro \
---cap-add SYS_RAWIO \
---device=/dev/sda \
---device=/dev/sdb \
---name scrutiny \
-analogj/scrutiny
+  -v `pwd`/scrutiny:/opt/scrutiny/config \
+  -v `pwd`/influxdb2:/opt/scrutiny/influxdb \
+  -v /run/udev:/run/udev:ro \
+  --cap-add SYS_RAWIO \
+  --device=/dev/sda \
+  --device=/dev/sdb \
+  --name scrutiny \
+  ghcr.io/analogj/scrutiny:master-omnibus
 ```
 
 - `/run/udev` is necessary to provide the Scrutiny collector with access to your device metadata
 - `--cap-add SYS_RAWIO` is necessary to allow `smartctl` permission to query your device SMART data
     - NOTE: If you have **NVMe** drives, you must add `--cap-add SYS_ADMIN` as well. See issue [#26](https://github.com/AnalogJ/scrutiny/issues/26#issuecomment-696817130)
 - `--device` entries are required to ensure that your hard disk devices are accessible within the container.
-- `analogj/scrutiny` is a omnibus image, containing both the webapp server (frontend & api) as well as the S.M.A.R.T metric collector. (see below)
+- `ghcr.io/analogj/scrutiny:master-omnibus` is a omnibus image, containing both the webapp server (frontend & api) as well as the S.M.A.R.T metric collector. (see below)
 
 ### Hub/Spoke Deployment
 
 In addition to the Omnibus image (available under the `latest` tag) there are 2 other Docker images available:
 
-- `analogj/scrutiny:collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like scheduler. You can run one collector on each server.
-- `analogj/scrutiny:web` - Contains the Web UI, API and Database. Only one container necessary
+- `ghcr.io/analogj/scrutiny:master-collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like scheduler. You can run one collector on each server.
+- `ghcr.io/analogj/scrutiny:master-web` - Contains the Web UI, API and Database. Only one container necessary
 
 ```bash
-docker run -it --rm -p 8080:8080 \
---name scrutiny-web \
-analogj/scrutiny:web
+docker run --rm -p 8086:8086 \
+  -v `pwd`/influxdb2:/var/lib/influxdb2 \
+  --name scrutiny-influxdb \
+  influxdb:2.2
 
-docker run -it --rm \
--v /run/udev:/run/udev:ro \
---cap-add SYS_RAWIO \
---device=/dev/sda \
---device=/dev/sdb \
--e SCRUTINY_API_ENDPOINT=http://SCRUTINY_WEB_IPADDRESS:8080 \
---name scrutiny-collector \
-analogj/scrutiny:collector
+docker run --rm -p 8080:8080 \
+  -v `pwd`/scrutiny:/opt/scrutiny/config \
+  --name scrutiny-web \
+  ghcr.io/analogj/scrutiny:master-web
+
+docker run --rm \
+  -v /run/udev:/run/udev:ro \
+  --cap-add SYS_RAWIO \
+  --device=/dev/sda \
+  --device=/dev/sdb \
+  -e SCRUTINY_API_ENDPOINT=http://SCRUTINY_WEB_IPADDRESS:8080 \
+  --name scrutiny-collector \
+  ghcr.io/analogj/scrutiny:master-collector
 ```
 
 ## Manual Installation (without-Docker)
@@ -125,12 +134,12 @@ drive that Scrutiny detected. The collector is configured to run once a day, but
 For users of the docker Hub/Spoke deployment or manual install: initially the dashboard will be empty.
 After the first collector run, you'll be greeted with a list of all your hard drives and their current smart status.
 
-```
-docker exec scrutiny /scrutiny/bin/scrutiny-collector-metrics run
+```bash
+docker exec scrutiny /opt/scrutiny/bin/scrutiny-collector-metrics run
 ```
 
 # Configuration
-By default Scrutiny looks for its YAML configuration files in `/scrutiny/config`
+By default Scrutiny looks for its YAML configuration files in `/opt/scrutiny/config`
 
 There are two configuration files available:
 
@@ -138,6 +147,13 @@ There are two configuration files available:
 - Collector config via `collector.yaml` - [example.collector.yaml](example.collector.yaml).
 
 Neither file is required, however if provided, it allows you to configure how Scrutiny functions.
+
+## Cron Schedule
+Unfortunately the Cron schedule cannot be configured via the `collector.yaml` (as the collector binary needs to be trigged by a scheduler/cron).
+However, if you are using the official `ghcr.io/analogj/scrutiny:master-collector` or `ghcr.io/analogj/scrutiny:master-omnibus` docker images, 
+you can use the `COLLECTOR_CRON_SCHEDULE` environmental variable to override the default cron schedule (daily @ midnight - `0 0 * * *`).
+
+`docker run -e COLLECTOR_CRON_SCHEDULE="0 0 * * *" ...`
 
 ## Notifications
 
@@ -164,7 +180,7 @@ Check the `notify.urls` section of [example.scrutiny.yml](example.scrutiny.yaml)
 
 You can test that your notifications are configured correctly by posting an empty payload to the notifications health check API.
 
-```
+```bash
 curl -X POST http://localhost:8080/api/health/notify
 ```
 
@@ -175,14 +191,14 @@ Scrutiny provides various methods to change the log level to debug and generate 
 
 You can use environmental variables to enable debug logging and/or log files for the web server:
 
-```
+```bash
 DEBUG=true
 SCRUTINY_LOG_FILE=/tmp/web.log
 ```
 
 You can configure the log level and log file in the config file:
 
-```
+```yml
 log:
   file: '/tmp/web.log'
   level: DEBUG
@@ -190,7 +206,7 @@ log:
 
 Or if you're not using docker, you can pass CLI arguments to the web server during startup:
 
-```
+```bash
 scrutiny start --debug --log-file /tmp/web.log
 ```
 
@@ -198,14 +214,14 @@ scrutiny start --debug --log-file /tmp/web.log
 
 You can use environmental variables to enable debug logging and/or log files for the collector:
 
-```
+```bash
 DEBUG=true
 COLLECTOR_LOG_FILE=/tmp/collector.log
 ```
 
 Or if you're not using docker, you can pass CLI arguments to the collector during startup:
 
-```
+```bash
 scrutiny-collector-metrics run --debug --log-file /tmp/collector.log
 ```
 
