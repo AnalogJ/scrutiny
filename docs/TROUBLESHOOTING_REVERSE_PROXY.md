@@ -20,7 +20,7 @@ However if you're using `path` based routing to differentiate your reverse proxy
 If you'd like to access Scrutiny using a path like: `http://example.com/scrutiny/`, then we need a way to configure Scrutiny so that it
 understands `http://example.com/scrutiny/api/health` actually means `http://localhost:8080/api/health`.
 
-Thankfully this can be done by changing **two** settings. 
+Thankfully this can be done by changing **two** settings (both are required).
 
 1. The webserver has a `web.listen.basepath` key
 2. The collectors have a `api.endpoint` key.
@@ -52,7 +52,7 @@ api:
 
 # Environmental Variables.
 
-You may also configure these values using the following environmental variables
+You may also configure these values using the following environmental variables (both are required).
 
 - `COLLECTOR_API_ENDPOINT=http://localhost:8080/custombasepath`
 - `SCRUTINY_WEB_LISTEN_BASEPATH=/custombasepath`
