@@ -69,6 +69,9 @@ jobs:
           # restore modified dir to GH workspace.
           cp -arf $PROJECT_PATH/. $GITHUB_WORKSPACE/
 
+          # copy all the build artifacts to the GH workspace
+          cp -arf /build/. $GITHUB_WORKSPACE/
+
       - name: Commit Changes
         id: commit
         uses: packagrio/action-releasr-go@master
@@ -86,15 +89,15 @@ jobs:
         with:
           version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
           upload_assets:
-            /build/scrutiny-web-linux-amd64
-            /build/scrutiny-collector-metrics-linux-amd64
-            /build/scrutiny-web-linux-arm64
-            /build/scrutiny-collector-metrics-linux-arm64
-            /build/scrutiny-web-linux-arm-5
-            /build/scrutiny-collector-metrics-linux-arm-5
-            /build/scrutiny-web-linux-arm-6
-            /build/scrutiny-collector-metrics-linux-arm-6
-            /build/scrutiny-web-linux-arm-7
-            /build/scrutiny-collector-metrics-linux-arm-7
-            /build/scrutiny-web-windows-4.0-amd64.exe
-            /build/scrutiny-collector-metrics-windows-4.0-amd64.exe
+            scrutiny-web-linux-amd64
+            scrutiny-collector-metrics-linux-amd64
+            scrutiny-web-linux-arm64
+            scrutiny-collector-metrics-linux-arm64
+            scrutiny-web-linux-arm-5
+            scrutiny-collector-metrics-linux-arm-5
+            scrutiny-web-linux-arm-6
+            scrutiny-collector-metrics-linux-arm-6
+            scrutiny-web-linux-arm-7
+            scrutiny-collector-metrics-linux-arm-7
+            scrutiny-web-windows-4.0-amd64.exe
+            scrutiny-collector-metrics-windows-4.0-amd64.exe
