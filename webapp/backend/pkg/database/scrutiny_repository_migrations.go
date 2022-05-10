@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20201107210306"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220503120000"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220509170100"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
@@ -257,8 +258,17 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 					return err
 				}
 
-				//migrate the device database to the current version
+				//migrate the device database
 				return tx.AutoMigrate(m20220503120000.Device{})
+			},
+		},
+		{
+			ID: "m20220509170100", // addl udev device data
+			Migrate: func(tx *gorm.DB) error {
+
+				//migrate the device database.
+				// adding addl columns (device_label, device_uuid, device_serial_id)
+				return tx.AutoMigrate(m20220509170100.Device{})
 			},
 		},
 	})

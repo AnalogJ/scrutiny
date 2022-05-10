@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Deprecated: m20220503120000.Device is deprecated, only used by db migrations
 type Device struct {
 	//GORM attributes, see: http://gorm.io/docs/conventions.html
 	CreatedAt time.Time
