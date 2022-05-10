@@ -13,7 +13,7 @@ func DevicePrefix() string {
 
 func (d *Detect) Start() ([]models.Device, error) {
 	d.Shell = shell.Create()
-	// call the base/common functionality to get a list of devicess
+	// call the base/common functionality to get a list of devices
 	detectedDevices, err := d.SmartctlScan()
 	if err != nil {
 		return nil, err

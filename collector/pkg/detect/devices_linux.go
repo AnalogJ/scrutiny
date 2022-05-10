@@ -1,9 +1,12 @@
 package detect
 
 import (
+	"fmt"
 	"github.com/analogj/scrutiny/collector/pkg/common/shell"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/jaypipes/ghw"
+	"io/ioutil"
+	"path/filepath"
 	"strings"
 )
 
@@ -22,6 +25,7 @@ func (d *Detect) Start() ([]models.Device, error) {
 	//inflate device info for detected devices.
 	for ndx, _ := range detectedDevices {
 		d.SmartCtlInfo(&detectedDevices[ndx]) //ignore errors.
+		populateUdevInfo(&detectedDevices[ndx]) //ignore errors.
 	}
 
 	return detectedDevices, nil
@@ -49,3 +53,51 @@ func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 	//wwn must always be lowercase.
 	detectedDevice.WWN = strings.ToLower(detectedDevice.WWN)
 }
+
+// as discussed in
+// - https://github.com/AnalogJ/scrutiny/issues/225
+// - https://github.com/jaypipes/ghw/issues/59#issue-361915216
+// udev exposes its data in a standardized way under /run/udev/data/....
+func populateUdevInfo(detectedDevice *models.Device) error {
+	// Get device major:minor numbers
+	// `cat /sys/class/block/sda/dev`
+	devNo, err := ioutil.ReadFile(filepath.Join("/sys/class/block/", detectedDevice.DeviceName, "dev"))
+	if err != nil {
+		return err
+	}
+
+	// Look up block device in udev runtime database
+	// `cat /run/udev/data/b8:0`
+	udevID := "b" + strings.TrimSpace(string(devNo))
+	udevBytes, err := ioutil.ReadFile(filepath.Join("/run/udev/data/", udevID))
+	if err != nil {
+		return err
+	}
+
+	deviceMountPaths := []string{}
+	udevInfo := make(map[string]string)
+	for _, udevLine := range strings.Split(string(udevBytes), "\n") {
+		if strings.HasPrefix(udevLine, "E:") {
+			if s := strings.SplitN(udevLine[2:], "=", 2); len(s) == 2 {
+				udevInfo[s[0]] = s[1]
+			}
+		} else if strings.HasPrefix(udevLine, "S:") {
+			deviceMountPaths = append(deviceMountPaths, udevLine[2:])
+		}
+	}
+
+	//Set additional device information.
+	if deviceLabel, exists := udevInfo["ID_FS_LABEL"]; exists {
+		detectedDevice.DeviceLabel = deviceLabel
+	}
+	if deviceUUID, exists := udevInfo["ID_FS_UUID"]; exists {
+		detectedDevice.DeviceUUID = deviceUUID
+	}
+	if deviceSerialID, exists := udevInfo["ID_SERIAL"]; exists {
+		detectedDevice.DeviceSerialID = fmt.Sprintf("%s-%s", udevInfo["ID_BUS"], deviceSerialID)
+	}
+
+
+	return nil
+}
+
