@@ -5,6 +5,12 @@ on:
   release:
     # Only use the types keyword to narrow down the activity types that will trigger your workflow.
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'tag to build artifacts for'
+        required: true
+        default: 'v0.0.0'
 jobs:
 
   release-freebsd:
@@ -19,7 +25,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          ref: ${{github.event.release.tag_name}}
+          ref: ${{github.event.release.tag_name || github.event.inputs.tag_name }}
       - name: Build Binaries
         uses: vmactions/freebsd-vm@v0.1.5
         with:
