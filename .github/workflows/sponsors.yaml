@@ -8,6 +8,7 @@ jobs:
   build:
     name: is-sponsor-label
     runs-on: ubuntu-latest
+    if: ${{ false }}
     steps:
       - uses: JasonEtco/is-sponsor-label-action@v1.2.0
         env:
