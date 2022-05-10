@@ -138,7 +138,7 @@ export const summary = {
                     "device_protocol": "",
                     "device_type": "",
                     "label": "",
-                    "host_id": "",
+                    "host_id": "custom host id",
                     "device_status": 1
                 },
                 "smart": {

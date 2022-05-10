@@ -91,8 +91,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
             if (!deviceSummary.temp_history){
                 continue
             }
+
+            let deviceName = `/dev/${deviceSummary.device.device_name}`
+            if(deviceSummary.device.host_id){
+                deviceName = `${deviceSummary.device.host_id} - ${deviceName}`
+            }
+
             var deviceSeriesMetadata = {
-                name: `/dev/${deviceSummary.device.device_name}`,
+                name: deviceName,
                 data: []
             }
 
