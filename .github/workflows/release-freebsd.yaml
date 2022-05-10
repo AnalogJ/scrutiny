@@ -59,6 +59,16 @@ jobs:
             file "$GITHUB_WORKSPACE/dist/scrutiny-collector-metrics-${GOOS}-${GOARCH}" || true
             ldd "$GITHUB_WORKSPACE/dist/scrutiny-collector-metrics-${GOOS}-${GOARCH}" || true
 
+      - name: Release Asset - Collector - freebsd-amd64
+        id: upload-release-asset2
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: './dist/scrutiny-collector-metrics-freebsd-amd64'
+          asset_name: scrutiny-collector-metrics-freebsd-amd64
+          asset_content_type: application/octet-stream
 
       - name: Release Asset - Web - freebsd-amd64
         id: upload-release-asset1
@@ -71,13 +81,3 @@ jobs:
           asset_name: scrutiny-web-freebsd-amd64
           asset_content_type: application/octet-stream
 
-      - name: Release Asset - Collector - freebsd-amd64
-        id: upload-release-asset2
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: './dist/scrutiny-collector-metrics-freebsd-amd64'
-          asset_name: scrutiny-collector-metrics-freebsd-amd64
-          asset_content_type: application/octet-stream
