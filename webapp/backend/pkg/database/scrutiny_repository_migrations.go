@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20201107210306"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220503120000"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
@@ -256,8 +257,8 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 					return err
 				}
 
-				//migrate the device database to the final version
-				return tx.AutoMigrate(models.Device{})
+				//migrate the device database to the current version
+				return tx.AutoMigrate(m20220503120000.Device{})
 			},
 		},
 	})
