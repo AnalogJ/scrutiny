@@ -225,6 +225,21 @@ Or if you're not using docker, you can pass CLI arguments to the collector durin
 scrutiny-collector-metrics run --debug --log-file /tmp/collector.log
 ```
 
+# Supported Architectures
+
+
+| Architecture Name | Binaries | Docker |
+| --- | --- | --- |
+| amd64 | :white_check_mark: | :white_check_mark: |
+| arm-5 | :white_check_mark: |  |
+| arm-6 | :white_check_mark: |  |
+| arm-7 | :white_check_mark: |  |
+| arm64 | :white_check_mark: | :white_check_mark: |
+| macos-amd64 |  | :white_check_mark: |
+| macos-arm64 |  | :white_check_mark: |
+| windows-amd64 | :white_check_mark: |  |
+
+
 # Contributing
 
 Please see the [CONTRIBUTING.md](CONTRIBUTING.md) for instructions for how to develop and contribute to the scrutiny codebase.
