@@ -235,6 +235,7 @@ scrutiny-collector-metrics run --debug --log-file /tmp/collector.log
 | arm-6 | :white_check_mark: |  |
 | arm-7 | :white_check_mark: |  |
 | arm64 | :white_check_mark: | :white_check_mark: |
+| freebsd | :white_check_mark: |  | 
 | macos-amd64 |  | :white_check_mark: |
 | macos-arm64 |  | :white_check_mark: |
 | windows-amd64 | :white_check_mark: |  |
