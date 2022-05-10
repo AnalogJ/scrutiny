@@ -50,7 +50,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           context: .
           file: docker/Dockerfile.collector
           push: ${{ github.event_name != 'pull_request' }}
@@ -95,7 +95,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           context: .
           file: docker/Dockerfile.web
           push: ${{ github.event_name != 'pull_request' }}
