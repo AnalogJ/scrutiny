@@ -21,7 +21,7 @@ jobs:
         with:
           ref: ${{github.event.release.tag_name}}
       - name: Build Binaries
-        uses: vmactions/freebsd-vm@v0.1.3
+        uses: vmactions/freebsd-vm@v0.1.5
         with:
           envs: 'PROJECT_PATH GOPATH GOOS GOARCH'
           usesh: true
