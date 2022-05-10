@@ -1,18 +1,6 @@
 ---
 engine_enable_code_mutation: true
-engine_cmd_compile:
-  - go build -ldflags '-w -extldflags "-static"' -o scrutiny webapp/backend/cmd/scrutiny/scrutiny.go
-  - 'GOOS=linux GOARCH=amd64 go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-web-linux-amd64 -tags "static" webapp/backend/cmd/scrutiny/scrutiny.go'
-  - 'chmod +x scrutiny-web-linux-amd64'
-  - 'GOOS=linux GOARCH=amd64 go build -ldflags "-X main.goos=linux -X main.goarch=amd64" -o scrutiny-collector-metrics-linux-amd64 -tags "static" collector/cmd/collector-metrics/collector-metrics.go'
-  - 'chmod +x scrutiny-collector-metrics-linux-amd64'
+mgr_keep_lock_file: true
 engine_version_metadata_path: 'webapp/backend/pkg/version/version.go'
-engine_cmd_test: 'go test -v -tags "static" $(go list ./... | grep -v /vendor/)'
 engine_golang_package_path: 'github.com/analogj/scrutiny'
-scm_enable_branch_cleanup: true
-engine_disable_lint: true
-scm_release_assets:
-  - local_path: scrutiny-web-linux-amd64
-    artifact_name: scrutiny-web-linux-amd64
-  - local_path: scrutiny-collector-metrics-linux-amd64
-    artifact_name: scrutiny-collector-metrics-linux-amd64
+
