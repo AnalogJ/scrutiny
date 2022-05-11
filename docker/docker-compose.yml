@@ -11,7 +11,7 @@ services:
     volumes:
       - /run/udev:/run/udev:ro
       - ./config:/opt/scrutiny/config
-      - ./influxdb:/var/lib/influxdb2
+      - ./influxdb:/opt/scrutiny/influxdb
     devices:
       - "/dev/sda"
       - "/dev/sdb"
