@@ -4,9 +4,15 @@ While the easiest way to get started with [Scrutiny is using Docker](https://git
 it is possible to run it manually without much work. You can even mix and match, using Docker for one component and
 a manual installation for the other. There's also [an installer](INSTALL_ANSIBLE.md) which automates this manual installation procedure.
 
-Scrutiny is made up of two components: a collector and a webapp/api. Here's how each component can be deployed manually.
+Scrutiny is made up of three components: an influxdb Database, a collector and a webapp/api. Here's how each component can be deployed manually.
 
 > Note: the `/opt/scrutiny` directory is not hardcoded, you can use any directory name/path.
+
+## InfluxDB
+
+Please follow the official InfluxDB installation guide. Note, you'll need to install v2.2.0+. 
+
+https://docs.influxdata.com/influxdb/v2.2/install/
 
 ## Webapp/API
 
@@ -45,6 +51,17 @@ web:
       # The path to the Scrutiny frontend files (js, css, images) must be specified.
       # We'll populate it with files in the next section
       path: /opt/scrutiny/web
+  
+  # if you're runnning influxdb on a different host (or using a cloud-provider) you'll need to update the host & port below. 
+  # token, org, bucket are unnecessary for a new InfluxDB installation, as Scrutiny will automatically run the InfluxDB setup, 
+  # and store the information in the config file. If you 're re-using an existing influxdb installation, you'll need to provide
+  # the `token`
+  influxdb:
+    host: 0.0.0.0
+    port: 8086
+#    token: 'my-token'
+#    org: 'my-org'
+#    bucket: 'bucket'
 ```
 
 > Note: for a full list of available configuration options, please check the [example.scrutiny.yaml](https://github.com/AnalogJ/scrutiny/blob/master/example.scrutiny.yaml) file.
