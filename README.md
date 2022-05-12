@@ -70,6 +70,8 @@ Scrutiny uses `smartctl --scan` to detect devices/drives.
 
 If you're using Docker, getting started is as simple as running the following command:
 
+> See [docker/example.omnibus.docker-compose.yml](./docker/example.omnibus.docker-compose.yml) for a docker-compose file. 
+
 ```bash
 docker run -it --rm -p 8080:8080 -p 8086:8086 \
   -v `pwd`/scrutiny:/opt/scrutiny/config \
@@ -94,6 +96,8 @@ In addition to the Omnibus image (available under the `latest` tag) there are 2 
 
 - `ghcr.io/analogj/scrutiny:master-collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like scheduler. You can run one collector on each server.
 - `ghcr.io/analogj/scrutiny:master-web` - Contains the Web UI, API and Database. Only one container necessary
+
+> See [docker/example.hubspoke.docker-compose.yml](./docker/example.hubspoke.docker-compose.yml) for a docker-compose file.
 
 ```bash
 docker run --rm -p 8086:8086 \
