@@ -64,3 +64,5 @@ scrutiny-*.db
 scrutiny_test.db
 scrutiny.yaml
 coverage.txt
+/config
+/influxdb
