@@ -72,3 +72,13 @@ devices:
 #
 ########################################################################################################################
 
+#collect:
+#  metric:
+#    enable: true
+#    command: '-a -o on -S on'
+#  long:
+#    enable: false
+#    command: ''
+#  short:
+#    enable: false
+#    command: ''
