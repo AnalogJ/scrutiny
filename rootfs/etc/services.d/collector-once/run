@@ -9,5 +9,5 @@ s6-svc -O /var/run/s6/services/collector-once
 # wait until scrutiny is "Ready"
 until $(curl --output /dev/null --silent --head --fail http://localhost:8080/api/health); do echo "scrutiny api not ready" && sleep 5; done
 
-echo "starting scrutiny collector"
+echo "starting scrutiny collector (run-once mode. subsequent calls will be triggered via cron service)"
 /opt/scrutiny/bin/scrutiny-collector-metrics run

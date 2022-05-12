@@ -11,4 +11,4 @@ sed -i 's|{COLLECTOR_CRON_SCHEDULE}|'"${COLLECTOR_CRON_SCHEDULE}"'|g' /etc/cron.
 
 # now that we have the env start cron in the foreground
 echo "starting cron"
-su -c "cron -l 8 -f" root
+su -c "cron -f -L 15" root
