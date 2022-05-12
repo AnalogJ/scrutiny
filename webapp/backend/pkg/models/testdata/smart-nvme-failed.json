@@ -1,0 +1,107 @@
+{
+  "json_format_version": [
+    1,
+    0
+  ],
+  "smartctl": {
+    "version": [
+      7,
+      0
+    ],
+    "svn_revision": "4883",
+    "platform_info": "x86_64-linux-5.13.0-40-generic",
+    "build_info": "(local build)",
+    "argv": [
+      "smartctl",
+      "-x",
+      "-j",
+      "/dev/nvme0"
+    ],
+    "exit_status": 0
+  },
+  "device": {
+    "name": "/dev/nvme0",
+    "info_name": "/dev/nvme0",
+    "type": "nvme",
+    "protocol": "NVMe"
+  },
+  "model_name": "Samsung SSD 970 EVO 500GB",
+  "serial_number": "S466NX0M776250H",
+  "firmware_version": "2B2QEXE7",
+  "nvme_pci_vendor": {
+    "id": 5197,
+    "subsystem_id": 5197
+  },
+  "nvme_ieee_oui_identifier": 9528,
+  "nvme_total_capacity": 500107862016,
+  "nvme_unallocated_capacity": 0,
+  "nvme_controller_id": 4,
+  "nvme_number_of_namespaces": 1,
+  "nvme_namespaces": [
+    {
+      "id": 1,
+      "size": {
+        "blocks": 976773168,
+        "bytes": 500107862016
+      },
+      "capacity": {
+        "blocks": 976773168,
+        "bytes": 500107862016
+      },
+      "utilization": {
+        "blocks": 327275384,
+        "bytes": 167564996608
+      },
+      "formatted_lba_size": 512,
+      "eui64": {
+        "oui": 9528,
+        "ext_id": 376106710327
+      }
+    }
+  ],
+  "user_capacity": {
+    "blocks": 976773168,
+    "bytes": 500107862016
+  },
+  "logical_block_size": 512,
+  "local_time": {
+    "time_t": 1652220188,
+    "asctime": "Tue May 10 22:03:08 2022 UTC"
+  },
+  "smart_status": {
+    "passed": true,
+    "nvme": {
+      "value": 0
+    }
+  },
+  "nvme_smart_health_information_log": {
+    "critical_warning": 0,
+    "temperature": 35,
+    "available_spare": 99,
+    "available_spare_threshold": 10,
+    "percentage_used": 3,
+    "data_units_read": 17176794,
+    "data_units_written": 65602088,
+    "host_reads": 118020838,
+    "host_writes": 874050000,
+    "controller_busy_time": 7601,
+    "power_cycles": 25,
+    "power_on_hours": 12798,
+    "unsafe_shutdowns": 10,
+    "media_errors": 7,
+    "num_err_log_entries": 62,
+    "warning_temp_time": 0,
+    "critical_comp_time": 0,
+    "temperature_sensors": [
+      35,
+      39
+    ]
+  },
+  "temperature": {
+    "current": 35
+  },
+  "power_cycle_count": 25,
+  "power_on_time": {
+    "hours": 12798
+  }
+}

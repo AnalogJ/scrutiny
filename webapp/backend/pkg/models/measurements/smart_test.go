@@ -381,6 +381,70 @@ func TestFromCollectorSmartInfo_Fail_ScrutinySmart(t *testing.T) {
 	require.Equal(t, 17, len(smartMdl.Attributes))
 }
 
+func TestFromCollectorSmartInfo_Fail_ScrutinyNonCriticalFailed(t *testing.T) {
+	//setup
+	smartDataFile, err := os.Open("../testdata/smart-ata-failed-scrutiny.json")
+	require.NoError(t, err)
+	defer smartDataFile.Close()
+
+	var smartJson collector.SmartInfo
+
+	smartDataBytes, err := ioutil.ReadAll(smartDataFile)
+	require.NoError(t, err)
+	err = json.Unmarshal(smartDataBytes, &smartJson)
+	require.NoError(t, err)
+
+	//test
+	smartMdl := measurements.Smart{}
+	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
+
+	//assert
+	require.NoError(t, err)
+	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
+	require.Equal(t, pkg.DeviceStatusFailedScrutiny, smartMdl.Status)
+	require.Equal(t, int64(pkg.SmartAttributeStatusFailed), smartMdl.Attributes["199"].GetStatus(),
+		"scrutiny should detect that %d failed (status: %d, %s)",
+		smartMdl.Attributes["199"].(*measurements.SmartAtaAttribute).AttributeId,
+		smartMdl.Attributes["199"].GetStatus(), smartMdl.Attributes["199"].(*measurements.SmartAtaAttribute).StatusReason,
+	)
+
+	require.Equal(t, 14, len(smartMdl.Attributes))
+}
+
+//TODO: Scrutiny Warn
+//TODO: Smart + Scrutiny Warn
+
+func TestFromCollectorSmartInfo_NVMe_Fail_Scrutiny(t *testing.T) {
+	//setup
+	smartDataFile, err := os.Open("../testdata/smart-nvme-failed.json")
+	require.NoError(t, err)
+	defer smartDataFile.Close()
+
+	var smartJson collector.SmartInfo
+
+	smartDataBytes, err := ioutil.ReadAll(smartDataFile)
+	require.NoError(t, err)
+	err = json.Unmarshal(smartDataBytes, &smartJson)
+	require.NoError(t, err)
+
+	//test
+	smartMdl := measurements.Smart{}
+	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
+
+	//assert
+	require.NoError(t, err)
+	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
+	require.Equal(t, pkg.DeviceStatusFailedScrutiny, smartMdl.Status)
+	require.Equal(t, int64(pkg.SmartAttributeStatusFailed), smartMdl.Attributes["media_errors"].GetStatus(),
+		"scrutiny should detect that %s failed (status: %d, %s)",
+		smartMdl.Attributes["media_errors"].(*measurements.SmartNvmeAttribute).AttributeId,
+		smartMdl.Attributes["media_errors"].GetStatus(),
+		smartMdl.Attributes["media_errors"].(*measurements.SmartNvmeAttribute).StatusReason,
+	)
+
+	require.Equal(t, 16, len(smartMdl.Attributes))
+}
+
 func TestFromCollectorSmartInfo_Nvme(t *testing.T) {
 	//setup
 	smartDataFile, err := os.Open("../testdata/smart-nvme.json")

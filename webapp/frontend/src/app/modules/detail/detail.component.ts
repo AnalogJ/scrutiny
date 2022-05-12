@@ -111,9 +111,9 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         if(attribute_status == 0){
             return "passed"
         } else if (attribute_status == 1){
-            return "warn"
-        } else if (attribute_status == 2){
             return "failed"
+        } else if (attribute_status == 2){
+            return "warn"
         }
         return
     }

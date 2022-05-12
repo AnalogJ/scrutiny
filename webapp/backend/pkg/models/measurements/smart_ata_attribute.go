@@ -93,6 +93,8 @@ func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
 		//this attribute has previously failed
 		sa.Status = pkg.SmartAttributeStatusFailed
 		sa.StatusReason = "Attribute is failing manufacturer SMART threshold"
+		//if the Smart Status is failed, we should exit early, no need to look at thresholds.
+		return sa
 
 	} else if strings.ToUpper(sa.WhenFailed) == pkg.SmartWhenFailedInThePast {
 		sa.Status = pkg.SmartAttributeStatusWarning
