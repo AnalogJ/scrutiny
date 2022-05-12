@@ -71,7 +71,7 @@ Scrutiny uses `smartctl --scan` to detect devices/drives.
 If you're using Docker, getting started is as simple as running the following command:
 
 ```bash
-docker run -it --rm -p 8080:8080 \
+docker run -it --rm -p 8080:8080 -p 8086:8086 \
   -v `pwd`/scrutiny:/opt/scrutiny/config \
   -v `pwd`/influxdb2:/opt/scrutiny/influxdb \
   -v /run/udev:/run/udev:ro \
