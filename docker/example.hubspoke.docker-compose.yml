@@ -43,6 +43,6 @@ services:
     depends_on:
       web:
         condition: service_healthy
-#    devices:
-#      - "/dev/sda"
-#      - "/dev/sdb"
+    devices:
+      - "/dev/sda"
+      - "/dev/sdb"
