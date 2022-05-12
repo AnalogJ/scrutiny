@@ -5,10 +5,12 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApexOptions } from 'ng-apexcharts';
 import { DashboardService } from 'app/modules/dashboard/dashboard.service';
-import * as moment from "moment";
+import * as moment from 'moment';
 import {MatDialog} from '@angular/material/dialog';
 import { DashboardSettingsComponent } from 'app/layout/common/dashboard-settings/dashboard-settings.component';
 import  humanizeDuration from 'humanize-duration'
+import {AppConfig} from 'app/core/config/app.config';
+import { TreoConfigService } from '@treo/services/config';
 
 @Component({
     selector       : 'example',
@@ -21,6 +23,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 {
     data: any;
     temperatureOptions: ApexOptions;
+    config: AppConfig;
 
     // Private
     private _unsubscribeAll: Subject<any>;
@@ -32,7 +35,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
      */
     constructor(
         private _smartService: DashboardService,
-        public dialog: MatDialog
+        public dialog: MatDialog,
+        private _configService: TreoConfigService,
     )
     {
         // Set the private defaults
@@ -49,6 +53,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
      */
     ngOnInit(): void
     {
+        // Subscribe to config changes
+        this._configService.config$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((config: AppConfig) => {
+                console.log('Configuration updated...')
+                // Store the config
+                this.config = config;
+
+            });
+
         // Get the data
         this._smartService.data$
             .pipe(takeUntil(this._unsubscribeAll))
@@ -180,16 +194,38 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
     deviceTitle(disk){
         let title = []
-
+        let showModelName = false
         if (disk.host_id) title.push(disk.host_id)
 
-        title.push(`/dev/${disk.device_name}`)
+        let deviceDisplay = ''
+        switch(this.config.dashboardDisplay){
+            case 'name':
+                deviceDisplay = `/dev/${disk.device_name}`
+                if (disk.device_type && disk.device_type != 'scsi' && disk.device_type != 'ata'){
+                    title.push(disk.device_type)
+                }
+                showModelName = true
 
-        if (disk.device_type && disk.device_type != 'scsi' && disk.device_type != 'ata'){
-            title.push(disk.device_type)
+                break;
+            case 'serial_id':
+                deviceDisplay = disk.device_serial_id
+                break;
+            case 'uuid':
+                deviceDisplay = disk.device_uuid
+                break;
+            case 'label':
+                deviceDisplay = disk.label || disk.device_label
         }
 
-        title.push(disk.model_name)
+        if(!deviceDisplay) {
+            // fallback
+            deviceDisplay = `/dev/${disk.device_name}`
+        }
+
+        title.push(deviceDisplay)
+        if(showModelName){
+            title.push(disk.model_name)
+        }
 
         return title.join(' - ')
     }

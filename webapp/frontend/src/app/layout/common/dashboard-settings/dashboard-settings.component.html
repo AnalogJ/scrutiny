@@ -2,12 +2,24 @@
 <mat-dialog-content class="mat-typography">
 
     <form class="flex flex-col p-8 pb-0 overflow-hidden">
-        <div class="flex flex-col gt-xs:flex-row">
-            <mat-form-field class="flex-auto gt-xs:pr-3">
+        <div class="flex flex-col mt-5 gt-md:flex-row">
+            <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
+                <mat-label>Display</mat-label>
+                <mat-select [value]="dashboardDisplay">
+                    <mat-option value="name">Name</mat-option>
+                    <mat-option value="serial_id">Serial ID</mat-option>
+                    <mat-option value="uuid">UUID</mat-option>
+                    <mat-option value="label">Label</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pl-3">
                 <mat-label>Sort By</mat-label>
-                <mat-select [value]="'status'">
-                    <mat-option  value="status">Status</mat-option>
+                <mat-select [value]="dashboardSort">
+                    <mat-option value="status">Status</mat-option>
                     <mat-option value="name" disabled>Name</mat-option>
+                    <mat-option value="serial_id" disabled>Serial ID</mat-option>
+                    <mat-option value="uuid" disabled>UUID</mat-option>
                     <mat-option value="label" disabled>Label</mat-option>
                 </mat-select>
             </mat-form-field>
@@ -73,5 +85,5 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Cancel</button>
-    <button mat-button matTooltip="not yet implemented" [mat-dialog-close]="true" cdkFocusInitial>Save</button>
+    <button mat-button mat-dialog-close (click)="saveSettings()" cdkFocusInitial>Save</button>
 </mat-dialog-actions>
