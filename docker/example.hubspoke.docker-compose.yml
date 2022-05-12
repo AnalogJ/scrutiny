@@ -1,0 +1,48 @@
+version: '2.4'
+
+services:
+  influxdb:
+    image: influxdb:2.2
+    ports:
+      - '8086:8086'
+    volumes:
+      - './influxdb:/var/lib/influxdb2'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+
+
+  web:
+    image: 'ghcr.io/analogj/scrutiny:master-web'
+    ports:
+      - '8080:8080'
+    volumes:
+      - './config:/opt/scrutiny/config'
+    environment:
+      SCRUTINY_WEB_INFLUXDB_HOST: 'influxdb'
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 10s
+
+  collector:
+    image: 'ghcr.io/analogj/scrutiny:master-collector'
+    cap_add:
+      - SYS_RAWIO
+    volumes:
+      - '/run/udev:/run/udev:ro'
+    environment:
+      COLLECTOR_API_ENDPOINT: 'http://web:8080'
+    depends_on:
+      web:
+        condition: service_healthy
+#    devices:
+#      - "/dev/sda"
+#      - "/dev/sdb"
