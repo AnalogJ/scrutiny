@@ -4,7 +4,7 @@
 # So when the container starts up, we will do a dump of the runtime environment into a .env file that we
 # will then source into the crontab file (/etc/cron.d/scrutiny.sh)
 
-printenv | sed 's/^\(.*\)$/export \1/g' > /env.sh
+(set -o posix; export -p) > /env.sh
 
 echo "starting cron"
 cron -f -L 15
