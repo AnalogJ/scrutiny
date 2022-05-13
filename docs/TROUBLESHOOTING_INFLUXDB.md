@@ -59,4 +59,9 @@ this usually related to either:
 - Upgrading from the LSIO Scrutiny image to the Official Scrutiny image, without removing LSIO specific environmental variables
   - remove the `SCRUTINY_WEB=true` and `SCRUTINY_COLLECTOR=true` environmental variables. They were used by the LSIO image, but are unnecessary and cause issues with the official Scrutiny image.
 - Updated versions of the [LSIO Scrutiny images are broken](https://github.com/linuxserver/docker-scrutiny/issues/22), as they have not installed InfluxDB which is a required dependency of Scrutiny v0.4.x
-  -  You can revert to an earlier version of the LSIO image (`lscr.io/linuxserver/scrutiny:060ac7b8-ls34`), or just change to the official Scrutiny image (`ghcr.io/analogj/scrutiny:master-omnibus`)
+  - You can revert to an earlier version of the LSIO image (`lscr.io/linuxserver/scrutiny:060ac7b8-ls34`), or just change to the official Scrutiny image (`ghcr.io/analogj/scrutiny:master-omnibus`)
+
+Here's a couple of confirmed working docker-compose files that you may want to look at:
+
+- https://github.com/AnalogJ/scrutiny/blob/master/docker/example.hubspoke.docker-compose.yml
+- https://github.com/AnalogJ/scrutiny/blob/master/docker/example.omnibus.docker-compose.yml
