@@ -118,6 +118,19 @@ instead of the block device (`/dev/nvme0n1`). See [#209](https://github.com/Anal
 ### Volume Mount All Devices (`/dev`) - Privileged
 
 
+## Scrutiny detects Failure but SMART Passed?
+
+There's 2 different mechanisms that Scrutiny uses to detect failures.
+
+The first is simple SMART failures. If SMART thinks an attribute is in a failed state, Scrutiny will display it as failed as well.
+
+The second is using BackBlaze failure data: [https://backblaze.com/blog-smart-stats-2014-8.html](https://backblaze.com/blog-smart-stats-2014-8.html) 
+If Scrutiny detects that an attribute corresponds with a high rate of failure using BackBlaze's data, it will also mark that attribute (and disk) as failed (even though SMART may think the device is still healthy).
+
+This can cause some confusion when comparing Scrutiny's dashboard against other SMART analysis tools. 
+If you hover over the "failed" label beside an attribute, Scrutiny will tell you if the failure was due to SMART or Scrutiny/BackBlaze data. 
+
+
 ## Hub & Spoke model, with multiple Hosts.
 
 When deploying Scrutiny in a hub & spoke model, it can be difficult to determine exactly which node a set of devices are associated with.
