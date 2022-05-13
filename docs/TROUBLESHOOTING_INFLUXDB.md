@@ -41,3 +41,22 @@ You can fix this issue by authenticating to the InfluxDB admin portal (the defau
 then retrieving the API token, and writing it to your `scrutiny.yaml` config file under the `web.influxdb.token` field:
 
 ![influx db admin token](./influxdb-admin-token.png)
+
+## Upgrading from v0.3.x to v0.4.x
+
+When upgrading from v0.3.x to v0.4.x, some users have noticed problems such as:
+
+```
+2022/05/13 14:38:05 Loading configuration file: /opt/scrutiny/config/scrutiny.yaml
+time="2022-05-13T14:38:05Z" level=info msg="Trying to connect to scrutiny sqlite db:"
+time="2022-05-13T14:38:05Z" level=info msg="Successfully connected to scrutiny sqlite db:"
+panic: a username and password is required for a setup
+```
+
+As discussed in [#248](https://github.com/AnalogJ/scrutiny/issues/248) and [#234](https://github.com/AnalogJ/scrutiny/issues/234),
+this usually related to either:
+
+- Upgrading from the LSIO Scrutiny image to the Official Scrutiny image, without removing LSIO specific environmental variables
+  - remove the `SCRUTINY_WEB=true` and `SCRUTINY_COLLECTOR=true` environmental variables. They were used by the LSIO image, but are unnecessary and cause issues with the official Scrutiny image.
+- Updated versions of the [LSIO Scrutiny images are broken](https://github.com/linuxserver/docker-scrutiny/issues/22), as they have not installed InfluxDB which is a required dependency of Scrutiny v0.4.x
+  -  You can revert to an earlier version of the LSIO image (`lscr.io/linuxserver/scrutiny:060ac7b8-ls34`), or just change to the official Scrutiny image (`ghcr.io/analogj/scrutiny:master-omnibus`)
