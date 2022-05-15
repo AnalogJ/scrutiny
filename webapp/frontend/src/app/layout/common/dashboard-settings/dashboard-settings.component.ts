@@ -38,10 +38,12 @@ export class DashboardSettingsComponent implements OnInit {
   }
 
   saveSettings(): void {
-        this._configService.config = {
+        var newSettings = {
             dashboardDisplay: this.dashboardDisplay,
             dashboardSort: this.dashboardSort
         }
+        this._configService.config = newSettings
+        console.log(`Saved Settings: ${JSON.stringify(newSettings)}`)
   }
 
     formatLabel(value: number) {

@@ -11,6 +11,7 @@ import { DashboardSettingsComponent } from 'app/layout/common/dashboard-settings
 import  humanizeDuration from 'humanize-duration'
 import {AppConfig} from 'app/core/config/app.config';
 import { TreoConfigService } from '@treo/services/config';
+import {Router, NavigationEnd,ActivatedRoute} from '@angular/router';
 
 @Component({
     selector       : 'example',
@@ -37,6 +38,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         private _smartService: DashboardService,
         public dialog: MatDialog,
         private _configService: TreoConfigService,
+        private router: Router,
+        private activatedRoute: ActivatedRoute
+
     )
     {
         // Set the private defaults
@@ -57,10 +61,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         this._configService.config$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((config: AppConfig) => {
-                console.log('Configuration updated...')
-                // Store the config
-                this.config = config;
 
+                //check if the old config and the new config do not match.
+                let oldConfig = JSON.stringify(this.config)
+                let newConfig = JSON.stringify(config)
+
+                if(oldConfig != newConfig){
+                    console.log(`Configuration updated: ${newConfig} vs ${oldConfig}`)
+                    // Store the config
+                    this.config = config;
+
+                    if(oldConfig){
+                        console.log("reloading component...")
+                        this.refreshComponent()
+                    }
+                }
             });
 
         // Get the data
@@ -95,6 +110,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     // -----------------------------------------------------------------------------------------------------
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
+    private refreshComponent(){
+
+        let currentUrl = this.router.url;
+        this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+        this.router.onSameUrlNavigation = 'reload';
+        this.router.navigate([currentUrl]);
+    }
+
     private _deviceDataTemperatureSeries() {
         var deviceTemperatureSeries = []
 
@@ -180,6 +203,37 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         };
     }
 
+    private _deviceDisplayTitle(disk, titleType: string){
+        let deviceDisplay = ''
+        let titleParts = []
+        switch(titleType){
+            case 'name':
+                titleParts.push(`/dev/${disk.device_name}`)
+                if (disk.device_type && disk.device_type != 'scsi' && disk.device_type != 'ata'){
+                    titleParts.push(disk.device_type)
+                }
+                titleParts.push(disk.model_name)
+
+                break;
+            case 'serial_id':
+                if(!disk.device_serial_id) return ''
+                titleParts.push(`/by-id/${disk.device_serial_id}`)
+                break;
+            case 'uuid':
+                if(!disk.device_uuid) return ''
+                titleParts.push(`/by-uuid/${disk.device_uuid}`)
+                break;
+            case 'label':
+                if(disk.label){
+                    titleParts.push(disk.label)
+                } else if(disk.device_label){
+                    titleParts.push(`/by-label/${disk.device_label}`)
+                }
+                break;
+        }
+        return titleParts.join(' - ')
+    }
+
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
@@ -193,41 +247,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     deviceTitle(disk){
-        let title = []
-        let showModelName = false
-        if (disk.host_id) title.push(disk.host_id)
 
-        let deviceDisplay = ''
-        switch(this.config.dashboardDisplay){
-            case 'name':
-                deviceDisplay = `/dev/${disk.device_name}`
-                if (disk.device_type && disk.device_type != 'scsi' && disk.device_type != 'ata'){
-                    title.push(disk.device_type)
-                }
-                showModelName = true
+        console.log(`Displaying Dashboard with: ${this.config.dashboardDisplay}`)
+        let titleParts = []
+        if (disk.host_id) titleParts.push(disk.host_id)
 
-                break;
-            case 'serial_id':
-                deviceDisplay = disk.device_serial_id
-                break;
-            case 'uuid':
-                deviceDisplay = disk.device_uuid
-                break;
-            case 'label':
-                deviceDisplay = disk.label || disk.device_label
-        }
+        //add device identifier (fallback to generated device name)
+        titleParts.push(this._deviceDisplayTitle(disk, this.config.dashboardDisplay) || this._deviceDisplayTitle(disk, 'name'))
 
-        if(!deviceDisplay) {
-            // fallback
-            deviceDisplay = `/dev/${disk.device_name}`
-        }
-
-        title.push(deviceDisplay)
-        if(showModelName){
-            title.push(disk.model_name)
-        }
-
-        return title.join(' - ')
+        return titleParts.join(' - ')
     }
 
     deviceStatusString(deviceStatus){
