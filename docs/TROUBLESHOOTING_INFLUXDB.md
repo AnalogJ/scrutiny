@@ -8,8 +8,9 @@ https://docs.influxdata.com/influxdb/v2.2/install/
 ## Persistence
 
 To ensure that all data is correctly stored, you must also persist the InfluxDB database directory
-    - `/opt/scrutiny/influxdb` (for Docker omnibus image)
-    - `/var/lib/influxdb2` (for vanilla Influxdb image `influxdb:2.2`)
+
+- If you're using the Official Scrutiny Omnibus image (`ghcr.io/analogj/scrutiny:master-omnibus`), the path is `/opt/scrutiny/influxdb`
+- If you're deploying in Hub/Spoke mode with the InfluxDB maintained image (`influxdb:2.2`), the path is `/var/lib/influxdb2`
 
 If you attempt to restart Scrutiny but you forgot to persist the InfluxDB directory, you will get an error message like follows:
 
