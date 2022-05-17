@@ -126,19 +126,20 @@
                                         matTooltip="not yet implemented"
                                         mat-button
                                         [matMenuTriggerFor]="tempRangeMenu">
-                                    <span class="font-medium text-sm text-hint">1 week</span>
+                                    <span class="font-medium text-sm text-hint">{{tempDurationKey}}</span>
                                 </button>
                                 <mat-menu #tempRangeMenu="matMenu">
-                                    <button mat-menu-item>1 month</button>
-                                    <button mat-menu-item>12 months</button>
-                                    <button mat-menu-item>all time</button>
+                                    <button (click)="changeSummaryTempDuration('forever')" mat-menu-item>forever</button>
+                                    <button (click)="changeSummaryTempDuration('year')" mat-menu-item>year</button>
+                                    <button (click)="changeSummaryTempDuration('month')" mat-menu-item>month</button>
+                                    <button (click)="changeSummaryTempDuration('week')" mat-menu-item>week</button>
                                 </mat-menu>
                             </div>
                         </div>
 
                     </div>
                     <div class="flex flex-col flex-auto">
-                        <apx-chart *ngIf="temperatureOptions" class="flex-auto w-full h-full"
+                        <apx-chart #tempChart *ngIf="temperatureOptions" class="flex-auto w-full h-full"
                                    [chart]="temperatureOptions.chart"
                                    [colors]="temperatureOptions.colors"
                                    [fill]="temperatureOptions.fill"

@@ -3,7 +3,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ApexOptions } from 'ng-apexcharts';
+import {ApexOptions, ChartComponent} from 'ng-apexcharts';
 import { DashboardService } from 'app/modules/dashboard/dashboard.service';
 import * as moment from 'moment';
 import {MatDialog} from '@angular/material/dialog';
@@ -25,9 +25,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     data: any;
     temperatureOptions: ApexOptions;
     config: AppConfig;
+    tempDurationKey: string = "forever"
 
     // Private
     private _unsubscribeAll: Subject<any>;
+    @ViewChild("tempChart", { static: false }) tempChart: ChartComponent;
 
     /**
      * Constructor
@@ -281,6 +283,31 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         } else {
             return ''
         }
+    }
+
+    /*
+
+    DURATION_KEY_WEEK    = "week"
+	DURATION_KEY_MONTH   = "month"
+	DURATION_KEY_YEAR    = "year"
+	DURATION_KEY_FOREVER = "forever"
+     */
+
+    changeSummaryTempDuration(durationKey: string){
+        this.tempDurationKey = durationKey
+
+        this._smartService.getSummaryTempData(durationKey)
+            .subscribe((data) => {
+
+                // given a list of device temp history, override the data in the "summary" object.
+                for(const wwn in this.data.data.summary) {
+                    // console.log(`Updating ${wwn}, length: ${this.data.data.summary[wwn].temp_history.length}`)
+                    this.data.data.summary[wwn].temp_history = data.data.temp_history[wwn] || []
+                }
+
+                // Prepare the chart series data
+                this.tempChart.updateSeries(this._deviceDataTemperatureSeries())
+            });
     }
 
     /**
