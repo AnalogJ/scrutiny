@@ -247,7 +247,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
     deviceTitle(disk){
 
-        console.log(`Displaying Dashboard with: ${this.config.dashboardDisplay}`)
+        console.log(`Displaying Device ${disk.wwn} with: ${this.config.dashboardDisplay}`)
         let titleParts = []
         if (disk.host_id) titleParts.push(disk.host_id)
 
