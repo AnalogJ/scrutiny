@@ -45,6 +45,7 @@ func (c *configuration) Init() error {
 	c.SetDefault("web.influxdb.bucket", "metrics")
 	c.SetDefault("web.influxdb.init_username", "admin")
 	c.SetDefault("web.influxdb.init_password", "password12345")
+	c.SetDefault("web.influxdb.token", "scrutiny-default-admin-token")
 	c.SetDefault("web.influxdb.retention_policy", true)
 
 	//c.SetDefault("disks.include", []string{})

@@ -4,14 +4,14 @@ go 1.13
 
 require (
 	github.com/analogj/go-util v0.0.0-20190301173314-5295e364eb14
-	github.com/citilinkru/libudev v1.0.0 // indirect
+	github.com/citilinkru/libudev v1.0.0
 	github.com/containrrr/shoutrrr v0.4.4
 	github.com/fatih/color v1.10.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-gormigrate/gormigrate/v2 v2.0.0
 	github.com/golang/mock v1.4.3
 	github.com/google/uuid v1.2.0 // indirect
-	github.com/influxdata/influxdb-client-go/v2 v2.2.3
+	github.com/influxdata/influxdb-client-go/v2 v2.8.2
 	github.com/jaypipes/ghw v0.6.1
 	github.com/jinzhu/gorm v1.9.16
 	github.com/klauspost/compress v1.12.1 // indirect
@@ -29,3 +29,8 @@ require (
 	gorm.io/gorm v1.20.2
 	nhooyr.io/websocket v1.8.7 // indirect
 )
+
+// Remove once the following PR/Issues have been merged:
+// - https://github.com/influxdata/influxdb-client-go/pull/328
+// - https://github.com/influxdata/influxdb-client-go/issues/327
+replace github.com/influxdata/influxdb-client-go/v2 => github.com/analogj/influxdb-client-go/v2 v2.8.2-jk

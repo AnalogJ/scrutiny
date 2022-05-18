@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
@@ -11,6 +12,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -80,30 +84,32 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 
 	client := influxdb2.NewClient(influxdbUrl, appConfig.GetString("web.influxdb.token"))
 
-	if !appConfig.IsSet("web.influxdb.token") {
-		globalLogger.Debugf("No influxdb token found, running first-time setup...")
+	//if !appConfig.IsSet("web.influxdb.token") {
+	globalLogger.Debugf("Determine Influxdb setup status...")
+	influxSetupComplete, err := InfluxSetupComplete(influxdbUrl)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check influxdb setup status - %w", err)
+	}
+
+	if !influxSetupComplete {
+		globalLogger.Debugf("Influxdb un-initialized, running first-time setup...")
 
 		// if no token is provided, but we have a valid server, we're going to assume this is the first setup of our server.
 		// we will initialize with a predetermined username & password, that you should change.
 
 		// metrics bucket will have a retention period of 8 days (since it will be down-sampled once a week)
 		// in seconds (60seconds * 60minutes * 24hours * 15 days) = 1_296_000 (see EnsureBucket() function)
-		onboardingResponse, err := client.Setup(
+		_, err := client.SetupWithToken(
 			backgroundContext,
 			appConfig.GetString("web.influxdb.init_username"),
 			appConfig.GetString("web.influxdb.init_password"),
 			appConfig.GetString("web.influxdb.org"),
 			appConfig.GetString("web.influxdb.bucket"),
-			0)
+			0,
+			appConfig.GetString("web.influxdb.token"),
+		)
 		if err != nil {
 			return nil, err
-		}
-
-		appConfig.Set("web.influxdb.token", *onboardingResponse.Auth.Token)
-		// we should write the config file out here. Ignore failures.
-		err = appConfig.WriteConfig()
-		if err != nil {
-			globalLogger.Infof("ignoring error while writing influxdb info to config: %v", err)
 		}
 	}
 
@@ -174,6 +180,37 @@ type scrutinyRepository struct {
 func (sr *scrutinyRepository) Close() error {
 	sr.influxClient.Close()
 	return nil
+}
+
+func InfluxSetupComplete(influxEndpoint string) (bool, error) {
+	influxUri, err := url.Parse(influxEndpoint)
+	if err != nil {
+		return false, err
+	}
+	influxUri, err = influxUri.Parse("/api/v2/setup")
+	if err != nil {
+		return false, err
+	}
+
+	res, err := http.Get(influxUri.String())
+	if err != nil {
+		return false, err
+	}
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return false, err
+	}
+
+	type SetupStatus struct {
+		Allowed bool `json:"allowed"`
+	}
+	var data SetupStatus
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return false, err
+	}
+	return !data.Allowed, nil
 }
 
 func (sr *scrutinyRepository) EnsureBuckets(ctx context.Context, org *domain.Organization) error {
