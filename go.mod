@@ -33,4 +33,4 @@ require (
 // Remove once the following PR/Issues have been merged:
 // - https://github.com/influxdata/influxdb-client-go/pull/328
 // - https://github.com/influxdata/influxdb-client-go/issues/327
-replace github.com/influxdata/influxdb-client-go/v2 => github.com/analogj/influxdb-client-go/v2 v2.8.2-jk
+replace github.com/influxdata/influxdb-client-go/v2 => github.com/analogj/influxdb-client-go/v2 v2.8.2-analogj
