@@ -1,5 +1,5 @@
 ########
-FROM golang:1.14.4-buster as backendbuild
+FROM golang:1.17.10-buster as backendbuild
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 

@@ -1,6 +1,6 @@
 module github.com/analogj/scrutiny
 
-go 1.13
+go 1.17
 
 require (
 	github.com/analogj/go-util v0.0.0-20190301173314-5295e364eb14
