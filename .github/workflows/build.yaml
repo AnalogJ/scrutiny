@@ -6,7 +6,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    container: techknowlogick/xgo:go-1.13.x
+    container: techknowlogick/xgo:go-1.17.x
 
     # Service containers to run with `build` (Required for end-to-end testing)
     services:
