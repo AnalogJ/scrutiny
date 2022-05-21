@@ -5,13 +5,12 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import {ApexOptions, ChartComponent} from 'ng-apexcharts';
 import { DashboardService } from 'app/modules/dashboard/dashboard.service';
-import * as moment from 'moment';
 import {MatDialog} from '@angular/material/dialog';
 import { DashboardSettingsComponent } from 'app/layout/common/dashboard-settings/dashboard-settings.component';
-import  humanizeDuration from 'humanize-duration'
-import {AppConfig} from 'app/core/config/app.config';
-import { TreoConfigService } from '@treo/services/config';
-import {Router, NavigationEnd,ActivatedRoute} from '@angular/router';
+import {deviceDisplayTitle} from "app/layout/common/dashboard-device/dashboard-device.component";
+import {AppConfig} from "app/core/config/app.config";
+import {TreoConfigService} from "@treo/services/config";
+import {Router} from "@angular/router";
 
 @Component({
     selector       : 'example',
@@ -24,8 +23,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 {
     data: any;
     temperatureOptions: ApexOptions;
-    config: AppConfig;
     tempDurationKey: string = "forever"
+    config: AppConfig;
 
     // Private
     private _unsubscribeAll: Subject<any>;
@@ -38,11 +37,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
      */
     constructor(
         private _smartService: DashboardService,
-        public dialog: MatDialog,
         private _configService: TreoConfigService,
+        public dialog: MatDialog,
         private router: Router,
-        private activatedRoute: ActivatedRoute
-
     )
     {
         // Set the private defaults
@@ -59,6 +56,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
      */
     ngOnInit(): void
     {
+
         // Subscribe to config changes
         this._configService.config$
             .pipe(takeUntil(this._unsubscribeAll))
@@ -202,48 +200,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         };
     }
 
-    private _deviceDisplayTitle(disk, titleType: string){
-        let deviceDisplay = ''
-        let titleParts = []
-        switch(titleType){
-            case 'name':
-                titleParts.push(`/dev/${disk.device_name}`)
-                if (disk.device_type && disk.device_type != 'scsi' && disk.device_type != 'ata'){
-                    titleParts.push(disk.device_type)
-                }
-                titleParts.push(disk.model_name)
-
-                break;
-            case 'serial_id':
-                if(!disk.device_serial_id) return ''
-                titleParts.push(`/by-id/${disk.device_serial_id}`)
-                break;
-            case 'uuid':
-                if(!disk.device_uuid) return ''
-                titleParts.push(`/by-uuid/${disk.device_uuid}`)
-                break;
-            case 'label':
-                if(disk.label){
-                    titleParts.push(disk.label)
-                } else if(disk.device_label){
-                    titleParts.push(`/by-label/${disk.device_label}`)
-                }
-                break;
-        }
-        return titleParts.join(' - ')
-    }
-
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
-
-    openDialog() {
-        const dialogRef = this.dialog.open(DashboardSettingsComponent);
-
-        dialogRef.afterClosed().subscribe(result => {
-            console.log(`Dialog result: ${result}`);
-        });
-    }
 
     deviceTitle(disk){
 
@@ -252,37 +211,17 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         if (disk.host_id) titleParts.push(disk.host_id)
 
         //add device identifier (fallback to generated device name)
-        titleParts.push(this._deviceDisplayTitle(disk, this.config.dashboardDisplay) || this._deviceDisplayTitle(disk, 'name'))
+        titleParts.push(deviceDisplayTitle(disk, this.config.dashboardDisplay) || deviceDisplayTitle(disk, 'name'))
 
         return titleParts.join(' - ')
     }
 
-    deviceStatusString(deviceStatus){
-        if(deviceStatus == 0){
-            return "passed"
-        } else {
-            return "failed"
-        }
-    }
+    openDialog() {
+        const dialogRef = this.dialog.open(DashboardSettingsComponent);
 
-    classDeviceLastUpdatedOn(deviceSummary){
-        if (deviceSummary.device.device_status !== 0) {
-            return 'text-red' // if the device has failed, always highlight in red
-        } else if(deviceSummary.device.device_status === 0 && deviceSummary.smart){
-            if(moment().subtract(14, 'd').isBefore(deviceSummary.smart.collector_date)){
-                // this device was updated in the last 2 weeks.
-                return 'text-green'
-            } else if(moment().subtract(1, 'm').isBefore(deviceSummary.smart.collector_date)){
-                // this device was updated in the last month
-                return 'text-yellow'
-            } else{
-                // last updated more than a month ago.
-                return 'text-red'
-            }
-
-        } else {
-            return ''
-        }
+        dialogRef.afterClosed().subscribe(result => {
+            console.log(`Dialog result: ${result}`);
+        });
     }
 
     /*
@@ -320,7 +259,5 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     {
         return item.id || index;
     }
-
-    readonly humanizeDuration = humanizeDuration;
 
 }
