@@ -47,9 +47,14 @@
                 </div>
             </div>
 
-            <div class="flex flex-wrap w-full">
-                <app-dashboard-device class="flex gt-sm:w-1/2 min-w-80 p-4" *ngFor="let summary of data.data.summary | keyvalue" [deviceWWN]="summary.key" [deviceSummary]="summary.value"></app-dashboard-device>
+
+            <div class="flex flex-wrap w-full" *ngFor="let hostId of hostGroups | keyvalue">
+                <h3 class="ml-4" *ngIf="hostId.key">{{hostId.key}}</h3>
+                <div class="flex flex-wrap w-full">
+                    <app-dashboard-device class="flex gt-sm:w-1/2 min-w-80 p-4" *ngFor="let wwn of hostId.value" [deviceWWN]="wwn" [deviceSummary]="data.data.summary[wwn]"></app-dashboard-device>
+                </div>
             </div>
+
 
             <!-- Drive Temperatures -->
             <div class="flex flex-auto w-full min-w-80 h-90 p-4">

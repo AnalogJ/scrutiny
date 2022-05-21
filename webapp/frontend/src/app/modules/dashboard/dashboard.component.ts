@@ -22,6 +22,7 @@ import {Router} from "@angular/router";
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 {
     data: any;
+    hostGroups: { [hostId: string]: string[] } = {}
     temperatureOptions: ApexOptions;
     tempDurationKey: string = "forever"
     config: AppConfig;
@@ -85,6 +86,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
                 // Store the data
                 this.data = data;
+
+                //generate group data.
+                for(let wwn in this.data.data.summary){
+                    let hostid = this.data.data.summary[wwn].device.host_id
+                    let hostDeviceList = this.hostGroups[hostid] || []
+                    hostDeviceList.push(wwn)
+                    this.hostGroups[hostid] = hostDeviceList
+                }
+                console.log(this.hostGroups)
 
                 // Prepare the chart data
                 this._prepareChartData();
