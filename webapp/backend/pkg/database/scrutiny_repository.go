@@ -79,7 +79,7 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Create a new client using an InfluxDB server base URL and an authentication token
-	influxdbUrl := fmt.Sprintf("http://%s:%s", appConfig.GetString("web.influxdb.host"), appConfig.GetString("web.influxdb.port"))
+	influxdbUrl := fmt.Sprintf("%s://%s:%s", appConfig.GetString("web.influxdb.scheme"), appConfig.GetString("web.influxdb.host"), appConfig.GetString("web.influxdb.port"))
 	globalLogger.Debugf("InfluxDB url: %s", influxdbUrl)
 
 	client := influxdb2.NewClient(influxdbUrl, appConfig.GetString("web.influxdb.token"))

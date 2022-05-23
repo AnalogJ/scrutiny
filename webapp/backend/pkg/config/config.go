@@ -39,6 +39,7 @@ func (c *configuration) Init() error {
 
 	c.SetDefault("notify.urls", []string{})
 
+	c.SetDefault("web.influxdb.scheme", "http")
 	c.SetDefault("web.influxdb.host", "localhost")
 	c.SetDefault("web.influxdb.port", "8086")
 	c.SetDefault("web.influxdb.org", "scrutiny")
