@@ -445,50 +445,6 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 		Ideal:       ObservedThresholdIdealLow,
 		Critical:    false,
 		Description: "This attribute indicates the count of full hard disk power on/off cycles.",
-		ObservedThresholds: []ObservedThreshold{
-			{
-				Low:               0,
-				High:              13,
-				AnnualFailureRate: 0.019835987118930823,
-				ErrorInterval:     []float64{0.016560870164523494, 0.023569242386797896},
-			},
-			{
-				Low:               13,
-				High:              26,
-				AnnualFailureRate: 0.038210930067894826,
-				ErrorInterval:     []float64{0.03353859179329295, 0.0433520775718649},
-			},
-			{
-				Low:               26,
-				High:              39,
-				AnnualFailureRate: 0.11053528307302571,
-				ErrorInterval:     []float64{0.09671061589521368, 0.1257816678419765},
-			},
-			{
-				Low:               39,
-				High:              52,
-				AnnualFailureRate: 0.16831189443375036,
-				ErrorInterval:     []float64{0.1440976510675928, 0.19543066007594895},
-			},
-			{
-				Low:               52,
-				High:              65,
-				AnnualFailureRate: 0.20630344262550107,
-				ErrorInterval:     []float64{0.1693965932069108, 0.2488633537247856},
-			},
-			{
-				Low:               65,
-				High:              78,
-				AnnualFailureRate: 0.1030972634140512,
-				ErrorInterval:     []float64{0.06734655535304743, 0.15106137807407605},
-			},
-			{
-				Low:               78,
-				High:              91,
-				AnnualFailureRate: 0.12354840389522469,
-				ErrorInterval:     []float64{0.06578432170016109, 0.21127153335749593},
-			},
-		},
 	},
 	13: {
 		ID:          13,
