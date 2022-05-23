@@ -4,7 +4,7 @@
     <div class="flex flex-col p-8 pb-0 overflow-hidden">
         <div class="flex flex-col mt-5 gt-md:flex-row">
             <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
-                <mat-label>Display</mat-label>
+                <mat-label>Display Title</mat-label>
                 <mat-select [(ngModel)]="dashboardDisplay">
                     <mat-option value="name">Name</mat-option>
                     <mat-option value="serial_id">Serial ID</mat-option>
@@ -17,10 +17,7 @@
                 <mat-label>Sort By</mat-label>
                 <mat-select [(ngModel)]="dashboardSort">
                     <mat-option value="status">Status</mat-option>
-                    <mat-option value="name" disabled>Name</mat-option>
-                    <mat-option value="serial_id" disabled>Serial ID</mat-option>
-                    <mat-option value="uuid" disabled>UUID</mat-option>
-                    <mat-option value="label" disabled>Label</mat-option>
+                    <mat-option value="title">Title</mat-option>
                 </mat-select>
             </mat-form-field>
         </div>
