@@ -5,20 +5,20 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class DeviceSortPipe implements PipeTransform {
 
-    numericalStatus(device): number {
-        if(!device.smart_results[0]){
+    numericalStatus(deviceSummary): number {
+        if(!deviceSummary.smart){
             return 0
-        } else if (device.smart_results[0].smart_status == 'passed'){
+        } else if (deviceSummary.device.device_status == 0){
             return 1
         } else {
-            return -1
+            return deviceSummary.device.device_status * -1 // will return range from -1, -2, -3
         }
     }
 
 
-  transform(devices: Array<unknown>, ...args: unknown[]): Array<unknown> {
+  transform(deviceSummaries: Array<unknown>, sortBy = ''): Array<unknown> {
       //failed, unknown/empty, passed
-      devices.sort((a: any, b: any) => {
+      deviceSummaries.sort((a: any, b: any) => {
 
           let left = this.numericalStatus(a)
           let right = this.numericalStatus(b)
@@ -27,7 +27,7 @@ export class DeviceSortPipe implements PipeTransform {
       });
 
 
-    return devices;
+    return deviceSummaries;
   }
 
 }

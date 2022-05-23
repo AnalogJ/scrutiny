@@ -226,6 +226,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         return titleParts.join(' - ')
     }
 
+    deviceSummariesForHostGroup(hostGroupWWNs: string[]) {
+        let deviceSummaries = []
+        for(let wwn of hostGroupWWNs){
+            deviceSummaries.push(this.data.data.summary[wwn])
+        }
+        return deviceSummaries
+    }
+
     openDialog() {
         const dialogRef = this.dialog.open(DashboardSettingsComponent);
 
