@@ -46,16 +46,6 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 					&m20201107210306.SmartNvmeAttribute{},
 				)
 			},
-			Rollback: func(tx *gorm.DB) error {
-				return tx.Migrator().DropTable(
-					&m20201107210306.Device{},
-					&m20201107210306.Smart{},
-					&m20201107210306.SmartAtaAttribute{},
-					&m20201107210306.SmartNvmeAttribute{},
-					&m20201107210306.SmartNvmeAttribute{},
-					"self_tests",
-				)
-			},
 		},
 		{
 			ID: "20220503113100", // backwards compatible - influxdb schema
