@@ -178,7 +178,9 @@ Scrutiny supports sending SMART device failure notifications via the following s
 - Telegram
 - Tulip
 
-Check the `notify.urls` section of [example.scrutiny.yml](example.scrutiny.yaml) for more information and documentation for service specific setup.
+Check the `notify.urls` section of [example.scrutiny.yml](example.scrutiny.yaml) for examples.
+
+For more information and troubleshooting, see the [TROUBLESHOOTING_NOTIFICATIONS.md](./docs/TROUBLESHOOTING_NOTIFICATIONS.md) file
 
 ### Testing Notifications
 
