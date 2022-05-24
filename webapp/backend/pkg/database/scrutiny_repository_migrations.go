@@ -22,7 +22,7 @@ import (
 
 func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 
-	sr.logger.Infoln("Database migration starting")
+	sr.logger.Infoln("Database migration starting. Please wait, this process may take a long time....")
 
 	gormMigrateOptions := &gormigrate.Options{
 		TableName:                 "migrations",
