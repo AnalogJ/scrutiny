@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20201107210306"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220503120000"
@@ -9,7 +10,9 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	"github.com/go-gormigrate/gormigrate/v2"
+	"github.com/influxdata/influxdb-client-go/v2/api/http"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"strconv"
 	"time"
@@ -135,7 +138,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 								smartTags,
 								smartFields,
 								postSmartResults.Date, ctx)
-							if err != nil {
+							if ignorePastRetentionPolicyError(err) != nil {
 								return err
 							}
 
@@ -145,7 +148,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 								tempTags,
 								tempFields,
 								postSmartResults.Date, ctx)
-							if err != nil {
+							if ignorePastRetentionPolicyError(err) != nil {
 								return err
 							}
 						}
@@ -164,7 +167,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 								smartFields,
 								postSmartResults.Date, ctx)
 
-							if err != nil {
+							if ignorePastRetentionPolicyError(err) != nil {
 								return err
 							}
 
@@ -174,7 +177,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 								tempTags,
 								tempFields,
 								postSmartResults.Date, ctx)
-							if err != nil {
+							if ignorePastRetentionPolicyError(err) != nil {
 								return err
 							}
 						}
@@ -192,7 +195,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 								smartTags,
 								smartFields,
 								postSmartResults.Date, ctx)
-							if err != nil {
+							if ignorePastRetentionPolicyError(err) != nil {
 								return err
 							}
 
@@ -202,7 +205,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 								tempTags,
 								tempFields,
 								postSmartResults.Date, ctx)
-							if err != nil {
+							if ignorePastRetentionPolicyError(err) != nil {
 								return err
 							}
 						}
@@ -219,7 +222,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 								smartTags,
 								smartFields,
 								postSmartResults.Date, ctx)
-							if err != nil {
+							if ignorePastRetentionPolicyError(err) != nil {
 								return err
 							}
 
@@ -229,7 +232,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 								tempTags,
 								tempFields,
 								postSmartResults.Date, ctx)
-							if err != nil {
+							if ignorePastRetentionPolicyError(err) != nil {
 								return err
 							}
 						}
@@ -267,6 +270,21 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 	}
 	sr.logger.Infoln("Database migration completed successfully")
 	return nil
+}
+
+// helpers
+
+//When adding data to influxdb, an error may be returned if the data point is outside the range of the retention policy.
+//This function will ignore retention policy errors, and allow the migration to continue.
+func ignorePastRetentionPolicyError(err error) error {
+	var influxDbWriteError *http.Error
+	if errors.As(err, &influxDbWriteError) {
+		if influxDbWriteError.StatusCode == 422 {
+			log.Infoln("ignoring error: attempted to writePoint past retention period duration")
+			return nil
+		}
+	}
+	return err
 }
 
 // Deprecated
