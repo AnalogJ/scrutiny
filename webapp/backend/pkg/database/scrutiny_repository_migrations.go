@@ -24,7 +24,15 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 
 	sr.logger.Infoln("Database migration starting")
 
-	m := gormigrate.New(sr.gormClient, gormigrate.DefaultOptions, []*gormigrate.Migration{
+	gormMigrateOptions := &gormigrate.Options{
+		TableName:                 "migrations",
+		IDColumnName:              "id",
+		IDColumnSize:              255,
+		UseTransaction:            true, //use transactions (easier to debug in the future).
+		ValidateUnknownMigrations: false,
+	}
+
+	m := gormigrate.New(sr.gormClient, gormMigrateOptions, []*gormigrate.Migration{
 		{
 			ID: "20201107210306", // v0.3.13 (pre-influxdb schema). 9fac3c6308dc6cb6cd5bbc43a68cd93e8fb20b87
 			Migrate: func(tx *gorm.DB) error {
@@ -264,7 +272,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 	})
 
 	if err := m.Migrate(); err != nil {
-		sr.logger.Errorf("Database migration failed with error: %w", err)
+		sr.logger.Errorf("Database migration failed with error. \n Please open a github issue at https://github.com/AnalogJ/scrutiny and attach a copy of your scrutiny.db file. \n %w", err)
 		return err
 	}
 	sr.logger.Infoln("Database migration completed successfully")
