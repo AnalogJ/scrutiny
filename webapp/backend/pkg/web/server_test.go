@@ -518,5 +518,5 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 
 	//assert
 	require.Equal(suite.T(), "a4c8e8ed-11a0-4c97-9bba-306440f1b944", deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.WWN)
-	require.Equal(suite.T(), pkg.DeviceStatusFailedScrutiny, deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.DeviceStatus)
+	require.Equal(suite.T(), pkg.DeviceStatusPassed, deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.DeviceStatus)
 }
