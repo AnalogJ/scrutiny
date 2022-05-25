@@ -27,13 +27,8 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 
 	sr.logger.Infoln("Database migration starting. Please wait, this process may take a long time....")
 
-	gormMigrateOptions := &gormigrate.Options{
-		TableName:                 "migrations",
-		IDColumnName:              "id",
-		IDColumnSize:              255,
-		UseTransaction:            true, //use transactions (easier to debug in the future).
-		ValidateUnknownMigrations: false,
-	}
+	gormMigrateOptions := gormigrate.DefaultOptions
+	gormMigrateOptions.UseTransaction = true
 
 	m := gormigrate.New(sr.gormClient, gormMigrateOptions, []*gormigrate.Migration{
 		{
@@ -265,7 +260,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 	})
 
 	if err := m.Migrate(); err != nil {
-		sr.logger.Errorf("Database migration failed with error. \n Please open a github issue at https://github.com/AnalogJ/scrutiny and attach a copy of your scrutiny.db file. \n %w", err)
+		sr.logger.Errorf("Database migration failed with error. \n Please open a github issue at https://github.com/AnalogJ/scrutiny and attach a copy of your scrutiny.db file. \n %v", err)
 		return err
 	}
 	sr.logger.Infoln("Database migration completed successfully")
