@@ -1,0 +1,61 @@
+<div [ngClass]="{ 'border-green': deviceSummary.device.device_status == 0 && deviceSummary.smart,
+                                'border-red': deviceSummary.device.device_status != 0 }"
+     class="relative flex flex-col flex-auto p-6 pr-3 pb-3 bg-card rounded border-l-4 shadow-md overflow-hidden">
+    <div class="absolute bottom-0 right-0 w-24 h-24 -m-6">
+        <mat-icon class="icon-size-96 opacity-12 text-green"
+                  *ngIf="deviceSummary.device.device_status == 0 && deviceSummary.smart"
+                  [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+        <mat-icon class="icon-size-96 opacity-12 text-red"
+                  *ngIf="deviceSummary.device.device_status != 0"
+                  [svgIcon]="'heroicons_outline:exclamation-circle'"></mat-icon>
+        <mat-icon class="icon-size-96 opacity-12 text-yellow"
+                  *ngIf="!deviceSummary.smart"
+                  [svgIcon]="'heroicons_outline:question-mark-circle'"></mat-icon>
+    </div>
+    <div class="flex items-center">
+        <div class="flex flex-col">
+            <a [routerLink]="'/device/'+ deviceSummary.device.wwn"
+               class="font-bold text-md text-secondary uppercase tracking-wider">{{deviceTitle(deviceSummary.device)}}</a>
+            <div [ngClass]="classDeviceLastUpdatedOn(deviceSummary)" class="font-medium text-sm" *ngIf="deviceSummary.smart">
+                Last Updated on {{deviceSummary.smart.collector_date | date:'MMMM dd, yyyy - HH:mm' }}
+            </div>
+        </div>
+        <div class="ml-auto" *ngIf="deviceSummary.device">
+            <button mat-icon-button
+                    [matMenuTriggerFor]="previousStatementMenu">
+                <mat-icon [svgIcon]="'more_vert'"></mat-icon>
+            </button>
+            <mat-menu #previousStatementMenu="matMenu">
+                <a mat-menu-item [routerLink]="'/device/'+ deviceSummary.device.wwn">
+                                <span class="flex items-center">
+                                    <mat-icon class="icon-size-20 mr-3"
+                                              [svgIcon]="'payment'"></mat-icon>
+                                    <span>View Details</span>
+                                </span>
+                </a>
+            </mat-menu>
+        </div>
+    </div>
+    <div class="flex flex-row flex-wrap mt-4 -mx-6">
+        <div class="flex flex-col mx-6 my-3 xs:w-full">
+            <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Status</div>
+            <div class="mt-2 font-medium text-3xl leading-none" *ngIf="deviceSummary.smart?.collector_date; else unknownStatus">{{ deviceStatusString(deviceSummary.device.device_status) | titlecase}}</div>
+            <ng-template #unknownStatus><div class="mt-2 font-medium text-3xl leading-none">No Data</div></ng-template>
+        </div>
+        <div class="flex flex-col mx-6 my-3 xs:w-full">
+            <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Temperature</div>
+            <div class="mt-2 font-medium text-3xl leading-none" *ngIf="deviceSummary.smart?.collector_date; else unknownTemp">{{ deviceSummary.smart?.temp }}°C</div>
+            <ng-template #unknownTemp><div class="mt-2 font-medium text-3xl leading-none">--</div></ng-template>
+        </div>
+        <div class="flex flex-col mx-6 my-3 xs:w-full">
+            <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Capacity</div>
+            <div class="mt-2 font-medium text-3xl leading-none">{{ deviceSummary.device.capacity | fileSize}}</div>
+        </div>
+        <div class="flex flex-col mx-6 my-3 xs:w-full">
+            <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Powered On</div>
+            <div class="mt-2 font-medium text-3xl leading-none" *ngIf="deviceSummary.smart?.power_on_hours; else unknownPoweredOn">{{ humanizeDuration(deviceSummary.smart?.power_on_hours * 60 * 60 * 1000, { round: true, largest: 1, units: ['y', 'd', 'h'] }) }}</div>
+            <ng-template #unknownPoweredOn><div class="mt-2 font-medium text-3xl leading-none">--</div></ng-template>
+        </div>
+    </div>
+</div>
+

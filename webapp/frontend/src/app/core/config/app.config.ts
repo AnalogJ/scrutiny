@@ -11,6 +11,11 @@ export interface AppConfig
 {
     theme: Theme;
     layout: Layout;
+
+    // Dashboard options
+    dashboardDisplay: string;
+    dashboardSort: string;
+
 }
 
 /**
@@ -23,6 +28,9 @@ export interface AppConfig
  */
 export const appConfig: AppConfig = {
     theme : "light",
-    layout: "material"
+    layout: "material",
+
+    dashboardDisplay: "name",
+    dashboardSort: "status",
 };
 

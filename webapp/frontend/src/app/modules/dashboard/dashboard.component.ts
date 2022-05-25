@@ -3,12 +3,14 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ApexOptions } from 'ng-apexcharts';
+import {ApexOptions, ChartComponent} from 'ng-apexcharts';
 import { DashboardService } from 'app/modules/dashboard/dashboard.service';
-import * as moment from "moment";
 import {MatDialog} from '@angular/material/dialog';
 import { DashboardSettingsComponent } from 'app/layout/common/dashboard-settings/dashboard-settings.component';
-import  humanizeDuration from 'humanize-duration'
+import {deviceDisplayTitle} from "app/layout/common/dashboard-device/dashboard-device.component";
+import {AppConfig} from "app/core/config/app.config";
+import {TreoConfigService} from "@treo/services/config";
+import {Router} from "@angular/router";
 
 @Component({
     selector       : 'example',
@@ -20,10 +22,14 @@ import  humanizeDuration from 'humanize-duration'
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 {
     data: any;
+    hostGroups: { [hostId: string]: string[] } = {}
     temperatureOptions: ApexOptions;
+    tempDurationKey: string = "forever"
+    config: AppConfig;
 
     // Private
     private _unsubscribeAll: Subject<any>;
+    @ViewChild("tempChart", { static: false }) tempChart: ChartComponent;
 
     /**
      * Constructor
@@ -32,7 +38,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
      */
     constructor(
         private _smartService: DashboardService,
-        public dialog: MatDialog
+        private _configService: TreoConfigService,
+        public dialog: MatDialog,
+        private router: Router,
     )
     {
         // Set the private defaults
@@ -49,6 +57,28 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
      */
     ngOnInit(): void
     {
+
+        // Subscribe to config changes
+        this._configService.config$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((config: AppConfig) => {
+
+                //check if the old config and the new config do not match.
+                let oldConfig = JSON.stringify(this.config)
+                let newConfig = JSON.stringify(config)
+
+                if(oldConfig != newConfig){
+                    console.log(`Configuration updated: ${newConfig} vs ${oldConfig}`)
+                    // Store the config
+                    this.config = config;
+
+                    if(oldConfig){
+                        console.log("reloading component...")
+                        this.refreshComponent()
+                    }
+                }
+            });
+
         // Get the data
         this._smartService.data$
             .pipe(takeUntil(this._unsubscribeAll))
@@ -56,6 +86,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
                 // Store the data
                 this.data = data;
+
+                //generate group data.
+                for(let wwn in this.data.data.summary){
+                    let hostid = this.data.data.summary[wwn].device.host_id
+                    let hostDeviceList = this.hostGroups[hostid] || []
+                    hostDeviceList.push(wwn)
+                    this.hostGroups[hostid] = hostDeviceList
+                }
+                console.log(this.hostGroups)
 
                 // Prepare the chart data
                 this._prepareChartData();
@@ -81,6 +120,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     // -----------------------------------------------------------------------------------------------------
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
+    private refreshComponent(){
+
+        let currentUrl = this.router.url;
+        this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+        this.router.onSameUrlNavigation = 'reload';
+        this.router.navigate([currentUrl]);
+    }
+
     private _deviceDataTemperatureSeries() {
         var deviceTemperatureSeries = []
 
@@ -91,8 +138,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
             if (!deviceSummary.temp_history){
                 continue
             }
+
+            let deviceName = this.deviceTitle(deviceSummary.device)
+
             var deviceSeriesMetadata = {
-                name: `/dev/${deviceSummary.device.device_name}`,
+                name: deviceName,
                 data: []
             }
 
@@ -164,6 +214,26 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
 
+    deviceTitle(disk){
+
+        console.log(`Displaying Device ${disk.wwn} with: ${this.config.dashboardDisplay}`)
+        let titleParts = []
+        if (disk.host_id) titleParts.push(disk.host_id)
+
+        //add device identifier (fallback to generated device name)
+        titleParts.push(deviceDisplayTitle(disk, this.config.dashboardDisplay) || deviceDisplayTitle(disk, 'name'))
+
+        return titleParts.join(' - ')
+    }
+
+    deviceSummariesForHostGroup(hostGroupWWNs: string[]) {
+        let deviceSummaries = []
+        for(let wwn of hostGroupWWNs){
+            deviceSummaries.push(this.data.data.summary[wwn])
+        }
+        return deviceSummaries
+    }
+
     openDialog() {
         const dialogRef = this.dialog.open(DashboardSettingsComponent);
 
@@ -172,48 +242,29 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         });
     }
 
-    deviceTitle(disk){
-        let title = []
+    /*
 
-        if (disk.host_id) title.push(disk.host_id)
+    DURATION_KEY_WEEK    = "week"
+	DURATION_KEY_MONTH   = "month"
+	DURATION_KEY_YEAR    = "year"
+	DURATION_KEY_FOREVER = "forever"
+     */
 
-        title.push(`/dev/${disk.device_name}`)
+    changeSummaryTempDuration(durationKey: string){
+        this.tempDurationKey = durationKey
 
-        if (disk.device_type && disk.device_type != 'scsi' && disk.device_type != 'ata'){
-            title.push(disk.device_type)
-        }
+        this._smartService.getSummaryTempData(durationKey)
+            .subscribe((data) => {
 
-        title.push(disk.model_name)
+                // given a list of device temp history, override the data in the "summary" object.
+                for(const wwn in this.data.data.summary) {
+                    // console.log(`Updating ${wwn}, length: ${this.data.data.summary[wwn].temp_history.length}`)
+                    this.data.data.summary[wwn].temp_history = data.data.temp_history[wwn] || []
+                }
 
-        return title.join(' - ')
-    }
-
-    deviceStatusString(deviceStatus){
-        if(deviceStatus == 0){
-            return "passed"
-        } else {
-            return "failed"
-        }
-    }
-
-    classDeviceLastUpdatedOn(deviceSummary){
-        if (deviceSummary.device.device_status !== 0) {
-            return 'text-red' // if the device has failed, always highlight in red
-        } else if(deviceSummary.device.device_status === 0 && deviceSummary.smart){
-            if(moment().subtract(14, 'd').isBefore(deviceSummary.smart.collector_date)){
-                // this device was updated in the last 2 weeks.
-                return 'text-green'
-            } else if(moment().subtract(1, 'm').isBefore(deviceSummary.smart.collector_date)){
-                // this device was updated in the last month
-                return 'text-yellow'
-            } else{
-                // last updated more than a month ago.
-                return 'text-red'
-            }
-
-        } else {
-            return ''
-        }
+                // Prepare the chart series data
+                this.tempChart.updateSeries(this._deviceDataTemperatureSeries())
+            });
     }
 
     /**
@@ -226,7 +277,5 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     {
         return item.id || index;
     }
-
-    readonly humanizeDuration = humanizeDuration;
 
 }

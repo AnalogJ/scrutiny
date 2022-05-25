@@ -1,11 +1,10 @@
-package m20220503120000
+package m20220509170100
 
 import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"time"
 )
 
-// Deprecated: m20220503120000.Device is deprecated, only used by db migrations
 type Device struct {
 	//GORM attributes, see: http://gorm.io/docs/conventions.html
 	CreatedAt time.Time
@@ -15,6 +14,10 @@ type Device struct {
 	WWN string `json:"wwn" gorm:"primary_key"`
 
 	DeviceName     string `json:"device_name"`
+	DeviceUUID	   string `json:"device_uuid"`
+	DeviceSerialID	   string `json:"device_serial_id"`
+	DeviceLabel	   string `json:"device_label"`
+
 	Manufacturer   string `json:"manufacturer"`
 	ModelName      string `json:"model_name"`
 	InterfaceType  string `json:"interface_type"`
@@ -35,3 +38,4 @@ type Device struct {
 	// Data set by Scrutiny
 	DeviceStatus pkg.DeviceStatus `json:"device_status"`
 }
+

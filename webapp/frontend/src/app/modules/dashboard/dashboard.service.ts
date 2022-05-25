@@ -44,12 +44,22 @@ export class DashboardService
     /**
      * Get data
      */
-    getData(): Observable<any>
+    getSummaryData(): Observable<any>
     {
         return this._httpClient.get(getBasePath() + '/api/summary').pipe(
             tap((response: any) => {
                 this._data.next(response);
             })
         );
+    }
+
+    getSummaryTempData(durationKey: string): Observable<any>
+    {
+        let params = {}
+        if(durationKey){
+            params["duration_key"] = durationKey
+        }
+
+        return this._httpClient.get(getBasePath() + '/api/summary/temp', {params: params});
     }
 }
