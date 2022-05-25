@@ -40,6 +40,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
+          flavor: |
+            latest=false
           tags: |
             type=ref,enable=true,event=branch,suffix=-collector
             type=ref,enable=true,event=tag,suffix=-collector
@@ -87,6 +89,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
+          flavor: |
+            latest=false
           tags: |
             type=ref,enable=true,event=branch,suffix=-web
             type=ref,enable=true,event=tag,suffix=-web
