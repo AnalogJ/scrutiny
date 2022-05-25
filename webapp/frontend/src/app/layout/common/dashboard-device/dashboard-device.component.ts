@@ -5,6 +5,8 @@ import {AppConfig} from "app/core/config/app.config";
 import {TreoConfigService} from "@treo/services/config";
 import {Subject} from "rxjs";
 import  humanizeDuration from 'humanize-duration'
+import {MatDialog} from '@angular/material/dialog';
+import {DashboardDeviceDeleteDialogComponent} from "app/layout/common/dashboard-device-delete-dialog/dashboard-device-delete-dialog.component";
 
 @Component({
   selector: 'app-dashboard-device',
@@ -21,6 +23,7 @@ export class DashboardDeviceComponent implements OnInit {
 
     constructor(
         private _configService: TreoConfigService,
+        public dialog: MatDialog
     ) {
         // Set the private defaults
         this._unsubscribeAll = new Subject();
@@ -82,6 +85,18 @@ export class DashboardDeviceComponent implements OnInit {
 
     readonly humanizeDuration = humanizeDuration;
 
+
+
+    openDeleteDialog(): void {
+        const dialogRef = this.dialog.open(DashboardDeviceDeleteDialogComponent, {
+            // width: '250px',
+            data: {wwn: this.deviceWWN, title: this.deviceTitle(this.deviceSummary.device)}
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            console.log('The dialog was closed');
+        });
+    }
 }
 
 export function deviceDisplayTitle(disk, titleType: string){

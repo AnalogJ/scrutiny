@@ -29,8 +29,15 @@
                 <a mat-menu-item [routerLink]="'/device/'+ deviceSummary.device.wwn">
                                 <span class="flex items-center">
                                     <mat-icon class="icon-size-20 mr-3"
-                                              [svgIcon]="'payment'"></mat-icon>
+                                              [svgIcon]="'assessment'"></mat-icon>
                                     <span>View Details</span>
+                                </span>
+                </a>
+                <a mat-menu-item (click)="openDeleteDialog()">
+                                <span class="flex items-center">
+                                    <mat-icon class="icon-size-20 mr-3"
+                                              [svgIcon]="'delete_forever'"></mat-icon>
+                                    <span>Delete Device</span>
                                 </span>
                 </a>
             </mat-menu>
@@ -58,4 +65,3 @@
         </div>
     </div>
 </div>
-

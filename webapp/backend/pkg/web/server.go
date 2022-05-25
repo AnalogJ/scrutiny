@@ -47,6 +47,8 @@ func (ae *AppEngine) Setup(logger logrus.FieldLogger) *gin.Engine {
 			api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics)    //used by Collector to upload data
 			api.POST("/device/:wwn/selftest", handler.UploadDeviceSelfTests)
 			api.GET("/device/:wwn/details", handler.GetDeviceDetails) //used by Details
+			api.DELETE("/device/:wwn", handler.DeleteDevice)          //used by UI to delete device
+
 		}
 	}
 

@@ -72,3 +72,7 @@ func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, wwn string) 
 
 	return device, nil
 }
+
+func (sr *scrutinyRepository) DeleteDevice(ctx context.Context, wwn string) error {
+	return nil
+}

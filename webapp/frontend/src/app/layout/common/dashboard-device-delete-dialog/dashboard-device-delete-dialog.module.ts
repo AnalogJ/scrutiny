@@ -8,8 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { SharedModule } from 'app/shared/shared.module';
-import {DashboardDeviceComponent} from 'app/layout/common/dashboard-device/dashboard-device.component'
-import { MatDialogModule } from "@angular/material/dialog";
+import {DashboardDeviceDeleteDialogComponent} from 'app/layout/common/dashboard-device-delete-dialog/dashboard-device-delete-dialog.component'
 import { MatButtonToggleModule} from "@angular/material/button-toggle";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatSliderModule} from "@angular/material/slider";
@@ -22,11 +21,11 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {MatSortModule} from "@angular/material/sort";
 import {MatTableModule} from "@angular/material/table";
 import {NgApexchartsModule} from "ng-apexcharts";
-import {DashboardDeviceDeleteDialogModule} from "../dashboard-device-delete-dialog/dashboard-device-delete-dialog.module";
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
     declarations: [
-        DashboardDeviceComponent
+        DashboardDeviceDeleteDialogComponent
     ],
     imports     : [
         RouterModule.forChild([]),
@@ -41,13 +40,13 @@ import {DashboardDeviceDeleteDialogModule} from "../dashboard-device-delete-dial
         MatTableModule,
         NgApexchartsModule,
         SharedModule,
-        DashboardDeviceDeleteDialogModule
+        MatDialogModule
     ],
     exports     : [
-        DashboardDeviceComponent,
+        DashboardDeviceDeleteDialogComponent,
     ],
     providers   : []
 })
-export class DashboardDeviceModule
+export class DashboardDeviceDeleteDialogModule
 {
 }
