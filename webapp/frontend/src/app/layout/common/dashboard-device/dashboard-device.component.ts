@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import { Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
 import * as moment from "moment";
 import {takeUntil} from "rxjs/operators";
 import {AppConfig} from "app/core/config/app.config";
@@ -16,7 +16,7 @@ import {DashboardDeviceDeleteDialogComponent} from "app/layout/common/dashboard-
 export class DashboardDeviceComponent implements OnInit {
     @Input() deviceSummary: any;
     @Input() deviceWWN: string;
-    deleted = false;
+    @Output() deviceDeleted = new EventEmitter<string>();
 
     config: AppConfig;
 
@@ -25,7 +25,6 @@ export class DashboardDeviceComponent implements OnInit {
     constructor(
         private _configService: TreoConfigService,
         public dialog: MatDialog,
-        private cdRef: ChangeDetectorRef,
     ) {
         // Set the private defaults
         this._unsubscribeAll = new Subject();
@@ -97,8 +96,9 @@ export class DashboardDeviceComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(result => {
             console.log('The dialog was closed', result);
-            this.deleted = result.success
-            this.cdRef.detectChanges()
+            if(result.success){
+                this.deviceDeleted.emit(this.deviceWWN)
+            }
         });
     }
 }

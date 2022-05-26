@@ -1,4 +1,4 @@
-<div *ngIf="!deleted" [ngClass]="{ 'border-green': deviceSummary.device.device_status == 0 && deviceSummary.smart,
+<div [ngClass]="{ 'border-green': deviceSummary.device.device_status == 0 && deviceSummary.smart,
                                 'border-red': deviceSummary.device.device_status != 0 }"
      class="relative flex flex-col flex-auto p-6 pr-3 pb-3 bg-card rounded border-l-4 shadow-md overflow-hidden">
     <div class="absolute bottom-0 right-0 w-24 h-24 -m-6">

@@ -229,7 +229,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     deviceSummariesForHostGroup(hostGroupWWNs: string[]) {
         let deviceSummaries = []
         for(let wwn of hostGroupWWNs){
-            deviceSummaries.push(this.data.data.summary[wwn])
+            if(this.data.data.summary[wwn]){
+                deviceSummaries.push(this.data.data.summary[wwn])
+            }
         }
         return deviceSummaries
     }
@@ -240,6 +242,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         dialogRef.afterClosed().subscribe(result => {
             console.log(`Dialog result: ${result}`);
         });
+    }
+
+    onDeviceDeleted(wwn: string) {
+        delete this.data.data.summary[wwn] // remove the device from the summary list.
     }
 
     /*
