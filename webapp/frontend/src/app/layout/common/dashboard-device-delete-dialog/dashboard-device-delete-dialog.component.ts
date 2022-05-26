@@ -1,5 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import {MAT_DIALOG_DATA} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {DashboardDeviceDeleteDialogService} from "./dashboard-device-delete-dialog.service";
+import {Subject} from "rxjs";
 
 @Component({
   selector: 'app-dashboard-device-delete-dialog',
@@ -8,9 +10,23 @@ import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 })
 export class DashboardDeviceDeleteDialogComponent implements OnInit {
 
-    constructor(@Inject(MAT_DIALOG_DATA) public data: {wwn: string, title: string}) { }
+    constructor(
+        public dialogRef: MatDialogRef<DashboardDeviceDeleteDialogComponent>,
+        @Inject(MAT_DIALOG_DATA) public data: {wwn: string, title: string},
+        private _deleteService: DashboardDeviceDeleteDialogService,
+    ) {
+    }
 
   ngOnInit(): void {
   }
 
+  onDeleteClick(): void {
+      this._deleteService.deleteDevice(this.data.wwn)
+          .subscribe((data) => {
+
+              console.log("Delete status:", data)
+              this.dialogRef.close(data);
+          });
+
+  }
 }
