@@ -1,4 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import {formatNumber} from "@angular/common";
 
 @Pipe({
   name: 'temperature'
@@ -21,9 +22,9 @@ export class TemperaturePipe implements PipeTransform {
                 break
         }
         if(includeUnits){
-            return convertedTemp + convertedUnitSuffix
+            return formatNumber(convertedTemp, 'en-US') + convertedUnitSuffix
         } else {
-            return convertedTemp
+            return formatNumber(convertedTemp, 'en-US',)
         }
     }
 
