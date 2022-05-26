@@ -39,6 +39,13 @@ export class DeviceSortPipe implements PipeTransform {
         }
     }
 
+    ageCompareFn(a: any, b: any) {
+        const left = a.smart?.power_on_hours
+        const right = b.smart?.power_on_hours
+
+        return left - right;
+    }
+
 
   transform(deviceSummaries: Array<unknown>, sortBy = 'status', dashboardDisplay = "name"): Array<unknown> {
     let compareFn = undefined
@@ -49,9 +56,12 @@ export class DeviceSortPipe implements PipeTransform {
         case 'title':
             compareFn = this.titleCompareFn(dashboardDisplay)
             break;
+        case 'age':
+            compareFn = this.ageCompareFn
+            break;
     }
 
-      //failed, unknown/empty, passed
+      // failed, unknown/empty, passed
       deviceSummaries.sort(compareFn);
 
     return deviceSummaries;
