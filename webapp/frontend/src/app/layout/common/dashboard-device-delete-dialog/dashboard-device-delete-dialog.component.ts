@@ -23,8 +23,6 @@ export class DashboardDeviceDeleteDialogComponent implements OnInit {
   onDeleteClick(): void {
       this._deleteService.deleteDevice(this.data.wwn)
           .subscribe((data) => {
-
-              console.log("Delete status:", data)
               this.dialogRef.close(data);
           });
 
