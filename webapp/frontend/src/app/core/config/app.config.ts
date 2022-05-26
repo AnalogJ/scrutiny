@@ -16,6 +16,7 @@ export interface AppConfig
     dashboardDisplay: string;
     dashboardSort: string;
 
+    temperatureUnit: string;
 }
 
 /**
@@ -32,5 +33,7 @@ export const appConfig: AppConfig = {
 
     dashboardDisplay: "name",
     dashboardSort: "status",
+
+    temperatureUnit: "celsius",
 };
 

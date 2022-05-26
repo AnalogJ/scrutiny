@@ -9,6 +9,8 @@ import {fadeOut} from "../../../@treo/animations/fade";
 import {DetailSettingsComponent} from "app/layout/common/detail-settings/detail-settings.component";
 import {MatDialog} from "@angular/material/dialog";
 import humanizeDuration from 'humanize-duration';
+import {TreoConfigService} from "../../../@treo/services/config";
+import {AppConfig} from "../../core/config/app.config";
 
 @Component({
   selector: 'detail',
@@ -17,6 +19,8 @@ import humanizeDuration from 'humanize-duration';
 })
 
 export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
+
+    config: AppConfig;
 
     onlyCritical: boolean = true;
     // data: any;
@@ -43,7 +47,9 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
      */
     constructor(
         private _detailService: DetailService,
-        public dialog: MatDialog
+        public dialog: MatDialog,
+        private _configService: TreoConfigService,
+
 
     )
     {
@@ -65,6 +71,14 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
      */
     ngOnInit(): void
     {
+        // Subscribe to config changes
+        this._configService.config$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((config: AppConfig) => {
+
+                this.config = config;
+            });
+
         // Get the data
         this._detailService.data$
             .pipe(takeUntil(this._unsubscribeAll))

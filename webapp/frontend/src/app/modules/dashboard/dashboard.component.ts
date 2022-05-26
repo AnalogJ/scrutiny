@@ -11,6 +11,7 @@ import {deviceDisplayTitle} from "app/layout/common/dashboard-device/dashboard-d
 import {AppConfig} from "app/core/config/app.config";
 import {TreoConfigService} from "@treo/services/config";
 import {Router} from "@angular/router";
+import {TemperaturePipe} from "../../shared/temperature.pipe";
 
 @Component({
     selector       : 'example',
@@ -150,7 +151,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                 let newDate = new Date(tempHistory.date);
                 deviceSeriesMetadata.data.push({
                     x: newDate,
-                    y: tempHistory.temp
+                    y: TemperaturePipe.formatTemperature(tempHistory.temp, this.config.temperatureUnit, false)
                 })
             }
             deviceTemperatureSeries.push(deviceSeriesMetadata)
@@ -200,7 +201,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                 },
                 y    : {
                     formatter: (value) => {
-                        return value + '°C';
+                        return TemperaturePipe.formatTemperature(value, this.config.temperatureUnit, true);
                     }
                 }
             },
