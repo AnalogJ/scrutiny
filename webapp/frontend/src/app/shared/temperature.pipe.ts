@@ -7,7 +7,7 @@ export class TemperaturePipe implements PipeTransform {
     static celsiusToFahrenheit(celsiusTemp: number): number {
         return celsiusTemp * 9.0 / 5.0 + 32;
     }
-    static formatTemperature(celsiusTemp: number, unit: string, includeUnits: boolean): unknown {
+    static formatTemperature(celsiusTemp: number, unit: string, includeUnits: boolean): number|string {
         let convertedTemp
         let convertedUnitSuffix
         switch (unit) {
@@ -27,7 +27,7 @@ export class TemperaturePipe implements PipeTransform {
         }
     }
 
-  transform(celsiusTemp: number, unit = 'celsius', includeUnits = false): unknown {
+  transform(celsiusTemp: number, unit = 'celsius', includeUnits = false): number|string {
         return TemperaturePipe.formatTemperature(celsiusTemp, unit, includeUnits)
   }
 

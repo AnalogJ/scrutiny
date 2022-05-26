@@ -200,8 +200,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                     format: 'MMM dd, yyyy HH:mm:ss'
                 },
                 y    : {
+
                     formatter: (value) => {
-                        return TemperaturePipe.formatTemperature(value, this.config.temperatureUnit, true);
+                        return TemperaturePipe.formatTemperature(value, this.config.temperatureUnit, true) as string;
                     }
                 }
             },
