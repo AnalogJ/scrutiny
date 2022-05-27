@@ -57,7 +57,9 @@ You may also configure these values using the following environmental variables 
 - `COLLECTOR_API_ENDPOINT=http://localhost:8080/custombasepath`
 - `SCRUTINY_WEB_LISTEN_BASEPATH=/custombasepath`
 
-## Caddy Example
+# Real Examples
+
+## Caddy
 
 1. Create a Caddyfile
     ```yaml
