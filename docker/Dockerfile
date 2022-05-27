@@ -12,7 +12,9 @@ RUN go mod vendor && \
 
 ########
 FROM node:lts-slim as frontendbuild
-ARG GIT_VERSION=""
+ARG GITHUB_REF_NAME=""
+ARG GITHUB_REF_TYPE=""
+ARG GITHUB_SHA=""
 #reduce logging, disable angular-cli analytics for ci environment
 ENV NPM_CONFIG_LOGLEVEL=warn NG_CLI_ANALYTICS=false
 

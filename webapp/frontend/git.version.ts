@@ -6,8 +6,13 @@ const exec = promisify(child.exec);
 
 async function createVersionsFile(filename: string) {
     let versionInfo = ''
-    if(process.env.GIT_VERSION){
-        versionInfo = process.env.GIT_VERSION
+    if(process.env.GITHUB_SHA){
+        // we're in a github action
+
+        versionInfo = process.env.GITHUB_REF_NAME
+        if(process.env.GITHUB_REF_TYPE === 'branch'){
+            versionInfo += `#${process.env.GITHUB_SHA}`
+        }
     } else {
         const tag = (await exec('git describe --tags')).stdout.toString().trim();
         const branch = (await exec('git rev-parse --abbrev-ref HEAD')).stdout.toString().trim();
