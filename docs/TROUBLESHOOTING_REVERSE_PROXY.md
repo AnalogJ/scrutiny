@@ -92,6 +92,7 @@ You may also configure these values using the following environmental variables 
           - "/dev/sdb"
         environment:
           - SCRUTINY_WEB_LISTEN_BASEPATH=/custom
+          - COLLECTOR_API_ENDPOINT=http://localhost:8080/custom
       caddy:
         image: caddy
         volumes:
