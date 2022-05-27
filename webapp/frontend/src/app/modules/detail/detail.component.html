@@ -4,7 +4,7 @@
 
         <div class="flex items-center justify-between w-full my-4 px-4 xs:pr-0">
             <div class="mr-6">
-                <h2 class="m-0">Drive Details</h2>
+                <h2 class="m-0">Drive Details - {{device | deviceTitle:config.dashboardDisplay}} </h2>
                 <div class="text-secondary tracking-tight">Dive into S.M.A.R.T data</div>
             </div>
             <!-- Action buttons -->
@@ -51,11 +51,8 @@
 
         <!-- Card -->
         <div class="flex flex-auto w-1/4 p-4 lt-md:w-full">
-            <treo-card class="flex flex-auto p-4 pt-6 flex-col flex-auto filter-list">
-                <div class="flex items-center justify-between">
-                    <div class="text-2xl font-semibold leading-tight">/dev/{{device?.device_name}}</div>
-                </div>
-                <div class="flex flex-col my-2 grid grid-cols-2">
+            <treo-card class="flex flex-auto p-4 flex-col flex-auto filter-list">
+                <div class="flex flex-col grid grid-cols-2">
                     <div *ngIf="device" class="my-2 col-span-2 lt-md:col-span-1">
                         <div>
                             <span class="inline-flex items-center font-bold text-xs px-2 py-2px rounded-full tracking-wide uppercase"
@@ -64,7 +61,7 @@
                                 <span class="w-2 h-2 rounded-full mr-2"
                                       [ngClass]="{'bg-red': device?.device_status != 0,
                                   'bg-green': device?.device_status == 0}"></span>
-                                <span class="pr-2px leading-relaxed whitespace-no-wrap">{{device?.device_status == 0 ? 'passed' : 'failed'}}</span>
+                                <span class="pr-2px leading-relaxed whitespace-no-wrap">{{device?.device_status | deviceStatus}}</span>
                             </span>
                         </div>
                         <div class="text-secondary text-md">Status</div>

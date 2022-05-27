@@ -7,11 +7,11 @@ import {ApexOptions, ChartComponent} from 'ng-apexcharts';
 import { DashboardService } from 'app/modules/dashboard/dashboard.service';
 import {MatDialog} from '@angular/material/dialog';
 import { DashboardSettingsComponent } from 'app/layout/common/dashboard-settings/dashboard-settings.component';
-import {deviceDisplayTitle} from "app/layout/common/dashboard-device/dashboard-device.component";
 import {AppConfig} from "app/core/config/app.config";
 import {TreoConfigService} from "@treo/services/config";
 import {Router} from "@angular/router";
-import {TemperaturePipe} from "../../shared/temperature.pipe";
+import {TemperaturePipe} from "app/shared/temperature.pipe";
+import {DeviceTitlePipe} from "app/shared/device-title.pipe";
 
 @Component({
     selector       : 'example',
@@ -140,7 +140,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                 continue
             }
 
-            let deviceName = this.deviceTitle(deviceSummary.device)
+            let deviceName = DeviceTitlePipe.deviceTitleWithFallback(deviceSummary.device, this.config.dashboardDisplay)
 
             var deviceSeriesMetadata = {
                 name: deviceName,
@@ -215,18 +215,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
-
-    deviceTitle(disk){
-
-        console.log(`Displaying Device ${disk.wwn} with: ${this.config.dashboardDisplay}`)
-        let titleParts = []
-        if (disk.host_id) titleParts.push(disk.host_id)
-
-        //add device identifier (fallback to generated device name)
-        titleParts.push(deviceDisplayTitle(disk, this.config.dashboardDisplay) || deviceDisplayTitle(disk, 'name'))
-
-        return titleParts.join(' - ')
-    }
 
     deviceSummariesForHostGroup(hostGroupWWNs: string[]) {
         let deviceSummaries = []
