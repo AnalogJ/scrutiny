@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TreoMediaWatcherService } from '@treo/services/media-watcher';
 import { TreoNavigationService } from '@treo/components/navigation';
-import {versions} from 'environments/versions';
+import {versionInfo} from 'environments/versions';
 
 @Component({
     selector     : 'material-layout',
@@ -49,7 +49,7 @@ export class MaterialLayoutComponent implements OnInit, OnDestroy
         this.fixedHeader = false;
         this.fixedFooter = false;
 
-        this.appVersion = `${versions.version}${versions.branch === 'master' ? '' : '#' + versions.branch}`
+        this.appVersion = versionInfo.version
     }
 
     // -----------------------------------------------------------------------------------------------------

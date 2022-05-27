@@ -12,16 +12,14 @@ RUN go mod vendor && \
 
 ########
 FROM node:lts-slim as frontendbuild
-
+ARG GIT_VERSION=""
 #reduce logging, disable angular-cli analytics for ci environment
 ENV NPM_CONFIG_LOGLEVEL=warn NG_CLI_ANALYTICS=false
 
 WORKDIR /opt/scrutiny/src
-COPY . /opt/scrutiny/src
+COPY webapp/frontend /opt/scrutiny/src
 
-RUN apt-get update && apt-get install -y git && \
-    cd webapp/frontend && \
-    npm install -g @angular/cli@9.1.4 && \
+RUN npm install -g @angular/cli@9.1.4 && \
     mkdir -p /scrutiny/dist && \
     npm install && \
     npm run build:prod -- --output-path=/opt/scrutiny/dist
