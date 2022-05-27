@@ -19,7 +19,8 @@ ENV NPM_CONFIG_LOGLEVEL=warn NG_CLI_ANALYTICS=false
 WORKDIR /opt/scrutiny/src
 COPY webapp/frontend /opt/scrutiny/src
 
-RUN npm install -g @angular/cli@9.1.4 && \
+RUN apt-get update && apt-get install -y git && \
+    npm install -g @angular/cli@9.1.4 && \
     mkdir -p /scrutiny/dist && \
     npm install && \
     npm run build:prod -- --output-path=/opt/scrutiny/dist
