@@ -13,10 +13,6 @@ if [[ -z "${CI}" ]]; then
 else
     echo "running in Github Actions, generating version file from environmental variables"
     # https://docs.github.com/en/actions/learn-github-actions/environment-variables
-    GITHUB_SHA
-    GITHUB_REF_NAME
-    GITHUB_REF_TYPE
-
     VERSION_INFO="${GITHUB_REF_NAME}"
 
     if [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
