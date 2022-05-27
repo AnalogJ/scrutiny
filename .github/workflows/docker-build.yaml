@@ -93,7 +93,8 @@ jobs:
             type=ref,enable=true,event=branch,suffix=-web
             type=ref,enable=true,event=tag,suffix=-web
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
+      - name: "Generate frontend version information"
+        run: "cd webapp/frontend && ./git.version.sh"
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -105,10 +106,6 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            GITHUB_REF_NAME=${{ env.GITHUB_REF_NAME }}
-            GITHUB_REF_TYPE=${{ env.GITHUB_REF_TYPE }}
-            GITHUB_SHA=${{ env.GITHUB_SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
   omnibus:
@@ -143,7 +140,8 @@ jobs:
             type=ref,enable=true,event=branch,suffix=-omnibus
             type=ref,enable=true,event=tag,suffix=-omnibus
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
+      - name: "Generate frontend version information"
+        run: "cd webapp/frontend && ./git.version.sh"
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -155,9 +153,5 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            GITHUB_REF_NAME=${{ env.GITHUB_REF_NAME }}
-            GITHUB_REF_TYPE=${{ env.GITHUB_REF_TYPE }}
-            GITHUB_SHA=${{ env.GITHUB_SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

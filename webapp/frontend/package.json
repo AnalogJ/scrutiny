@@ -4,10 +4,8 @@
     "license": "https://themeforest.net/licenses/standard",
     "scripts": {
         "ng": "ng",
-        "prestart": "ts-node -O '{\"module\": \"commonjs\"}' git.version.ts",
         "start": "ng serve --open",
         "start:mem": "node --max_old_space_size=6144 ./node_modules/@angular/cli/bin/ng serve --open",
-        "prebuild:prod": "ts-node -O '{\"module\": \"commonjs\"}' git.version.ts",
         "build": "ng build",
         "build:prod": "ng build --prod",
         "build:prod:mem": "node --max_old_space_size=6144 ./node_modules/@angular/cli/bin/ng build --prod",
