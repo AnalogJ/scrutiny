@@ -54,7 +54,7 @@ The frontend is written in Angular. If you're working on the frontend and can us
     ```bash
     cd webapp/frontend
     npm install
-    ng serve --deploy-url="/web/" --base-href="/web/" --port 4200
+    npm run start -- --deploy-url="/web/" --base-href="/web/" --port 4200
     ```
 3. open your browser and visit [http://localhost:4200/web](http://localhost:4200/web)
 
@@ -95,7 +95,7 @@ you'll need to follow the steps below:
     ```bash
     cd webapp/frontend
     npm install
-    ng build --watch --output-path=../../dist --prod
+    npm run build:prod -- --watch --output-path=../../dist
     # Note: if you do not add `--prod` flag, app will display mocked data for api calls.
     ```
 6. start the scrutiny web server

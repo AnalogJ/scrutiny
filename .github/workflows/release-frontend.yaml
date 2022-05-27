@@ -21,7 +21,7 @@ jobs:
           npm install -g @angular/cli@9.1.4
           npm install
           mkdir -p dist
-          ng build --output-path=dist --deploy-url="/web/" --base-href="/web/" --prod
+          npm run build:prod -- --output-path=dist
           tar -czf scrutiny-web-frontend.tar.gz dist
       - name: Upload Frontend Asset
         id: upload-release-asset3
