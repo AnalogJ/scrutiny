@@ -1,75 +1,109 @@
 # Contributing
 
-There are multiple ways to develop on the scrutiny codebase locally. The two most popular are:
-- Docker Development Container - only requires docker
-- Run Components Locally - requires smartmontools, golang & nodejs installed locally
+The Scrutiny repository is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) containing source code for:
+- Scrutiny Backend Server (API)
+- Scrutiny Frontend Angular SPA
+- S.M.A.R.T Collector
 
-## Docker Development
-```
-docker build -f docker/Dockerfile . -t chcr.io/analogj/scrutiny:master-omnibus
-docker run -it --rm -p 8080:8080 \
--v /run/udev:/run/udev:ro \
---cap-add SYS_RAWIO \
---device=/dev/sda \
---device=/dev/sdb \
-ghcr.io/analogj/scrutiny:master-omnibus
-/opt/scrutiny/bin/scrutiny-collector-metrics run
-```
+Depending on the functionality you are adding, you may need to setup a development environment for 1 or more projects. 
 
+# Modifying the Scrutiny Backend Server (API)
 
-## Local Development
+1. install the [Go runtime](https://go.dev/doc/install) (v1.17+)
+2. download the `scrutiny-web-frontend.tar.gz` for the [latest release](https://github.com/AnalogJ/scrutiny/releases/latest). Extract to a folder named `dist`
+3. create a `scrutiny.yaml` config file
+    ```yaml
+    # config file for local development. store as scrutiny.yaml
+    version: 1
+    
+    web:
+      listen:
+        port: 8080
+        host: 0.0.0.0
+      database:
+        # can also set absolute path here
+        location: ./scrutiny.db
+      src:
+        frontend:
+          path: ./dist
+      influxdb:
+        retention_policy: false
+    
+    log:
+      file: 'web.log' #absolute or relative paths allowed, eg. web.log
+      level: DEBUG
 
-### Frontend
-The frontend is written in Angular.
-If you're working on the frontend and can use mocked data rather than a real backend, you can use
-```
-cd webapp/frontend
-npm install
-ng serve --deploy-url="/web/" --base-href="/web/"
-```
+    ```
+4. start a InfluxDB docker container. 
+    ```bash
+    docker run -p 8086:8086 --rm influxdb:2.2
+    ```
+5. start the scrutiny web server
+    ```bash
+    go mod vendor
+    go run webapp/backend/cmd/scrutiny/scrutiny.go start --config ./scrutiny.yaml
+    ```
+6. open your browser to [http://localhost:8080/web](http://localhost:8080/web)
 
-However, if you need to also run the backend, and use real data, you'll need to run the following command:
-```
-cd webapp/frontend && ng build --watch --output-path=../../dist --prod
-```
+# Modifying the Scrutiny Frontend Angular SPA
 
-> Note: if you do not add `--prod` flag, app will display mocked data for api calls.
+The frontend is written in Angular. If you're working on the frontend and can use mocked data rather than a real backend, you can follow the instructions below:
 
-### Backend
+1. install [NodeJS](https://nodejs.org/en/download/)
+2. start the Angular Frontend Application
+    ```bash
+    cd webapp/frontend
+    npm install
+    ng serve --deploy-url="/web/" --base-href="/web/" --port 4200
+    ```
+3. open your browser and visit [http://localhost:4200/web](http://localhost:4200/web)
 
-If you're using the `ng build` command above to generate your frontend, you'll need to create a custom config file and
-override the `web.src.frontend.path` value.
+# Modifying both Scrutiny Backend and Frontend Applications
+If you're developing a feature that requires changes to the backend and the frontend, or a frontend feature that requires real data, 
+you'll need to follow the steps below:
 
-```
-# config file for local development. store as scrutiny.yaml
-version: 1
+1. install the [Go runtime](https://go.dev/doc/install) (v1.17+)
+2. install [NodeJS](https://nodejs.org/en/download/)
+3. create a `scrutiny.yaml` config file
+    ```yaml
+    # config file for local development. store as scrutiny.yaml
+    version: 1
+    
+    web:
+      listen:
+        port: 8080
+        host: 0.0.0.0
+      database:
+        # can also set absolute path here
+        location: ./scrutiny.db
+      src:
+        frontend:
+          path: ./dist
+      influxdb:
+        retention_policy: false
+    
+    log:
+      file: 'web.log' #absolute or relative paths allowed, eg. web.log
+      level: DEBUG
 
-web:
-  listen:
-    port: 8080
-    host: 0.0.0.0
-  database:
-    # can also set absolute path here
-    location: ./scrutiny.db
-  src:
-    frontend:
-      path: ./dist
-  influxdb:
-    retention_policy: false
-
-log:
-  file: 'web.log' #absolute or relative paths allowed, eg. web.log
-  level: DEBUG
-
-```
-
-Once you've created a config file, you can pass it to the scrutiny binary during startup.
-
-```
-go run webapp/backend/cmd/scrutiny/scrutiny.go start --config ./scrutiny.yaml
-```
-
-Now visit http://localhost:8080
+    ```
+4. start a InfluxDB docker container.
+    ```bash
+    docker run -p 8086:8086 --rm influxdb:2.2
+    ```
+5. build the Angular Frontend Application
+    ```bash
+    cd webapp/frontend
+    npm install
+    ng build --watch --output-path=../../dist --prod
+    # Note: if you do not add `--prod` flag, app will display mocked data for api calls.
+    ```
+6. start the scrutiny web server
+    ```bash
+    go mod vendor
+    go run webapp/backend/cmd/scrutiny/scrutiny.go start --config ./scrutiny.yaml
+    ```
+7. open your browser to [http://localhost:8080/web](http://localhost:8080/web)
 
 
 If you'd like to populate the database with some test data,  you can run the following commands:
@@ -80,15 +114,6 @@ If you'd like to populate the database with some test data,  you can run the fol
 
 ```
 docker run -p 8086:8086 --rm influxdb:2.2
-
-
-docker run --rm -p 8086:8086 \
-      -e DOCKER_INFLUXDB_INIT_MODE=setup \
-      -e DOCKER_INFLUXDB_INIT_USERNAME=admin \
-      -e DOCKER_INFLUXDB_INIT_PASSWORD=password12345 \
-      -e DOCKER_INFLUXDB_INIT_ORG=scrutiny \
-      -e DOCKER_INFLUXDB_INIT_BUCKET=metrics \
-      influxdb:2.2
 
 
 # curl -X POST -H "Content-Type: application/json" -d @webapp/backend/pkg/web/testdata/register-devices-req.json localhost:8080/api/devices/register
@@ -105,14 +130,14 @@ curl localhost:8080/api/summary
 
 ```
 
-### Collector
+# Modifying the Collector
 ```
 brew install smartmontools
 go run collector/cmd/collector-metrics/collector-metrics.go run --debug
 ```
 
 
-## Debugging
+# Debugging
 
 If you need more verbose logs for debugging, you can use the following environmental variables:
 
@@ -130,4 +155,17 @@ Finally, you can copy the files from the scrutiny container to your host using t
 ```
 docker cp scrutiny:/tmp/collector.log collector.log
 docker cp scrutiny:/tmp/web.log web.log
+```
+
+# Docker Development
+
+```
+docker build -f docker/Dockerfile . -t chcr.io/analogj/scrutiny:master-omnibus
+docker run -it --rm -p 8080:8080 \
+-v /run/udev:/run/udev:ro \
+--cap-add SYS_RAWIO \
+--device=/dev/sda \
+--device=/dev/sdb \
+ghcr.io/analogj/scrutiny:master-omnibus
+/opt/scrutiny/bin/scrutiny-collector-metrics run
 ```
