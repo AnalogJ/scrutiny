@@ -106,7 +106,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            GIT_VERSION=${{ github.ref_type == 'tag' && github.ref_name || github.ref_name + '#' + github.sha }}
+            GIT_VERSION=${{ github.ref_type == 'tag' && github.ref_name || join([github.ref_name, '#', github.sha], '') }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
   omnibus:
@@ -154,6 +154,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            GIT_VERSION=${{ github.ref_type == 'tag' && github.ref_name || github.ref_name + '#' + github.sha }}
+            GIT_VERSION=${{ github.ref_type == 'tag' && github.ref_name || join([github.ref_name, '#', github.sha], '') }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
