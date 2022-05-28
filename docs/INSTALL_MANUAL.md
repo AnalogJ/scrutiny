@@ -57,7 +57,7 @@ web:
   # and store the information in the config file. If you 're re-using an existing influxdb installation, you'll need to provide
   # the `token`
   influxdb:
-    host: 0.0.0.0
+    host: localhost
     port: 8086
 #    token: 'my-token'
 #    org: 'my-org'
