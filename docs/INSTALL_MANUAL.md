@@ -83,8 +83,10 @@ Now that we have downloaded the required files, let's prepare the filesystem.
 chmod +x /opt/scrutiny/bin/scrutiny-web-linux-amd64
 
 # Next, lets extract the frontend files.
+# NOTE: after extraction, there **should not** be a `dist` subdirectory in `/opt/scrutiny/web` directory.
 cd /opt/scrutiny/web
 tar xvzf scrutiny-web-frontend.tar.gz --strip-components 1 -C .
+
 
 # Cleanup
 rm -rf scrutiny-web-frontend.tar.gz
