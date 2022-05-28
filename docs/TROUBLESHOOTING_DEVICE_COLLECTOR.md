@@ -52,6 +52,8 @@ If the output is the same, your devices will be processed by Scrutiny.
 In some cases `--scan` does not correctly detect the device type, returning [incomplete SMART data](https://github.com/AnalogJ/scrutiny/issues/45).
 Scrutiny will supports overriding the detected device type via the config file.
 
+[example.collector.yaml](https://github.com/AnalogJ/scrutiny/blob/master/example.collector.yaml)
+
 ### RAID Controllers (Megaraid/3ware/HBA/Adaptec/HPE/etc)
 Smartctl has support for a large number of [RAID controllers](https://www.smartmontools.org/wiki/Supported_RAID-Controllers), however this 
 support is not automatic, and may require some additional device type hinting. You can provide this information to the Scrutiny collector
@@ -138,3 +140,17 @@ Thankfully the collector has a special `--host-id` flag (or `COLLECTOR_HOST_ID` 
 
 See the [docs/INSTALL_HUB_SPOKE.md](/docs/INSTALL_HUB_SPOKE.md) guide for more information. 
 
+## Collector DEBUG mode
+
+You can use environmental variables to enable debug logging and/or log files for the collector:
+
+```bash
+DEBUG=true
+COLLECTOR_LOG_FILE=/tmp/collector.log
+```
+
+Or if you're not using docker, you can pass CLI arguments to the collector during startup:
+
+```bash
+scrutiny-collector-metrics run --debug --log-file /tmp/collector.log
+```
