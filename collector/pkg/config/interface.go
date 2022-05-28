@@ -22,5 +22,7 @@ type Interface interface {
 	GetStringSlice(key string) []string
 	UnmarshalKey(key string, rawVal interface{}, decoderOpts ...viper.DecoderConfigOption) error
 
-	GetScanOverrides() []models.ScanOverride
+	GetDeviceOverrides() []models.ScanOverride
+	GetCommandMetricsInfoArgs(deviceName string) string
+	GetCommandMetricsSmartArgs(deviceName string) string
 }
