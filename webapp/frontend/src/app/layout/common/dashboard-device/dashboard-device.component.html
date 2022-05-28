@@ -15,7 +15,7 @@
     <div class="flex items-center">
         <div class="flex flex-col">
             <a [routerLink]="'/device/'+ deviceSummary.device.wwn"
-               class="font-bold text-md text-secondary uppercase tracking-wider">{{deviceTitle(deviceSummary.device)}}</a>
+               class="font-bold text-md text-secondary uppercase tracking-wider">{{deviceSummary.device | deviceTitle:config.dashboardDisplay}}</a>
             <div [ngClass]="classDeviceLastUpdatedOn(deviceSummary)" class="font-medium text-sm" *ngIf="deviceSummary.smart">
                 Last Updated on {{deviceSummary.smart.collector_date | date:'MMMM dd, yyyy - HH:mm' }}
             </div>
@@ -29,8 +29,15 @@
                 <a mat-menu-item [routerLink]="'/device/'+ deviceSummary.device.wwn">
                                 <span class="flex items-center">
                                     <mat-icon class="icon-size-20 mr-3"
-                                              [svgIcon]="'payment'"></mat-icon>
+                                              [svgIcon]="'assessment'"></mat-icon>
                                     <span>View Details</span>
+                                </span>
+                </a>
+                <a mat-menu-item (click)="openDeleteDialog()">
+                                <span class="flex items-center">
+                                    <mat-icon class="icon-size-20 mr-3"
+                                              [svgIcon]="'delete_forever'"></mat-icon>
+                                    <span>Delete Device</span>
                                 </span>
                 </a>
             </mat-menu>
@@ -44,7 +51,7 @@
         </div>
         <div class="flex flex-col mx-6 my-3 xs:w-full">
             <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Temperature</div>
-            <div class="mt-2 font-medium text-3xl leading-none" *ngIf="deviceSummary.smart?.collector_date; else unknownTemp">{{ deviceSummary.smart?.temp }}°C</div>
+            <div class="mt-2 font-medium text-3xl leading-none" *ngIf="deviceSummary.smart?.collector_date; else unknownTemp">{{ deviceSummary.smart?.temp | temperature:config.temperatureUnit:true }}</div>
             <ng-template #unknownTemp><div class="mt-2 font-medium text-3xl leading-none">--</div></ng-template>
         </div>
         <div class="flex flex-col mx-6 my-3 xs:w-full">
@@ -58,4 +65,3 @@
         </div>
     </div>
 </div>
-

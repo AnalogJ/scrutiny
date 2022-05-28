@@ -20,7 +20,7 @@ COPY webapp/frontend /opt/scrutiny/src
 RUN npm install -g @angular/cli@9.1.4 && \
     mkdir -p /opt/scrutiny/dist && \
     npm install && \
-    ng build --output-path=/opt/scrutiny/dist --prod
+    npm run build:prod -- --output-path=/opt/scrutiny/dist
 
 
 ########

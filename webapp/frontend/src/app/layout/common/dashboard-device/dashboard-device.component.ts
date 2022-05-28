@@ -1,10 +1,13 @@
-import {Component, Input, OnInit} from '@angular/core';
+import { Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
 import * as moment from "moment";
 import {takeUntil} from "rxjs/operators";
 import {AppConfig} from "app/core/config/app.config";
 import {TreoConfigService} from "@treo/services/config";
 import {Subject} from "rxjs";
 import  humanizeDuration from 'humanize-duration'
+import {MatDialog} from '@angular/material/dialog';
+import {DashboardDeviceDeleteDialogComponent} from "app/layout/common/dashboard-device-delete-dialog/dashboard-device-delete-dialog.component";
+import {DeviceTitlePipe} from "app/shared/device-title.pipe";
 
 @Component({
   selector: 'app-dashboard-device',
@@ -14,6 +17,7 @@ import  humanizeDuration from 'humanize-duration'
 export class DashboardDeviceComponent implements OnInit {
     @Input() deviceSummary: any;
     @Input() deviceWWN: string;
+    @Output() deviceDeleted = new EventEmitter<string>();
 
     config: AppConfig;
 
@@ -21,6 +25,7 @@ export class DashboardDeviceComponent implements OnInit {
 
     constructor(
         private _configService: TreoConfigService,
+        public dialog: MatDialog,
     ) {
         // Set the private defaults
         this._unsubscribeAll = new Subject();
@@ -60,18 +65,6 @@ export class DashboardDeviceComponent implements OnInit {
         }
     }
 
-    deviceTitle(disk){
-
-        console.log(`Displaying Device ${disk.wwn} with: ${this.config.dashboardDisplay}`)
-        let titleParts = []
-        if (disk.host_id) titleParts.push(disk.host_id)
-
-        //add device identifier (fallback to generated device name)
-        titleParts.push(deviceDisplayTitle(disk, this.config.dashboardDisplay) || deviceDisplayTitle(disk, 'name'))
-
-        return titleParts.join(' - ')
-    }
-
     deviceStatusString(deviceStatus){
         if(deviceStatus == 0){
             return "passed"
@@ -82,34 +75,19 @@ export class DashboardDeviceComponent implements OnInit {
 
     readonly humanizeDuration = humanizeDuration;
 
-}
 
-export function deviceDisplayTitle(disk, titleType: string){
-    let titleParts = []
-    switch(titleType){
-        case 'name':
-            titleParts.push(`/dev/${disk.device_name}`)
-            if (disk.device_type && disk.device_type != 'scsi' && disk.device_type != 'ata'){
-                titleParts.push(disk.device_type)
-            }
-            titleParts.push(disk.model_name)
 
-            break;
-        case 'serial_id':
-            if(!disk.device_serial_id) return ''
-            titleParts.push(`/by-id/${disk.device_serial_id}`)
-            break;
-        case 'uuid':
-            if(!disk.device_uuid) return ''
-            titleParts.push(`/by-uuid/${disk.device_uuid}`)
-            break;
-        case 'label':
-            if(disk.label){
-                titleParts.push(disk.label)
-            } else if(disk.device_label){
-                titleParts.push(`/by-label/${disk.device_label}`)
+    openDeleteDialog(): void {
+        const dialogRef = this.dialog.open(DashboardDeviceDeleteDialogComponent, {
+            // width: '250px',
+            data: {wwn: this.deviceWWN, title: DeviceTitlePipe.deviceTitleWithFallback(this.deviceSummary.device, this.config.dashboardDisplay)}
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            console.log('The dialog was closed', result);
+            if(result.success){
+                this.deviceDeleted.emit(this.deviceWWN)
             }
-            break;
+        });
     }
-    return titleParts.join(' - ')
 }

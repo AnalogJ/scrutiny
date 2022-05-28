@@ -18,8 +18,20 @@
                 <mat-select [(ngModel)]="dashboardSort">
                     <mat-option value="status">Status</mat-option>
                     <mat-option value="title">Title</mat-option>
+                    <mat-option value="age">Age</mat-option>
                 </mat-select>
             </mat-form-field>
+        </div>
+
+        <div class="flex flex-col mt-5 gt-md:flex-row">
+            <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
+                <mat-label>Temperature Display Unit</mat-label>
+                <mat-select [(ngModel)]="temperatureUnit">
+                    <mat-option value="celsius">Celsius</mat-option>
+                    <mat-option value="fahrenheit">Fahrenheit</mat-option>
+                </mat-select>
+            </mat-form-field>
+
         </div>
 
         <div class="flex">

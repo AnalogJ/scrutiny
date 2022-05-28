@@ -22,7 +22,7 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {MatSortModule} from "@angular/material/sort";
 import {MatTableModule} from "@angular/material/table";
 import {NgApexchartsModule} from "ng-apexcharts";
-import {DashboardSettingsModule} from "../dashboard-settings/dashboard-settings.module";
+import {DashboardDeviceDeleteDialogModule} from "../dashboard-device-delete-dialog/dashboard-device-delete-dialog.module";
 
 @NgModule({
     declarations: [
@@ -41,6 +41,7 @@ import {DashboardSettingsModule} from "../dashboard-settings/dashboard-settings.
         MatTableModule,
         NgApexchartsModule,
         SharedModule,
+        DashboardDeviceDeleteDialogModule
     ],
     exports     : [
         DashboardDeviceComponent,

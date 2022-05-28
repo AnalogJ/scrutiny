@@ -13,6 +13,7 @@ export class DashboardSettingsComponent implements OnInit {
 
     dashboardDisplay: string;
     dashboardSort: string;
+    temperatureUnit: string
 
     // Private
     private _unsubscribeAll: Subject<any>;
@@ -33,20 +34,21 @@ export class DashboardSettingsComponent implements OnInit {
               // Store the config
               this.dashboardDisplay = config.dashboardDisplay;
               this.dashboardSort = config.dashboardSort;
-
+              this.temperatureUnit = config.temperatureUnit;
           });
   }
 
   saveSettings(): void {
-        var newSettings = {
+        const newSettings = {
             dashboardDisplay: this.dashboardDisplay,
-            dashboardSort: this.dashboardSort
+            dashboardSort: this.dashboardSort,
+            temperatureUnit: this.temperatureUnit,
         }
         this._configService.config = newSettings
         console.log(`Saved Settings: ${JSON.stringify(newSettings)}`)
   }
 
-    formatLabel(value: number) {
+    formatLabel(value: number): number {
         return value;
     }
 }

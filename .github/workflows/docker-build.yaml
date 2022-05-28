@@ -20,7 +20,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -95,7 +97,8 @@ jobs:
             type=ref,enable=true,event=branch,suffix=-web
             type=ref,enable=true,event=tag,suffix=-web
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
+      - name: "Generate frontend version information"
+        run: "cd webapp/frontend && ./git.version.sh"
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -141,7 +144,8 @@ jobs:
             type=ref,enable=true,event=branch,suffix=-omnibus
             type=ref,enable=true,event=tag,suffix=-omnibus
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
+      - name: "Generate frontend version information"
+        run: "cd webapp/frontend && ./git.version.sh"
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image

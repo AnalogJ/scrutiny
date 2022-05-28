@@ -56,3 +56,51 @@ You may also configure these values using the following environmental variables 
 
 - `COLLECTOR_API_ENDPOINT=http://localhost:8080/custombasepath`
 - `SCRUTINY_WEB_LISTEN_BASEPATH=/custombasepath`
+
+# Real Examples
+
+## Caddy
+
+1. Create a Caddyfile
+    ```yaml
+    # Caddyfile
+    :9090
+    
+    # The `scrutiny` text in this file must match the service name in the docker-compose file below. 
+    # The `/custom/` text is the custom base path scrutiny will be availble on. 
+    reverse_proxy /custom/* scrutiny:8080
+
+    ```
+2. Create a `docker-compose.yml` file
+
+    ```yaml
+    # docker-compose.yml
+    version: '3.5'
+    
+    services:
+      scrutiny:
+        container_name: scrutiny
+        image: ghcr.io/analogj/scrutiny:master-omnibus
+        cap_add:
+          - SYS_RAWIO
+        ports:
+          - "8086:8086" # influxDB admin
+        volumes:
+          - /run/udev:/run/udev:ro
+          - ./config:/opt/scrutiny/config
+          - ./influxdb:/opt/scrutiny/influxdb
+        devices:
+          - "/dev/sda"
+          - "/dev/sdb"
+        environment:
+          - SCRUTINY_WEB_LISTEN_BASEPATH=/custom
+          - COLLECTOR_API_ENDPOINT=http://localhost:8080/custom
+      caddy:
+        image: caddy
+        volumes:
+          - ./Caddyfile:/etc/caddy/Caddyfile
+        ports:
+          - "9090:9090"
+    ```
+3. run `docker-compose up`
+4. visit [http://localhost:9090/custom/web](http://localhost:9090/custom/web) - access the scrutiny container via caddy reverse proxy

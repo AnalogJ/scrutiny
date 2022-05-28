@@ -1,13 +1,19 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import {FileSizePipe} from "./file-size.pipe";
+import {FileSizePipe} from './file-size.pipe';
 import { DeviceSortPipe } from './device-sort.pipe';
+import { TemperaturePipe } from './temperature.pipe';
+import { DeviceTitlePipe } from './device-title.pipe';
+import { DeviceStatusPipe } from './device-status.pipe';
 
 @NgModule({
     declarations: [
         FileSizePipe,
-        DeviceSortPipe
+        DeviceSortPipe,
+        TemperaturePipe,
+        DeviceTitlePipe,
+        DeviceStatusPipe
     ],
     imports: [
         CommonModule,
@@ -19,7 +25,10 @@ import { DeviceSortPipe } from './device-sort.pipe';
         FormsModule,
         ReactiveFormsModule,
         FileSizePipe,
-        DeviceSortPipe
+        DeviceSortPipe,
+        DeviceTitlePipe,
+        DeviceStatusPipe,
+        TemperaturePipe
     ]
 })
 export class SharedModule

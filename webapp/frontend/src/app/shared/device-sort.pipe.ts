@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import {deviceDisplayTitle} from "app/layout/common/dashboard-device/dashboard-device.component";
+import {DeviceTitlePipe} from "./device-title.pipe";
 
 @Pipe({
   name: 'deviceSort'
@@ -26,8 +26,8 @@ export class DeviceSortPipe implements PipeTransform {
     titleCompareFn(dashboardDisplay: string) {
         return function (a: any, b: any){
             let _dashboardDisplay = dashboardDisplay
-            let left = deviceDisplayTitle(a.device, _dashboardDisplay) || deviceDisplayTitle(a.device, 'name')
-            let right = deviceDisplayTitle(b.device, _dashboardDisplay) || deviceDisplayTitle(b.device, 'name')
+            let left = DeviceTitlePipe.deviceTitleForType(a.device, _dashboardDisplay) || DeviceTitlePipe.deviceTitleForType(a.device, 'name')
+            let right = DeviceTitlePipe.deviceTitleForType(b.device, _dashboardDisplay) || DeviceTitlePipe.deviceTitleForType(b.device, 'name')
 
             if( left < right )
                 return -1;
@@ -39,9 +39,16 @@ export class DeviceSortPipe implements PipeTransform {
         }
     }
 
+    ageCompareFn(a: any, b: any) {
+        const left = a.smart?.power_on_hours
+        const right = b.smart?.power_on_hours
 
-  transform(deviceSummaries: Array<unknown>, sortBy = 'status', dashboardDisplay = "name"): Array<unknown> {
-    let compareFn = undefined
+        return left - right;
+    }
+
+
+  transform(deviceSummaries: Array<unknown>, sortBy = 'status', dashboardDisplay = 'name'): Array<unknown> {
+    let compareFn: any
     switch (sortBy) {
         case 'status':
             compareFn = this.statusCompareFn
@@ -49,9 +56,12 @@ export class DeviceSortPipe implements PipeTransform {
         case 'title':
             compareFn = this.titleCompareFn(dashboardDisplay)
             break;
+        case 'age':
+            compareFn = this.ageCompareFn
+            break;
     }
 
-      //failed, unknown/empty, passed
+      // failed, unknown/empty, passed
       deviceSummaries.sort(compareFn);
 
     return deviceSummaries;

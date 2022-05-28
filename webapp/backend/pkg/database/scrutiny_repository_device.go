@@ -7,6 +7,7 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"gorm.io/gorm/clause"
+	"time"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,4 +72,34 @@ func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, wwn string) 
 	}
 
 	return device, nil
+}
+
+func (sr *scrutinyRepository) DeleteDevice(ctx context.Context, wwn string) error {
+	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).Delete(&models.Device{}).Error; err != nil {
+		return err
+	}
+
+	//delete data from influxdb.
+	buckets := []string{
+		sr.appConfig.GetString("web.influxdb.bucket"),
+		fmt.Sprintf("%s_weekly", sr.appConfig.GetString("web.influxdb.bucket")),
+		fmt.Sprintf("%s_monthly", sr.appConfig.GetString("web.influxdb.bucket")),
+		fmt.Sprintf("%s_yearly", sr.appConfig.GetString("web.influxdb.bucket")),
+	}
+
+	for _, bucket := range buckets {
+		sr.logger.Infof("Deleting data for %s in bucket: %s", wwn, bucket)
+		if err := sr.influxClient.DeleteAPI().DeleteWithName(
+			ctx,
+			sr.appConfig.GetString("web.influxdb.org"),
+			bucket,
+			time.Now().AddDate(-10, 0, 0),
+			time.Now(),
+			fmt.Sprintf(`device_wwn="%s"`, wwn),
+		); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -7,10 +7,11 @@ import {ApexOptions, ChartComponent} from 'ng-apexcharts';
 import { DashboardService } from 'app/modules/dashboard/dashboard.service';
 import {MatDialog} from '@angular/material/dialog';
 import { DashboardSettingsComponent } from 'app/layout/common/dashboard-settings/dashboard-settings.component';
-import {deviceDisplayTitle} from "app/layout/common/dashboard-device/dashboard-device.component";
 import {AppConfig} from "app/core/config/app.config";
 import {TreoConfigService} from "@treo/services/config";
 import {Router} from "@angular/router";
+import {TemperaturePipe} from "app/shared/temperature.pipe";
+import {DeviceTitlePipe} from "app/shared/device-title.pipe";
 
 @Component({
     selector       : 'example',
@@ -139,7 +140,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                 continue
             }
 
-            let deviceName = this.deviceTitle(deviceSummary.device)
+            let deviceName = DeviceTitlePipe.deviceTitleWithFallback(deviceSummary.device, this.config.dashboardDisplay)
 
             var deviceSeriesMetadata = {
                 name: deviceName,
@@ -150,7 +151,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                 let newDate = new Date(tempHistory.date);
                 deviceSeriesMetadata.data.push({
                     x: newDate,
-                    y: tempHistory.temp
+                    y: TemperaturePipe.formatTemperature(tempHistory.temp, this.config.temperatureUnit, false)
                 })
             }
             deviceTemperatureSeries.push(deviceSeriesMetadata)
@@ -199,8 +200,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                     format: 'MMM dd, yyyy HH:mm:ss'
                 },
                 y    : {
+
                     formatter: (value) => {
-                        return value + '°C';
+                        return TemperaturePipe.formatTemperature(value, this.config.temperatureUnit, true) as string;
                     }
                 }
             },
@@ -214,22 +216,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
 
-    deviceTitle(disk){
-
-        console.log(`Displaying Device ${disk.wwn} with: ${this.config.dashboardDisplay}`)
-        let titleParts = []
-        if (disk.host_id) titleParts.push(disk.host_id)
-
-        //add device identifier (fallback to generated device name)
-        titleParts.push(deviceDisplayTitle(disk, this.config.dashboardDisplay) || deviceDisplayTitle(disk, 'name'))
-
-        return titleParts.join(' - ')
-    }
-
     deviceSummariesForHostGroup(hostGroupWWNs: string[]) {
         let deviceSummaries = []
         for(let wwn of hostGroupWWNs){
-            deviceSummaries.push(this.data.data.summary[wwn])
+            if(this.data.data.summary[wwn]){
+                deviceSummaries.push(this.data.data.summary[wwn])
+            }
         }
         return deviceSummaries
     }
@@ -240,6 +232,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         dialogRef.afterClosed().subscribe(result => {
             console.log(`Dialog result: ${result}`);
         });
+    }
+
+    onDeviceDeleted(wwn: string) {
+        delete this.data.data.summary[wwn] // remove the device from the summary list.
     }
 
     /*
