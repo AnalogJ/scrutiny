@@ -17,8 +17,6 @@
 WebUI for smartd S.M.A.R.T monitoring
 
 > NOTE: Scrutiny is a Work-in-Progress and still has some rough edges.
->
-> WARNING: Once the [InfluxDB](https://github.com/AnalogJ/scrutiny/tree/influxdb) branch is merged, Scrutiny will use both sqlite and InfluxDB for data storage. Unfortunately, this may not be backwards compatible with the database structures in the master (sqlite only) branch. 
 
 [![](docs/dashboard.png)](https://imgur.com/a/5k8qMzS)
 
