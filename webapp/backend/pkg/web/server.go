@@ -70,9 +70,9 @@ func (ae *AppEngine) Setup(logger logrus.FieldLogger) *gin.Engine {
 
 func (ae *AppEngine) Start() error {
 	//set the gin mode
-	gin.SetMode("release")
+	gin.SetMode(gin.ReleaseMode)
 	if strings.ToLower(ae.Config.GetString("log.level")) == "debug" {
-		gin.SetMode("debug")
+		gin.SetMode(gin.DebugMode)
 	}
 
 	logger := logrus.New()
