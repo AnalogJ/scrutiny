@@ -21,9 +21,9 @@ type Device struct {
 	WWN string `json:"wwn" gorm:"primary_key"`
 
 	DeviceName     string `json:"device_name"`
-	DeviceUUID	   string `json:"device_uuid"`
-	DeviceSerialID	   string `json:"device_serial_id"`
-	DeviceLabel	   string `json:"device_label"`
+	DeviceUUID     string `json:"device_uuid"`
+	DeviceSerialID string `json:"device_serial_id"`
+	DeviceLabel    string `json:"device_label"`
 
 	Manufacturer   string `json:"manufacturer"`
 	ModelName      string `json:"model_name"`
@@ -166,7 +166,7 @@ func (dv *Device) UpdateFromCollectorSmartInfo(info collector.SmartInfo) error {
 	dv.DeviceProtocol = info.Device.Protocol
 
 	if !info.SmartStatus.Passed {
-		dv.DeviceStatus = pkg.Set(dv.DeviceStatus, pkg.DeviceStatusFailedSmart)
+		dv.DeviceStatus = pkg.DeviceStatusSet(dv.DeviceStatus, pkg.DeviceStatusFailedSmart)
 	}
 
 	return nil

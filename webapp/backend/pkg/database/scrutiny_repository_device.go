@@ -58,7 +58,7 @@ func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, wwn string
 		return device, fmt.Errorf("Could not get device from DB: %v", err)
 	}
 
-	device.DeviceStatus = pkg.Set(device.DeviceStatus, status)
+	device.DeviceStatus = pkg.DeviceStatusSet(device.DeviceStatus, status)
 	return device, sr.gormClient.Model(&device).Updates(device).Error
 }
 

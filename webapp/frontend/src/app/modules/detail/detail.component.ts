@@ -122,11 +122,17 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
     getAttributeStatusName(attribute_status){
-        if(attribute_status == 0){
+        //from Constants.go
+        // AttributeStatusPassed AttributeStatus = 0
+        // AttributeStatusFailedSmart AttributeStatus = 1
+        // AttributeStatusWarningScrutiny AttributeStatus = 2
+        // AttributeStatusFailedScrutiny AttributeStatus = 4
+
+        if(attribute_status === 0){
             return "passed"
-        } else if (attribute_status == 1){
+        } else if (attribute_status & 1 != 0 || attribute_status & 4 != 0 ){
             return "failed"
-        } else if (attribute_status == 2){
+        } else if (attribute_status & 2 != 0){
             return "warn"
         }
         return

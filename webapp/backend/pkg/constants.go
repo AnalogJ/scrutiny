@@ -4,25 +4,34 @@ const DeviceProtocolAta = "ATA"
 const DeviceProtocolScsi = "SCSI"
 const DeviceProtocolNvme = "NVMe"
 
-const SmartAttributeStatusPassed = 0
-const SmartAttributeStatusFailed = 1
-const SmartAttributeStatusWarning = 2
-
-const SmartWhenFailedFailingNow = "FAILING_NOW"
-const SmartWhenFailedInThePast = "IN_THE_PAST"
-
-//const SmartStatusPassed = "passed"
-//const SmartStatusFailed = "failed"
-
-type DeviceStatus int
+type AttributeStatus uint8
 
 const (
-	DeviceStatusPassed         DeviceStatus = 0
-	DeviceStatusFailedSmart    DeviceStatus = iota
-	DeviceStatusFailedScrutiny DeviceStatus = iota
+	// AttributeStatusPassed binary, 1,2,4,8,16,32,etc
+	AttributeStatusPassed          AttributeStatus = 0
+	AttributeStatusFailedSmart     AttributeStatus = 1
+	AttributeStatusWarningScrutiny AttributeStatus = 2
+	AttributeStatusFailedScrutiny  AttributeStatus = 4
 )
 
-func Set(b, flag DeviceStatus) DeviceStatus    { return b | flag }
-func Clear(b, flag DeviceStatus) DeviceStatus  { return b &^ flag }
-func Toggle(b, flag DeviceStatus) DeviceStatus { return b ^ flag }
-func Has(b, flag DeviceStatus) bool            { return b&flag != 0 }
+const AttributeWhenFailedFailingNow = "FAILING_NOW"
+const AttributeWhenFailedInThePast = "IN_THE_PAST"
+
+func AttributeStatusSet(b, flag AttributeStatus) AttributeStatus    { return b | flag }
+func AttributeStatusClear(b, flag AttributeStatus) AttributeStatus  { return b &^ flag }
+func AttributeStatusToggle(b, flag AttributeStatus) AttributeStatus { return b ^ flag }
+func AttributeStatusHas(b, flag AttributeStatus) bool               { return b&flag != 0 }
+
+type DeviceStatus uint8
+
+const (
+	// DeviceStatusPassed binary, 1,2,4,8,16,32,etc
+	DeviceStatusPassed         DeviceStatus = 0
+	DeviceStatusFailedSmart    DeviceStatus = 1
+	DeviceStatusFailedScrutiny DeviceStatus = 2
+)
+
+func DeviceStatusSet(b, flag DeviceStatus) DeviceStatus    { return b | flag }
+func DeviceStatusClear(b, flag DeviceStatus) DeviceStatus  { return b &^ flag }
+func DeviceStatusToggle(b, flag DeviceStatus) DeviceStatus { return b ^ flag }
+func DeviceStatusHas(b, flag DeviceStatus) bool            { return b&flag != 0 }
