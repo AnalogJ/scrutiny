@@ -146,6 +146,25 @@ Disks in Standby/Sleep can also cause `smartctl` to exit abnormally, usually wit
 
 ### Volume Mount All Devices (`/dev`) - Privileged
 
+> WARNING: This is an insecure/dangerous workaround. Running Scrutiny (or any Docker image) with `--privileged` is equivalent to running it with root access. 
+
+If you have exhausted all other mechanisms to get your disks working with `smartctl` running within a container, you can try running the docker image with the following additional flags:
+
+- `--privileged` (instead of `--cap-add`) - this gives the docker container full access to your system. Scrutiny does not require this permission, however it can be helpful for `smartctl`
+- `-v /dev:/dev:ro` (instead of `--device`) - this mounts the `/dev` folder (containing all your device files) into the container, allowing `smartctl` to see your disks, exactly as if it were running on your host directly. 
+
+With this workaround your `docker run` command would look similar to the following:
+
+```bash
+docker run -it --rm -p 8080:8080 -p 8086:8086 \
+  -v `pwd`/scrutiny:/opt/scrutiny/config \
+  -v `pwd`/influxdb2:/opt/scrutiny/influxdb \
+  -v /run/udev:/run/udev:ro \
+  --privileged \
+  -v /dev:/dev \
+  --name scrutiny \
+  ghcr.io/analogj/scrutiny:master-omnibus
+```
 
 ## Scrutiny detects Failure but SMART Passed?
 
