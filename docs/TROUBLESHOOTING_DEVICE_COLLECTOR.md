@@ -111,7 +111,36 @@ instead of the block device (`/dev/nvme0n1`). See [#209](https://github.com/Anal
 
 ### ATA
 
-### Standby/Sleeping Disks
+### Exit Codes
+
+If you see an error message similar to `smartctl returned an error code (2) while processing /dev/sda`, this means that
+`smartctl` (not Scrutiny) exited with an error code. Scrutiny will attempt to print a helpful error message to help you debug,
+but you can look at the table (and associated links) below to debug `smartctl`. 
+
+> smartctl Return Values
+> The return values of smartctl are defined by a bitmask. If all is well with the disk, the return value (exit status) of 
+> smartctl is 0 (all bits turned off). If a problem occurs, or an error, potential error, or fault is detected, then 
+> a non-zero status is returned. In this case, the eight different bits in the return value have the following meanings 
+> for ATA disks; some of these values may also be returned for SCSI disks.
+> 
+> source: http://www.linuxguide.it/command_line/linux-manpage/do.php?file=smartctl#sect7
+
+
+| Exit Code (Isolated) | Binary | Problem Message |
+| --- | --- | --- |
+| 1 | Bit 0 | Command line did not parse. |
+| 2 | Bit 1 | Device open failed, or device did not return an IDENTIFY DEVICE structure. |
+| 4 | Bit 2 | Some SMART command to the disk failed, or there was a checksum error in a SMART data structure (see В´-bВ´ option above). |
+| 8 | Bit 3 | SMART status check returned “DISK FAILING". |
+| 16 | Bit 4 | We found prefail Attributes <= threshold. |
+| 32 | Bit 5 | SMART status check returned “DISK OK” but we found that some (usage or prefail) Attributes have been <= threshold at some time in the past. |
+| 64 | Bit 6 | The device error log contains records of errors. |
+| 128 | Bit 7 | The device self-test log contains records of errors. |
+
+#### Standby/Sleeping Disks
+
+Disks in Standby/Sleep can also cause `smartctl` to exit abnormally, usually with `exit code: 2`. 
+
 - https://github.com/AnalogJ/scrutiny/issues/221
 - https://github.com/AnalogJ/scrutiny/issues/157
 
