@@ -22,20 +22,19 @@ See [/docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md](docs/TROUBLESHOOTING_DEVICE_COLL
 
 ```
 docker run -it --rm -p 8080:8080 \
+-v `pwd`/config:/opt/scrutiny/config \
 -v /run/udev:/run/udev:ro \
 --cap-add SYS_RAWIO \
 --device=/dev/sda \
 --device=/dev/sdb \
 -e DEBUG=true \
--e COLLECTOR_LOG_FILE=/tmp/collector.log \
--e SCRUTINY_LOG_FILE=/tmp/web.log \
+-e COLLECTOR_LOG_FILE=/opt/scrutiny/config/collector.log \
+-e SCRUTINY_LOG_FILE=/opt/scrutiny/config/web.log \
 --name scrutiny \
 ghcr.io/analogj/scrutiny:master-omnibus
 
 # in another terminal trigger the collector
 docker exec scrutiny scrutiny-collector-metrics run
-
-# then use docker cp to copy the log files out of the container.
-docker cp scrutiny:/tmp/collector.log collector.log
-docker cp scrutiny:/tmp/web.log web.log
 ```
+
+The log files will be available on your host in the `config` directory. Please attach them to this issue. 
