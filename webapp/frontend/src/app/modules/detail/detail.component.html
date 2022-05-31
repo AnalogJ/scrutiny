@@ -71,6 +71,16 @@
                         <div>{{device?.host_id}}</div>
                         <div class="text-secondary text-md">Host ID</div>
                     </div>
+
+                    <div *ngIf="device?.device_uuid" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{device?.device_uuid}}</div>
+                        <div class="text-secondary text-md">Device UUID</div>
+                    </div>
+                    <div *ngIf="device?.device_label" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{device?.device_label}}</div>
+                        <div class="text-secondary text-md">Device Label</div>
+                    </div>
+
                     <div *ngIf="device?.device_type && device?.device_type != 'ata' && device?.device_type != 'scsi'" class="my-2 col-span-2 lt-md:col-span-1">
                         <div>{{device?.device_type | uppercase}}</div>
                         <div class="text-secondary text-md">Device Type</div>
