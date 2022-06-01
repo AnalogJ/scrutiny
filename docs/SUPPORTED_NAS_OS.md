@@ -11,5 +11,6 @@ Once a guide is created (in `docs/guides/`) it will be linked here.
 - [ ] OMV
 - [ ] Amahi
 - [ ] Running in a LXC container
-- [ ] [PFSense](./INSTALL_UNRAID.md)
+- [x] [PFSense](./INSTALL_UNRAID.md)
+- [ ] QNAP
 
