@@ -121,7 +121,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // -----------------------------------------------------------------------------------------------------
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
-    getAttributeStatusName(attributeStatus: number){
+    getAttributeStatusName(attributeStatus: number): string {
         // tslint:disable:no-bitwise
 
         // from Constants.go
@@ -138,18 +138,17 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         } else if ((attributeStatus & 2) !== 0){
             return 'warn'
         }
-        return
+        return ''
         // tslint:enable:no-bitwise
     }
 
-    getAttributeName(attribute_data){
+    getAttributeName(attribute_data): string {
         let attribute_metadata = this.metadata[attribute_data.attribute_id]
         if(!attribute_metadata){
             return 'Unknown Attribute Name'
         } else {
             return attribute_metadata.display_name
         }
-        return
     }
     getAttributeDescription(attribute_data){
         let attribute_metadata = this.metadata[attribute_data.attribute_id]
