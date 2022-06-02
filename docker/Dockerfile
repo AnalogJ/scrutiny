@@ -26,14 +26,14 @@ RUN npm install -g @angular/cli@9.1.4 && \
 
 
 ########
-FROM ubuntu:bionic as runtime
+FROM ubuntu:latest as runtime
 ARG TARGETARCH
 EXPOSE 8080
 WORKDIR /opt/scrutiny
 ENV PATH="/opt/scrutiny/bin:${PATH}"
 ENV INFLUXD_CONFIG_PATH=/opt/scrutiny/influxdb
 
-RUN apt-get update && apt-get install -y cron smartmontools=7.0-0ubuntu1~ubuntu18.04.1 ca-certificates curl tzdata \
+RUN apt-get update && apt-get install -y cron smartmontools ca-certificates curl tzdata \
     && update-ca-certificates \
     &&  case ${TARGETARCH} in \
             "amd64")  S6_ARCH=amd64  ;; \
