@@ -28,7 +28,7 @@ FROM ubuntu:latest as runtime
 EXPOSE 8080
 WORKDIR /opt/scrutiny
 ENV PATH="/opt/scrutiny/bin:${PATH}"
-
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y ca-certificates curl tzdata && update-ca-certificates
 
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny /opt/scrutiny/bin/

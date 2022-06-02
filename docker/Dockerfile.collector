@@ -13,7 +13,7 @@ RUN go mod vendor && \
 FROM ubuntu:latest as runtime
 WORKDIR /scrutiny
 ENV PATH="/opt/scrutiny/bin:${PATH}"
-
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y cron smartmontools ca-certificates tzdata && update-ca-certificates
 
 COPY /docker/entrypoint-collector.sh /entrypoint-collector.sh

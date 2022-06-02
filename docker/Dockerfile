@@ -33,6 +33,7 @@ WORKDIR /opt/scrutiny
 ENV PATH="/opt/scrutiny/bin:${PATH}"
 ENV INFLUXD_CONFIG_PATH=/opt/scrutiny/influxdb
 
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y cron smartmontools ca-certificates curl tzdata \
     && update-ca-certificates \
     &&  case ${TARGETARCH} in \
