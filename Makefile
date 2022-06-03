@@ -38,5 +38,17 @@ windows/amd64:
 	@echo "building collector binary (OS = $(OS), ARCH = $(ARCH))"
 	xgo -v --targets="$(OS)/$(ARCH)" -ldflags "-extldflags=-static -X main.goos=$(OS) -X main.goarch=$(ARCH)" -out scrutiny-collector-metrics -tags "static netgo" ${GO_WORKSPACE}/collector/cmd/collector-metrics/
 
+
+docker-collector:
+	@echo "building collector docker image"
+	docker build --build-arg TARGETARCH=amd64 -f docker/Dockerfile.collector -t analogj/scrutiny-dev:collector .
+
+docker-web:
+	@echo "building web docker image"
+	docker build --build-arg TARGETARCH=amd64 -f docker/Dockerfile.web -t analogj/scrutiny-dev:web .
+
+docker-omnibus:
+	@echo "building omnibus docker image"
+	docker build --build-arg TARGETARCH=amd64 -f docker/Dockerfile -t analogj/scrutiny-dev:omnibus .
 # clean:
 # 	rm scrutiny-collector-metrics-* scrutiny-web-*
