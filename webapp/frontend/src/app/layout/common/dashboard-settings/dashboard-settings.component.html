@@ -2,6 +2,21 @@
 <mat-dialog-content class="mat-typography">
 
     <div class="flex flex-col p-8 pb-0 overflow-hidden">
+        <div class="flex flex-col gt-md:flex-row">
+            <mat-slide-toggle class="mb-2" [(ngModel)]="darkModeUseSystem">Use system settings for dark mode</mat-slide-toggle>
+            <p [class.text-hint]="darkModeUseSystem">
+                Theme:
+                <mat-button-toggle-group class="ml-2" #group="matButtonToggleGroup" [(ngModel)]="theme" [disabled]="darkModeUseSystem">
+                    <mat-button-toggle value="light" aria-label="Light mode">
+                      <mat-icon>light_mode</mat-icon>
+                    </mat-button-toggle>
+                    <mat-button-toggle value="dark" aria-label="Dark mode">
+                      <mat-icon>dark_mode</mat-icon>
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
+            </p>
+        </div>
+
         <div class="flex flex-col mt-5 gt-md:flex-row">
             <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
                 <mat-label>Display Title</mat-label>
