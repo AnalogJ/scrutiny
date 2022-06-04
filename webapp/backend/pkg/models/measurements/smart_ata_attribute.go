@@ -43,7 +43,7 @@ func (sa *SmartAtaAttribute) Flatten() map[string]interface{} {
 
 		//Generated Data
 		fmt.Sprintf("attr.%s.transformed_value", idString): sa.TransformedValue,
-		fmt.Sprintf("attr.%s.status", idString):            sa.Status,
+		fmt.Sprintf("attr.%s.status", idString):            int64(sa.Status),
 		fmt.Sprintf("attr.%s.status_reason", idString):     sa.StatusReason,
 		fmt.Sprintf("attr.%s.failure_rate", idString):      sa.FailureRate,
 	}
@@ -77,7 +77,7 @@ func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
 	case "transformed_value":
 		sa.TransformedValue = val.(int64)
 	case "status":
-		sa.Status = val.(pkg.AttributeStatus)
+		sa.Status = pkg.AttributeStatus(val.(int64))
 	case "status_reason":
 		sa.StatusReason = val.(string)
 	case "failure_rate":

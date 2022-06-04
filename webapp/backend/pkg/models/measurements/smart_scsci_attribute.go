@@ -30,7 +30,7 @@ func (sa *SmartScsiAttribute) Flatten() map[string]interface{} {
 
 		//Generated Data
 		fmt.Sprintf("attr.%s.transformed_value", sa.AttributeId): sa.TransformedValue,
-		fmt.Sprintf("attr.%s.status", sa.AttributeId):            sa.Status,
+		fmt.Sprintf("attr.%s.status", sa.AttributeId):            int64(sa.Status),
 		fmt.Sprintf("attr.%s.status_reason", sa.AttributeId):     sa.StatusReason,
 		fmt.Sprintf("attr.%s.failure_rate", sa.AttributeId):      sa.FailureRate,
 	}
@@ -54,7 +54,7 @@ func (sa *SmartScsiAttribute) Inflate(key string, val interface{}) {
 	case "transformed_value":
 		sa.TransformedValue = val.(int64)
 	case "status":
-		sa.Status = val.(pkg.AttributeStatus)
+		sa.Status = pkg.AttributeStatus(val.(int64))
 	case "status_reason":
 		sa.StatusReason = val.(string)
 	case "failure_rate":
