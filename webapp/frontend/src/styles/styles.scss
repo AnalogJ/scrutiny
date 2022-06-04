@@ -4,3 +4,15 @@
 // @ Styles from this file will override anything from 'vendors.scss' file allowing customizations and
 //  modifications of third party libraries.
 // -----------------------------------------------------------------------------------------------------
+
+.treo-theme-dark .yellow-50 {
+    background-color: #242b38 !important;
+
+    .mat-icon {
+        color: #6f4315 !important;
+    }
+
+    .text-secondary {
+        color: rgb(203 101 37 / 70%) !important
+    }
+}

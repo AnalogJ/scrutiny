@@ -17,6 +17,8 @@ export interface AppConfig
     dashboardSort: string;
 
     temperatureUnit: string;
+
+    darkModeUseSystem: boolean;
 }
 
 /**
@@ -35,5 +37,7 @@ export const appConfig: AppConfig = {
     dashboardSort: "status",
 
     temperatureUnit: "celsius",
+
+    darkModeUseSystem: true,
 };
 
