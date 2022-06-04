@@ -19,11 +19,11 @@ export class TreoConfigService
     {
         let currentScrutinyConfig = defaultConfig
 
-        let localConfigStr = localStorage.getItem(SCRUTINY_CONFIG_LOCAL_STORAGE_KEY)
+        const localConfigStr = localStorage.getItem(SCRUTINY_CONFIG_LOCAL_STORAGE_KEY)
         if(localConfigStr){
-            //check localstorage for a value
-            let localConfig = JSON.parse(localConfigStr)
-            currentScrutinyConfig = localConfig
+            // check localstorage for a value
+            const localConfig = JSON.parse(localConfigStr)
+            currentScrutinyConfig = Object.assign({}, localConfig, currentScrutinyConfig) // make sure defaults are available if missing from localStorage.
         }
 
         // Set the private defaults
