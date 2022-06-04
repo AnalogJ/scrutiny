@@ -52,7 +52,7 @@ export class TreoConfigService
 
         //Store the config in localstorage
         localStorage.setItem(SCRUTINY_CONFIG_LOCAL_STORAGE_KEY, JSON.stringify(config));
-        
+
         config.theme = this.determineTheme(config);
 
         // Execute the observable
@@ -73,7 +73,7 @@ export class TreoConfigService
      * Checks if theme should be set to dark based on config & system settings
      */
     private determineTheme(config:AppConfig): string {
-        return (config.darkModeUseSystem && this.systemPrefersDark) ? "dark" :  config.theme;
+        return (config.themeUseSystem && this.systemPrefersDark) ? "dark" :  config.theme;
     }
 
     // -----------------------------------------------------------------------------------------------------

@@ -18,7 +18,7 @@ export interface AppConfig
 
     temperatureUnit: string;
 
-    darkModeUseSystem: boolean;
+    themeUseSystem: boolean;
 }
 
 /**
@@ -38,6 +38,6 @@ export const appConfig: AppConfig = {
 
     temperatureUnit: "celsius",
 
-    darkModeUseSystem: true,
+    themeUseSystem: true,
 };
 
