@@ -11,21 +11,6 @@ RUN go mod vendor && \
     go build -ldflags '-w -extldflags "-static"' -o scrutiny-collector-metrics collector/cmd/collector-metrics/collector-metrics.go
 
 ########
-FROM node:lts-slim as frontendbuild
-
-#reduce logging, disable angular-cli analytics for ci environment
-ENV NPM_CONFIG_LOGLEVEL=warn NG_CLI_ANALYTICS=false
-
-WORKDIR /opt/scrutiny/src
-COPY webapp/frontend /opt/scrutiny/src
-
-RUN npm install -g @angular/cli@9.1.4 && \
-    mkdir -p /scrutiny/dist && \
-    npm install && \
-    npm run build:prod -- --output-path=/opt/scrutiny/dist
-
-
-########
 FROM ubuntu:latest as runtime
 ARG TARGETARCH
 EXPOSE 8080
@@ -52,7 +37,7 @@ COPY /rootfs/etc/cron.d/scrutiny /etc/cron.d/scrutiny
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny /opt/scrutiny/bin/
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-selftest /opt/scrutiny/bin/
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-metrics /opt/scrutiny/bin/
-COPY --from=frontendbuild /opt/scrutiny/dist /opt/scrutiny/web
+COPY dist /opt/scrutiny/web
 RUN chmod +x /opt/scrutiny/bin/scrutiny && \
     chmod +x /opt/scrutiny/bin/scrutiny-collector-selftest && \
     chmod +x /opt/scrutiny/bin/scrutiny-collector-metrics && \
