@@ -169,3 +169,19 @@ docker run -it --rm -p 8080:8080 \
 ghcr.io/analogj/scrutiny:master-omnibus
 /opt/scrutiny/bin/scrutiny-collector-metrics run
 ```
+
+
+# Running Tests
+
+```bash
+docker run -p 8086:8086 -d --rm \
+-e DOCKER_INFLUXDB_INIT_MODE=setup \
+-e DOCKER_INFLUXDB_INIT_USERNAME=admin \
+-e DOCKER_INFLUXDB_INIT_PASSWORD=password12345 \
+-e DOCKER_INFLUXDB_INIT_ORG=scrutiny \
+-e DOCKER_INFLUXDB_INIT_BUCKET=metrics \
+-e DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token \
+influxdb:2.2
+go test ./...
+
+```

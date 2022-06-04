@@ -24,7 +24,7 @@ RUN npm install -g @angular/cli@9.1.4 && \
 
 
 ########
-FROM ubuntu:bionic as runtime
+FROM ubuntu:latest as runtime
 EXPOSE 8080
 WORKDIR /opt/scrutiny
 ENV PATH="/opt/scrutiny/bin:${PATH}"

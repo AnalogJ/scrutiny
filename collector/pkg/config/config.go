@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/collector/pkg/errors"
 	"github.com/analogj/scrutiny/collector/pkg/models"
@@ -8,6 +9,8 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	"sort"
+	"strings"
 )
 
 // When initializing this class the following methods must be called:
@@ -16,6 +19,8 @@ import (
 // This is done automatically when created via the Factory.
 type configuration struct {
 	*viper.Viper
+
+	deviceOverrides []models.ScanOverride
 }
 
 //Viper uses the following precedence order. Each item takes precedence over the item below it:
@@ -37,6 +42,10 @@ func (c *configuration) Init() error {
 	c.SetDefault("log.file", "")
 
 	c.SetDefault("api.endpoint", "http://localhost:8080")
+
+	c.SetDefault("commands.metrics_scan_args", "--scan --json")
+	c.SetDefault("commands.metrics_info_args", "--info --json")
+	c.SetDefault("commands.metrics_smart_args", "--xall --json")
 
 	//c.SetDefault("collect.short.command", "-a -o on -S on")
 
@@ -90,16 +99,89 @@ func (c *configuration) ValidateConfig() error {
 	// check that device prefix matches OS
 	// check that schema of config file is valid
 
-	return nil
+	// check that the collector commands are valid
+	commandArgStrings := map[string]string{
+		"commands.metrics_scan_args":  c.GetString("commands.metrics_scan_args"),
+		"commands.metrics_info_args":  c.GetString("commands.metrics_info_args"),
+		"commands.metrics_smart_args": c.GetString("commands.metrics_smart_args"),
+	}
+
+	errorStrings := []string{}
+	for configKey, commandArgString := range commandArgStrings {
+		args := strings.Split(commandArgString, " ")
+		//ensure that the args string contains `--json` or `-j` flag
+		containsJsonFlag := false
+		containsDeviceFlag := false
+		for _, flag := range args {
+			if strings.HasPrefix(flag, "--json") || strings.HasPrefix(flag, "-j") {
+				containsJsonFlag = true
+			}
+			if strings.HasPrefix(flag, "--device") || strings.HasPrefix(flag, "-d") {
+				containsDeviceFlag = true
+			}
+		}
+
+		if !containsJsonFlag {
+			errorStrings = append(errorStrings, fmt.Sprintf("configuration key '%s' is missing '--json' flag", configKey))
+		}
+
+		if containsDeviceFlag {
+			errorStrings = append(errorStrings, fmt.Sprintf("configuration key '%s' must not contain '--device' or '-d' flag", configKey))
+		}
+	}
+	//sort(errorStrings)
+	sort.Strings(errorStrings)
+
+	if len(errorStrings) == 0 {
+		return nil
+	} else {
+		return errors.ConfigValidationError(strings.Join(errorStrings, ", "))
+	}
 }
 
-func (c *configuration) GetScanOverrides() []models.ScanOverride {
+func (c *configuration) GetDeviceOverrides() []models.ScanOverride {
 	// we have to support 2 types of device types.
 	// - simple device type (device_type: 'sat')
 	// and list of device types (type: \n- 3ware,0 \n- 3ware,1 \n- 3ware,2)
 	// GetString will return "" if this is a list of device types.
 
-	overrides := []models.ScanOverride{}
-	c.UnmarshalKey("devices", &overrides, func(c *mapstructure.DecoderConfig) { c.WeaklyTypedInput = true })
-	return overrides
+	if c.deviceOverrides == nil {
+		overrides := []models.ScanOverride{}
+		c.UnmarshalKey("devices", &overrides, func(c *mapstructure.DecoderConfig) { c.WeaklyTypedInput = true })
+		c.deviceOverrides = overrides
+	}
+
+	return c.deviceOverrides
+}
+
+func (c *configuration) GetCommandMetricsInfoArgs(deviceName string) string {
+	overrides := c.GetDeviceOverrides()
+
+	for _, deviceOverrides := range overrides {
+		if strings.ToLower(deviceName) == strings.ToLower(deviceOverrides.Device) {
+			//found matching device
+			if len(deviceOverrides.Commands.MetricsInfoArgs) > 0 {
+				return deviceOverrides.Commands.MetricsInfoArgs
+			} else {
+				return c.GetString("commands.metrics_info_args")
+			}
+		}
+	}
+	return c.GetString("commands.metrics_info_args")
+}
+
+func (c *configuration) GetCommandMetricsSmartArgs(deviceName string) string {
+	overrides := c.GetDeviceOverrides()
+
+	for _, deviceOverrides := range overrides {
+		if strings.ToLower(deviceName) == strings.ToLower(deviceOverrides.Device) {
+			//found matching device
+			if len(deviceOverrides.Commands.MetricsSmartArgs) > 0 {
+				return deviceOverrides.Commands.MetricsSmartArgs
+			} else {
+				return c.GetString("commands.metrics_smart_args")
+			}
+		}
+	}
+	return c.GetString("commands.metrics_smart_args")
 }

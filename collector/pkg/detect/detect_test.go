@@ -18,7 +18,8 @@ func TestDetect_SmartctlScan(t *testing.T) {
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
-	fakeConfig.EXPECT().GetScanOverrides().AnyTimes().Return([]models.ScanOverride{})
+	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{})
+	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
 
 	fakeShell := mock_shell.NewMockInterface(mockCtrl)
 	testScanResults, err := ioutil.ReadFile("testdata/smartctl_scan_simple.json")
@@ -45,7 +46,8 @@ func TestDetect_SmartctlScan_Megaraid(t *testing.T) {
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
-	fakeConfig.EXPECT().GetScanOverrides().AnyTimes().Return([]models.ScanOverride{})
+	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{})
+	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
 
 	fakeShell := mock_shell.NewMockInterface(mockCtrl)
 	testScanResults, err := ioutil.ReadFile("testdata/smartctl_scan_megaraid.json")
@@ -75,7 +77,8 @@ func TestDetect_SmartctlScan_Nvme(t *testing.T) {
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
-	fakeConfig.EXPECT().GetScanOverrides().AnyTimes().Return([]models.ScanOverride{})
+	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{})
+	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
 
 	fakeShell := mock_shell.NewMockInterface(mockCtrl)
 	testScanResults, err := ioutil.ReadFile("testdata/smartctl_scan_nvme.json")
@@ -104,7 +107,9 @@ func TestDetect_TransformDetectedDevices_Empty(t *testing.T) {
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
-	fakeConfig.EXPECT().GetScanOverrides().AnyTimes().Return([]models.ScanOverride{})
+	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{})
+	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+
 	detectedDevices := models.Scan{
 		Devices: []models.ScanDevice{
 			{
@@ -134,7 +139,9 @@ func TestDetect_TransformDetectedDevices_Ignore(t *testing.T) {
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
-	fakeConfig.EXPECT().GetScanOverrides().AnyTimes().Return([]models.ScanOverride{{Device: "/dev/sda", DeviceType: nil, Ignore: true}})
+	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{{Device: "/dev/sda", DeviceType: nil, Ignore: true}})
+	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+
 	detectedDevices := models.Scan{
 		Devices: []models.ScanDevice{
 			{
@@ -163,7 +170,8 @@ func TestDetect_TransformDetectedDevices_Raid(t *testing.T) {
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
-	fakeConfig.EXPECT().GetScanOverrides().AnyTimes().Return([]models.ScanOverride{
+	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{
 		{
 			Device:     "/dev/bus/0",
 			DeviceType: []string{"megaraid,14", "megaraid,15", "megaraid,18", "megaraid,19", "megaraid,20", "megaraid,21"},
@@ -202,7 +210,8 @@ func TestDetect_TransformDetectedDevices_Simple(t *testing.T) {
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
-	fakeConfig.EXPECT().GetScanOverrides().AnyTimes().Return([]models.ScanOverride{{Device: "/dev/sda", DeviceType: []string{"sat+megaraid"}}})
+	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{{Device: "/dev/sda", DeviceType: []string{"sat+megaraid"}}})
 	detectedDevices := models.Scan{
 		Devices: []models.ScanDevice{
 			{

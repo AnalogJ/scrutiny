@@ -110,7 +110,7 @@ func (sm *Smart) FromCollectorSmartInfo(wwn string, info collector.SmartInfo) er
 	sm.PowerCycleCount = info.PowerCycleCount
 	sm.PowerOnHours = info.PowerOnTime.Hours
 	if !info.SmartStatus.Passed {
-		sm.Status = pkg.DeviceStatusFailedSmart
+		sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedSmart)
 	}
 
 	sm.DeviceProtocol = info.Device.Protocol
@@ -148,8 +148,9 @@ func (sm *Smart) ProcessAtaSmartInfo(tableItems []collector.AtaSmartAttributesTa
 		}
 		attrModel.PopulateAttributeStatus()
 		sm.Attributes[strconv.Itoa(collectorAttr.ID)] = &attrModel
-		if attrModel.Status == pkg.SmartAttributeStatusFailed {
-			sm.Status = pkg.Set(sm.Status, pkg.DeviceStatusFailedScrutiny)
+
+		if pkg.AttributeStatusHas(attrModel.Status, pkg.AttributeStatusFailedScrutiny) {
+			sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
 		}
 	}
 }
@@ -178,8 +179,8 @@ func (sm *Smart) ProcessNvmeSmartInfo(nvmeSmartHealthInformationLog collector.Nv
 
 	//find analyzed attribute status
 	for _, val := range sm.Attributes {
-		if val.GetStatus() == pkg.SmartAttributeStatusFailed {
-			sm.Status = pkg.Set(sm.Status, pkg.DeviceStatusFailedScrutiny)
+		if pkg.AttributeStatusHas(val.GetStatus(), pkg.AttributeStatusFailedScrutiny) {
+			sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
 		}
 	}
 }
@@ -204,8 +205,8 @@ func (sm *Smart) ProcessScsiSmartInfo(defectGrownList int64, scsiErrorCounterLog
 
 	//find analyzed attribute status
 	for _, val := range sm.Attributes {
-		if val.GetStatus() == pkg.SmartAttributeStatusFailed {
-			sm.Status = pkg.Set(sm.Status, pkg.DeviceStatusFailedScrutiny)
+		if pkg.AttributeStatusHas(val.GetStatus(), pkg.AttributeStatusFailedScrutiny) {
+			sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
 		}
 	}
 }

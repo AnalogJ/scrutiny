@@ -28,7 +28,7 @@ export class TreoConfigService
         if (localConfigStr){
             //check localstorage for a value
             let localConfig = JSON.parse(localConfigStr)
-            currentScrutinyConfig = localConfig
+            currentScrutinyConfig = Object.assign({}, localConfig, currentScrutinyConfig) // make sure defaults are available if missing from localStorage.
         }
 
         currentScrutinyConfig.theme = this.determineTheme(currentScrutinyConfig);

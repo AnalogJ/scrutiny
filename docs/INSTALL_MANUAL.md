@@ -115,7 +115,8 @@ Unlike the webapp, the collector does have some dependencies:
 Unfortunately the version of `smartmontools` (which contains `smartctl`) available in some of the base OS repositories is ancient.
 So you'll need to install the v7+ version using one of the following commands:
 
-- **Ubuntu:** `apt-get install -y smartmontools=7.0-0ubuntu1~ubuntu18.04.1`
+- **Ubuntu (22.04/Jammy/LTS):** `apt-get install -y smartmontools`
+- **Ubuntu (18.04/Bionic):** `apt-get install -y smartmontools=7.0-0ubuntu1~ubuntu18.04.1`
 - **Centos8:**
     - `dnf install https://extras.getpagespeed.com/release-el8-latest.rpm`
     - `dnf install smartmontools`

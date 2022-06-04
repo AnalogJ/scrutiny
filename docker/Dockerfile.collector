@@ -10,11 +10,11 @@ RUN go mod vendor && \
     go build -ldflags '-w -extldflags "-static"' -o scrutiny-collector-metrics collector/cmd/collector-metrics/collector-metrics.go
 
 ########
-FROM ubuntu:bionic as runtime
+FROM ubuntu:latest as runtime
 WORKDIR /scrutiny
 ENV PATH="/opt/scrutiny/bin:${PATH}"
 
-RUN apt-get update && apt-get install -y cron smartmontools=7.0-0ubuntu1~ubuntu18.04.1 ca-certificates tzdata && update-ca-certificates
+RUN apt-get update && apt-get install -y cron smartmontools ca-certificates tzdata && update-ca-certificates
 
 COPY /docker/entrypoint-collector.sh /entrypoint-collector.sh
 COPY /rootfs/etc/cron.d/scrutiny /etc/cron.d/scrutiny

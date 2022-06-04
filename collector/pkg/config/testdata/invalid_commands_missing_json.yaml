@@ -1,0 +1,4 @@
+commands:
+  metrics_scan_args: '--scan' # used to detect devices
+  metrics_info_args: '--info -j' # used to determine device unique ID & register device with Scrutiny
+  metrics_smart_args: '--xall --json' # used to retrieve smart data for each device.

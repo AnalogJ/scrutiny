@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type AppEngine struct {
@@ -68,6 +69,11 @@ func (ae *AppEngine) Setup(logger logrus.FieldLogger) *gin.Engine {
 }
 
 func (ae *AppEngine) Start() error {
+	//set the gin mode
+	gin.SetMode(gin.ReleaseMode)
+	if strings.ToLower(ae.Config.GetString("log.level")) == "debug" {
+		gin.SetMode(gin.DebugMode)
+	}
 
 	logger := logrus.New()
 	//set default log level

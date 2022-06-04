@@ -77,7 +77,7 @@ func TestSmart_Flatten_ATA(t *testing.T) {
 		"attr.1.failure_rate":      float64(0),
 		"attr.1.raw_string":        "0",
 		"attr.1.raw_value":         int64(0),
-		"attr.1.status":            int64(0),
+		"attr.1.status":            pkg.AttributeStatus(0),
 		"attr.1.status_reason":     "",
 		"attr.1.thresh":            int64(1),
 		"attr.1.transformed_value": int64(0),
@@ -89,7 +89,7 @@ func TestSmart_Flatten_ATA(t *testing.T) {
 		"attr.2.failure_rate":      float64(0),
 		"attr.2.raw_string":        "108",
 		"attr.2.raw_value":         int64(108),
-		"attr.2.status":            int64(0),
+		"attr.2.status":            pkg.AttributeStatus(0),
 		"attr.2.status_reason":     "",
 		"attr.2.thresh":            int64(54),
 		"attr.2.transformed_value": int64(0),
@@ -130,7 +130,7 @@ func TestSmart_Flatten_SCSI(t *testing.T) {
 	require.Equal(t, map[string]interface{}{
 		"attr.read_errors_corrected_by_eccfast.attribute_id":      "read_errors_corrected_by_eccfast",
 		"attr.read_errors_corrected_by_eccfast.failure_rate":      float64(0),
-		"attr.read_errors_corrected_by_eccfast.status":            int64(0),
+		"attr.read_errors_corrected_by_eccfast.status":            pkg.AttributeStatus(0),
 		"attr.read_errors_corrected_by_eccfast.status_reason":     "",
 		"attr.read_errors_corrected_by_eccfast.thresh":            int64(0),
 		"attr.read_errors_corrected_by_eccfast.transformed_value": int64(0),
@@ -168,7 +168,7 @@ func TestSmart_Flatten_NVMe(t *testing.T) {
 	require.Equal(t, map[string]interface{}{
 		"attr.available_spare.attribute_id":      "available_spare",
 		"attr.available_spare.failure_rate":      float64(0),
-		"attr.available_spare.status":            int64(0),
+		"attr.available_spare.status":            pkg.AttributeStatus(0),
 		"attr.available_spare.status_reason":     "",
 		"attr.available_spare.thresh":            int64(0),
 		"attr.available_spare.transformed_value": int64(0),
@@ -189,7 +189,7 @@ func TestNewSmartFromInfluxDB_ATA(t *testing.T) {
 		"attr.1.failure_rate":      float64(0),
 		"attr.1.raw_string":        "108",
 		"attr.1.raw_value":         int64(108),
-		"attr.1.status":            int64(0),
+		"attr.1.status":            pkg.AttributeStatus(0),
 		"attr.1.status_reason":     "",
 		"attr.1.thresh":            int64(54),
 		"attr.1.transformed_value": int64(0),
@@ -235,7 +235,7 @@ func TestNewSmartFromInfluxDB_NVMe(t *testing.T) {
 		"device_protocol":                        pkg.DeviceProtocolNvme,
 		"attr.available_spare.attribute_id":      "available_spare",
 		"attr.available_spare.failure_rate":      float64(0),
-		"attr.available_spare.status":            int64(0),
+		"attr.available_spare.status":            pkg.AttributeStatus(0),
 		"attr.available_spare.status_reason":     "",
 		"attr.available_spare.thresh":            int64(0),
 		"attr.available_spare.transformed_value": int64(0),
@@ -274,7 +274,7 @@ func TestNewSmartFromInfluxDB_SCSI(t *testing.T) {
 		"device_protocol": pkg.DeviceProtocolScsi,
 		"attr.read_errors_corrected_by_eccfast.attribute_id":      "read_errors_corrected_by_eccfast",
 		"attr.read_errors_corrected_by_eccfast.failure_rate":      float64(0),
-		"attr.read_errors_corrected_by_eccfast.status":            int64(0),
+		"attr.read_errors_corrected_by_eccfast.status":            pkg.AttributeStatus(0),
 		"attr.read_errors_corrected_by_eccfast.status_reason":     "",
 		"attr.read_errors_corrected_by_eccfast.thresh":            int64(0),
 		"attr.read_errors_corrected_by_eccfast.transformed_value": int64(0),
@@ -328,9 +328,12 @@ func TestFromCollectorSmartInfo(t *testing.T) {
 	require.Equal(t, 18, len(smartMdl.Attributes))
 
 	//check that temperature was correctly parsed
-
 	require.Equal(t, int64(163210330144), smartMdl.Attributes["194"].(*measurements.SmartAtaAttribute).RawValue)
 	require.Equal(t, int64(32), smartMdl.Attributes["194"].(*measurements.SmartAtaAttribute).TransformedValue)
+
+	//ensure that Scrutiny warning for a non critical attribute does not set device status to failed.
+	require.Equal(t, pkg.AttributeStatusWarningScrutiny, smartMdl.Attributes["3"].GetStatus())
+
 }
 
 func TestFromCollectorSmartInfo_Fail_Smart(t *testing.T) {
@@ -402,7 +405,7 @@ func TestFromCollectorSmartInfo_Fail_ScrutinyNonCriticalFailed(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
 	require.Equal(t, pkg.DeviceStatusFailedScrutiny, smartMdl.Status)
-	require.Equal(t, int64(pkg.SmartAttributeStatusFailed), smartMdl.Attributes["199"].GetStatus(),
+	require.Equal(t, pkg.AttributeStatusFailedScrutiny, smartMdl.Attributes["199"].GetStatus(),
 		"scrutiny should detect that %d failed (status: %d, %s)",
 		smartMdl.Attributes["199"].(*measurements.SmartAtaAttribute).AttributeId,
 		smartMdl.Attributes["199"].GetStatus(), smartMdl.Attributes["199"].(*measurements.SmartAtaAttribute).StatusReason,
@@ -435,7 +438,7 @@ func TestFromCollectorSmartInfo_NVMe_Fail_Scrutiny(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
 	require.Equal(t, pkg.DeviceStatusFailedScrutiny, smartMdl.Status)
-	require.Equal(t, int64(pkg.SmartAttributeStatusFailed), smartMdl.Attributes["media_errors"].GetStatus(),
+	require.Equal(t, pkg.AttributeStatusFailedScrutiny, smartMdl.Attributes["media_errors"].GetStatus(),
 		"scrutiny should detect that %s failed (status: %d, %s)",
 		smartMdl.Attributes["media_errors"].(*measurements.SmartNvmeAttribute).AttributeId,
 		smartMdl.Attributes["media_errors"].GetStatus(),

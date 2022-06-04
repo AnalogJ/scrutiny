@@ -28,7 +28,8 @@ type Detect struct {
 // models.Device returned from this function only contain the minimum data for smartctl to execute: device type and device name (device file).
 func (d *Detect) SmartctlScan() ([]models.Device, error) {
 	//we use smartctl to detect all the drives available.
-	detectedDeviceConnJson, err := d.Shell.Command(d.Logger, "smartctl", []string{"--scan", "-j"}, "", os.Environ())
+	args := strings.Split(d.Config.GetString("commands.metrics_scan_args"), " ")
+	detectedDeviceConnJson, err := d.Shell.Command(d.Logger, "smartctl", args, "", os.Environ())
 	if err != nil {
 		d.Logger.Errorf("Error scanning for devices: %v", err)
 		return nil, err
@@ -51,13 +52,13 @@ func (d *Detect) SmartctlScan() ([]models.Device, error) {
 // - WWN is provided as component data, rather than a "string". We'll have to generate the WWN value ourselves
 // - WWN from smartctl only provided for ATA protocol drives, NVMe and SCSI drives do not include WWN.
 func (d *Detect) SmartCtlInfo(device *models.Device) error {
-
-	args := []string{"--info", "-j"}
+	fullDeviceName := fmt.Sprintf("%s%s", DevicePrefix(), device.DeviceName)
+	args := strings.Split(d.Config.GetCommandMetricsInfoArgs(fullDeviceName), " ")
 	//only include the device type if its a non-standard one. In some cases ata drives are detected as scsi in docker, and metadata is lost.
 	if len(device.DeviceType) > 0 && device.DeviceType != "scsi" && device.DeviceType != "ata" {
-		args = append(args, "-d", device.DeviceType)
+		args = append(args, "--device", device.DeviceType)
 	}
-	args = append(args, fmt.Sprintf("%s%s", DevicePrefix(), device.DeviceName))
+	args = append(args, fullDeviceName)
 
 	availableDeviceInfoJson, err := d.Shell.Command(d.Logger, "smartctl", args, "", os.Environ())
 	if err != nil {
@@ -138,7 +139,7 @@ func (d *Detect) TransformDetectedDevices(detectedDeviceConns models.Scan) []mod
 
 	//now tha we've "grouped" all the devices, lets override any groups specified in the config file.
 
-	for _, overrideDevice := range d.Config.GetScanOverrides() {
+	for _, overrideDevice := range d.Config.GetDeviceOverrides() {
 		overrideDeviceFile := strings.ToLower(overrideDevice.Device)
 
 		if overrideDevice.Ignore {

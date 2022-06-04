@@ -12,13 +12,13 @@ type SmartNvmeAttribute struct {
 	Value       int64  `json:"value"`
 	Threshold   int64  `json:"thresh"`
 
-	TransformedValue int64   `json:"transformed_value"`
-	Status           int64   `json:"status"`
-	StatusReason     string  `json:"status_reason,omitempty"`
-	FailureRate      float64 `json:"failure_rate,omitempty"`
+	TransformedValue int64               `json:"transformed_value"`
+	Status           pkg.AttributeStatus `json:"status"`
+	StatusReason     string              `json:"status_reason,omitempty"`
+	FailureRate      float64             `json:"failure_rate,omitempty"`
 }
 
-func (sa *SmartNvmeAttribute) GetStatus() int64 {
+func (sa *SmartNvmeAttribute) GetStatus() pkg.AttributeStatus {
 	return sa.Status
 }
 
@@ -54,7 +54,7 @@ func (sa *SmartNvmeAttribute) Inflate(key string, val interface{}) {
 	case "transformed_value":
 		sa.TransformedValue = val.(int64)
 	case "status":
-		sa.Status = val.(int64)
+		sa.Status = val.(pkg.AttributeStatus)
 	case "status_reason":
 		sa.StatusReason = val.(string)
 	case "failure_rate":
@@ -72,8 +72,8 @@ func (sa *SmartNvmeAttribute) PopulateAttributeStatus() *SmartNvmeAttribute {
 			//check what the ideal is. Ideal tells us if we our recorded value needs to be above, or below the threshold
 			if (smartMetadata.Ideal == "low" && sa.Value > sa.Threshold) ||
 				(smartMetadata.Ideal == "high" && sa.Value < sa.Threshold) {
-				sa.Status = pkg.SmartAttributeStatusFailed
-				sa.StatusReason = "Attribute is failing recommended SMART threshold"
+				sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedScrutiny)
+				sa.StatusReason += "Attribute is failing recommended SMART threshold"
 			}
 		}
 	}
