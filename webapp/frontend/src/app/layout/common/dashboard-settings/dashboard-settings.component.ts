@@ -14,7 +14,6 @@ export class DashboardSettingsComponent implements OnInit {
     dashboardDisplay: string;
     dashboardSort: string;
     temperatureUnit: string;
-    themeUseSystem: boolean;
     theme: string;
 
     // Private
@@ -37,7 +36,6 @@ export class DashboardSettingsComponent implements OnInit {
               this.dashboardDisplay = config.dashboardDisplay;
               this.dashboardSort = config.dashboardSort;
               this.temperatureUnit = config.temperatureUnit;
-              this.themeUseSystem = config.themeUseSystem;
               this.theme = config.theme;
 
           });
@@ -45,11 +43,12 @@ export class DashboardSettingsComponent implements OnInit {
   }
 
   saveSettings(): void {
+
+
         const newSettings = {
             dashboardDisplay: this.dashboardDisplay,
             dashboardSort: this.dashboardSort,
             temperatureUnit: this.temperatureUnit,
-            themeUseSystem: this.themeUseSystem,
             theme: this.theme
         }
         this._configService.config = newSettings
