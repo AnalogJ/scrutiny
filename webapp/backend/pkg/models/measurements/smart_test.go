@@ -328,9 +328,12 @@ func TestFromCollectorSmartInfo(t *testing.T) {
 	require.Equal(t, 18, len(smartMdl.Attributes))
 
 	//check that temperature was correctly parsed
-
 	require.Equal(t, int64(163210330144), smartMdl.Attributes["194"].(*measurements.SmartAtaAttribute).RawValue)
 	require.Equal(t, int64(32), smartMdl.Attributes["194"].(*measurements.SmartAtaAttribute).TransformedValue)
+
+	//ensure that Scrutiny warning for a non critical attribute does not set device status to failed.
+	require.Equal(t, pkg.AttributeStatusWarningScrutiny, smartMdl.Attributes["3"].GetStatus())
+
 }
 
 func TestFromCollectorSmartInfo_Fail_Smart(t *testing.T) {
@@ -402,7 +405,7 @@ func TestFromCollectorSmartInfo_Fail_ScrutinyNonCriticalFailed(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
 	require.Equal(t, pkg.DeviceStatusFailedScrutiny, smartMdl.Status)
-	require.Equal(t, int64(pkg.SmartAttributeStatusFailed), smartMdl.Attributes["199"].GetStatus(),
+	require.Equal(t, pkg.AttributeStatusFailedScrutiny, smartMdl.Attributes["199"].GetStatus(),
 		"scrutiny should detect that %d failed (status: %d, %s)",
 		smartMdl.Attributes["199"].(*measurements.SmartAtaAttribute).AttributeId,
 		smartMdl.Attributes["199"].GetStatus(), smartMdl.Attributes["199"].(*measurements.SmartAtaAttribute).StatusReason,
@@ -435,7 +438,7 @@ func TestFromCollectorSmartInfo_NVMe_Fail_Scrutiny(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
 	require.Equal(t, pkg.DeviceStatusFailedScrutiny, smartMdl.Status)
-	require.Equal(t, int64(pkg.SmartAttributeStatusFailed), smartMdl.Attributes["media_errors"].GetStatus(),
+	require.Equal(t, pkg.AttributeStatusFailedScrutiny, smartMdl.Attributes["media_errors"].GetStatus(),
 		"scrutiny should detect that %s failed (status: %d, %s)",
 		smartMdl.Attributes["media_errors"].(*measurements.SmartNvmeAttribute).AttributeId,
 		smartMdl.Attributes["media_errors"].GetStatus(),

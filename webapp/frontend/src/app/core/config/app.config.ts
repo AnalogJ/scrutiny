@@ -1,7 +1,7 @@
 import { Layout } from "app/layout/layout.types";
 
 // Theme type
-export type Theme = "light" | "dark";
+export type Theme = "light" | "dark" | "system";
 
 /**
  * AppConfig interface. Update this interface to strictly type your config

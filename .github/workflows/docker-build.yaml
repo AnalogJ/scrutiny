@@ -25,6 +25,8 @@ jobs:
           fetch-depth: 0
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
+        with:
+          platforms: 'arm64,arm'
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       # Login against a Docker registry except on PR
@@ -60,8 +62,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
 
   web:
     runs-on: ubuntu-latest
@@ -72,8 +74,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: "Populate frontend version information"
+        run: "cd webapp/frontend && ./git.version.sh"
+      - name: "Generate frontend"
+        uses: addnab/docker-run-action@v3
+        with:
+          image: node:lts
+          options: -v ${{ github.workspace }}:/work
+          run: |
+            cd /work
+            make frontend
+            ls -alt /work
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
+        with:
+          platforms: 'arm64,arm'
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       # Login against a Docker registry except on PR
@@ -97,8 +113,6 @@ jobs:
             type=ref,enable=true,event=branch,suffix=-web
             type=ref,enable=true,event=tag,suffix=-web
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      - name: "Generate frontend version information"
-        run: "cd webapp/frontend && ./git.version.sh"
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -110,8 +124,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
   omnibus:
     runs-on: ubuntu-latest
     permissions:
@@ -121,8 +135,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: "Populate frontend version information"
+        run: "cd webapp/frontend && ./git.version.sh"
+      - name: "Generate frontend & version information"
+        uses: addnab/docker-run-action@v3
+        with:
+          image: node:lts
+          options: -v ${{ github.workspace }}:/work
+          run: |
+            cd /work
+            make frontend
+            ls -alt /work
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
+        with:
+          platforms: 'arm64,arm'
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       # Login against a Docker registry except on PR
@@ -144,8 +172,6 @@ jobs:
             type=ref,enable=true,event=branch,suffix=-omnibus
             type=ref,enable=true,event=tag,suffix=-omnibus
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      - name: "Generate frontend version information"
-        run: "cd webapp/frontend && ./git.version.sh"
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -157,5 +183,5 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max

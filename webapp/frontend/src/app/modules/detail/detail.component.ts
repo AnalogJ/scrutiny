@@ -121,25 +121,34 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // -----------------------------------------------------------------------------------------------------
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
-    getAttributeStatusName(attribute_status){
-        if(attribute_status == 0){
-            return "passed"
-        } else if (attribute_status == 1){
-            return "failed"
-        } else if (attribute_status == 2){
-            return "warn"
+    getAttributeStatusName(attributeStatus: number): string {
+        // tslint:disable:no-bitwise
+
+        // from Constants.go
+        // AttributeStatusPassed AttributeStatus = 0
+        // AttributeStatusFailedSmart AttributeStatus = 1
+        // AttributeStatusWarningScrutiny AttributeStatus = 2
+        // AttributeStatusFailedScrutiny AttributeStatus = 4
+
+        if(attributeStatus === 0){
+            return 'passed'
+
+        } else if ((attributeStatus & 1) !== 0 || (attributeStatus & 4) !== 0 ){
+            return 'failed'
+        } else if ((attributeStatus & 2) !== 0){
+            return 'warn'
         }
-        return
+        return ''
+        // tslint:enable:no-bitwise
     }
 
-    getAttributeName(attribute_data){
+    getAttributeName(attribute_data): string {
         let attribute_metadata = this.metadata[attribute_data.attribute_id]
         if(!attribute_metadata){
             return 'Unknown Attribute Name'
         } else {
             return attribute_metadata.display_name
         }
-        return
     }
     getAttributeDescription(attribute_data){
         let attribute_metadata = this.metadata[attribute_data.attribute_id]

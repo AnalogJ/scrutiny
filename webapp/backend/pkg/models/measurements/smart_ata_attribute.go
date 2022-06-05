@@ -18,13 +18,13 @@ type SmartAtaAttribute struct {
 	WhenFailed  string `json:"when_failed"`
 
 	//Generated data
-	TransformedValue int64   `json:"transformed_value"`
-	Status           int64   `json:"status"`
-	StatusReason     string  `json:"status_reason,omitempty"`
-	FailureRate      float64 `json:"failure_rate,omitempty"`
+	TransformedValue int64               `json:"transformed_value"`
+	Status           pkg.AttributeStatus `json:"status"`
+	StatusReason     string              `json:"status_reason,omitempty"`
+	FailureRate      float64             `json:"failure_rate,omitempty"`
 }
 
-func (sa *SmartAtaAttribute) GetStatus() int64 {
+func (sa *SmartAtaAttribute) GetStatus() pkg.AttributeStatus {
 	return sa.Status
 }
 
@@ -43,7 +43,7 @@ func (sa *SmartAtaAttribute) Flatten() map[string]interface{} {
 
 		//Generated Data
 		fmt.Sprintf("attr.%s.transformed_value", idString): sa.TransformedValue,
-		fmt.Sprintf("attr.%s.status", idString):            sa.Status,
+		fmt.Sprintf("attr.%s.status", idString):            int64(sa.Status),
 		fmt.Sprintf("attr.%s.status_reason", idString):     sa.StatusReason,
 		fmt.Sprintf("attr.%s.failure_rate", idString):      sa.FailureRate,
 	}
@@ -77,7 +77,7 @@ func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
 	case "transformed_value":
 		sa.TransformedValue = val.(int64)
 	case "status":
-		sa.Status = val.(int64)
+		sa.Status = pkg.AttributeStatus(val.(int64))
 	case "status_reason":
 		sa.StatusReason = val.(string)
 	case "failure_rate":
@@ -89,16 +89,16 @@ func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
 //populate attribute status, using SMART Thresholds & Observed Metadata
 // Chainable
 func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
-	if strings.ToUpper(sa.WhenFailed) == pkg.SmartWhenFailedFailingNow {
+	if strings.ToUpper(sa.WhenFailed) == pkg.AttributeWhenFailedFailingNow {
 		//this attribute has previously failed
-		sa.Status = pkg.SmartAttributeStatusFailed
-		sa.StatusReason = "Attribute is failing manufacturer SMART threshold"
+		sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedSmart)
+		sa.StatusReason += "Attribute is failing manufacturer SMART threshold"
 		//if the Smart Status is failed, we should exit early, no need to look at thresholds.
 		return sa
 
-	} else if strings.ToUpper(sa.WhenFailed) == pkg.SmartWhenFailedInThePast {
-		sa.Status = pkg.SmartAttributeStatusWarning
-		sa.StatusReason = "Attribute has previously failed manufacturer SMART threshold"
+	} else if strings.ToUpper(sa.WhenFailed) == pkg.AttributeWhenFailedInThePast {
+		sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusWarningScrutiny)
+		sa.StatusReason += "Attribute has previously failed manufacturer SMART threshold"
 	}
 
 	if smartMetadata, ok := thresholds.AtaMetadata[sa.AttributeId]; ok {
@@ -138,16 +138,16 @@ func (sa *SmartAtaAttribute) ValidateThreshold(smartMetadata thresholds.AtaAttri
 
 			if smartMetadata.Critical {
 				if obsThresh.AnnualFailureRate >= 0.10 {
-					sa.Status = pkg.SmartAttributeStatusFailed
-					sa.StatusReason = "Observed Failure Rate for Critical Attribute is greater than 10%"
+					sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedScrutiny)
+					sa.StatusReason += "Observed Failure Rate for Critical Attribute is greater than 10%"
 				}
 			} else {
 				if obsThresh.AnnualFailureRate >= 0.20 {
-					sa.Status = pkg.SmartAttributeStatusFailed
-					sa.StatusReason = "Observed Failure Rate for Attribute is greater than 20%"
+					sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedScrutiny)
+					sa.StatusReason += "Observed Failure Rate for Non-Critical Attribute is greater than 20%"
 				} else if obsThresh.AnnualFailureRate >= 0.10 {
-					sa.Status = pkg.SmartAttributeStatusWarning
-					sa.StatusReason = "Observed Failure Rate for Attribute is greater than 10%"
+					sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusWarningScrutiny)
+					sa.StatusReason += "Observed Failure Rate for Non-Critical Attribute is greater than 10%"
 				}
 			}
 
@@ -157,7 +157,7 @@ func (sa *SmartAtaAttribute) ValidateThreshold(smartMetadata thresholds.AtaAttri
 	}
 	// no bucket found
 	if smartMetadata.Critical {
-		sa.Status = pkg.SmartAttributeStatusWarning
+		sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusWarningScrutiny)
 		sa.StatusReason = "Could not determine Observed Failure Rate for Critical Attribute"
 	}
 

@@ -53,6 +53,13 @@ devices:
 #      - 3ware,3
 #      - 3ware,4
 #      - 3ware,5
+#
+#  # example to show how to override the smartctl command args (per device), see below for how to override these globally.
+#  - device: /dev/sda
+#    commands:
+#      metrics_info_args: '--info --json -T permissive' # used to determine device unique ID & register device with Scrutiny
+#      metrics_smart_args: '--xall --json -T permissive' # used to retrieve smart data for each device.
+
 
 #log:
 #  file: '' #absolute or relative paths allowed, eg. web.log
@@ -63,6 +70,12 @@ devices:
 #  endpoint: 'http://localhost:8080/custombasepath'
 # if you need to use a custom base path (for a reverse proxy), you can add a suffix to the endpoint.
 #  See docs/TROUBLESHOOTING_REVERSE_PROXY.md for more info,
+
+# example to show how to override the smartctl command args globally
+#commands:
+#  metrics_scan_args: '--scan --json' # used to detect devices
+#  metrics_info_args: '--info --json' # used to determine device unique ID & register device with Scrutiny
+#  metrics_smart_args: '--xall --json' # used to retrieve smart data for each device.
 
 
 ########################################################################################################################

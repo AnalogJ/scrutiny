@@ -23,6 +23,7 @@ export class LayoutComponent implements OnInit, OnDestroy
 
     // Private
     private _unsubscribeAll: Subject<any>;
+    private systemPrefersDark: boolean;
 
     /**
      * Constructor
@@ -43,6 +44,9 @@ export class LayoutComponent implements OnInit, OnDestroy
     {
         // Set the private defaults
         this._unsubscribeAll = new Subject();
+
+        this.systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -66,7 +70,7 @@ export class LayoutComponent implements OnInit, OnDestroy
                 this.theme = config.theme;
 
                 // Update the selected theme class name on body
-                const themeName = 'treo-theme-' + config.theme;
+                const themeName = 'treo-theme-' + this.determineTheme(config);
                 this._document.body.classList.forEach((className) => {
                     if ( className.startsWith('treo-theme-') && className !== themeName )
                     {
@@ -104,6 +108,17 @@ export class LayoutComponent implements OnInit, OnDestroy
     // -----------------------------------------------------------------------------------------------------
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
+
+    /**
+     * Checks if theme should be set to dark based on config & system settings
+     */
+    private determineTheme(config:AppConfig): string {
+        if (config.theme === 'system') {
+            return this.systemPrefersDark ? 'dark' : 'light'
+        } else {
+            return config.theme
+        }
+    }
 
     /**
      * Update the selected layout
