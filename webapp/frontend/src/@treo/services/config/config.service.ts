@@ -25,7 +25,7 @@ export class TreoConfigService
         if (localConfigStr){
             //check localstorage for a value
             let localConfig = JSON.parse(localConfigStr)
-            currentScrutinyConfig = Object.assign({}, localConfig, currentScrutinyConfig) // make sure defaults are available if missing from localStorage.
+            currentScrutinyConfig = Object.assign({}, currentScrutinyConfig, localConfig) // make sure defaults are available if missing from localStorage.
         }
         // Set the private defaults
         this._config = new BehaviorSubject(currentScrutinyConfig);
