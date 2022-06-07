@@ -83,8 +83,7 @@ jobs:
           options: -v ${{ github.workspace }}:/work
           run: |
             cd /work
-            make frontend
-            ls -alt /work
+            make frontend && echo "print contents of /work/dist" && ls -alt /work/dist
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -144,8 +143,8 @@ jobs:
           options: -v ${{ github.workspace }}:/work
           run: |
             cd /work
-            make frontend
-            ls -alt /work
+            make frontend && echo "print contents of /work/dist" && ls -alt /work/dist
+
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2

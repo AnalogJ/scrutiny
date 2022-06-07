@@ -59,7 +59,7 @@ frontend:
 	cd webapp/frontend
 	npm install -g @angular/cli@9.1.4
 	mkdir -p $(CURDIR)/dist
-	npm install
+	npm ci
 	npm run build:prod -- --output-path=$(CURDIR)/dist
 
 # clean:
