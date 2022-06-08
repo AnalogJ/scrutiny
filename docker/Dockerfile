@@ -1,5 +1,5 @@
 ########
-FROM golang:1.17.10-buster as backendbuild
+FROM golang:1.17-bullseye as backendbuild
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 
@@ -11,7 +11,7 @@ RUN go mod vendor && \
     go build -ldflags '-w -extldflags "-static"' -o scrutiny-collector-metrics collector/cmd/collector-metrics/collector-metrics.go
 
 ########
-FROM ubuntu:latest as runtime
+FROM debian:bullseye-slim as runtime
 ARG TARGETARCH
 EXPOSE 8080
 WORKDIR /opt/scrutiny
