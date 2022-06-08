@@ -25,8 +25,7 @@ RUN apt-get update && apt-get install -y cron smartmontools ca-certificates curl
             "arm64")  S6_ARCH=aarch64  ;; \
         esac \
     && curl https://github.com/just-containers/s6-overlay/releases/download/v1.21.8.0/s6-overlay-${S6_ARCH}.tar.gz -L -s --output /tmp/s6-overlay-${S6_ARCH}.tar.gz \
-    && tar xzf /tmp/s6-overlay-${S6_ARCH}.tar.gz -C / --exclude="./bin" \
-    && tar xzf /tmp/s6-overlay-${S6_ARCH}.tar.gz -C /usr ./bin \
+    && tar xzf /tmp/s6-overlay-${S6_ARCH}.tar.gz -C / \
     && rm -rf /tmp/s6-overlay-${S6_ARCH}.tar.gz \
     && curl -L https://dl.influxdata.com/influxdb/releases/influxdb2-2.2.0-${TARGETARCH}.deb --output /tmp/influxdb2-2.2.0-${TARGETARCH}.deb \
     && dpkg -i --force-all /tmp/influxdb2-2.2.0-${TARGETARCH}.deb
