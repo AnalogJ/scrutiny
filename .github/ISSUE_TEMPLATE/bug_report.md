@@ -38,3 +38,5 @@ docker exec scrutiny scrutiny-collector-metrics run
 ```
 
 The log files will be available on your host in the `config` directory. Please attach them to this issue. 
+
+Please also provide the output of `docker info`
