@@ -1,5 +1,8 @@
 # Docker Images `master-omnibus` vs `latest`
 
+> TL;DR; The `master-omnibus` and `latest` tags are almost semantically identical, as I follow a `golden master` 
+development process. However if you want to ensure you're only using the latest release, you can change to `latest`
+
 The CI script used to orchestrate the docker image builds can be found here: https://github.com/AnalogJ/scrutiny/blob/master/.github/workflows/docker-build.yaml#L166-L184
 
 In general Scrutiny follows a `golden master` development process, which means that the `master` branch is not directly updated (unless its for documentation changes), 
@@ -19,7 +22,4 @@ However, as everyone unfortunately found out recently, I had an error in my CI s
 ignored -- https://github.com/AnalogJ/scrutiny/issues/287. That has since been fixed.
 
 Hope that gives you an understanding for how everything is wired up. 
-
-TL;DR; The `master-omnibus` and `latest` tags are almost semantically identical, as I follow a `golden master` 
-development process. However if you want to ensure you're only using the latest release, you can change to `latest`
 
