@@ -31,13 +31,13 @@ tr.attribute-detail-row {
     height: 0;
 }
 
-tr.attribute-row:not(.attribute-expanded-row):hover {
-    @if ($is-dark) {
-        background: rgba(0, 0, 0, 0.05);
-    } @else {
-        background: map-get($primary, 50);
-    }
-}
+//tr.attribute-row:not(.attribute-expanded-row):hover {
+//    @if ($is-dark) {
+//        background: rgba(0, 0, 0, 0.05);
+//    } @else {
+//        background: map-get($primary, 50);
+//    }
+//}
 
 tr.attribute-row:not(.attribute-expanded-row):active {
     background: #efefef;

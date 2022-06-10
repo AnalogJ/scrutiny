@@ -150,6 +150,28 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         return ''
         // tslint:enable:no-bitwise
     }
+    getAttributeScrutinyStatusName(attributeStatus: number): string {
+        // tslint:disable:no-bitwise
+        if ((attributeStatus & 4) !== 0){
+            return 'failed'
+        } else if ((attributeStatus & 2) !== 0){
+            return 'warn'
+        } else {
+            return 'passed'
+        }
+        // tslint:enable:no-bitwise
+    }
+
+    getAttributeSmartStatusName(attributeStatus: number): string {
+        // tslint:disable:no-bitwise
+        if ((attributeStatus & 1) !== 0){
+            return 'failed'
+        } else {
+            return 'passed'
+        }
+        // tslint:enable:no-bitwise
+    }
+
 
     getAttributeName(attribute_data): string {
         let attribute_metadata = this.metadata[attribute_data.attribute_id]
@@ -279,7 +301,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         } else {
             //ATA
             attributes = latest_smart_result.attrs
-            this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh','ideal', 'failure', 'history'];
+            this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'thresh','ideal', 'failure', 'history'];
         }
 
         for(const attrId in attributes){
