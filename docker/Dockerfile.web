@@ -6,7 +6,7 @@ WORKDIR /go/src/github.com/analogj/scrutiny
 COPY . /go/src/github.com/analogj/scrutiny
 
 RUN go mod vendor && \
-    go build -ldflags '-w -extldflags "-static"' -o scrutiny webapp/backend/cmd/scrutiny/scrutiny.go
+    go -o scrutiny webapp/backend/cmd/scrutiny/scrutiny.go
 
 ########
 FROM debian:bullseye-slim as runtime
