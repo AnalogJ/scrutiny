@@ -8,8 +8,7 @@ COPY . /go/src/github.com/analogj/scrutiny
 RUN go mod vendor && \
     go build -o scrutiny webapp/backend/cmd/scrutiny/scrutiny.go && \
     go build -o scrutiny-collector-selftest collector/cmd/collector-selftest/collector-selftest.go && \
-    go build -o scrutiny-collector-metrics collector/cmd/collector-metrics/collector-metrics.go && \
-    file
+    go build -o scrutiny-collector-metrics collector/cmd/collector-metrics/collector-metrics.go
 
 ########
 FROM debian:bullseye-slim as runtime
