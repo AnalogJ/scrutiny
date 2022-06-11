@@ -109,7 +109,7 @@ func (sr *scrutinyRepository) DownsampleScript(aggregationType string) string {
   |> toInt()
 
   temp_data
-  |> aggregateWindow(fn: mean, every: aggWindow)
+  |> aggregateWindow(fn: mean, every: aggWindow, createEmpty: false)
   |> to(bucket: destBucket, org: destOrg)
 		`,
 		sourceBucket,
