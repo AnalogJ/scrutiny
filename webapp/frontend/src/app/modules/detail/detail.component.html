@@ -169,7 +169,7 @@
                                           [ngClass]="{'bg-red': getAttributeStatusName(attribute.status) === 'failed',
                                       'bg-green': getAttributeStatusName(attribute.status) === 'passed',
                                       'bg-yellow': getAttributeStatusName(attribute.status) === 'warn'}"></span>
-                                    <span class="pr-2px leading-relaxed whitespace-no-wrap" matTooltip="{{attribute.status_reason}} - click for more details.">{{getAttributeStatusName(attribute.status)}}</span>
+                                    <span class="pr-2px leading-relaxed whitespace-no-wrap" matTooltip="{{attribute.status_reason}}">{{getAttributeStatusName(attribute.status)}}</span>
                                 </span>
                             </td>
                         </ng-container>
