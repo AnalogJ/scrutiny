@@ -354,7 +354,7 @@
                                                     <div class="flex-shrink-0 w-2 h-2 mr-3 rounded-full"
                                                          [ngClass]="{'bg-red': getAttributeScrutinyStatusName(attribute.status) === 'failed',
                                                           'bg-green': getAttributeScrutinyStatusName(attribute.status) === 'passed',
-                                                          'bg-yellow': getAttributeStatusName(attribute.status) === 'warn'}"></div>
+                                                          'bg-yellow': getAttributeScrutinyStatusName(attribute.status) === 'warn'}"></div>
                                                     <div class="truncate">Scrutiny</div>
                                                 </div>
                                                 <div class="w-1/4 items-center font-medium">{{getAttributeValue(attribute)}}</div>

@@ -13,6 +13,13 @@ import {TreoConfigService} from "../../../@treo/services/config";
 import {AppConfig} from "../../core/config/app.config";
 import {animate, state, style, transition, trigger} from '@angular/animations';
 
+// from Constants.go - these must match
+const AttributeStatusPassed = 0
+const AttributeStatusFailedSmart = 1
+const AttributeStatusWarningScrutiny = 2
+const AttributeStatusFailedScrutiny = 4
+
+
 @Component({
   selector: 'detail',
   templateUrl: './detail.component.html',
@@ -41,7 +48,6 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     commonSparklineOptions: Partial<ApexOptions>;
     smartAttributeDataSource: MatTableDataSource<any>;
     smartAttributeTableColumns: string[];
-
 
     @ViewChild('smartAttributeTable', {read: MatSort})
     smartAttributeTableMatSort: MatSort;
@@ -130,21 +136,16 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // -----------------------------------------------------------------------------------------------------
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
+
     getAttributeStatusName(attributeStatus: number): string {
         // tslint:disable:no-bitwise
 
-        // from Constants.go
-        // AttributeStatusPassed AttributeStatus = 0
-        // AttributeStatusFailedSmart AttributeStatus = 1
-        // AttributeStatusWarningScrutiny AttributeStatus = 2
-        // AttributeStatusFailedScrutiny AttributeStatus = 4
-
-        if(attributeStatus === 0){
+        if(attributeStatus === AttributeStatusPassed){
             return 'passed'
 
-        } else if ((attributeStatus & 1) !== 0 || (attributeStatus & 4) !== 0 ){
+        } else if ((attributeStatus & AttributeStatusFailedScrutiny) !== 0 || (attributeStatus & AttributeStatusFailedSmart) !== 0 ){
             return 'failed'
-        } else if ((attributeStatus & 2) !== 0){
+        } else if ((attributeStatus & AttributeStatusWarningScrutiny) !== 0){
             return 'warn'
         }
         return ''
@@ -152,9 +153,9 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     getAttributeScrutinyStatusName(attributeStatus: number): string {
         // tslint:disable:no-bitwise
-        if ((attributeStatus & 4) !== 0){
+        if ((attributeStatus & AttributeStatusFailedScrutiny) !== 0){
             return 'failed'
-        } else if ((attributeStatus & 2) !== 0){
+        } else if ((attributeStatus & AttributeStatusWarningScrutiny) !== 0){
             return 'warn'
         } else {
             return 'passed'
@@ -164,7 +165,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     getAttributeSmartStatusName(attributeStatus: number): string {
         // tslint:disable:no-bitwise
-        if ((attributeStatus & 1) !== 0){
+        if ((attributeStatus & AttributeStatusFailedSmart) !== 0){
             return 'failed'
         } else {
             return 'passed'
