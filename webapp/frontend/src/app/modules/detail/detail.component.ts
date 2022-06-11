@@ -291,7 +291,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         if(smart_results.length == 0){
             return smartAttributeDataSource
         }
-        var latest_smart_result = smart_results[0];
+        var latest_smart_result = smart_results[smart_results.length -1];
         let attributes = {}
         if(this.isScsi()) {
             this.smartAttributeTableColumns = ['status', 'name', 'value', 'thresh', 'history'];
