@@ -143,6 +143,7 @@
                     <table class="w-full bg-transparent"
                            mat-table
                            matSort
+                           multiTemplateDataRows
                            [dataSource]="smartAttributeDataSource"
                            [trackBy]="trackByFn"
                            #smartAttributeTable>
@@ -168,7 +169,7 @@
                                           [ngClass]="{'bg-red': getAttributeStatusName(attribute.status) === 'failed',
                                       'bg-green': getAttributeStatusName(attribute.status) === 'passed',
                                       'bg-yellow': getAttributeStatusName(attribute.status) === 'warn'}"></span>
-                                    <span class="pr-2px leading-relaxed whitespace-no-wrap" matTooltip="{{attribute.status_reason}}">{{getAttributeStatusName(attribute.status)}}</span>
+                                    <span class="pr-2px leading-relaxed whitespace-no-wrap" matTooltip="{{attribute.status_reason}} - click for more details.">{{getAttributeStatusName(attribute.status)}}</span>
                                 </span>
                             </td>
                         </ng-container>
@@ -203,7 +204,7 @@
                             </th>
                             <td mat-cell
                                 *matCellDef="let attribute">
-                                <span class="pr-6 whitespace-no-wrap" matTooltip="{{getAttributeDescription(attribute)}}">
+                                <span class="pr-6 whitespace-no-wrap" matTooltip="click for more details.">
                                     {{getAttributeName(attribute)}} <mat-icon *ngIf="getAttributeDescription(attribute)" class="icon-size-10" [svgIcon]="'info'"></mat-icon>
                                 </span>
                             </td>
@@ -324,6 +325,72 @@
                             </td>
                         </ng-container>
 
+
+                        <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+                        <ng-container matColumnDef="expandedDetail">
+                            <td mat-cell *matCellDef="let attribute" [attr.colspan]="smartAttributeTableColumns.length">
+
+
+
+                                <div class="attribute-detail"
+                                     [@detailExpand]="attribute == expandedAttribute ? 'expanded' : 'collapsed'">
+
+                                    <div class="flex flex-auto w-1/3 min-w-80 py-4">
+                                        <div class="flex flex-col flex-auto justify-end text-md pb-3">
+                                            {{getAttributeDescription(attribute)}}
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-auto w-2/3 min-w-80">
+                                        <div class="flex flex-col flex-auto justify-end text-md px-6 pb-3">
+                                            <div class="flex items-center justify-between py-3 border-b last:border-b-0 ng-star-inserted">
+                                                <div class="flex items-center w-1/4">Type</div>
+                                                <div class="flex items-center w-1/4">Value</div>
+                                                <div class="flex items-center w-1/4">Worst/Thresh</div>
+                                                <div class="flex items-center w-1/4">Failure %</div>
+                                            </div>
+
+                                            <div class="flex items-center justify-between py-3 border-b last:border-b-0 ng-star-inserted">
+                                                <div class="flex items-center w-1/4">
+                                                    <div class="flex-shrink-0 w-2 h-2 mr-3 rounded-full"
+                                                         [ngClass]="{'bg-red': getAttributeScrutinyStatusName(attribute.status) === 'failed',
+                                                          'bg-green': getAttributeScrutinyStatusName(attribute.status) === 'passed',
+                                                          'bg-yellow': getAttributeStatusName(attribute.status) === 'warn'}"></div>
+                                                    <div class="truncate">Scrutiny</div>
+                                                </div>
+                                                <div class="w-1/4 items-center font-medium">{{getAttributeValue(attribute)}}</div>
+                                                <div class="w-1/4 items-center text-secondary">--</div>
+                                                <div class="w-1/4 items-center text-secondary">{{(attribute.failure_rate | percent) || '--'}}</div>
+                                            </div>
+
+                                            <div class="flex items-center justify-between py-3 border-b last:border-b-0 ng-star-inserted">
+                                                <div class="flex items-center w-1/4">
+                                                    <div class="flex-shrink-0 w-2 h-2 mr-3 rounded-full"
+                                                         [ngClass]="{'bg-red': getAttributeSmartStatusName(attribute.status) === 'failed',
+                                                          'bg-green': getAttributeSmartStatusName(attribute.status) === 'passed'}"
+                                                    ></div>
+                                                    <div class="truncate">Normalized</div>
+                                                </div>
+                                                <div class="w-1/4 items-center font-medium">{{attribute.value}}</div>
+                                                <div class="w-1/4 items-center text-secondary">{{getAttributeWorst(attribute) || '--' }}/{{getAttributeThreshold(attribute)}}</div>
+                                                <div class="w-1/4 items-center text-secondary">--</div>
+                                            </div>
+
+                                            <div class="flex items-center justify-between py-3 border-b last:border-b-0 ng-star-inserted">
+                                                <div class="flex items-center w-1/4">
+                                                    <div class="flex-shrink-0 w-2 h-2 mr-3 rounded-full"></div>
+                                                    <div class="truncate">Raw</div>
+                                                </div>
+                                                <div class="w-1/4 items-center font-medium">{{attribute.raw_value}}</div>
+                                                <div class="w-1/4 items-center text-secondary">--</div>
+                                                <div class="w-1/4 items-center text-secondary">--</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </ng-container>
+
+
                         <!-- Footer -->
                         <ng-container matColumnDef="recentOrdersTableFooter">
                             <td class="px-3 border-none"
@@ -344,7 +411,10 @@
                         <tr class="attribute-row h-16"
                             mat-row
                             [ngClass]="{'yellow-50': getAttributeCritical(row)}"
+                            [class.attribute-expanded-row]="expandedAttribute === row"
+                            (click)="expandedAttribute = expandedAttribute === row ? null : row"
                             *matRowDef="let row; columns: smartAttributeTableColumns;"></tr>
+                        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="attribute-detail-row"></tr>
                         <tr class="h-16"
                             mat-footer-row
                             *matFooterRowDef="['recentOrdersTableFooter']"></tr>

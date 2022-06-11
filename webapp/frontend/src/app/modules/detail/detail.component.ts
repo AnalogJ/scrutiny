@@ -11,11 +11,19 @@ import {MatDialog} from "@angular/material/dialog";
 import humanizeDuration from 'humanize-duration';
 import {TreoConfigService} from "../../../@treo/services/config";
 import {AppConfig} from "../../core/config/app.config";
+import {animate, state, style, transition, trigger} from '@angular/animations';
 
 @Component({
   selector: 'detail',
   templateUrl: './detail.component.html',
-  styleUrls: ['./detail.component.scss']
+  styleUrls: ['./detail.component.scss'],
+    animations: [
+        trigger('detailExpand', [
+            state('collapsed', style({height: '0px', minHeight: '0'})),
+            state('expanded', style({height: '*'})),
+            transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+        ]),
+    ],
 })
 
 export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -24,6 +32,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     onlyCritical: boolean = true;
     // data: any;
+    expandedAttribute: any | null;
 
     metadata: any;
     device: any;
@@ -141,6 +150,28 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         return ''
         // tslint:enable:no-bitwise
     }
+    getAttributeScrutinyStatusName(attributeStatus: number): string {
+        // tslint:disable:no-bitwise
+        if ((attributeStatus & 4) !== 0){
+            return 'failed'
+        } else if ((attributeStatus & 2) !== 0){
+            return 'warn'
+        } else {
+            return 'passed'
+        }
+        // tslint:enable:no-bitwise
+    }
+
+    getAttributeSmartStatusName(attributeStatus: number): string {
+        // tslint:disable:no-bitwise
+        if ((attributeStatus & 1) !== 0){
+            return 'failed'
+        } else {
+            return 'passed'
+        }
+        // tslint:enable:no-bitwise
+    }
+
 
     getAttributeName(attribute_data): string {
         let attribute_metadata = this.metadata[attribute_data.attribute_id]
@@ -270,7 +301,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         } else {
             //ATA
             attributes = latest_smart_result.attrs
-            this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh','ideal', 'failure', 'history'];
+            this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'thresh','ideal', 'failure', 'history'];
         }
 
         for(const attrId in attributes){
