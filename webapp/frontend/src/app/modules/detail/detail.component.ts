@@ -12,6 +12,8 @@ import humanizeDuration from 'humanize-duration';
 import {TreoConfigService} from "../../../@treo/services/config";
 import {AppConfig} from "../../core/config/app.config";
 import {animate, state, style, transition, trigger} from '@angular/animations';
+import {formatDate} from "@angular/common";
+import { LOCALE_ID, Inject } from '@angular/core';
 
 // from Constants.go - these must match
 const AttributeStatusPassed = 0
@@ -64,7 +66,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         private _detailService: DetailService,
         public dialog: MatDialog,
         private _configService: TreoConfigService,
-
+        @Inject(LOCALE_ID) public locale: string
 
     )
     {
@@ -314,7 +316,21 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
                 var attrHistory = []
                 for (let smart_result of smart_results){
-                    attrHistory.push(this.getAttributeValue(smart_result.attrs[attrId]))
+                    // attrHistory.push(this.getAttributeValue(smart_result.attrs[attrId]))
+
+                    const chartDatapoint = {
+                        x: formatDate(smart_result.date, 'MMMM dd, yyyy - HH:mm', this.locale),
+                        y: this.getAttributeValue(smart_result.attrs[attrId])
+                    }
+                    const attributeStatusName = this.getAttributeStatusName(smart_result.attrs[attrId].status)
+                    if(attributeStatusName === 'failed') {
+                        chartDatapoint['strokeColor'] = '#F05252'
+                        chartDatapoint['fillColor'] = '#F05252'
+                    } else if (attributeStatusName === 'warn'){
+                        chartDatapoint['strokeColor'] = '#C27803'
+                        chartDatapoint['fillColor'] = '#C27803'
+                    }
+                    attrHistory.push(chartDatapoint)
                 }
 
                 // var rawHistory = (attr.history || []).map(hist_attr => this.getAttributeValue(hist_attr)).reverse()
@@ -362,7 +378,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                     enabled: false
                 },
                 x: {
-                    show: false
+                    show: true
                 },
                 y: {
                     title: {
