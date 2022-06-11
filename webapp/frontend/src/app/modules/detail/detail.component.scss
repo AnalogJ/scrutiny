@@ -1,7 +1,6 @@
 @import 'treo';
 
 detail {
-
 }
 
 // -----------------------------------------------------------------------------------------------------
@@ -20,5 +19,35 @@ detail {
     }
 
 
+}
 
+//table {
+//    width: 100%;
+//}
+
+$primary: map-get($theme, primary);
+$is-dark: map-get($theme, is-dark);
+tr.attribute-detail-row {
+    height: 0;
+}
+
+//tr.attribute-row:not(.attribute-expanded-row):hover {
+//    @if ($is-dark) {
+//        background: rgba(0, 0, 0, 0.05);
+//    } @else {
+//        background: map-get($primary, 50);
+//    }
+//}
+
+tr.attribute-row:not(.attribute-expanded-row):active {
+    background: #efefef;
+}
+
+.attribute-row td {
+    border-bottom-width: 0;
+}
+
+.attribute-detail {
+    overflow: hidden;
+    display: flex;
 }

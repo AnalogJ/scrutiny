@@ -11,11 +11,28 @@ import {MatDialog} from "@angular/material/dialog";
 import humanizeDuration from 'humanize-duration';
 import {TreoConfigService} from "../../../@treo/services/config";
 import {AppConfig} from "../../core/config/app.config";
+import {animate, state, style, transition, trigger} from '@angular/animations';
+import {formatDate} from "@angular/common";
+import { LOCALE_ID, Inject } from '@angular/core';
+
+// from Constants.go - these must match
+const AttributeStatusPassed = 0
+const AttributeStatusFailedSmart = 1
+const AttributeStatusWarningScrutiny = 2
+const AttributeStatusFailedScrutiny = 4
+
 
 @Component({
   selector: 'detail',
   templateUrl: './detail.component.html',
-  styleUrls: ['./detail.component.scss']
+  styleUrls: ['./detail.component.scss'],
+    animations: [
+        trigger('detailExpand', [
+            state('collapsed', style({height: '0px', minHeight: '0'})),
+            state('expanded', style({height: '*'})),
+            transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+        ]),
+    ],
 })
 
 export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -24,6 +41,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     onlyCritical: boolean = true;
     // data: any;
+    expandedAttribute: any | null;
 
     metadata: any;
     device: any;
@@ -33,12 +51,12 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     smartAttributeDataSource: MatTableDataSource<any>;
     smartAttributeTableColumns: string[];
 
-
     @ViewChild('smartAttributeTable', {read: MatSort})
     smartAttributeTableMatSort: MatSort;
 
     // Private
     private _unsubscribeAll: Subject<any>;
+    private systemPrefersDark: boolean;
 
     /**
      * Constructor
@@ -49,7 +67,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         private _detailService: DetailService,
         public dialog: MatDialog,
         private _configService: TreoConfigService,
-
+        @Inject(LOCALE_ID) public locale: string
 
     )
     {
@@ -60,6 +78,9 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         this.smartAttributeDataSource = new MatTableDataSource();
         // this.recentTransactionsTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh'];
         this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh','ideal', 'failure', 'history'];
+
+        this.systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -121,26 +142,43 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // -----------------------------------------------------------------------------------------------------
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
+
     getAttributeStatusName(attributeStatus: number): string {
         // tslint:disable:no-bitwise
 
-        // from Constants.go
-        // AttributeStatusPassed AttributeStatus = 0
-        // AttributeStatusFailedSmart AttributeStatus = 1
-        // AttributeStatusWarningScrutiny AttributeStatus = 2
-        // AttributeStatusFailedScrutiny AttributeStatus = 4
-
-        if(attributeStatus === 0){
+        if(attributeStatus === AttributeStatusPassed){
             return 'passed'
 
-        } else if ((attributeStatus & 1) !== 0 || (attributeStatus & 4) !== 0 ){
+        } else if ((attributeStatus & AttributeStatusFailedScrutiny) !== 0 || (attributeStatus & AttributeStatusFailedSmart) !== 0 ){
             return 'failed'
-        } else if ((attributeStatus & 2) !== 0){
+        } else if ((attributeStatus & AttributeStatusWarningScrutiny) !== 0){
             return 'warn'
         }
         return ''
         // tslint:enable:no-bitwise
     }
+    getAttributeScrutinyStatusName(attributeStatus: number): string {
+        // tslint:disable:no-bitwise
+        if ((attributeStatus & AttributeStatusFailedScrutiny) !== 0){
+            return 'failed'
+        } else if ((attributeStatus & AttributeStatusWarningScrutiny) !== 0){
+            return 'warn'
+        } else {
+            return 'passed'
+        }
+        // tslint:enable:no-bitwise
+    }
+
+    getAttributeSmartStatusName(attributeStatus: number): string {
+        // tslint:disable:no-bitwise
+        if ((attributeStatus & AttributeStatusFailedSmart) !== 0){
+            return 'failed'
+        } else {
+            return 'passed'
+        }
+        // tslint:enable:no-bitwise
+    }
+
 
     getAttributeName(attribute_data): string {
         let attribute_metadata = this.metadata[attribute_data.attribute_id]
@@ -270,7 +308,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         } else {
             //ATA
             attributes = latest_smart_result.attrs
-            this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh','ideal', 'failure', 'history'];
+            this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'thresh','ideal', 'failure', 'history'];
         }
 
         for(const attrId in attributes){
@@ -282,7 +320,21 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
                 var attrHistory = []
                 for (let smart_result of smart_results){
-                    attrHistory.push(this.getAttributeValue(smart_result.attrs[attrId]))
+                    // attrHistory.push(this.getAttributeValue(smart_result.attrs[attrId]))
+
+                    const chartDatapoint = {
+                        x: formatDate(smart_result.date, 'MMMM dd, yyyy - HH:mm', this.locale),
+                        y: this.getAttributeValue(smart_result.attrs[attrId])
+                    }
+                    const attributeStatusName = this.getAttributeStatusName(smart_result.attrs[attrId].status)
+                    if(attributeStatusName === 'failed') {
+                        chartDatapoint['strokeColor'] = '#F05252'
+                        chartDatapoint['fillColor'] = '#F05252'
+                    } else if (attributeStatusName === 'warn'){
+                        chartDatapoint['strokeColor'] = '#C27803'
+                        chartDatapoint['fillColor'] = '#C27803'
+                    }
+                    attrHistory.push(chartDatapoint)
                 }
 
                 // var rawHistory = (attr.history || []).map(hist_attr => this.getAttributeValue(hist_attr)).reverse()
@@ -325,12 +377,17 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                     enabled: false
                 }
             },
+            // theme:{
+            //     // @ts-ignore
+            //     // mode:
+            //     mode: 'dark',
+            // },
             tooltip: {
                 fixed: {
                     enabled: false
                 },
                 x: {
-                    show: false
+                    show: true
                 },
                 y: {
                     title: {
@@ -341,7 +398,9 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                 },
                 marker: {
                     show: false
-                }
+                },
+                theme: this.determineTheme(this.config)
+
             },
             stroke: {
                 width: 2,
@@ -350,6 +409,13 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         };
     }
 
+    private determineTheme(config:AppConfig): string {
+        if (config.theme === 'system') {
+            return this.systemPrefersDark ? 'dark' : 'light'
+        } else {
+            return config.theme
+        }
+    }
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------

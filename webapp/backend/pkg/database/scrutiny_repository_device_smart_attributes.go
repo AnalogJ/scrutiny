@@ -29,6 +29,7 @@ func (sr *scrutinyRepository) SaveSmartAttributes(ctx context.Context, wwn strin
 	return deviceSmartData, sr.saveDatapoint(sr.influxWriteApi, "smart", tags, fields, deviceSmartData.Date, ctx)
 }
 
+// GetSmartAttributeHistory MUST return in sorted order, where newest entries are at the beginning of the list, and oldest are at the end.
 func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn string, durationKey string, attributes []string) ([]measurements.Smart, error) {
 	// Get SMartResults from InfluxDB
 
@@ -63,6 +64,9 @@ func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn 
 	} else {
 		return nil, err
 	}
+
+	//we have to sort the smartResults again, because the `union` command will return multiple 'tables' and only sort the records in each table.
+	sortSmartMeasurementsDesc(smartResults)
 
 	return smartResults, nil
 
