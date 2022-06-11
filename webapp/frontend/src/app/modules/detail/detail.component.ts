@@ -56,6 +56,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Private
     private _unsubscribeAll: Subject<any>;
+    private systemPrefersDark: boolean;
 
     /**
      * Constructor
@@ -77,6 +78,9 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         this.smartAttributeDataSource = new MatTableDataSource();
         // this.recentTransactionsTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh'];
         this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh','ideal', 'failure', 'history'];
+
+        this.systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -373,6 +377,11 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                     enabled: false
                 }
             },
+            // theme:{
+            //     // @ts-ignore
+            //     // mode:
+            //     mode: 'dark',
+            // },
             tooltip: {
                 fixed: {
                     enabled: false
@@ -389,7 +398,9 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                 },
                 marker: {
                     show: false
-                }
+                },
+                theme: this.determineTheme(this.config)
+
             },
             stroke: {
                 width: 2,
@@ -398,6 +409,13 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         };
     }
 
+    private determineTheme(config:AppConfig): string {
+        if (config.theme === 'system') {
+            return this.systemPrefersDark ? 'dark' : 'light'
+        } else {
+            return config.theme
+        }
+    }
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
