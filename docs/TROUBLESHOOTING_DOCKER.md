@@ -14,12 +14,6 @@ is almost immediately created (and tagged with `latest`)
 
 So changing from `master-omnibus -> latest` will be the same thing for all intents and purposes. 
 
-Having said that -- the one key difference is the `automated cron builds` that run on the `master` and `beta` branches. 
-They trigger a `nightly` build, even if nothing has changed on the branch. This has a couple of benefits, but one is to 
-ensure that there's no broken external dependencies in our (unchanged) code. 
-
-However, as everyone unfortunately found out recently, I had an error in my CI script, which caused failures to be 
-ignored -- https://github.com/AnalogJ/scrutiny/issues/287. That has since been fixed.
-
-Hope that gives you an understanding for how everything is wired up. 
-
+> NOTE: Previously, there was a `automated cron build` that ran on the `master` and `beta` branches. 
+They used to trigger a `nightly` build, even if nothing has changed on the branch. This has a couple of benefits, but one is to 
+ensure that there's no broken external dependencies in our (unchanged) code. This `nightly` build no longer updates the `master-omnibus` tag. 
