@@ -12,8 +12,8 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { MatTooltipModule } from '@angular/material/tooltip'
-import { DashboardSettingsModule } from "app/layout/common/dashboard-settings/dashboard-settings.module";
-import { DashboardDeviceModule } from "app/layout/common/dashboard-device/dashboard-device.module";
+import { DashboardSettingsModule } from 'app/layout/common/dashboard-settings/dashboard-settings.module';
+import { DashboardDeviceModule } from 'app/layout/common/dashboard-device/dashboard-device.module';
 
 @NgModule({
     declarations: [

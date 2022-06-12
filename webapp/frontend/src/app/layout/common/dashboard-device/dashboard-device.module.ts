@@ -9,20 +9,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { SharedModule } from 'app/shared/shared.module';
 import {DashboardDeviceComponent} from 'app/layout/common/dashboard-device/dashboard-device.component'
-import { MatDialogModule } from "@angular/material/dialog";
-import { MatButtonToggleModule} from "@angular/material/button-toggle";
-import {MatTabsModule} from "@angular/material/tabs";
-import {MatSliderModule} from "@angular/material/slider";
-import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {MatTooltipModule} from "@angular/material/tooltip";
-import {dashboardRoutes} from "../../../modules/dashboard/dashboard.routing";
-import {MatDividerModule} from "@angular/material/divider";
-import {MatMenuModule} from "@angular/material/menu";
-import {MatProgressBarModule} from "@angular/material/progress-bar";
-import {MatSortModule} from "@angular/material/sort";
-import {MatTableModule} from "@angular/material/table";
-import {NgApexchartsModule} from "ng-apexcharts";
-import {DashboardDeviceDeleteDialogModule} from "../dashboard-device-delete-dialog/dashboard-device-delete-dialog.module";
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatSliderModule} from '@angular/material/slider';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {dashboardRoutes} from '../../../modules/dashboard/dashboard.routing';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatSortModule} from '@angular/material/sort';
+import {MatTableModule} from '@angular/material/table';
+import {NgApexchartsModule} from 'ng-apexcharts';
+import {DashboardDeviceDeleteDialogModule} from 'app/layout/common/dashboard-device-delete-dialog/dashboard-device-delete-dialog.module';
 
 @NgModule({
     declarations: [

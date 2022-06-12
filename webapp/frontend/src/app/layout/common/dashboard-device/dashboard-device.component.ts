@@ -1,13 +1,13 @@
 import { Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
-import * as moment from "moment";
-import {takeUntil} from "rxjs/operators";
-import {AppConfig} from "app/core/config/app.config";
-import {TreoConfigService} from "@treo/services/config";
-import {Subject} from "rxjs";
+import * as moment from 'moment';
+import {takeUntil} from 'rxjs/operators';
+import {AppConfig} from 'app/core/config/app.config';
+import {TreoConfigService} from '@treo/services/config';
+import {Subject} from 'rxjs';
 import  humanizeDuration from 'humanize-duration'
 import {MatDialog} from '@angular/material/dialog';
-import {DashboardDeviceDeleteDialogComponent} from "app/layout/common/dashboard-device-delete-dialog/dashboard-device-delete-dialog.component";
-import {DeviceTitlePipe} from "app/shared/device-title.pipe";
+import {DashboardDeviceDeleteDialogComponent} from 'app/layout/common/dashboard-device-delete-dialog/dashboard-device-delete-dialog.component';
+import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
 
 @Component({
   selector: 'app-dashboard-device',
@@ -15,13 +15,6 @@ import {DeviceTitlePipe} from "app/shared/device-title.pipe";
   styleUrls: ['./dashboard-device.component.scss']
 })
 export class DashboardDeviceComponent implements OnInit {
-    @Input() deviceSummary: any;
-    @Input() deviceWWN: string;
-    @Output() deviceDeleted = new EventEmitter<string>();
-
-    config: AppConfig;
-
-    private _unsubscribeAll: Subject<any>;
 
     constructor(
         private _configService: TreoConfigService,
@@ -30,6 +23,15 @@ export class DashboardDeviceComponent implements OnInit {
         // Set the private defaults
         this._unsubscribeAll = new Subject();
     }
+    @Input() deviceSummary: any;
+    @Input() deviceWWN: string;
+    @Output() deviceDeleted = new EventEmitter<string>();
+
+    config: AppConfig;
+
+    private _unsubscribeAll: Subject<any>;
+
+    readonly humanizeDuration = humanizeDuration;
 
     ngOnInit(): void {
         // Subscribe to config changes
@@ -45,7 +47,7 @@ export class DashboardDeviceComponent implements OnInit {
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
 
-    classDeviceLastUpdatedOn(deviceSummary){
+    classDeviceLastUpdatedOn(deviceSummary): string {
         if (deviceSummary.device.device_status !== 0) {
             return 'text-red' // if the device has failed, always highlight in red
         } else if(deviceSummary.device.device_status === 0 && deviceSummary.smart){
@@ -65,15 +67,13 @@ export class DashboardDeviceComponent implements OnInit {
         }
     }
 
-    deviceStatusString(deviceStatus){
-        if(deviceStatus == 0){
-            return "passed"
+    deviceStatusString(deviceStatus): string {
+        if(deviceStatus === 0){
+            return 'passed'
         } else {
-            return "failed"
+            return 'failed'
         }
     }
-
-    readonly humanizeDuration = humanizeDuration;
 
 
 

@@ -55,9 +55,9 @@ export class DashboardService
 
     getSummaryTempData(durationKey: string): Observable<any>
     {
-        let params = {}
+        const params = {}
         if(durationKey){
-            params["duration_key"] = durationKey
+            params['duration_key'] = durationKey
         }
 
         return this._httpClient.get(getBasePath() + '/api/summary/temp', {params: params});

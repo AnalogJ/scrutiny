@@ -1,7 +1,7 @@
-import { Layout } from "app/layout/layout.types";
+import { Layout } from 'app/layout/layout.types';
 
 // Theme type
-export type Theme = "light" | "dark" | "system";
+export type Theme = 'light' | 'dark' | 'system';
 
 /**
  * AppConfig interface. Update this interface to strictly type your config
@@ -28,12 +28,12 @@ export interface AppConfig
  * "ConfigService".
  */
 export const appConfig: AppConfig = {
-    theme : "light",
-    layout: "material",
+    theme : 'light',
+    layout: 'material',
 
-    dashboardDisplay: "name",
-    dashboardSort: "status",
+    dashboardDisplay: 'name',
+    dashboardSort: 'status',
 
-    temperatureUnit: "celsius",
+    temperatureUnit: 'celsius',
 };
 

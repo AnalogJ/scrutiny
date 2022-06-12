@@ -9,12 +9,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { SharedModule } from 'app/shared/shared.module';
 import {DetailSettingsComponent} from 'app/layout/common/detail-settings/detail-settings.component'
-import { MatDialogModule } from "@angular/material/dialog";
-import { MatButtonToggleModule} from "@angular/material/button-toggle";
-import {MatTabsModule} from "@angular/material/tabs";
-import {MatSliderModule} from "@angular/material/slider";
-import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {MatTooltipModule} from "@angular/material/tooltip";
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatSliderModule} from '@angular/material/slider';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 @NgModule({
     declarations: [

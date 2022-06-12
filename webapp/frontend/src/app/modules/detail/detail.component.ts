@@ -1,18 +1,17 @@
 import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {ApexOptions} from "ng-apexcharts";
-import {MatTableDataSource} from "@angular/material/table";
-import {MatSort} from "@angular/material/sort";
-import {Subject} from "rxjs";
-import {DetailService} from "./detail.service";
-import {takeUntil} from "rxjs/operators";
-import {fadeOut} from "../../../@treo/animations/fade";
-import {DetailSettingsComponent} from "app/layout/common/detail-settings/detail-settings.component";
-import {MatDialog} from "@angular/material/dialog";
+import {ApexOptions} from 'ng-apexcharts';
+import {MatTableDataSource} from '@angular/material/table';
+import {MatSort} from '@angular/material/sort';
+import {Subject} from 'rxjs';
+import {DetailService} from './detail.service';
+import {takeUntil} from 'rxjs/operators';
+import {DetailSettingsComponent} from 'app/layout/common/detail-settings/detail-settings.component';
+import {MatDialog} from '@angular/material/dialog';
 import humanizeDuration from 'humanize-duration';
-import {TreoConfigService} from "../../../@treo/services/config";
-import {AppConfig} from "../../core/config/app.config";
+import {TreoConfigService} from '@treo/services/config';
+import {AppConfig} from 'app/core/config/app.config';
 import {animate, state, style, transition, trigger} from '@angular/animations';
-import {formatDate} from "@angular/common";
+import {formatDate} from '@angular/common';
 import { LOCALE_ID, Inject } from '@angular/core';
 
 // from Constants.go - these must match
@@ -37,27 +36,6 @@ const AttributeStatusFailedScrutiny = 4
 
 export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
-    config: AppConfig;
-
-    onlyCritical: boolean = true;
-    // data: any;
-    expandedAttribute: any | null;
-
-    metadata: any;
-    device: any;
-    smart_results: any[];
-
-    commonSparklineOptions: Partial<ApexOptions>;
-    smartAttributeDataSource: MatTableDataSource<any>;
-    smartAttributeTableColumns: string[];
-
-    @ViewChild('smartAttributeTable', {read: MatSort})
-    smartAttributeTableMatSort: MatSort;
-
-    // Private
-    private _unsubscribeAll: Subject<any>;
-    private systemPrefersDark: boolean;
-
     /**
      * Constructor
      *
@@ -79,9 +57,32 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         // this.recentTransactionsTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh'];
         this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh','ideal', 'failure', 'history'];
 
-        this.systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        this.systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     }
+
+    config: AppConfig;
+
+    onlyCritical = true;
+    // data: any;
+    expandedAttribute: any | null;
+
+    metadata: any;
+    device: any;
+    smart_results: any[];
+
+    commonSparklineOptions: Partial<ApexOptions>;
+    smartAttributeDataSource: MatTableDataSource<any>;
+    smartAttributeTableColumns: string[];
+
+    @ViewChild('smartAttributeTable', {read: MatSort})
+    smartAttributeTableMatSort: MatSort;
+
+    // Private
+    private _unsubscribeAll: Subject<any>;
+    private systemPrefersDark: boolean;
+
+    readonly humanizeDuration = humanizeDuration;
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -181,7 +182,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
     getAttributeName(attribute_data): string {
-        let attribute_metadata = this.metadata[attribute_data.attribute_id]
+        const attribute_metadata = this.metadata[attribute_data.attribute_id]
         if(!attribute_metadata){
             return 'Unknown Attribute Name'
         } else {
@@ -189,7 +190,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
     getAttributeDescription(attribute_data){
-        let attribute_metadata = this.metadata[attribute_data.attribute_id]
+        const attribute_metadata = this.metadata[attribute_data.attribute_id]
         if(!attribute_metadata){
             return 'Unknown'
         } else {
@@ -200,12 +201,12 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     getAttributeValue(attribute_data){
         if(this.isAta()) {
-            let attribute_metadata = this.metadata[attribute_data.attribute_id]
+            const attribute_metadata = this.metadata[attribute_data.attribute_id]
             if(!attribute_metadata){
                 return attribute_data.value
-            } else if (attribute_metadata.display_type == "raw") {
+            } else if (attribute_metadata.display_type == 'raw') {
                 return attribute_data.raw_value
-            } else if (attribute_metadata.display_type == "transformed" && attribute_data.transformed_value) {
+            } else if (attribute_metadata.display_type == 'transformed' && attribute_data.transformed_value) {
                 return attribute_data.transformed_value
             } else {
                 return attribute_data.value
@@ -218,7 +219,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     getAttributeValueType(attribute_data){
         if(this.isAta()) {
-            let attribute_metadata = this.metadata[attribute_data.attribute_id]
+            const attribute_metadata = this.metadata[attribute_data.attribute_id]
             if(!attribute_metadata){
                 return ''
             } else {
@@ -231,25 +232,25 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     getAttributeIdeal(attribute_data){
         if(this.isAta()){
-            return this.metadata[attribute_data.attribute_id]?.display_type == "raw" ? this.metadata[attribute_data.attribute_id]?.ideal : ''
+            return this.metadata[attribute_data.attribute_id]?.display_type == 'raw' ? this.metadata[attribute_data.attribute_id]?.ideal : ''
         } else {
             return this.metadata[attribute_data.attribute_id]?.ideal
         }
     }
 
     getAttributeWorst(attribute_data){
-        let attribute_metadata = this.metadata[attribute_data.attribute_id]
+        const attribute_metadata = this.metadata[attribute_data.attribute_id]
         if(!attribute_metadata){
             return attribute_data.worst
         } else {
-            return attribute_metadata?.display_type == "normalized" ? attribute_data.worst : ''
+            return attribute_metadata?.display_type == 'normalized' ? attribute_data.worst : ''
         }
     }
 
     getAttributeThreshold(attribute_data){
         if(this.isAta()){
-            let attribute_metadata = this.metadata[attribute_data.attribute_id]
-            if(!attribute_metadata || attribute_metadata.display_type == "normalized"){
+            const attribute_metadata = this.metadata[attribute_data.attribute_id]
+            if(!attribute_metadata || attribute_metadata.display_type == 'normalized'){
                 return attribute_data.thresh
             } else {
                 // if(this.data.metadata[attribute_data.attribute_id].observed_thresholds){
@@ -273,7 +274,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         let attributes_length = 0
-        let attributes = this.smart_results[0]?.attrs
+        const attributes = this.smart_results[0]?.attrs
         if (attributes) {
             attributes_length = Object.keys(attributes).length
         }
@@ -292,12 +293,12 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private _generateSmartAttributeTableDataSource(smart_results){
-        var smartAttributeDataSource = [];
+        const smartAttributeDataSource = [];
 
         if(smart_results.length == 0){
             return smartAttributeDataSource
         }
-        var latest_smart_result = smart_results[0];
+        const latest_smart_result = smart_results[0];
         let attributes = {}
         if(this.isScsi()) {
             this.smartAttributeTableColumns = ['status', 'name', 'value', 'thresh', 'history'];
@@ -306,20 +307,20 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
             this.smartAttributeTableColumns = ['status', 'name', 'value', 'thresh', 'ideal', 'history'];
             attributes = latest_smart_result.attrs
         } else {
-            //ATA
+            // ATA
             attributes = latest_smart_result.attrs
             this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'thresh','ideal', 'failure', 'history'];
         }
 
         for(const attrId in attributes){
-            var attr = attributes[attrId]
+            const attr = attributes[attrId]
 
-            //chart history data
+            // chart history data
             if (!attr.chartData) {
 
 
-                var attrHistory = []
-                for (let smart_result of smart_results){
+                const attrHistory = []
+                for (const smart_result of smart_results){
                     // attrHistory.push(this.getAttributeValue(smart_result.attrs[attrId]))
 
                     const chartDatapoint = {
@@ -342,12 +343,12 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
                 attributes[attrId].chartData = [
                     {
-                        name: "chart-line-sparkline",
+                        name: 'chart-line-sparkline',
                         data: attrHistory
                     }
                 ]
             }
-            //determine when to include the attributes in table.
+            // determine when to include the attributes in table.
 
             if(!this.onlyCritical || this.onlyCritical && this.metadata[attr.attribute_id]?.critical || attr.value < attr.thresh){
                 smartAttributeDataSource.push(attr)
@@ -367,7 +368,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         // Account balance
         this.commonSparklineOptions = {
             chart: {
-                type: "bar",
+                type: 'bar',
                 width: 100,
                 height: 25,
                 sparkline: {
@@ -392,7 +393,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                 y: {
                     title: {
                         formatter: function(seriesName) {
-                            return "";
+                            return '';
                         }
                     }
                 },
@@ -421,7 +422,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // -----------------------------------------------------------------------------------------------------
 
     toHex(decimalNumb){
-        return "0x" + Number(decimalNumb).toString(16).padStart(2, '0').toUpperCase()
+        return '0x' + Number(decimalNumb).toString(16).padStart(2, '0').toUpperCase()
     }
     toggleOnlyCritical(){
         this.onlyCritical = !this.onlyCritical
@@ -448,7 +449,5 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         return index;
         // return item.id || index;
     }
-
-    readonly humanizeDuration = humanizeDuration;
 
 }
