@@ -180,6 +180,33 @@ If Scrutiny detects that an attribute corresponds with a high rate of failure us
 This can cause some confusion when comparing Scrutiny's dashboard against other SMART analysis tools. 
 If you hover over the "failed" label beside an attribute, Scrutiny will tell you if the failure was due to SMART or Scrutiny/BackBlaze data. 
 
+### Device failed but Smart & Scrutiny passed
+
+Device SMART results are the source of truth for Scrutiny, however we don't just take into account the current SMART results, but also histrical analysis of a disk.
+This means that if a device is marked as failed at any point in its history, it will continue to be stored in the database as failed until the device is removed (or status is reset -- see below).
+
+If you'd like to reset the status of a disk (to healthy) and allow the next run of the collector to determine the actual status, you can run the following command:
+
+```bash
+# connect to scrutiny docker container
+docker exec -it scrutiny bash
+
+# install sqlite CLI tools (inside container)
+apt update && apt install -y sqlite3
+
+# connect to the scrutiny database
+sqlite3 /opt/scrutiny/config/scrutiny.db
+
+# reset/update the devices table, unset the failure status. 
+UPDATE devices SET device_status = null
+
+# exit sqlite CLI
+.exit
+```
+
+
+
+
 
 ## Hub & Spoke model, with multiple Hosts.
 
