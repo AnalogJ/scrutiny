@@ -182,8 +182,15 @@ If you hover over the "failed" label beside an attribute, Scrutiny will tell you
 
 ### Device failed but Smart & Scrutiny passed
 
-Device SMART results are the source of truth for Scrutiny, however we don't just take into account the current SMART results, but also histrical analysis of a disk.
+Device SMART results are the source of truth for Scrutiny, however we don't just take into account the current SMART results, but also historical analysis of a disk.
 This means that if a device is marked as failed at any point in its history, it will continue to be stored in the database as failed until the device is removed (or status is reset -- see below).
+
+In some cases, this historical failure may have been due to attribute analysis/thresholds that have since been relaxed:
+
+- NVME - Numb Error Log Entries (v0.4.7)
+- ATA - Power Cycle Count (v0.4.7)
+- ATA - Read Error Rate (v0.4.13)
+- ATA - Seek Error Rate (v0.4.13)
 
 If you'd like to reset the status of a disk (to healthy) and allow the next run of the collector to determine the actual status, you can run the following command:
 
@@ -204,9 +211,41 @@ UPDATE devices SET device_status = null
 .exit
 ```
 
+### Seagate Drives Failing
 
+As thoroughly discussed in [#255](https://github.com/AnalogJ/scrutiny/issues/255), Seagate (Ironwolf & others) drives are almost always marked as failed by Scrutiny. 
 
+> The `Seek Error Rate` & `Read Error Rate` attribute raw values are typically very high, and the 
+> normalised values (Current / Worst / Threshold) are usually quite low. Despite this, the numbers in most cases are perfectly OK
+> 
+> The anxiety arises because we intuitively expect that the normalised values should reflect a "health" score, with 
+> 100 being the ideal value. Similarly, we would expect that the raw values should reflect an error count, in 
+> which case a value of 0 would be most desirable. However, Seagate calculates and applies these attribute values 
+> in a counterintuitive way.
+> 
+> http://www.users.on.net/~fzabkar/HDD/Seagate_SER_RRER_HEC.html
 
+Some analysis has been done which shows that Seagate drives break the common SMART conventions, which also causes Scrutiny's
+comparison against BackBlaze data to detect these drives as failed. 
+
+**So what's the Solution?**
+
+After taking a look at the BackBlaze data for the relevant Attributes (`Seek Error Rate` & `Read Error Rate`), I've decided
+to disable Scrutiny analysis for them. Both are non-critical, and have low-correlation with failure.
+
+> Please note: SMART failures for these attributes will still cause the drive to be marked as failed. Only BackBlaze analysis has been disabled
+
+If this is effecting your drives, you'll need to do the following:
+
+1. Upgrade to v0.4.13+
+2. Reset your drive status using the SQLite script in [#device-failed-but-smart--scrutiny-passed](https://github.com/AnalogJ/scrutiny/blob/master/docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md#device-failed-but-smart--scrutiny-passed)
+3. Wait for (or manually start) the collector.
+
+If you'd like to learn more about how the Seagate Ironwolf SMART attributes work under the hood, and how they differ from
+other drives, please read the following:
+
+- http://www.users.on.net/~fzabkar/HDD/Seagate_SER_RRER_HEC.html
+- https://www.truenas.com/community/threads/seagate-ironwolf-smart-test-raw_read_error_rate-seek_error_rate.68634/
 
 ## Hub & Spoke model, with multiple Hosts.
 
