@@ -213,7 +213,7 @@ UPDATE devices SET device_status = null
 
 ### Seagate Drives Failing
 
-As thoroughly discussed in #255, Seagate (Ironwolf & others) drives are almost always marked as failed by Scrutiny. 
+As thoroughly discussed in [#255](https://github.com/AnalogJ/scrutiny/issues/255), Seagate (Ironwolf & others) drives are almost always marked as failed by Scrutiny. 
 
 > The `Seek Error Rate` & `Read Error Rate` attribute raw values are typically very high, and the 
 > normalised values (Current / Worst / Threshold) are usually quite low. Despite this, the numbers in most cases are perfectly OK
