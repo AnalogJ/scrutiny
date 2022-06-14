@@ -36,56 +36,6 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 		Ideal:       ObservedThresholdIdealLow,
 		Critical:    false,
 		Description: "(Vendor specific raw value.) Stores data related to the rate of hardware read errors that occurred when reading data from a disk surface. The raw value has different structure for different vendors and is often not meaningful as a decimal number.",
-		ObservedThresholds: []ObservedThreshold{
-			{
-				Low:               80,
-				High:              95,
-				AnnualFailureRate: 0.8879749768303985,
-				ErrorInterval:     []float64{0.682344353388663, 1.136105732920724},
-			},
-			{
-				Low:               95,
-				High:              110,
-				AnnualFailureRate: 0.034155719633986996,
-				ErrorInterval:     []float64{0.030188482024981093, 0.038499386872354435},
-			},
-			{
-				Low:               110,
-				High:              125,
-				AnnualFailureRate: 0.06390002135229157,
-				ErrorInterval:     []float64{0.05852004676110847, 0.06964160930553712},
-			},
-			{
-				Low:               125,
-				High:              140,
-				AnnualFailureRate: 0,
-				ErrorInterval:     []float64{0, 0},
-			},
-			{
-				Low:               140,
-				High:              155,
-				AnnualFailureRate: 0,
-				ErrorInterval:     []float64{0, 0},
-			},
-			{
-				Low:               155,
-				High:              170,
-				AnnualFailureRate: 0,
-				ErrorInterval:     []float64{0, 0},
-			},
-			{
-				Low:               170,
-				High:              185,
-				AnnualFailureRate: 0,
-				ErrorInterval:     []float64{0, 0},
-			},
-			{
-				Low:               185,
-				High:              200,
-				AnnualFailureRate: 0.044823775021490854,
-				ErrorInterval:     []float64{0.032022762038723306, 0.06103725943096589},
-			},
-		},
 	},
 	2: {
 		ID:          2,
@@ -290,56 +240,6 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 		Ideal:       "",
 		Critical:    false,
 		Description: "(Vendor specific raw value.) Rate of seek errors of the magnetic heads. If there is a partial failure in the mechanical positioning system, then seek errors will arise. Such a failure may be due to numerous factors, such as damage to a servo, or thermal widening of the hard disk. The raw value has different structure for different vendors and is often not meaningful as a decimal number.",
-		ObservedThresholds: []ObservedThreshold{
-			{
-				Low:               58,
-				High:              76,
-				AnnualFailureRate: 0.2040131025936549,
-				ErrorInterval:     []float64{0.17032852883286412, 0.2424096283327138},
-			},
-			{
-				Low:               76,
-				High:              94,
-				AnnualFailureRate: 0.08725919610118257,
-				ErrorInterval:     []float64{0.08077138510999876, 0.09412943212007528},
-			},
-			{
-				Low:               94,
-				High:              112,
-				AnnualFailureRate: 0.01087335627722523,
-				ErrorInterval:     []float64{0.008732197944943352, 0.013380600544561905},
-			},
-			{
-				Low:               112,
-				High:              130,
-				AnnualFailureRate: 0,
-				ErrorInterval:     []float64{0, 0},
-			},
-			{
-				Low:               130,
-				High:              148,
-				AnnualFailureRate: 0,
-				ErrorInterval:     []float64{0, 0},
-			},
-			{
-				Low:               148,
-				High:              166,
-				AnnualFailureRate: 0,
-				ErrorInterval:     []float64{0, 0},
-			},
-			{
-				Low:               166,
-				High:              184,
-				AnnualFailureRate: 0,
-				ErrorInterval:     []float64{0, 0},
-			},
-			{
-				Low:               184,
-				High:              202,
-				AnnualFailureRate: 0.05316285755900475,
-				ErrorInterval:     []float64{0.03370069132942804, 0.07977038905848267},
-			},
-		},
 	},
 	8: {
 		ID:          8,
