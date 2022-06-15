@@ -205,7 +205,7 @@ apt update && apt install -y sqlite3
 sqlite3 /opt/scrutiny/config/scrutiny.db
 
 # reset/update the devices table, unset the failure status. 
-UPDATE devices SET device_status = null
+UPDATE devices SET device_status = null;
 
 # exit sqlite CLI
 .exit
