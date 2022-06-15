@@ -1,6 +1,6 @@
 # Install collector on Synology
 
-### Install Entware
+## Install Entware
 
 This will allow you to install a newer version of smartmontools on your Synology. Follow the instructions here (This is tested on DSM7) - https://github.com/Entware/Entware/wiki/Install-on-Synology-NAS
 
@@ -49,7 +49,7 @@ wget https://raw.githubusercontent.com/AnalogJ/scrutiny/master/example.collector
 mv example.collector.yaml collector.yaml
 ```
 
-**8. Lets make some changes in the config file, these are what i uncommented/added, please tweak the device paths to your needs**
+**8. Lets make some changes in the [collector config file](../example.collector.yaml), these are what i uncommented/added, please tweak the device paths to your needs**
 
 ```
 host:
@@ -127,3 +127,8 @@ Frequency: <Your desired frequency>
 ```
 . /opt/etc/profile; /volume1/\@Entware/scrutiny/bin/run_collect.sh
 ```
+
+
+## Troubleshooting
+
+If you have any issues with your devices being detected, or incorrect data, please take a look at [TROUBLESHOOTING_DEVICE_COLLECTOR.md](./TROUBLESHOOTING_DEVICE_COLLECTOR.md)

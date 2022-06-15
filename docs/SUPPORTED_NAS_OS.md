@@ -7,10 +7,11 @@ Once a guide is created (in `docs/guides/`) it will be linked here.
 - [x] [unraid](./INSTALL_UNRAID.md)
 - [ ] ESXI
 - [ ] Proxmox
-- [ ] Synology
+- [x] Synology(./INSTALL_SYNOLOGY_COLLECTOR.md)
 - [ ] OMV
 - [ ] Amahi
 - [ ] Running in a LXC container
 - [x] [PFSense](./INSTALL_UNRAID.md)
 - [ ] QNAP
+- [ ] RockStor
 
