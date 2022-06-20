@@ -29,7 +29,7 @@ type Detect struct {
 func (d *Detect) SmartctlScan() ([]models.Device, error) {
 	//we use smartctl to detect all the drives available.
 	args := strings.Split(d.Config.GetString("commands.metrics_scan_args"), " ")
-	detectedDeviceConnJson, err := d.Shell.Command(d.Logger, "smartctl", args, "", os.Environ())
+	detectedDeviceConnJson, err := d.Shell.Command(d.Logger, d.Config.GetString("commands.metrics_smartctl_bin"), args, "", os.Environ())
 	if err != nil {
 		d.Logger.Errorf("Error scanning for devices: %v", err)
 		return nil, err
@@ -60,7 +60,7 @@ func (d *Detect) SmartCtlInfo(device *models.Device) error {
 	}
 	args = append(args, fullDeviceName)
 
-	availableDeviceInfoJson, err := d.Shell.Command(d.Logger, "smartctl", args, "", os.Environ())
+	availableDeviceInfoJson, err := d.Shell.Command(d.Logger, d.Config.GetString("commands.metrics_smartctl_bin"), args, "", os.Environ())
 	if err != nil {
 		d.Logger.Errorf("Could not retrieve device information for %s: %v", device.DeviceName, err)
 		return err

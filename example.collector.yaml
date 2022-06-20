@@ -73,6 +73,7 @@ devices:
 
 # example to show how to override the smartctl command args globally
 #commands:
+#  metrics_smartctl_bin: 'smartctl' # change to provide custom `smartctl` binary path, eg. `/usr/sbin/smartctl`
 #  metrics_scan_args: '--scan --json' # used to detect devices
 #  metrics_info_args: '--info --json' # used to determine device unique ID & register device with Scrutiny
 #  metrics_smart_args: '--xall --json' # used to retrieve smart data for each device.
