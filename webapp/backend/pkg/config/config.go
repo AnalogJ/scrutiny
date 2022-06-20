@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/analogj/go-util/utils"
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
 	"github.com/spf13/viper"
 	"log"
@@ -38,6 +39,8 @@ func (c *configuration) Init() error {
 	c.SetDefault("log.file", "")
 
 	c.SetDefault("notify.urls", []string{})
+	c.SetDefault("notify.filter_attributes", pkg.NotifyFilterAttributesAll)
+	c.SetDefault("notify.level", pkg.NotifyLevelFail)
 
 	c.SetDefault("web.influxdb.scheme", "http")
 	c.SetDefault("web.influxdb.host", "localhost")

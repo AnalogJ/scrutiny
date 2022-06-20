@@ -6,7 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/analogj/go-util/utils"
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"github.com/containrrr/shoutrrr"
 	shoutrrrTypes "github.com/containrrr/shoutrrr/pkg/types"
 	"github.com/sirupsen/logrus"
@@ -14,28 +18,130 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
 
 const NotifyFailureTypeEmailTest = "EmailTest"
-const NotifyFailureTypeSmartPrefail = "SmartPreFailure"
+const NotifyFailureTypeBothFailure = "SmartFailure" //SmartFailure always takes precedence when Scrutiny & Smart failed.
 const NotifyFailureTypeSmartFailure = "SmartFailure"
-const NotifyFailureTypeSmartErrorLog = "SmartErrorLog"
-const NotifyFailureTypeSmartSelfTest = "SmartSelfTestLog"
+const NotifyFailureTypeScrutinyFailure = "ScrutinyFailure"
+
+// ShouldNotify check if the error Message should be filtered (level mismatch or filtered_attributes)
+func ShouldNotify(device models.Device, smartAttrs measurements.Smart, notifyLevel string, notifyFilterAttributes string) bool {
+	// 1. check if the device is healthy
+	if device.DeviceStatus == pkg.DeviceStatusPassed {
+		return false
+	}
+
+	// setup constants for comparison
+	var requiredDeviceStatus pkg.DeviceStatus
+	var requiredAttrStatus pkg.AttributeStatus
+	if notifyLevel == pkg.NotifyLevelFail {
+		// either scrutiny or smart failures should trigger an email
+		requiredDeviceStatus = pkg.DeviceStatusSet(pkg.DeviceStatusFailedSmart, pkg.DeviceStatusFailedScrutiny)
+		requiredAttrStatus = pkg.AttributeStatusSet(pkg.AttributeStatusFailedSmart, pkg.AttributeStatusFailedScrutiny)
+	} else if notifyLevel == pkg.NotifyLevelFailSmart {
+		//only smart failures
+		requiredDeviceStatus = pkg.DeviceStatusFailedSmart
+		requiredAttrStatus = pkg.AttributeStatusFailedSmart
+	} else {
+		requiredDeviceStatus = pkg.DeviceStatusFailedScrutiny
+		requiredAttrStatus = pkg.AttributeStatusFailedScrutiny
+	}
+
+	// 2. check if the attributes that are failing should be filtered (non-critical)
+	// 3. for any unfiltered attribute, store the failure reason (Smart or Scrutiny)
+	if notifyFilterAttributes == pkg.NotifyFilterAttributesCritical {
+		hasFailingCriticalAttr := false
+		var statusFailingCrtiticalAttr pkg.AttributeStatus
+
+		for attrId, attrData := range smartAttrs.Attributes {
+			//find failing attribute
+			if attrData.GetStatus() == pkg.AttributeStatusPassed {
+				continue //skip all passing attributes
+			}
+
+			// merge the status's of all critical attributes
+			statusFailingCrtiticalAttr = pkg.AttributeStatusSet(statusFailingCrtiticalAttr, attrData.GetStatus())
+
+			//found a failing attribute, see if its critical
+			if device.IsScsi() && thresholds.ScsiMetadata[attrId].Critical {
+				hasFailingCriticalAttr = true
+			} else if device.IsNvme() && thresholds.NmveMetadata[attrId].Critical {
+				hasFailingCriticalAttr = true
+			} else {
+				//this is ATA
+				attrIdInt, err := strconv.Atoi(attrId)
+				if err != nil {
+					continue
+				}
+				if thresholds.AtaMetadata[attrIdInt].Critical {
+					hasFailingCriticalAttr = true
+				}
+			}
+
+		}
+
+		if !hasFailingCriticalAttr {
+			//no critical attributes are failing, and notifyFilterAttributes == "critical"
+			return false
+		} else {
+			// check if any of the critical attributes have a status that we're looking for
+			return pkg.AttributeStatusHas(statusFailingCrtiticalAttr, requiredAttrStatus)
+		}
+
+	} else {
+		// 2. SKIP - we are processing every attribute.
+		// 3. check if the device failure level matches the wanted failure level.
+		return pkg.DeviceStatusHas(device.DeviceStatus, requiredDeviceStatus)
+	}
+}
 
 // TODO: include host and/or user label for device.
 type Payload struct {
-	Date         string `json:"date"`          //populated by Send function.
-	FailureType  string `json:"failure_type"`  //EmailTest, SmartFail, ScrutinyFail
 	DeviceType   string `json:"device_type"`   //ATA/SCSI/NVMe
 	DeviceName   string `json:"device_name"`   //dev/sda
 	DeviceSerial string `json:"device_serial"` //WDDJ324KSO
 	Test         bool   `json:"test"`          // false
 
-	//should not be populated
-	Subject string `json:"subject"`
-	Message string `json:"message"`
+	//private, populated during init (marked as Public for JSON serialization)
+	Date        string `json:"date"`         //populated by Send function.
+	FailureType string `json:"failure_type"` //EmailTest, BothFail, SmartFail, ScrutinyFail
+	Subject     string `json:"subject"`
+	Message     string `json:"message"`
+}
+
+func NewPayload(device models.Device, test bool) Payload {
+	payload := Payload{
+		DeviceType:   device.DeviceType,
+		DeviceName:   device.DeviceName,
+		DeviceSerial: device.SerialNumber,
+		Test:         test,
+	}
+
+	//validate that the Payload is populated
+	sendDate := time.Now()
+	payload.Date = sendDate.Format(time.RFC3339)
+	payload.FailureType = payload.GenerateFailureType(device.DeviceStatus)
+	payload.Subject = payload.GenerateSubject()
+	payload.Message = payload.GenerateMessage()
+	return payload
+}
+
+func (p *Payload) GenerateFailureType(deviceStatus pkg.DeviceStatus) string {
+	//generate a failure type, given Test and DeviceStatus
+	if p.Test {
+		return NotifyFailureTypeEmailTest // must be an email test if "Test" is true
+	}
+	if pkg.DeviceStatusHas(deviceStatus, pkg.DeviceStatusFailedSmart) && pkg.DeviceStatusHas(deviceStatus, pkg.DeviceStatusFailedScrutiny) {
+		return NotifyFailureTypeBothFailure //both failed
+	} else if pkg.DeviceStatusHas(deviceStatus, pkg.DeviceStatusFailedSmart) {
+		return NotifyFailureTypeSmartFailure //only SMART failed
+	} else {
+		return NotifyFailureTypeScrutinyFailure //only Scrutiny failed
+	}
 }
 
 func (p *Payload) GenerateSubject() string {
@@ -61,6 +167,14 @@ Date: %s`, p.DeviceName, p.FailureType, p.DeviceName, p.DeviceSerial, p.DeviceTy
 	return message
 }
 
+func New(logger logrus.FieldLogger, appconfig config.Interface, device models.Device, test bool) Notify {
+	return Notify{
+		Logger:  logger,
+		Config:  appconfig,
+		Payload: NewPayload(device, test),
+	}
+}
+
 type Notify struct {
 	Logger  logrus.FieldLogger
 	Config  config.Interface
@@ -68,11 +182,6 @@ type Notify struct {
 }
 
 func (n *Notify) Send() error {
-	//validate that the Payload is populated
-	sendDate := time.Now()
-	n.Payload.Date = sendDate.Format(time.RFC3339)
-	n.Payload.Subject = n.Payload.GenerateSubject()
-	n.Payload.Message = n.Payload.GenerateMessage()
 
 	//retrieve list of notification endpoints from config file
 	configUrls := n.Config.GetStringSlice("notify.urls")

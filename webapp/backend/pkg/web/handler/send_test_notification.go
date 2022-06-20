@@ -15,17 +15,16 @@ func SendTestNotification(c *gin.Context) {
 	appConfig := c.MustGet("CONFIG").(config.Interface)
 	logger := c.MustGet("LOGGER").(logrus.FieldLogger)
 
-	testNotify := notify.Notify{
-		Logger: logger,
-		Config: appConfig,
-		Payload: notify.Payload{
-			FailureType:  "EmailTest",
-			DeviceSerial: "FAKEWDDJ324KSO",
+	testNotify := notify.New(
+		logger,
+		appConfig,
+		models.Device{
+			SerialNumber: "FAKEWDDJ324KSO",
 			DeviceType:   pkg.DeviceProtocolAta,
 			DeviceName:   "/dev/sda",
-			Test:         true,
 		},
-	}
+		true,
+	)
 	err := testNotify.Send()
 	if err != nil {
 		logger.Errorln("An error occurred while sending test notification", err)
