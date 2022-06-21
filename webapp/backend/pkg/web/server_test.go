@@ -186,6 +186,8 @@ func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 	} else {
 		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
 	}
+	fakeConfig.EXPECT().GetString("notify.level").AnyTimes().Return(pkg.NotifyLevelFail)
+	fakeConfig.EXPECT().GetString("notify.filter_attributes").AnyTimes().Return(pkg.NotifyFilterAttributesAll)
 
 	ae := web.AppEngine{
 		Config: fakeConfig,
