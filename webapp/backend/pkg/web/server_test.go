@@ -219,6 +219,8 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	//fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return("testdata/scrutiny_test.db")
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").Return([]string{}).AnyTimes()
+	fakeConfig.EXPECT().GetString("notify.level").AnyTimes().Return(pkg.NotifyLevelFail)
+	fakeConfig.EXPECT().GetString("notify.filter_attributes").AnyTimes().Return(pkg.NotifyFilterAttributesAll)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
@@ -326,6 +328,9 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_WebhookFailure() {
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"https://unroutable.domain.example.asdfghj"})
+	fakeConfig.EXPECT().GetString("notify.level").AnyTimes().Return(pkg.NotifyLevelFail)
+	fakeConfig.EXPECT().GetString("notify.filter_attributes").AnyTimes().Return(pkg.NotifyFilterAttributesAll)
+
 	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
 		// when running test suite in github actions, we run an influxdb service as a sidecar.
 		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
@@ -365,6 +370,9 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptFailure() {
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"script:///missing/path/on/disk"})
+	fakeConfig.EXPECT().GetString("notify.level").AnyTimes().Return(pkg.NotifyLevelFail)
+	fakeConfig.EXPECT().GetString("notify.filter_attributes").AnyTimes().Return(pkg.NotifyFilterAttributesAll)
+
 	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
 		// when running test suite in github actions, we run an influxdb service as a sidecar.
 		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
@@ -404,6 +412,9 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptSuccess() {
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"script:///usr/bin/env"})
+	fakeConfig.EXPECT().GetString("notify.level").AnyTimes().Return(pkg.NotifyLevelFail)
+	fakeConfig.EXPECT().GetString("notify.filter_attributes").AnyTimes().Return(pkg.NotifyFilterAttributesAll)
+
 	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
 		// when running test suite in github actions, we run an influxdb service as a sidecar.
 		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
@@ -443,6 +454,9 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ShoutrrrFailure() {
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"discord://invalidtoken@channel"})
+	fakeConfig.EXPECT().GetString("notify.level").AnyTimes().Return(pkg.NotifyLevelFail)
+	fakeConfig.EXPECT().GetString("notify.filter_attributes").AnyTimes().Return(pkg.NotifyFilterAttributesAll)
+
 	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
 		// when running test suite in github actions, we run an influxdb service as a sidecar.
 		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
@@ -481,6 +495,8 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{})
+	fakeConfig.EXPECT().GetString("notify.level").AnyTimes().Return(pkg.NotifyLevelFail)
+	fakeConfig.EXPECT().GetString("notify.filter_attributes").AnyTimes().Return(pkg.NotifyFilterAttributesAll)
 	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
 		// when running test suite in github actions, we run an influxdb service as a sidecar.
 		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
