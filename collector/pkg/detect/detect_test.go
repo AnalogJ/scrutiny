@@ -241,3 +241,59 @@ func TestDetect_TransformDetectedDevices_Simple(t *testing.T) {
 	require.Equal(t, 1, len(transformedDevices))
 	require.Equal(t, "sat+megaraid", transformedDevices[0].DeviceType)
 }
+
+// test https://github.com/AnalogJ/scrutiny/issues/255#issuecomment-1164024126
+func TestDetect_TransformDetectedDevices_WithoutDeviceTypeOverride(t *testing.T) {
+	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
+	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
+	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{{Device: "/dev/sda"}})
+	detectedDevices := models.Scan{
+		Devices: []models.ScanDevice{
+			{
+				Name:     "/dev/sda",
+				InfoName: "/dev/sda",
+				Protocol: "ata",
+				Type:     "scsi",
+			},
+		},
+	}
+
+	d := detect.Detect{
+		Config: fakeConfig,
+	}
+
+	//test
+	transformedDevices := d.TransformDetectedDevices(detectedDevices)
+
+	//assert
+	require.Equal(t, 1, len(transformedDevices))
+	require.Equal(t, "scsi", transformedDevices[0].DeviceType)
+}
+
+func TestDetect_TransformDetectedDevices_WhenDeviceNotDetected(t *testing.T) {
+	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
+	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
+	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{{Device: "/dev/sda"}})
+	detectedDevices := models.Scan{}
+
+	d := detect.Detect{
+		Config: fakeConfig,
+	}
+
+	//test
+	transformedDevices := d.TransformDetectedDevices(detectedDevices)
+
+	//assert
+	require.Equal(t, 1, len(transformedDevices))
+	require.Equal(t, "ata", transformedDevices[0].DeviceType)
+}
