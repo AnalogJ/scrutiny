@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {AppConfig} from 'app/core/config/app.config';
 import { TreoConfigService } from '@treo/services/config';
-import {Subject} from "rxjs";
-import {takeUntil} from "rxjs/operators";
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard-settings',

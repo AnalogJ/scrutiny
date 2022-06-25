@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import {formatNumber} from "@angular/common";
+import {formatNumber} from '@angular/common';
 
 @Pipe({
   name: 'temperature'

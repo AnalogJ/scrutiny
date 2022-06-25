@@ -1,33 +1,33 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import {DeviceTitlePipe} from "./device-title.pipe";
+import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
 
 @Pipe({
   name: 'deviceSort'
 })
 export class DeviceSortPipe implements PipeTransform {
 
-    statusCompareFn(a: any, b: any) {
+    statusCompareFn(a: any, b: any): number {
         function deviceStatus(deviceSummary): number {
             if(!deviceSummary.smart){
                 return 0
-            } else if (deviceSummary.device.device_status == 0){
+            } else if (deviceSummary.device.device_status === 0){
                 return 1
             } else {
                 return deviceSummary.device.device_status * -1 // will return range from -1, -2, -3
             }
         }
 
-        let left = deviceStatus(a)
-        let right = deviceStatus(b)
+        const left = deviceStatus(a)
+        const right = deviceStatus(b)
 
         return left - right;
     }
 
     titleCompareFn(dashboardDisplay: string) {
         return function (a: any, b: any){
-            let _dashboardDisplay = dashboardDisplay
-            let left = DeviceTitlePipe.deviceTitleForType(a.device, _dashboardDisplay) || DeviceTitlePipe.deviceTitleForType(a.device, 'name')
-            let right = DeviceTitlePipe.deviceTitleForType(b.device, _dashboardDisplay) || DeviceTitlePipe.deviceTitleForType(b.device, 'name')
+            const _dashboardDisplay = dashboardDisplay
+            const left = DeviceTitlePipe.deviceTitleForType(a.device, _dashboardDisplay) || DeviceTitlePipe.deviceTitleForType(a.device, 'name')
+            const right = DeviceTitlePipe.deviceTitleForType(b.device, _dashboardDisplay) || DeviceTitlePipe.deviceTitleForType(b.device, 'name')
 
             if( left < right )
                 return -1;
@@ -39,7 +39,7 @@ export class DeviceSortPipe implements PipeTransform {
         }
     }
 
-    ageCompareFn(a: any, b: any) {
+    ageCompareFn(a: any, b: any): number {
         const left = a.smart?.power_on_hours
         const right = b.smart?.power_on_hours
 

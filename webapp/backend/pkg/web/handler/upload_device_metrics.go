@@ -63,20 +63,16 @@ func UploadDeviceMetrics(c *gin.Context) {
 	}
 
 	//check for error
-	if updatedDevice.DeviceStatus != pkg.DeviceStatusPassed {
+	if notify.ShouldNotify(updatedDevice, smartData, appConfig.GetString("notify.level"), appConfig.GetString("notify.filter_attributes")) {
 		//send notifications
-		testNotify := notify.Notify{
-			Config: appConfig,
-			Payload: notify.Payload{
-				FailureType:  notify.NotifyFailureTypeSmartFailure,
-				DeviceName:   updatedDevice.DeviceName,
-				DeviceType:   updatedDevice.DeviceProtocol,
-				DeviceSerial: updatedDevice.SerialNumber,
-				Test:         false,
-			},
-			Logger: logger,
-		}
-		_ = testNotify.Send() //we ignore error message when sending notifications.
+
+		liveNotify := notify.New(
+			logger,
+			appConfig,
+			updatedDevice,
+			false,
+		)
+		_ = liveNotify.Send() //we ignore error message when sending notifications.
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true})

@@ -4,6 +4,13 @@ const DeviceProtocolAta = "ATA"
 const DeviceProtocolScsi = "SCSI"
 const DeviceProtocolNvme = "NVMe"
 
+const NotifyFilterAttributesAll = "all"
+const NotifyFilterAttributesCritical = "critical"
+
+const NotifyLevelFail = "fail"
+const NotifyLevelFailScrutiny = "fail_scrutiny"
+const NotifyLevelFailSmart = "fail_smart"
+
 type AttributeStatus uint8
 
 const (

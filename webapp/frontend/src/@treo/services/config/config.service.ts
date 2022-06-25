@@ -21,10 +21,10 @@ export class TreoConfigService
     {
         let currentScrutinyConfig = defaultConfig
 
-        let localConfigStr = localStorage.getItem(SCRUTINY_CONFIG_LOCAL_STORAGE_KEY)
+        const localConfigStr = localStorage.getItem(SCRUTINY_CONFIG_LOCAL_STORAGE_KEY)
         if (localConfigStr){
-            //check localstorage for a value
-            let localConfig = JSON.parse(localConfigStr)
+            // check localstorage for a value
+            const localConfig = JSON.parse(localConfigStr)
             currentScrutinyConfig = Object.assign({}, currentScrutinyConfig, localConfig) // make sure defaults are available if missing from localStorage.
         }
         // Set the private defaults
@@ -38,20 +38,20 @@ export class TreoConfigService
     /**
      * Setter and getter for config
      */
-    //Setter
+    // Setter
     set config(value: any)
     {
         // Merge the new config over to the current config
-        let config = _.merge({}, this._config.getValue(), value);
+        const config = _.merge({}, this._config.getValue(), value);
 
-        //Store the config in localstorage
+        // Store the config in localstorage
         localStorage.setItem(SCRUTINY_CONFIG_LOCAL_STORAGE_KEY, JSON.stringify(config));
 
         // Execute the observable
         this._config.next(config);
     }
 
-    //Getter
+    // Getter
     get config$(): Observable<any>
     {
         return this._config.asObservable();

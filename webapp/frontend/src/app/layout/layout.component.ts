@@ -45,7 +45,7 @@ export class LayoutComponent implements OnInit, OnDestroy
         // Set the private defaults
         this._unsubscribeAll = new Subject();
 
-        this.systemPrefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        this.systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     }
 

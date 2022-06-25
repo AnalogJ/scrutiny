@@ -98,10 +98,10 @@ func (mc *MetricsCollector) Run() error {
 
 func (mc *MetricsCollector) Validate() error {
 	mc.logger.Infoln("Verifying required tools")
-	_, lookErr := exec.LookPath("smartctl")
+	_, lookErr := exec.LookPath(mc.config.GetString("commands.metrics_smartctl_bin"))
 
 	if lookErr != nil {
-		return errors.DependencyMissingError("smartctl is missing")
+		return errors.DependencyMissingError(fmt.Sprintf("%s binary is missing", mc.config.GetString("commands.metrics_smartctl_bin")))
 	}
 
 	return nil
@@ -124,7 +124,7 @@ func (mc *MetricsCollector) Collect(deviceWWN string, deviceName string, deviceT
 	}
 	args = append(args, fullDeviceName)
 
-	result, err := mc.shell.Command(mc.logger, "smartctl", args, "", os.Environ())
+	result, err := mc.shell.Command(mc.logger, mc.config.GetString("commands.metrics_smartctl_bin"), args, "", os.Environ())
 	resultBytes := []byte(result)
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {

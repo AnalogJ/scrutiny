@@ -7,11 +7,11 @@ import {ApexOptions, ChartComponent} from 'ng-apexcharts';
 import { DashboardService } from 'app/modules/dashboard/dashboard.service';
 import {MatDialog} from '@angular/material/dialog';
 import { DashboardSettingsComponent } from 'app/layout/common/dashboard-settings/dashboard-settings.component';
-import {AppConfig} from "app/core/config/app.config";
-import {TreoConfigService} from "@treo/services/config";
-import {Router} from "@angular/router";
-import {TemperaturePipe} from "app/shared/temperature.pipe";
-import {DeviceTitlePipe} from "app/shared/device-title.pipe";
+import {AppConfig} from 'app/core/config/app.config';
+import {TreoConfigService} from '@treo/services/config';
+import {Router} from '@angular/router';
+import {TemperaturePipe} from 'app/shared/temperature.pipe';
+import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
 
 @Component({
     selector       : 'example',
@@ -25,12 +25,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     data: any;
     hostGroups: { [hostId: string]: string[] } = {}
     temperatureOptions: ApexOptions;
-    tempDurationKey: string = "forever"
+    tempDurationKey = 'forever'
     config: AppConfig;
 
     // Private
     private _unsubscribeAll: Subject<any>;
-    @ViewChild("tempChart", { static: false }) tempChart: ChartComponent;
+    @ViewChild('tempChart', { static: false }) tempChart: ChartComponent;
 
     /**
      * Constructor
@@ -64,17 +64,17 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((config: AppConfig) => {
 
-                //check if the old config and the new config do not match.
-                let oldConfig = JSON.stringify(this.config)
-                let newConfig = JSON.stringify(config)
+                // check if the old config and the new config do not match.
+                const oldConfig = JSON.stringify(this.config)
+                const newConfig = JSON.stringify(config)
 
-                if(oldConfig != newConfig){
+                if(oldConfig !== newConfig){
                     console.log(`Configuration updated: ${newConfig} vs ${oldConfig}`)
                     // Store the config
                     this.config = config;
 
                     if(oldConfig){
-                        console.log("reloading component...")
+                        console.log('reloading component...')
                         this.refreshComponent()
                     }
                 }
@@ -88,10 +88,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                 // Store the data
                 this.data = data;
 
-                //generate group data.
-                for(let wwn in this.data.data.summary){
-                    let hostid = this.data.data.summary[wwn].device.host_id
-                    let hostDeviceList = this.hostGroups[hostid] || []
+                // generate group data.
+                for(const wwn in this.data.data.summary){
+                    const hostid = this.data.data.summary[wwn].device.host_id
+                    const hostDeviceList = this.hostGroups[hostid] || []
                     hostDeviceList.push(wwn)
                     this.hostGroups[hostid] = hostDeviceList
                 }
@@ -121,34 +121,34 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     // -----------------------------------------------------------------------------------------------------
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
-    private refreshComponent(){
+    private refreshComponent(): void {
 
-        let currentUrl = this.router.url;
+        const currentUrl = this.router.url;
         this.router.routeReuseStrategy.shouldReuseRoute = () => false;
         this.router.onSameUrlNavigation = 'reload';
         this.router.navigate([currentUrl]);
     }
 
-    private _deviceDataTemperatureSeries() {
-        var deviceTemperatureSeries = []
+    private _deviceDataTemperatureSeries(): any[] {
+        const deviceTemperatureSeries = []
 
-        console.log("DEVICE DATA SUMMARY", this.data)
+        console.log('DEVICE DATA SUMMARY', this.data)
 
         for(const wwn in this.data.data.summary){
-            var deviceSummary = this.data.data.summary[wwn]
+            const deviceSummary = this.data.data.summary[wwn]
             if (!deviceSummary.temp_history){
                 continue
             }
 
-            let deviceName = DeviceTitlePipe.deviceTitleWithFallback(deviceSummary.device, this.config.dashboardDisplay)
+            const deviceName = DeviceTitlePipe.deviceTitleWithFallback(deviceSummary.device, this.config.dashboardDisplay)
 
-            var deviceSeriesMetadata = {
+            const deviceSeriesMetadata = {
                 name: deviceName,
                 data: []
             }
 
-            for(let tempHistory of deviceSummary.temp_history){
-                let newDate = new Date(tempHistory.date);
+            for(const tempHistory of deviceSummary.temp_history){
+                const newDate = new Date(tempHistory.date);
                 deviceSeriesMetadata.data.push({
                     x: newDate,
                     y: TemperaturePipe.formatTemperature(tempHistory.temp, this.config.temperatureUnit, false)
@@ -216,9 +216,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
 
-    deviceSummariesForHostGroup(hostGroupWWNs: string[]) {
-        let deviceSummaries = []
-        for(let wwn of hostGroupWWNs){
+    deviceSummariesForHostGroup(hostGroupWWNs: string[]): any[] {
+        const deviceSummaries = []
+        for(const wwn of hostGroupWWNs){
             if(this.data.data.summary[wwn]){
                 deviceSummaries.push(this.data.data.summary[wwn])
             }
@@ -226,7 +226,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         return deviceSummaries
     }
 
-    openDialog() {
+    openDialog(): void {
         const dialogRef = this.dialog.open(DashboardSettingsComponent);
 
         dialogRef.afterClosed().subscribe(result => {
@@ -234,7 +234,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         });
     }
 
-    onDeviceDeleted(wwn: string) {
+    onDeviceDeleted(wwn: string): void {
         delete this.data.data.summary[wwn] // remove the device from the summary list.
     }
 
