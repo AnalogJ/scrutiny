@@ -1,4 +1,4 @@
-package models
+package m20220625184300
 
 import (
 	"gorm.io/gorm"

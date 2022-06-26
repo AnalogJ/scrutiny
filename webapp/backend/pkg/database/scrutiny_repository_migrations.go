@@ -7,6 +7,7 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20201107210306"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220503120000"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220509170100"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220625184300"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
@@ -273,6 +274,14 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 
 				// delete devices with empty `wwn` field (they are impossible to delete manually), and are invalid.
 				return tx.Where("wwn = ?", "").Delete(&models.Device{}).Error
+			},
+		},
+		{
+			ID: "m20220716214900", // settings table.
+			Migrate: func(tx *gorm.DB) error {
+
+				// adding the settings table.
+				return tx.AutoMigrate(m20220625184300.Setting{})
 			},
 		},
 	})
