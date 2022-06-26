@@ -9,9 +9,24 @@ GO_WORKSPACE ?= /go/src/github.com/analogj/scrutiny
 COLLECTOR_BINARY_NAME = scrutiny-collector-metrics
 WEB_BINARY_NAME = scrutiny-web
 LD_FLAGS =
+
+WEB_STATIC_TAGS =
+COLLECTOR_STATIC_TAGS =
+
+
+# enable to build static binaries.
 ifdef STATIC
 LD_FLAGS := $(LD_FLAGS) -extldflags=-static
+WEB_STATIC_TAGS := $(WEB_STATIC_TAGS) -tags "static netgo sqlite_omit_load_extension"
+COLLECTOR_STATIC_TAGS := $(COLLECTOR_STATIC_TAGS) -tags "static netgo"
 endif
+#enable to do cross compilation (build windows/mac binaries on linux)
+ifdef ZIG_CROSS_COMPILE_TARGET
+ZIG_BINARY != which zig
+export CC = $(ZIG_BINARY) cc -target $(ZIG_CROSS_COMPILE_TARGET)
+export CXX = $(ZIG_BINARY) cc -target $(ZIG_CROSS_COMPILE_TARGET)
+endif
+
 ifdef GOOS
 COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME)-$(GOOS)
 WEB_BINARY_NAME := $(WEB_BINARY_NAME)-$(GOOS)
@@ -38,7 +53,8 @@ endif
 all: binary-all
 
 .PHONY: binary-all
-binary-all: binary-web binary-collector binary-frontend
+binary-all: binary-collector binary-web
+	@echo "building all"
 
 .PHONY: binary-clean
 binary-clean:
@@ -46,6 +62,8 @@ binary-clean:
 
 .PHONY: binary-dep
 binary-dep:
+	env
+	go env
 	go mod vendor
 
 .PHONY: binary-test
@@ -58,7 +76,7 @@ binary-test-coverage: binary-dep
 
 .PHONY: binary-collector
 binary-collector: binary-dep
-	go build -ldflags "$(LD_FLAGS)" -o $(COLLECTOR_BINARY_NAME) -tags "static netgo" ./collector/cmd/collector-metrics/
+	go build -ldflags "$(LD_FLAGS)" -o $(COLLECTOR_BINARY_NAME) $(COLLECTOR_STATIC_TAGS) ./collector/cmd/collector-metrics/
 ifneq ($(OS),Windows_NT)
 	chmod +x $(COLLECTOR_BINARY_NAME)
 	file $(COLLECTOR_BINARY_NAME) || true
@@ -68,7 +86,7 @@ endif
 
 .PHONY: binary-web
 binary-web: binary-dep
-	go build -ldflags "$(LD_FLAGS)" -o $(WEB_BINARY_NAME) -tags "static netgo sqlite_omit_load_extension" ./webapp/backend/cmd/scrutiny/
+	go build -ldflags "$(LD_FLAGS)" -o $(WEB_BINARY_NAME) $(WEB_STATIC_TAGS) ./webapp/backend/cmd/scrutiny/
 ifneq ($(OS),Windows_NT)
 	chmod +x $(WEB_BINARY_NAME)
 	file $(WEB_BINARY_NAME) || true

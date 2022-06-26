@@ -23,7 +23,7 @@ jobs:
           - 8086:8086
     env:
       PROJECT_PATH: /go/src/github.com/analogj/scrutiny
-      CGO_ENABLED: 1
+      STATIC: true
     steps:
       - name: Git
         run: |
@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Test
         run: |
-          make clean binary-test-coverage
+          make binary-clean binary-test-coverage
       - name: Generate coverage report
         uses: codecov/codecov-action@v2
         with:
@@ -44,31 +44,40 @@ jobs:
           verbose: true
   build:
     name: Build ${{ matrix.cfg.goos }}/${{ matrix.cfg.goarch }}
-    needs: release
     runs-on: ${{ matrix.cfg.on }}
     env:
       GOOS: ${{ matrix.cfg.goos }}
       GOARCH: ${{ matrix.cfg.goarch }}
       GOARM: ${{ matrix.cfg.goarm }}
+      ZIG_CROSS_COMPILE_TARGET: ${{ matrix.cfg.zig_cc_target }}
+      STATIC: true
     strategy:
       matrix:
         cfg:
           - { on: ubuntu-latest,  goos: linux,      goarch: amd64 }
-          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 5 }
-          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 6 }
-          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 7 }
-          - { on: ubuntu-latest,  goos: linux,      goarch: arm64 }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 5,  zig_cc_target: armv5-linux }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 6,  zig_cc_target: armv6-linux }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 7,  zig_cc_target: armv7-linux }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm64,  zig_cc_target: aarch64v8-linux }
           - { on: macos-latest,   goos: darwin,     goarch: amd64 }
-          - { on: macos-latest,   goos: darwin,     goarch: arm64 }
-          - { on: macos-latest,   goos: freebsd,    goarch: amd64 }
-          - { on: macos-latest,   goos: freebsd,    goarch: arm64 }
-          - { on: windows-latest, goos: windows,    goarch: amd64 }
-          - { on: windows-latest, goos: windows,    goarch: arm64 }
+          - { on: macos-latest,   goos: darwin,     goarch: arm64,  zig_cc_target: aarch64v8-macos }
+          - { on: macos-latest,   goos: freebsd,    goarch: amd64,  zig_cc_target: x86_64-freebsd }
+          - { on: macos-latest,   goos: freebsd,    goarch: arm64,  zig_cc_target: aarch64v8-freebsd }
+          - { on: windows-latest, goos: windows,    goarch: amd64,  zig_cc_target: x86_64-windows-gnu }
+          - { on: windows-latest, goos: windows,    goarch: arm64,  zig_cc_target: aarch64v8-windows-gnu }
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: goto-bus-stop/setup-zig@v1
+        with:
+          version: v0.9
       - name: Build Binaries
         run: |
-          make clean binary-all
 
+          zig version
+          which zig
+          echo $PATH
+          make binary-clean binary-all
       - name: Archive
         uses: actions/upload-artifact@v2
         with:
