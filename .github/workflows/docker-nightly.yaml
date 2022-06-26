@@ -26,7 +26,7 @@ jobs:
           options: -v ${{ github.workspace }}:/work
           run: |
             cd /work
-            make frontend && echo "print contents of /work/dist" && ls -alt /work/dist
+            make binary-frontend && echo "print contents of /work/dist" && ls -alt /work/dist
 
 
       - name: Set up QEMU
