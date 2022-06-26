@@ -11,8 +11,8 @@ const NotifyLevelFail = "fail"
 const NotifyLevelFailScrutiny = "fail_scrutiny"
 const NotifyLevelFailSmart = "fail_smart"
 
+//go:generate stringer -type=AttributeStatus
 type AttributeStatus uint8
-
 const (
 	// AttributeStatusPassed binary, 1,2,4,8,16,32,etc
 	AttributeStatusPassed          AttributeStatus = 0
@@ -29,8 +29,8 @@ func AttributeStatusClear(b, flag AttributeStatus) AttributeStatus  { return b &
 func AttributeStatusToggle(b, flag AttributeStatus) AttributeStatus { return b ^ flag }
 func AttributeStatusHas(b, flag AttributeStatus) bool               { return b&flag != 0 }
 
+//go:generate stringer -type=DeviceStatus
 type DeviceStatus uint8
-
 const (
 	// DeviceStatusPassed binary, 1,2,4,8,16,32,etc
 	DeviceStatusPassed         DeviceStatus = 0
