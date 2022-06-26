@@ -1,66 +1,107 @@
-export CGO_ENABLED = 1
+.ONESHELL: # Applies to every targets in the file! .ONESHELL instructs make to invoke a single instance of the shell and provide it with the entire recipe, regardless of how many lines it contains.
 
+########################################################################################################################
+# Global Env Settings
+########################################################################################################################
+export CGO_ENABLED = 1
 GO_WORKSPACE ?= /go/src/github.com/analogj/scrutiny
 
-BINARY=\
-  linux/amd64   \
-  linux/arm-5   \
-  linux/arm-6   \
-  linux/arm-7   \
-  linux/arm64   \
+COLLECTOR_BINARY_NAME = scrutiny-collector-metrics
+WEB_BINARY_NAME = scrutiny-web
+LD_FLAGS =
+ifdef STATIC
+LD_FLAGS := $(LD_FLAGS) -extldflags=-static
+endif
+ifdef GOOS
+COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME)-$(GOOS)
+WEB_BINARY_NAME := $(WEB_BINARY_NAME)-$(GOOS)
+LD_FLAGS := $(LD_FLAGS) -X main.goos=$(GOOS)
+endif
+ifdef GOARCH
+COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME)-$(GOARCH)
+WEB_BINARY_NAME := $(WEB_BINARY_NAME)-$(GOARCH)
+LD_FLAGS := $(LD_FLAGS) -X main.goarch=$(GOARCH)
+endif
+ifdef GOARM
+COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME)-$(GOARM)
+WEB_BINARY_NAME := $(WEB_BINARY_NAME)-$(GOARM)
+endif
+ifeq ($(OS),Windows_NT)
+COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME).exe
+WEB_BINARY_NAME := $(WEB_BINARY_NAME).exe
+endif
 
-.ONESHELL: # Applies to every targets in the file! .ONESHELL instructs make to invoke a single instance of the shell and provide it with the entire recipe, regardless of how many lines it contains.
-.PHONY: all $(BINARY)
-all: $(BINARY) windows/amd64
+########################################################################################################################
+# Binary
+########################################################################################################################
+.PHONY: all
+all: binary-all
 
-$(BINARY): OS = $(word 1,$(subst /, ,$*))
-$(BINARY): ARCH = $(word 2,$(subst /, ,$*))
-$(BINARY): build/scrutiny-web-%:
-	@echo "building web binary (OS = $(OS), ARCH = $(ARCH))"
-	xgo -v --targets="$(OS)/$(ARCH)" -ldflags "-extldflags=-static -X main.goos=$(OS) -X main.goarch=$(ARCH)" -out scrutiny-web -tags "static netgo sqlite_omit_load_extension" ${GO_WORKSPACE}/webapp/backend/cmd/scrutiny/
+.PHONY: binary-all
+binary-all: binary-web binary-collector binary-frontend
 
-	chmod +x "/build/scrutiny-web-$(OS)-$(ARCH)"
-	file "/build/scrutiny-web-$(OS)-$(ARCH)" || true
-	ldd "/build/scrutiny-web-$(OS)-$(ARCH)" || true
+.PHONY: binary-clean
+binary-clean:
+	go clean
 
-	@echo "building collector binary (OS = $(OS), ARCH = $(ARCH))"
-	xgo -v --targets="$(OS)/$(ARCH)" -ldflags "-extldflags=-static -X main.goos=$(OS) -X main.goarch=$(ARCH)" -out scrutiny-collector-metrics -tags "static netgo" ${GO_WORKSPACE}/collector/cmd/collector-metrics/
+.PHONY: binary-dep
+binary-dep:
+	go mod vendor
 
-	chmod +x "/build/scrutiny-collector-metrics-$(OS)-$(ARCH)"
-	file "/build/scrutiny-collector-metrics-$(OS)-$(ARCH)" || true
-	ldd "/build/scrutiny-collector-metrics-$(OS)-$(ARCH)" || true
+.PHONY: binary-test
+binary-test: binary-dep
+	go test -v -tags "static" ./...
 
-windows/amd64: export OS = windows
-windows/amd64: export ARCH = amd64
-windows/amd64:
-	@echo "building web binary (OS = $(OS), ARCH = $(ARCH))"
-	xgo -v --targets="$(OS)/$(ARCH)" -ldflags "-extldflags=-static -X main.goos=$(OS) -X main.goarch=$(ARCH)" -out scrutiny-web -tags "static netgo sqlite_omit_load_extension" ${GO_WORKSPACE}/webapp/backend/cmd/scrutiny/
+.PHONY: binary-test-coverage
+binary-test-coverage: binary-dep
+	go test -race -coverprofile=coverage.txt -covermode=atomic -v -tags "static" ./...
 
-	@echo "building collector binary (OS = $(OS), ARCH = $(ARCH))"
-	xgo -v --targets="$(OS)/$(ARCH)" -ldflags "-extldflags=-static -X main.goos=$(OS) -X main.goarch=$(ARCH)" -out scrutiny-collector-metrics -tags "static netgo" ${GO_WORKSPACE}/collector/cmd/collector-metrics/
+.PHONY: binary-collector
+binary-collector: binary-dep
+	go build -ldflags "$(LD_FLAGS)" -o $(COLLECTOR_BINARY_NAME) -tags "static netgo" ./collector/cmd/collector-metrics/
+ifneq ($(OS),Windows_NT)
+	chmod +x $(COLLECTOR_BINARY_NAME)
+	file $(COLLECTOR_BINARY_NAME) || true
+	ldd $(COLLECTOR_BINARY_NAME) || true
+	./$(COLLECTOR_BINARY_NAME) || true
+endif
 
+.PHONY: binary-web
+binary-web: binary-dep
+	go build -ldflags "$(LD_FLAGS)" -o $(WEB_BINARY_NAME) -tags "static netgo sqlite_omit_load_extension" ./webapp/backend/cmd/scrutiny/
+ifneq ($(OS),Windows_NT)
+	chmod +x $(WEB_BINARY_NAME)
+	file $(WEB_BINARY_NAME) || true
+	ldd $(WEB_BINARY_NAME) || true
+	./$(WEB_BINARY_NAME) || true
+endif
 
-docker-collector:
-	@echo "building collector docker image"
-	docker build --build-arg TARGETARCH=amd64 -f docker/Dockerfile.collector -t analogj/scrutiny-dev:collector .
-
-docker-web:
-	@echo "building web docker image"
-	docker build --build-arg TARGETARCH=amd64 -f docker/Dockerfile.web -t analogj/scrutiny-dev:web .
-
-docker-omnibus:
-	@echo "building omnibus docker image"
-	docker build --build-arg TARGETARCH=amd64 -f docker/Dockerfile -t analogj/scrutiny-dev:omnibus .
-
+.PHONY: binary-frontend
 # reduce logging, disable angular-cli analytics for ci environment
-frontend: export NPM_CONFIG_LOGLEVEL = warn
-frontend: export NG_CLI_ANALYTICS = false
-frontend:
+binary-frontend: export NPM_CONFIG_LOGLEVEL = warn
+binary-frontend: export NG_CLI_ANALYTICS = false
+binary-frontend:
 	cd webapp/frontend
 	npm install -g @angular/cli@9.1.4
 	mkdir -p $(CURDIR)/dist
 	npm ci
 	npm run build:prod -- --output-path=$(CURDIR)/dist
 
-# clean:
-# 	rm scrutiny-collector-metrics-* scrutiny-web-*
+
+#############
+TARGETARCH ?= amd64
+
+.PHONY: docker-web
+docker-collector:
+	@echo "building collector docker image"
+	docker build --build-arg TARGETARCH=$(TARGETARCH) -f docker/Dockerfile.collector -t analogj/scrutiny-dev:collector .
+
+.PHONY: docker-web
+docker-web:
+	@echo "building web docker image"
+	docker build --build-arg TARGETARCH=$(TARGETARCH) -f docker/Dockerfile.web -t analogj/scrutiny-dev:web .
+
+.PHONY: docker-omnibus
+docker-omnibus:
+	@echo "building omnibus docker image"
+	docker build --build-arg TARGETARCH=$(TARGETARCH) -f docker/Dockerfile -t analogj/scrutiny-dev:omnibus .

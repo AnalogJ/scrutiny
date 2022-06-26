@@ -243,7 +243,7 @@ scrutiny-collector-metrics run --debug --log-file /tmp/collector.log
 | freebsd | collector only. see [#238](https://github.com/AnalogJ/scrutiny/issues/238) |  | 
 | macos-amd64 |  | :white_check_mark: |
 | macos-arm64 |  | :white_check_mark: |
-| windows-amd64 | :white_check_mark: |  |
+| windows-amd64 | :white_check_mark: | WIP, see [#15](https://github.com/AnalogJ/scrutiny/issues/15) |
 
 
 # Contributing
