@@ -3,30 +3,25 @@
 ########################################################################################################################
 # Global Env Settings
 ########################################################################################################################
-export CGO_ENABLED = 1
+export CGO_ENABLED = 0
 GO_WORKSPACE ?= /go/src/github.com/analogj/scrutiny
 
 COLLECTOR_BINARY_NAME = scrutiny-collector-metrics
 WEB_BINARY_NAME = scrutiny-web
 LD_FLAGS =
 
-WEB_STATIC_TAGS =
-COLLECTOR_STATIC_TAGS =
-
+STATIC_TAGS =
+# enable multiarch docker image builds
+DOCKER_TARGETARCH_BUILD_ARG =
+ifdef TARGETARCH
+DOCKER_TARGETARCH_BUILD_ARG := $(DOCKER_TARGETARCH_BUILD_ARG) --build-arg TARGETARCH=$(TARGETARCH)
+endif
 
 # enable to build static binaries.
 ifdef STATIC
 LD_FLAGS := $(LD_FLAGS) -extldflags=-static
-WEB_STATIC_TAGS := $(WEB_STATIC_TAGS) -tags "static netgo sqlite_omit_load_extension"
-COLLECTOR_STATIC_TAGS := $(COLLECTOR_STATIC_TAGS) -tags "static netgo"
+STATIC_TAGS := $(STATIC_TAGS) -tags "static netgo"
 endif
-#enable to do cross compilation (build windows/mac binaries on linux)
-ifdef ZIG_CROSS_COMPILE_TARGET
-ZIG_BINARY != which zig
-export CC = $(ZIG_BINARY) cc -target $(ZIG_CROSS_COMPILE_TARGET)
-export CXX = $(ZIG_BINARY) cc -target $(ZIG_CROSS_COMPILE_TARGET)
-endif
-
 ifdef GOOS
 COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME)-$(GOOS)
 WEB_BINARY_NAME := $(WEB_BINARY_NAME)-$(GOOS)
@@ -68,15 +63,15 @@ binary-dep:
 
 .PHONY: binary-test
 binary-test: binary-dep
-	go test -v -tags "static" ./...
+	go test -v $(STATIC_TAGS) ./...
 
 .PHONY: binary-test-coverage
 binary-test-coverage: binary-dep
-	go test -race -coverprofile=coverage.txt -covermode=atomic -v -tags "static" ./...
+	go test -race -coverprofile=coverage.txt -covermode=atomic -v $(STATIC_TAGS) ./...
 
 .PHONY: binary-collector
 binary-collector: binary-dep
-	go build -ldflags "$(LD_FLAGS)" -o $(COLLECTOR_BINARY_NAME) $(COLLECTOR_STATIC_TAGS) ./collector/cmd/collector-metrics/
+	go build -ldflags "$(LD_FLAGS)" -o $(COLLECTOR_BINARY_NAME) $(STATIC_TAGS) ./collector/cmd/collector-metrics/
 ifneq ($(OS),Windows_NT)
 	chmod +x $(COLLECTOR_BINARY_NAME)
 	file $(COLLECTOR_BINARY_NAME) || true
@@ -86,7 +81,7 @@ endif
 
 .PHONY: binary-web
 binary-web: binary-dep
-	go build -ldflags "$(LD_FLAGS)" -o $(WEB_BINARY_NAME) $(WEB_STATIC_TAGS) ./webapp/backend/cmd/scrutiny/
+	go build -ldflags "$(LD_FLAGS)" -o $(WEB_BINARY_NAME) $(STATIC_TAGS) ./webapp/backend/cmd/scrutiny/
 ifneq ($(OS),Windows_NT)
 	chmod +x $(WEB_BINARY_NAME)
 	file $(WEB_BINARY_NAME) || true
@@ -107,19 +102,17 @@ binary-frontend:
 
 
 #############
-TARGETARCH ?= amd64
-
-.PHONY: docker-web
+.PHONY: docker-collector
 docker-collector:
 	@echo "building collector docker image"
-	docker build --build-arg TARGETARCH=$(TARGETARCH) -f docker/Dockerfile.collector -t analogj/scrutiny-dev:collector .
+	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile.collector -t analogj/scrutiny-dev:collector .
 
 .PHONY: docker-web
 docker-web:
 	@echo "building web docker image"
-	docker build --build-arg TARGETARCH=$(TARGETARCH) -f docker/Dockerfile.web -t analogj/scrutiny-dev:web .
+	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile.web -t analogj/scrutiny-dev:web .
 
 .PHONY: docker-omnibus
 docker-omnibus:
 	@echo "building omnibus docker image"
-	docker build --build-arg TARGETARCH=$(TARGETARCH) -f docker/Dockerfile -t analogj/scrutiny-dev:omnibus .
+	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile -t analogj/scrutiny-dev:omnibus .

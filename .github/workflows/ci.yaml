@@ -55,28 +55,21 @@ jobs:
       matrix:
         cfg:
           - { on: ubuntu-latest,  goos: linux,      goarch: amd64 }
-          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 5,  zig_cc_target: armv5-linux }
-          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 6,  zig_cc_target: armv6-linux }
-          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 7,  zig_cc_target: armv7-linux }
-          - { on: ubuntu-latest,  goos: linux,      goarch: arm64,  zig_cc_target: aarch64v8-linux }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 5 }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 6 }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 7 }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm64 }
           - { on: macos-latest,   goos: darwin,     goarch: amd64 }
-          - { on: macos-latest,   goos: darwin,     goarch: arm64,  zig_cc_target: aarch64v8-macos }
-          - { on: macos-latest,   goos: freebsd,    goarch: amd64,  zig_cc_target: x86_64-freebsd }
-          - { on: macos-latest,   goos: freebsd,    goarch: arm64,  zig_cc_target: aarch64v8-freebsd }
-          - { on: windows-latest, goos: windows,    goarch: amd64,  zig_cc_target: x86_64-windows-gnu }
-          - { on: windows-latest, goos: windows,    goarch: arm64,  zig_cc_target: aarch64v8-windows-gnu }
+          - { on: macos-latest,   goos: darwin,     goarch: arm64 }
+          - { on: macos-latest,   goos: freebsd,    goarch: amd64 }
+          - { on: macos-latest,   goos: freebsd,    goarch: arm64 }
+          - { on: windows-latest, goos: windows,    goarch: amd64 }
+          - { on: windows-latest, goos: windows,    goarch: arm64 }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - uses: goto-bus-stop/setup-zig@v1
-        with:
-          version: v0.9
       - name: Build Binaries
         run: |
-
-          zig version
-          which zig
-          echo $PATH
           make binary-clean binary-all
       - name: Archive
         uses: actions/upload-artifact@v2
