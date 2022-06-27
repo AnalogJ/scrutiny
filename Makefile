@@ -68,7 +68,7 @@ binary-test: binary-dep
 
 .PHONY: binary-test-coverage
 binary-test-coverage: binary-dep
-	go test -race -coverprofile=coverage.txt -covermode=atomic -v $(STATIC_TAGS) ./...
+	go test -coverprofile=coverage.txt -covermode=atomic -v $(STATIC_TAGS) ./...
 
 .PHONY: binary-collector
 binary-collector: binary-dep
