@@ -49,7 +49,6 @@ jobs:
       GOOS: ${{ matrix.cfg.goos }}
       GOARCH: ${{ matrix.cfg.goarch }}
       GOARM: ${{ matrix.cfg.goarm }}
-      ZIG_CROSS_COMPILE_TARGET: ${{ matrix.cfg.zig_cc_target }}
       STATIC: true
     strategy:
       matrix:
@@ -62,7 +61,6 @@ jobs:
           - { on: macos-latest,   goos: darwin,     goarch: amd64 }
           - { on: macos-latest,   goos: darwin,     goarch: arm64 }
           - { on: macos-latest,   goos: freebsd,    goarch: amd64 }
-          - { on: macos-latest,   goos: freebsd,    goarch: arm64 }
           - { on: windows-latest, goos: windows,    goarch: amd64 }
           - { on: windows-latest, goos: windows,    goarch: arm64 }
     steps:

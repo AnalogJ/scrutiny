@@ -3,7 +3,7 @@
 ########################################################################################################################
 # Global Env Settings
 ########################################################################################################################
-export CGO_ENABLED = 0
+
 GO_WORKSPACE ?= /go/src/github.com/analogj/scrutiny
 
 COLLECTOR_BINARY_NAME = scrutiny-collector-metrics
@@ -19,6 +19,7 @@ endif
 
 # enable to build static binaries.
 ifdef STATIC
+export CGO_ENABLED = 0
 LD_FLAGS := $(LD_FLAGS) -extldflags=-static
 STATIC_TAGS := $(STATIC_TAGS) -tags "static netgo"
 endif
