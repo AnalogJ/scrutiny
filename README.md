@@ -232,18 +232,18 @@ scrutiny-collector-metrics run --debug --log-file /tmp/collector.log
 
 # Supported Architectures
 
-
 | Architecture Name | Binaries | Docker |
 | --- | --- | --- |
-| amd64 | :white_check_mark: | :white_check_mark: |
-| arm-5 | :white_check_mark: |  |
-| arm-6 | :white_check_mark: |  |
-| arm-7 | :white_check_mark: | web/collector only. see [#236](https://github.com/AnalogJ/scrutiny/issues/236)  |
-| arm64 | :white_check_mark: | :white_check_mark: |
-| freebsd | collector only. see [#238](https://github.com/AnalogJ/scrutiny/issues/238) |  | 
+| linux-amd64 | :white_check_mark: | :white_check_mark: |
+| linux-arm-5 | :white_check_mark: |  |
+| linux-arm-6 | :white_check_mark: |  |
+| linux-arm-7 | :white_check_mark: | web/collector only. see [#236](https://github.com/AnalogJ/scrutiny/issues/236)  |
+| linux-arm64 | :white_check_mark: | :white_check_mark: |
+| freebsd-amd64 | collector only. see [#238](https://github.com/AnalogJ/scrutiny/issues/238) |  | 
 | macos-amd64 |  | :white_check_mark: |
 | macos-arm64 |  | :white_check_mark: |
 | windows-amd64 | :white_check_mark: | WIP, see [#15](https://github.com/AnalogJ/scrutiny/issues/15) |
+| windows-arm64 | :white_check_mark: |  |
 
 
 # Contributing

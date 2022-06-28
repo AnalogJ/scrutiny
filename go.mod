@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/analogj/go-util v0.0.0-20190301173314-5295e364eb14
-	github.com/citilinkru/libudev v1.0.0
 	github.com/containrrr/shoutrrr v0.4.4
 	github.com/fatih/color v1.10.0
 	github.com/gin-gonic/gin v1.6.3
@@ -24,6 +23,7 @@ require (
 
 require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
+	github.com/citilinkru/libudev v1.0.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/deepmap/oapi-codegen v1.8.2 // indirect

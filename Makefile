@@ -50,7 +50,8 @@ all: binary-all
 
 .PHONY: binary-all
 binary-all: binary-collector binary-web
-	@echo "building all"
+	@echo "built binary-collector and binary-web targets"
+
 
 .PHONY: binary-clean
 binary-clean:
@@ -58,8 +59,6 @@ binary-clean:
 
 .PHONY: binary-dep
 binary-dep:
-	env
-	go env
 	go mod vendor
 
 .PHONY: binary-test
@@ -102,7 +101,11 @@ binary-frontend:
 	npm run build:prod -- --output-path=$(CURDIR)/dist
 
 
-#############
+########################################################################################################################
+# Docker
+# NOTE: these docker make targets are only used for local development (not used by Github Actions/CI)
+# NOTE: docker-web and docker-omnibus require `make binary-frontend` or frontend.tar.gz content in /dist before executing.
+########################################################################################################################
 .PHONY: docker-collector
 docker-collector:
 	@echo "building collector docker image"
