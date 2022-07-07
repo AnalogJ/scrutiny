@@ -45,7 +45,7 @@
         "highlight.js": "10.0.1",
         "humanize-duration": "^3.24.0",
         "lodash": "4.17.15",
-        "moment": "2.24.0",
+        "moment": "2.29.4",
         "ng-apexcharts": "1.5.12",
         "ngx-markdown": "9.0.0",
         "ngx-quill": "9.1.0",
