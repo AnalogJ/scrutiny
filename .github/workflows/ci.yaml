@@ -1,0 +1,78 @@
+name: CI
+# This workflow is triggered on pushes & pull requests
+on: [pull_request]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    container: ghcr.io/packagrio/packagr:latest-golang
+
+    # Service containers to run with `build` (Required for end-to-end testing)
+    services:
+      influxdb:
+        image: influxdb:2.2
+        env:
+          DOCKER_INFLUXDB_INIT_MODE: setup
+          DOCKER_INFLUXDB_INIT_USERNAME: admin
+          DOCKER_INFLUXDB_INIT_PASSWORD: password12345
+          DOCKER_INFLUXDB_INIT_ORG: scrutiny
+          DOCKER_INFLUXDB_INIT_BUCKET: metrics
+          DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-super-secret-auth-token
+        ports:
+          - 8086:8086
+    env:
+      PROJECT_PATH: /go/src/github.com/analogj/scrutiny
+      STATIC: true
+    steps:
+      - name: Git
+        run: |
+          apt-get update && apt-get install -y software-properties-common
+          add-apt-repository ppa:git-core/ppa && apt-get update && apt-get install -y git
+          git --version
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Test
+        run: |
+          make binary-clean binary-test-coverage
+      - name: Generate coverage report
+        uses: codecov/codecov-action@v2
+        with:
+          files: ${{ github.workspace }}/coverage.txt
+          flags: unittests
+          fail_ci_if_error: true
+          verbose: true
+  build:
+    name: Build ${{ matrix.cfg.goos }}/${{ matrix.cfg.goarch }}
+    runs-on: ${{ matrix.cfg.on }}
+    env:
+      GOOS: ${{ matrix.cfg.goos }}
+      GOARCH: ${{ matrix.cfg.goarch }}
+      GOARM: ${{ matrix.cfg.goarm }}
+      STATIC: true
+    strategy:
+      matrix:
+        cfg:
+          - { on: ubuntu-latest,  goos: linux,      goarch: amd64 }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 5 }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 6 }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 7 }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm64 }
+          - { on: macos-latest,   goos: darwin,     goarch: amd64 }
+          - { on: macos-latest,   goos: darwin,     goarch: arm64 }
+          - { on: macos-latest,   goos: freebsd,    goarch: amd64 }
+          - { on: windows-latest, goos: windows,    goarch: amd64 }
+          - { on: windows-latest, goos: windows,    goarch: arm64 }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build Binaries
+        run: |
+          make binary-clean binary-all
+      - name: Archive
+        uses: actions/upload-artifact@v2
+        with:
+          name: binaries.zip
+          path: |
+            scrutiny-web-*
+            scrutiny-collector-metrics-*

@@ -19,11 +19,7 @@ jobs:
         run: "cd webapp/frontend && ./git.version.sh"
       - name: Build Frontend
         run: |
-          cd webapp/frontend
-          npm install -g @angular/cli@9.1.4
-          npm install
-          mkdir -p dist
-          npm run build:prod -- --output-path=dist
+          make binary-frontend
           tar -czf scrutiny-web-frontend.tar.gz dist
       - name: Upload Frontend Asset
         id: upload-release-asset3
@@ -32,6 +28,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: './webapp/frontend/scrutiny-web-frontend.tar.gz'
+          asset_path: './scrutiny-web-frontend.tar.gz'
           asset_name: scrutiny-web-frontend.tar.gz
           asset_content_type: application/gzip

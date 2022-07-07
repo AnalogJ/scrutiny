@@ -13,10 +13,10 @@ on:
         default: 'webapp/backend/pkg/version/version.go'
 
 jobs:
-  build:
-    name: Build
+  release:
+    name: Create Release Commit
     runs-on: ubuntu-latest
-    container: techknowlogick/xgo:go-1.17.x
+    container: ghcr.io/packagrio/packagr:latest-golang
     # Service containers to run with `build` (Required for end-to-end testing)
     services:
       influxdb:
@@ -31,8 +31,7 @@ jobs:
         ports:
           - 8086:8086
     env:
-      PROJECT_PATH: /go/src/github.com/analogj/scrutiny
-      CGO_ENABLED: 1
+      STATIC: true
     steps:
       - name: Git
         run: |
@@ -53,34 +52,80 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
       - name: Test
         run: |
-          mkdir -p $(dirname "$PROJECT_PATH")
-          cp -a $GITHUB_WORKSPACE $PROJECT_PATH
-          cd $PROJECT_PATH
-
-          go mod vendor
-          go test -v -tags "static" $(go list ./... | grep -v /vendor/)
-
-      - name: Build Binaries
-        run: |
-
-          cd $PROJECT_PATH
-          make all
-
-          # restore modified dir to GH workspace.
-          cp -arf $PROJECT_PATH/. $GITHUB_WORKSPACE/
-
-          # copy all the build artifacts to the GH workspace
-          cp -arf /build/. $GITHUB_WORKSPACE/
-
-      - name: Commit Changes
+          make binary-clean binary-test-coverage
+      - name: Commit Changes Locally
         id: commit
         uses: packagrio/action-releasr-go@master
         env:
-          # This is necessary in order to push a commit to the repo
           GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
         with:
           version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
-      - name: Publish Release
+      - name: Upload workspace
+        uses: actions/upload-artifact@v3
+        with:
+          name: workspace
+          path: ${{ github.workspace }}/**/*
+          retention-days: 1
+
+  build:
+    name: Build ${{ matrix.cfg.goos }}/${{ matrix.cfg.goarch }}${{ matrix.cfg.goarm }}
+    needs: release
+    runs-on: ${{ matrix.cfg.on }}
+    env:
+      GOOS: ${{ matrix.cfg.goos }}
+      GOARCH: ${{ matrix.cfg.goarch }}
+      GOARM: ${{ matrix.cfg.goarm }}
+      STATIC: true
+    strategy:
+      matrix:
+        cfg:
+          - { on: ubuntu-latest,  goos: linux,      goarch: amd64 }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 5 }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 6 }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 7 }
+          - { on: ubuntu-latest,  goos: linux,      goarch: arm64 }
+          - { on: macos-latest,   goos: darwin,     goarch: amd64 }
+          - { on: macos-latest,   goos: darwin,     goarch: arm64 }
+          - { on: macos-latest,   goos: freebsd,    goarch: amd64 }
+          - { on: windows-latest, goos: windows,    goarch: amd64 }
+          - { on: windows-latest, goos: windows,    goarch: arm64 }
+    steps:
+      - name: Download workspace
+        uses: actions/download-artifact@v3
+        with:
+          name: workspace
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.18.3' # The Go version to download (if necessary) and use.
+      - name: Build Binaries
+        run: |
+          make binary-clean binary-all
+      - name: Archive
+        uses: actions/upload-artifact@v2
+        with:
+          name: binaries.zip
+          path: |
+            scrutiny-web-*
+            scrutiny-collector-metrics-*
+
+  release-publish:
+    name: Publish Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download workspace
+        uses: actions/download-artifact@v3
+        with:
+          name: workspace
+      - name: Download binaries
+        uses: actions/download-artifact@v3
+        with:
+          name: binaries.zip
+      - name: List
+        shell: bash
+        run: |
+          ls -alt
+      - name: Publish Release & Assets
         id: publish
         uses: packagrio/action-publishr-go@master
         env:
@@ -89,15 +134,23 @@ jobs:
         with:
           version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
           upload_assets:
-            scrutiny-web-linux-amd64
+            scrutiny-collector-metrics-darwin-amd64
+            scrutiny-collector-metrics-darwin-arm64
+            scrutiny-collector-metrics-freebsd-amd64
             scrutiny-collector-metrics-linux-amd64
-            scrutiny-web-linux-arm64
-            scrutiny-collector-metrics-linux-arm64
-            scrutiny-web-linux-arm-5
             scrutiny-collector-metrics-linux-arm-5
-            scrutiny-web-linux-arm-6
             scrutiny-collector-metrics-linux-arm-6
-            scrutiny-web-linux-arm-7
             scrutiny-collector-metrics-linux-arm-7
-            scrutiny-web-windows-4.0-amd64.exe
-            scrutiny-collector-metrics-windows-4.0-amd64.exe
+            scrutiny-collector-metrics-linux-arm64
+            scrutiny-collector-metrics-windows-amd64.exe
+            scrutiny-collector-metrics-windows-arm64.exe
+            scrutiny-web-darwin-amd64
+            scrutiny-web-darwin-arm64
+            scrutiny-web-freebsd-amd64
+            scrutiny-web-linux-amd64
+            scrutiny-web-linux-arm-5
+            scrutiny-web-linux-arm-6
+            scrutiny-web-linux-arm-7
+            scrutiny-web-linux-arm64
+            scrutiny-web-windows-amd64.exe
+            scrutiny-web-windows-arm64.exe
