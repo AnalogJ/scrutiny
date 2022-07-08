@@ -1,11 +1,12 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import {DeviceModel} from 'app/core/models/device-model';
 
 @Pipe({
   name: 'deviceTitle'
 })
 export class DeviceTitlePipe implements PipeTransform {
 
-    static deviceTitleForType(device: any, titleType: string): string {
+    static deviceTitleForType(device: DeviceModel, titleType: string): string {
         const titleParts = []
         switch(titleType){
             case 'name':

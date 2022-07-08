@@ -91,6 +91,7 @@
                 },
                 "test": {
                     "builder": "@angular-devkit/build-angular:karma",
+                    "defaultConfiguration": "production",
                     "options": {
                         "main": "src/test.ts",
                         "polyfills": "src/polyfills.ts",
@@ -101,10 +102,22 @@
                             "src/favicon-32x32.png",
                             "src/assets"
                         ],
+                        "stylePreprocessorOptions": {
+                            "includePaths": [
+                                "src/@treo/styles"
+                            ]
+                        },
                         "styles": [
-                            "src/styles.scss"
+                            "src/styles/vendors.scss",
+                            "src/@treo/styles/main.scss",
+                            "src/styles/styles.scss",
+                            "src/styles/tailwind.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],
+                        "fileReplacements": [{
+                            "replace": "src/environments/environment.ts",
+                            "with": "src/environments/environment.prod.ts"
+                        }]
                     }
                 },
                 "lint": {
