@@ -24,33 +24,38 @@ func Test_DownsampleScript_Weekly(t *testing.T) {
 	aggregationType := "weekly"
 
 	//test
-	influxDbScript := deviceRepo.DownsampleScript(aggregationType)
+	influxDbScript := deviceRepo.DownsampleScript(aggregationType, "tsk-weekly-aggr", "0 1 * * 0")
 
 	//assert
 	require.Equal(t, `
-  sourceBucket = "metrics"
-  rangeStart = -2w
-  rangeEnd = -1w
-  aggWindow = 1w
-  destBucket = "metrics_weekly"
-  destOrg = "scrutiny"
+option task = { 
+  name: "tsk-weekly-aggr",
+  cron: "0 1 * * 0",
+}
 
-  from(bucket: sourceBucket)
-  |> range(start: rangeStart, stop: rangeEnd)
-  |> filter(fn: (r) => r["_measurement"] == "smart" )
-  |> group(columns: ["device_wwn", "_field"])
-  |> aggregateWindow(every: aggWindow, fn: last, createEmpty: false)
-  |> to(bucket: destBucket, org: destOrg)
+sourceBucket = "metrics"
+rangeStart = -2w
+rangeEnd = -1w
+aggWindow = 1w
+destBucket = "metrics_weekly"
+destOrg = "scrutiny"
 
-  from(bucket: sourceBucket)
-  |> range(start: rangeStart, stop: rangeEnd)
-  |> filter(fn: (r) => r["_measurement"] == "temp")
-  |> group(columns: ["device_wwn"])
-  |> toInt()
-  |> aggregateWindow(fn: mean, every: aggWindow, createEmpty: false)
-  |> set(key: "_measurement", value: "temp")
-  |> set(key: "_field", value: "temp")
-  |> to(bucket: destBucket, org: destOrg)
+from(bucket: sourceBucket)
+|> range(start: rangeStart, stop: rangeEnd)
+|> filter(fn: (r) => r["_measurement"] == "smart" )
+|> group(columns: ["device_wwn", "_field"])
+|> aggregateWindow(every: aggWindow, fn: last, createEmpty: false)
+|> to(bucket: destBucket, org: destOrg)
+
+from(bucket: sourceBucket)
+|> range(start: rangeStart, stop: rangeEnd)
+|> filter(fn: (r) => r["_measurement"] == "temp")
+|> group(columns: ["device_wwn"])
+|> toInt()
+|> aggregateWindow(fn: mean, every: aggWindow, createEmpty: false)
+|> set(key: "_measurement", value: "temp")
+|> set(key: "_field", value: "temp")
+|> to(bucket: destBucket, org: destOrg)
 		`, influxDbScript)
 }
 
@@ -71,33 +76,38 @@ func Test_DownsampleScript_Monthly(t *testing.T) {
 	aggregationType := "monthly"
 
 	//test
-	influxDbScript := deviceRepo.DownsampleScript(aggregationType)
+	influxDbScript := deviceRepo.DownsampleScript(aggregationType, "tsk-monthly-aggr", "30 1 1 * *")
 
 	//assert
 	require.Equal(t, `
-  sourceBucket = "metrics_weekly"
-  rangeStart = -2mo
-  rangeEnd = -1mo
-  aggWindow = 1mo
-  destBucket = "metrics_monthly"
-  destOrg = "scrutiny"
+option task = { 
+  name: "tsk-monthly-aggr",
+  cron: "30 1 1 * *",
+}
 
-  from(bucket: sourceBucket)
-  |> range(start: rangeStart, stop: rangeEnd)
-  |> filter(fn: (r) => r["_measurement"] == "smart" )
-  |> group(columns: ["device_wwn", "_field"])
-  |> aggregateWindow(every: aggWindow, fn: last, createEmpty: false)
-  |> to(bucket: destBucket, org: destOrg)
+sourceBucket = "metrics_weekly"
+rangeStart = -2mo
+rangeEnd = -1mo
+aggWindow = 1mo
+destBucket = "metrics_monthly"
+destOrg = "scrutiny"
 
-  from(bucket: sourceBucket)
-  |> range(start: rangeStart, stop: rangeEnd)
-  |> filter(fn: (r) => r["_measurement"] == "temp")
-  |> group(columns: ["device_wwn"])
-  |> toInt()
-  |> aggregateWindow(fn: mean, every: aggWindow, createEmpty: false)
-  |> set(key: "_measurement", value: "temp")
-  |> set(key: "_field", value: "temp")
-  |> to(bucket: destBucket, org: destOrg)
+from(bucket: sourceBucket)
+|> range(start: rangeStart, stop: rangeEnd)
+|> filter(fn: (r) => r["_measurement"] == "smart" )
+|> group(columns: ["device_wwn", "_field"])
+|> aggregateWindow(every: aggWindow, fn: last, createEmpty: false)
+|> to(bucket: destBucket, org: destOrg)
+
+from(bucket: sourceBucket)
+|> range(start: rangeStart, stop: rangeEnd)
+|> filter(fn: (r) => r["_measurement"] == "temp")
+|> group(columns: ["device_wwn"])
+|> toInt()
+|> aggregateWindow(fn: mean, every: aggWindow, createEmpty: false)
+|> set(key: "_measurement", value: "temp")
+|> set(key: "_field", value: "temp")
+|> to(bucket: destBucket, org: destOrg)
 		`, influxDbScript)
 }
 
@@ -118,32 +128,37 @@ func Test_DownsampleScript_Yearly(t *testing.T) {
 	aggregationType := "yearly"
 
 	//test
-	influxDbScript := deviceRepo.DownsampleScript(aggregationType)
+	influxDbScript := deviceRepo.DownsampleScript(aggregationType, "tsk-yearly-aggr", "0 2 1 1 *")
 
 	//assert
 	require.Equal(t, `
-  sourceBucket = "metrics_monthly"
-  rangeStart = -2y
-  rangeEnd = -1y
-  aggWindow = 1y
-  destBucket = "metrics_yearly"
-  destOrg = "scrutiny"
+option task = { 
+  name: "tsk-yearly-aggr",
+  cron: "0 2 1 1 *",
+}
 
-  from(bucket: sourceBucket)
-  |> range(start: rangeStart, stop: rangeEnd)
-  |> filter(fn: (r) => r["_measurement"] == "smart" )
-  |> group(columns: ["device_wwn", "_field"])
-  |> aggregateWindow(every: aggWindow, fn: last, createEmpty: false)
-  |> to(bucket: destBucket, org: destOrg)
+sourceBucket = "metrics_monthly"
+rangeStart = -2y
+rangeEnd = -1y
+aggWindow = 1y
+destBucket = "metrics_yearly"
+destOrg = "scrutiny"
 
-  from(bucket: sourceBucket)
-  |> range(start: rangeStart, stop: rangeEnd)
-  |> filter(fn: (r) => r["_measurement"] == "temp")
-  |> group(columns: ["device_wwn"])
-  |> toInt()
-  |> aggregateWindow(fn: mean, every: aggWindow, createEmpty: false)
-  |> set(key: "_measurement", value: "temp")
-  |> set(key: "_field", value: "temp")
-  |> to(bucket: destBucket, org: destOrg)
+from(bucket: sourceBucket)
+|> range(start: rangeStart, stop: rangeEnd)
+|> filter(fn: (r) => r["_measurement"] == "smart" )
+|> group(columns: ["device_wwn", "_field"])
+|> aggregateWindow(every: aggWindow, fn: last, createEmpty: false)
+|> to(bucket: destBucket, org: destOrg)
+
+from(bucket: sourceBucket)
+|> range(start: rangeStart, stop: rangeEnd)
+|> filter(fn: (r) => r["_measurement"] == "temp")
+|> group(columns: ["device_wwn"])
+|> toInt()
+|> aggregateWindow(fn: mean, every: aggWindow, createEmpty: false)
+|> set(key: "_measurement", value: "temp")
+|> set(key: "_field", value: "temp")
+|> to(bucket: destBucket, org: destOrg)
 		`, influxDbScript)
 }

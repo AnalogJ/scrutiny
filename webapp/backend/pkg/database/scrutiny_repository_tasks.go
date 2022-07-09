@@ -11,10 +11,10 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 func (sr *scrutinyRepository) EnsureTasks(ctx context.Context, orgID string) error {
 	weeklyTaskName := "tsk-weekly-aggr"
-	weeklyTaskScript := sr.DownsampleScript("weekly")
+	weeklyTaskScript := sr.DownsampleScript("weekly", weeklyTaskName, "0 1 * * 0")
 	if found, findErr := sr.influxTaskApi.FindTasks(ctx, &api.TaskFilter{Name: weeklyTaskName}); findErr == nil && len(found) == 0 {
 		//weekly on Sunday at 1:00am
-		_, err := sr.influxTaskApi.CreateTaskWithCron(ctx, weeklyTaskName, weeklyTaskScript, "0 1 * * 0", orgID)
+		_, err := sr.influxTaskApi.CreateTaskByFlux(ctx, weeklyTaskScript, orgID)
 		if err != nil {
 			return err
 		}
@@ -32,10 +32,10 @@ func (sr *scrutinyRepository) EnsureTasks(ctx context.Context, orgID string) err
 	}
 
 	monthlyTaskName := "tsk-monthly-aggr"
-	monthlyTaskScript := sr.DownsampleScript("monthly")
+	monthlyTaskScript := sr.DownsampleScript("monthly", monthlyTaskName, "30 1 1 * *")
 	if found, findErr := sr.influxTaskApi.FindTasks(ctx, &api.TaskFilter{Name: monthlyTaskName}); findErr == nil && len(found) == 0 {
 		//monthly on first day of the month at 1:30am
-		_, err := sr.influxTaskApi.CreateTaskWithCron(ctx, monthlyTaskName, monthlyTaskScript, "30 1 1 * *", orgID)
+		_, err := sr.influxTaskApi.CreateTaskByFlux(ctx, monthlyTaskScript, orgID)
 		if err != nil {
 			return err
 		}
@@ -53,10 +53,10 @@ func (sr *scrutinyRepository) EnsureTasks(ctx context.Context, orgID string) err
 	}
 
 	yearlyTaskName := "tsk-yearly-aggr"
-	yearlyTaskScript := sr.DownsampleScript("yearly")
+	yearlyTaskScript := sr.DownsampleScript("yearly", yearlyTaskName, "0 2 1 1 *")
 	if found, findErr := sr.influxTaskApi.FindTasks(ctx, &api.TaskFilter{Name: yearlyTaskName}); findErr == nil && len(found) == 0 {
 		//yearly on the first day of the year at 2:00am
-		_, err := sr.influxTaskApi.CreateTaskWithCron(ctx, yearlyTaskName, yearlyTaskScript, "0 2 1 1 *", orgID)
+		_, err := sr.influxTaskApi.CreateTaskByFlux(ctx, yearlyTaskScript, orgID)
 		if err != nil {
 			return err
 		}
@@ -75,7 +75,7 @@ func (sr *scrutinyRepository) EnsureTasks(ctx context.Context, orgID string) err
 	return nil
 }
 
-func (sr *scrutinyRepository) DownsampleScript(aggregationType string) string {
+func (sr *scrutinyRepository) DownsampleScript(aggregationType string, name string, cron string) string {
 	var sourceBucket string // the source of the data
 	var destBucket string   // the destination for the aggregated data
 	var rangeStart string
@@ -124,30 +124,37 @@ func (sr *scrutinyRepository) DownsampleScript(aggregationType string) string {
 	*/
 
 	return fmt.Sprintf(`
-  sourceBucket = "%s"
-  rangeStart = %s
-  rangeEnd = %s
-  aggWindow = %s
-  destBucket = "%s"
-  destOrg = "%s"
+option task = { 
+  name: "%s",
+  cron: "%s",
+}
 
-  from(bucket: sourceBucket)
-  |> range(start: rangeStart, stop: rangeEnd)
-  |> filter(fn: (r) => r["_measurement"] == "smart" )
-  |> group(columns: ["device_wwn", "_field"])
-  |> aggregateWindow(every: aggWindow, fn: last, createEmpty: false)
-  |> to(bucket: destBucket, org: destOrg)
+sourceBucket = "%s"
+rangeStart = %s
+rangeEnd = %s
+aggWindow = %s
+destBucket = "%s"
+destOrg = "%s"
 
-  from(bucket: sourceBucket)
-  |> range(start: rangeStart, stop: rangeEnd)
-  |> filter(fn: (r) => r["_measurement"] == "temp")
-  |> group(columns: ["device_wwn"])
-  |> toInt()
-  |> aggregateWindow(fn: mean, every: aggWindow, createEmpty: false)
-  |> set(key: "_measurement", value: "temp")
-  |> set(key: "_field", value: "temp")
-  |> to(bucket: destBucket, org: destOrg)
+from(bucket: sourceBucket)
+|> range(start: rangeStart, stop: rangeEnd)
+|> filter(fn: (r) => r["_measurement"] == "smart" )
+|> group(columns: ["device_wwn", "_field"])
+|> aggregateWindow(every: aggWindow, fn: last, createEmpty: false)
+|> to(bucket: destBucket, org: destOrg)
+
+from(bucket: sourceBucket)
+|> range(start: rangeStart, stop: rangeEnd)
+|> filter(fn: (r) => r["_measurement"] == "temp")
+|> group(columns: ["device_wwn"])
+|> toInt()
+|> aggregateWindow(fn: mean, every: aggWindow, createEmpty: false)
+|> set(key: "_measurement", value: "temp")
+|> set(key: "_field", value: "temp")
+|> to(bucket: destBucket, org: destOrg)
 		`,
+		name,
+		cron,
 		sourceBucket,
 		rangeStart,
 		rangeEnd,
