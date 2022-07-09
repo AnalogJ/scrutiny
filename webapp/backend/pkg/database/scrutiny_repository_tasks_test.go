@@ -42,14 +42,14 @@ func Test_DownsampleScript_Weekly(t *testing.T) {
   |> aggregateWindow(every: aggWindow, fn: last, createEmpty: false)
   |> to(bucket: destBucket, org: destOrg)
 
-  temp_data = from(bucket: sourceBucket)
+  from(bucket: sourceBucket)
   |> range(start: rangeStart, stop: rangeEnd)
   |> filter(fn: (r) => r["_measurement"] == "temp")
   |> group(columns: ["device_wwn"])
   |> toInt()
-
-  temp_data
   |> aggregateWindow(fn: mean, every: aggWindow, createEmpty: false)
+  |> set(key: "_measurement", value: "temp")
+  |> set(key: "_field", value: "temp")
   |> to(bucket: destBucket, org: destOrg)
 		`, influxDbScript)
 }
@@ -89,14 +89,14 @@ func Test_DownsampleScript_Monthly(t *testing.T) {
   |> aggregateWindow(every: aggWindow, fn: last, createEmpty: false)
   |> to(bucket: destBucket, org: destOrg)
 
-  temp_data = from(bucket: sourceBucket)
+  from(bucket: sourceBucket)
   |> range(start: rangeStart, stop: rangeEnd)
   |> filter(fn: (r) => r["_measurement"] == "temp")
   |> group(columns: ["device_wwn"])
   |> toInt()
-
-  temp_data
   |> aggregateWindow(fn: mean, every: aggWindow, createEmpty: false)
+  |> set(key: "_measurement", value: "temp")
+  |> set(key: "_field", value: "temp")
   |> to(bucket: destBucket, org: destOrg)
 		`, influxDbScript)
 }
@@ -136,14 +136,14 @@ func Test_DownsampleScript_Yearly(t *testing.T) {
   |> aggregateWindow(every: aggWindow, fn: last, createEmpty: false)
   |> to(bucket: destBucket, org: destOrg)
 
-  temp_data = from(bucket: sourceBucket)
+  from(bucket: sourceBucket)
   |> range(start: rangeStart, stop: rangeEnd)
   |> filter(fn: (r) => r["_measurement"] == "temp")
   |> group(columns: ["device_wwn"])
   |> toInt()
-
-  temp_data
   |> aggregateWindow(fn: mean, every: aggWindow, createEmpty: false)
+  |> set(key: "_measurement", value: "temp")
+  |> set(key: "_field", value: "temp")
   |> to(bucket: destBucket, org: destOrg)
 		`, influxDbScript)
 }
