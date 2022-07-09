@@ -1,7 +1,6 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {DashboardDeviceDeleteDialogService} from 'app/layout/common/dashboard-device-delete-dialog/dashboard-device-delete-dialog.service';
-import {Subject} from 'rxjs';
 
 @Component({
   selector: 'app-dashboard-device-delete-dialog',

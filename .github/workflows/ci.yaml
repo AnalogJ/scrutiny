@@ -3,11 +3,25 @@ name: CI
 on: [pull_request]
 
 jobs:
-  test:
-    name: Test
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Test Frontend
+        run: |
+          make binary-frontend-test-coverage
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: ${{ github.workspace }}/webapp/frontend/coverage/lcov.info
+          retention-days: 1
+  test-backend:
+    name: Test Backend
     runs-on: ubuntu-latest
     container: ghcr.io/packagrio/packagr:latest-golang
-
     # Service containers to run with `build` (Required for end-to-end testing)
     services:
       influxdb:
@@ -22,7 +36,6 @@ jobs:
         ports:
           - 8086:8086
     env:
-      PROJECT_PATH: /go/src/github.com/analogj/scrutiny
       STATIC: true
     steps:
       - name: Git
@@ -32,16 +45,36 @@ jobs:
           git --version
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Test
+      - name: Test Backend
         run: |
           make binary-clean binary-test-coverage
-      - name: Generate coverage report
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: ${{ github.workspace }}/coverage.txt
+          retention-days: 1
+  test-coverage:
+    name: Test Coverage Upload
+    needs:
+      - test-backend
+      - test-frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Download coverage reports
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage
+      - name: Upload coverage reports
         uses: codecov/codecov-action@v2
         with:
-          files: ${{ github.workspace }}/coverage.txt
+          files: ${{ github.workspace }}/coverage.txt,${{ github.workspace }}/lcov.info
           flags: unittests
           fail_ci_if_error: true
           verbose: true
+
   build:
     name: Build ${{ matrix.cfg.goos }}/${{ matrix.cfg.goarch }}
     runs-on: ${{ matrix.cfg.on }}

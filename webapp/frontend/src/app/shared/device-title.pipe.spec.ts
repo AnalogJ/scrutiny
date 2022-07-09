@@ -1,14 +1,13 @@
-import { DeviceTitlePipe } from './device-title.pipe';
-import {FileSizePipe} from "./file-size.pipe";
-import {DeviceModel} from "../core/models/device-model";
+import {DeviceTitlePipe} from './device-title.pipe';
+import {DeviceModel} from 'app/core/models/device-model';
 
 describe('DeviceTitlePipe', () => {
-  it('create an instance', () => {
-    const pipe = new DeviceTitlePipe();
-    expect(pipe).toBeTruthy();
-  });
+    it('create an instance', () => {
+        const pipe = new DeviceTitlePipe();
+        expect(pipe).toBeTruthy();
+    });
 
-    describe('#deviceTitleForType',() => {
+    describe('#deviceTitleForType', () => {
         const testCases = [
             {
                 'device': {
