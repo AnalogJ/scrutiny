@@ -1,4 +1,4 @@
-# Officially Supported NAS OS's
+# Officially Supported NAS/OS's
 
 These are the officially supported NAS OS's (with documentation and setup guides). Once a guide is created (
 in `docs/guides/` or elsewhere) it will be linked here.
@@ -14,4 +14,5 @@ in `docs/guides/` or elsewhere) it will be linked here.
 - [x] [PFSense](./INSTALL_UNRAID.md)
 - [x] QNAP
 - [x] [RockStor](https://rockstor.com/docs/interface/docker-based-rock-ons/scrutiny.html)
-
+- [ ] Solaris/OmniOS CE Support
+- [ ] Kubernetes

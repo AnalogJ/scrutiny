@@ -104,7 +104,7 @@ devices:
 As mentioned in the [README.md](/README.md), NVMe devices require both `--cap-add SYS_RAWIO` and `--cap-add SYS_ADMIN` 
 to allow smartctl permission to query your NVMe device SMART data [#26](https://github.com/AnalogJ/scrutiny/issues/26)
 
-When attaching NVMe devices using `--device=/dev/nvme..`, make sure to provide the device controller (`/dev/nvme0`) 
+When attaching NVMe devices using `--device=/dev/nvme..`, make sure to provide the device controller (`/dev/nvme0`)
 instead of the block device (`/dev/nvme0n1`). See [#209](https://github.com/AnalogJ/scrutiny/issues/209).
 
 > The character device /dev/nvme0 is the NVME device controller, and block devices like /dev/nvme0n1 are the NVME storage namespaces: the devices you use for actual storage, which will behave essentially as disks.
@@ -113,15 +113,29 @@ instead of the block device (`/dev/nvme0n1`). See [#209](https://github.com/Anal
 
 ### ATA
 
+### USB Devices
+
+The following information is extracted from [#266](https://github.com/AnalogJ/scrutiny/issues/266)
+
+External HDDs support two modes of operation usb-storage (old, slower, stable) and uas (new, faster, sometimes unstable)
+. On some external HDDs, uas mode does not properly pass through SMART information, or even causes hardware issues, so
+it has been disabled by the kernel. No amount of smartctl parameters will fix this, as it is being rejected by the
+kernel. This is especially true with Seagate HDDs. One solution is to force these devices into usb-storage mode, which
+will incur some performance penalty, but may work well enough for you. More info:
+
+- https://smartmontools.org/wiki/Supported_USB-Devices
+- https://smartmontools.org/wiki/SAT-with-UAS-Linux
+- https://forums.raspberrypi.com/viewtopic.php?t=245931
+
 ### Exit Codes
 
 If you see an error message similar to `smartctl returned an error code (2) while processing /dev/sda`, this means that
-`smartctl` (not Scrutiny) exited with an error code. Scrutiny will attempt to print a helpful error message to help you debug,
-but you can look at the table (and associated links) below to debug `smartctl`. 
+`smartctl` (not Scrutiny) exited with an error code. Scrutiny will attempt to print a helpful error message to help you
+debug, but you can look at the table (and associated links) below to debug `smartctl`.
 
 > smartctl Return Values
-> The return values of smartctl are defined by a bitmask. If all is well with the disk, the return value (exit status) of 
-> smartctl is 0 (all bits turned off). If a problem occurs, or an error, potential error, or fault is detected, then 
+> The return values of smartctl are defined by a bitmask. If all is well with the disk, the return value (exit status) of
+> smartctl is 0 (all bits turned off). If a problem occurs, or an error, potential error, or fault is detected, then
 > a non-zero status is returned. In this case, the eight different bits in the return value have the following meanings 
 > for ATA disks; some of these values may also be returned for SCSI disks.
 > 
