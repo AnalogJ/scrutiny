@@ -267,6 +267,14 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				return tx.AutoMigrate(m20220509170100.Device{})
 			},
 		},
+		{
+			ID: "m20220709181300",
+			Migrate: func(tx *gorm.DB) error {
+
+				// delete devices with empty `wwn` field (they are impossible to delete manually), and are invalid.
+				return tx.Where("wwn = ?", "").Delete(&models.Device{}).Error
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {

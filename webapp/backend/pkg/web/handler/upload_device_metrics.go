@@ -20,6 +20,10 @@ func UploadDeviceMetrics(c *gin.Context) {
 
 	//appConfig := c.MustGet("CONFIG").(config.Interface)
 
+	if c.Param("wwn") == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false})
+	}
+
 	var collectorSmartData collector.SmartInfo
 	err := c.BindJSON(&collectorSmartData)
 	if err != nil {
