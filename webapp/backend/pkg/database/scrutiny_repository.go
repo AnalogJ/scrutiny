@@ -242,21 +242,29 @@ func (sr *scrutinyRepository) EnsureBuckets(ctx context.Context, org *domain.Org
 
 	//create buckets (used for downsampling)
 	weeklyBucket := fmt.Sprintf("%s_weekly", sr.appConfig.GetString("web.influxdb.bucket"))
-	if _, foundErr := sr.influxClient.BucketsAPI().FindBucketByName(ctx, weeklyBucket); foundErr != nil {
+	if foundWeeklyBucket, foundErr := sr.influxClient.BucketsAPI().FindBucketByName(ctx, weeklyBucket); foundErr != nil {
 		// metrics_weekly bucket will have a retention period of 8+1 weeks (since it will be down-sampled once a month)
 		_, err := sr.influxClient.BucketsAPI().CreateBucketWithName(ctx, org, weeklyBucket, weeklyBucketRetentionRule)
 		if err != nil {
 			return err
 		}
+	} else if sr.appConfig.GetBool("web.influxdb.retention_policy") {
+		//correctly set the retention period for the bucket (may not be able to do it during setup/creation)
+		foundWeeklyBucket.RetentionRules = domain.RetentionRules{weeklyBucketRetentionRule}
+		sr.influxClient.BucketsAPI().UpdateBucket(ctx, foundWeeklyBucket)
 	}
 
 	monthlyBucket := fmt.Sprintf("%s_monthly", sr.appConfig.GetString("web.influxdb.bucket"))
-	if _, foundErr := sr.influxClient.BucketsAPI().FindBucketByName(ctx, monthlyBucket); foundErr != nil {
+	if foundMonthlyBucket, foundErr := sr.influxClient.BucketsAPI().FindBucketByName(ctx, monthlyBucket); foundErr != nil {
 		// metrics_monthly bucket will have a retention period of 24+1 months (since it will be down-sampled once a year)
 		_, err := sr.influxClient.BucketsAPI().CreateBucketWithName(ctx, org, monthlyBucket, monthlyBucketRetentionRule)
 		if err != nil {
 			return err
 		}
+	} else if sr.appConfig.GetBool("web.influxdb.retention_policy") {
+		//correctly set the retention period for the bucket (may not be able to do it during setup/creation)
+		foundMonthlyBucket.RetentionRules = domain.RetentionRules{monthlyBucketRetentionRule}
+		sr.influxClient.BucketsAPI().UpdateBucket(ctx, foundMonthlyBucket)
 	}
 
 	yearlyBucket := fmt.Sprintf("%s_yearly", sr.appConfig.GetString("web.influxdb.bucket"))
