@@ -1,22 +1,28 @@
-import { Layout } from 'app/layout/layout.types';
+import {Layout} from 'app/layout/layout.types';
 
 // Theme type
 export type Theme = 'light' | 'dark' | 'system';
+
+// Device title to display on the dashboard
+export type DashboardDisplay = 'name' | 'serial_id' | 'uuid' | 'label'
+
+export type DashboardSort = 'status' | 'title' | 'age'
+
+export type TemperatureUnit = 'celsius' | 'fahrenheit'
 
 /**
  * AppConfig interface. Update this interface to strictly type your config
  * object.
  */
-export interface AppConfig
-{
+export interface AppConfig {
     theme: Theme;
     layout: Layout;
 
     // Dashboard options
-    dashboardDisplay: string;
-    dashboardSort: string;
+    dashboardDisplay: DashboardDisplay;
+    dashboardSort: DashboardSort;
 
-    temperatureUnit: string;
+    temperatureUnit: TemperatureUnit;
 }
 
 /**

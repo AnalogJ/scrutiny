@@ -1,17 +1,24 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
+} from '@angular/core';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {ApexOptions, ChartComponent} from 'ng-apexcharts';
-import { DashboardService } from 'app/modules/dashboard/dashboard.service';
+import {DashboardService} from 'app/modules/dashboard/dashboard.service';
 import {MatDialog} from '@angular/material/dialog';
-import { DashboardSettingsComponent } from 'app/layout/common/dashboard-settings/dashboard-settings.component';
+import {DashboardSettingsComponent} from 'app/layout/common/dashboard-settings/dashboard-settings.component';
 import {AppConfig} from 'app/core/config/app.config';
 import {TreoConfigService} from '@treo/services/config';
 import {Router} from '@angular/router';
 import {TemperaturePipe} from 'app/shared/temperature.pipe';
 import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
+import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
 
 @Component({
     selector       : 'example',
@@ -22,7 +29,7 @@ import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 {
-    data: any;
+    summaryData: { [key: string]: DeviceSummaryModel };
     hostGroups: { [hostId: string]: string[] } = {}
     temperatureOptions: ApexOptions;
     tempDurationKey = 'forever'
@@ -35,10 +42,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     /**
      * Constructor
      *
-     * @param {SmartService} _smartService
+     * @param {DashboardService} _dashboardService
+     * @param {TreoConfigService} _configService
+     * @param {MatDialog} dialog
+     * @param {Router} router
      */
     constructor(
-        private _smartService: DashboardService,
+        private _dashboardService: DashboardService,
         private _configService: TreoConfigService,
         public dialog: MatDialog,
         private router: Router,
@@ -81,16 +91,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
             });
 
         // Get the data
-        this._smartService.data$
+        this._dashboardService.data$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((data) => {
 
                 // Store the data
-                this.data = data;
+                this.summaryData = data;
 
                 // generate group data.
-                for(const wwn in this.data.data.summary){
-                    const hostid = this.data.data.summary[wwn].device.host_id
+                for (const wwn in this.summaryData) {
+                    const hostid = this.summaryData[wwn].device.host_id
                     const hostDeviceList = this.hostGroups[hostid] || []
                     hostDeviceList.push(wwn)
                     this.hostGroups[hostid] = hostDeviceList
@@ -132,11 +142,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     private _deviceDataTemperatureSeries(): any[] {
         const deviceTemperatureSeries = []
 
-        console.log('DEVICE DATA SUMMARY', this.data)
+        console.log('DEVICE DATA SUMMARY', this.summaryData)
 
-        for(const wwn in this.data.data.summary){
-            const deviceSummary = this.data.data.summary[wwn]
-            if (!deviceSummary.temp_history){
+        for (const wwn in this.summaryData) {
+            const deviceSummary = this.summaryData[wwn]
+            if (!deviceSummary.temp_history) {
                 continue
             }
 
@@ -206,7 +216,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                     }
                 }
             },
-            xaxis  : {
+            xaxis: {
                 type: 'datetime'
             }
         };
@@ -216,11 +226,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
 
-    deviceSummariesForHostGroup(hostGroupWWNs: string[]): any[] {
-        const deviceSummaries = []
-        for(const wwn of hostGroupWWNs){
-            if(this.data.data.summary[wwn]){
-                deviceSummaries.push(this.data.data.summary[wwn])
+    deviceSummariesForHostGroup(hostGroupWWNs: string[]): DeviceSummaryModel[] {
+        const deviceSummaries: DeviceSummaryModel[] = []
+        for (const wwn of hostGroupWWNs) {
+            if (this.summaryData[wwn]) {
+                deviceSummaries.push(this.summaryData[wwn])
             }
         }
         return deviceSummaries
@@ -235,7 +245,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     onDeviceDeleted(wwn: string): void {
-        delete this.data.data.summary[wwn] // remove the device from the summary list.
+        delete this.summaryData[wwn] // remove the device from the summary list.
     }
 
     /*
@@ -246,16 +256,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 	DURATION_KEY_FOREVER = "forever"
      */
 
-    changeSummaryTempDuration(durationKey: string){
+    changeSummaryTempDuration(durationKey: string): void {
         this.tempDurationKey = durationKey
 
-        this._smartService.getSummaryTempData(durationKey)
-            .subscribe((data) => {
+        this._dashboardService.getSummaryTempData(durationKey)
+            .subscribe((tempHistoryData) => {
 
                 // given a list of device temp history, override the data in the "summary" object.
-                for(const wwn in this.data.data.summary) {
+                for (const wwn in this.summaryData) {
                     // console.log(`Updating ${wwn}, length: ${this.data.data.summary[wwn].temp_history.length}`)
-                    this.data.data.summary[wwn].temp_history = data.data.temp_history[wwn] || []
+                    this.summaryData[wwn].temp_history = tempHistoryData[wwn] || []
                 }
 
                 // Prepare the chart series data

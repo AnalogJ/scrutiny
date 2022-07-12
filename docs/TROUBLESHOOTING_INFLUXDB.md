@@ -66,12 +66,319 @@ panic: failed to check influxdb setup status - parse "://:": missing protocol sc
 As discussed in [#248](https://github.com/AnalogJ/scrutiny/issues/248) and [#234](https://github.com/AnalogJ/scrutiny/issues/234),
 this usually related to either:
 
-- Upgrading from the LSIO Scrutiny image to the Official Scrutiny image, without removing LSIO specific environmental variables
-  - remove the `SCRUTINY_WEB=true` and `SCRUTINY_COLLECTOR=true` environmental variables. They were used by the LSIO image, but are unnecessary and cause issues with the official Scrutiny image.
-- Updated versions of the [LSIO Scrutiny images are broken](https://github.com/linuxserver/docker-scrutiny/issues/22), as they have not installed InfluxDB which is a required dependency of Scrutiny v0.4.x
-  - You can revert to an earlier version of the LSIO image (`lscr.io/linuxserver/scrutiny:060ac7b8-ls34`), or just change to the official Scrutiny image (`ghcr.io/analogj/scrutiny:master-omnibus`)
+- Upgrading from the LSIO Scrutiny image to the Official Scrutiny image, without removing LSIO specific environmental
+  variables
+  - remove the `SCRUTINY_WEB=true` and `SCRUTINY_COLLECTOR=true` environmental variables. They were used by the LSIO
+    image, but are unnecessary and cause issues with the official Scrutiny image.
+- Updated versions of the [LSIO Scrutiny images are broken](https://github.com/linuxserver/docker-scrutiny/issues/22),
+  as they have not installed InfluxDB which is a required dependency of Scrutiny v0.4.x
+  - You can revert to an earlier version of the LSIO image (`lscr.io/linuxserver/scrutiny:060ac7b8-ls34`), or just
+    change to the official Scrutiny image (`ghcr.io/analogj/scrutiny:master-omnibus`)
 
 Here's a couple of confirmed working docker-compose files that you may want to look at:
 
 - https://github.com/AnalogJ/scrutiny/blob/master/docker/example.hubspoke.docker-compose.yml
 - https://github.com/AnalogJ/scrutiny/blob/master/docker/example.omnibus.docker-compose.yml
+
+## Bring your own InfluxDB
+
+> WARNING: Most users should not follow these steps. This is ONLY for users who have an EXISTING InfluxDB installation which contains data from multiple services.
+> The Scrutiny Docker omnibus image includes an empty InfluxDB instance which it can configure.
+> If you're deploying manually or via Hub/Spoke, you can just follow the installation instructions, Scrutiny knows how
+> to run the first-time setup automatically.
+
+The goal here is to create an InfluxDB API key with minimal permissions for use by Scrutiny.
+
+- Create Scrutiny buckets (`metrics`, `metrics_weekly`, `metrics_monthly`, `metrics_yearly`) with placeholder config
+- Create Downsampling tasks (`tsk-weekly-aggr`, `tsk-monthly-aggr`, `tsk-yearly-aggr`) with placeholder script.
+- Create API token with restricted scope
+- NOTE: Placeholder bucket & task configuration will be replaced automatically by Scrutiny during startup
+
+The placeholder buckets and tasks need to be created before the API token can be created, as the resource ID's need to
+exist for the scope restriction to work.
+
+Scopes:
+
+- `orgs`: read - required for scrutiny to find it's configured org_id
+- `tasks`: scrutiny specific read/write access - Scrutiny only needs access to the downsampling tasks you created above
+- `buckets`: scrutiny specific read/write access - Scrutiny only needs access to the buckets you created above
+
+### Setup Environmental Variables
+
+```bash
+# replace the following values with correct values for your InfluxDB installation
+export INFLUXDB_ADMIN_TOKEN=pCqRq7xxxxxx-FZgNLfstIs0w==
+export INFLUXDB_ORG_ID=b2495xxxxx
+export INFLUXDB_HOSTNAME=http://localhost:8086
+
+# if you want to change the bucket name prefix below, you'll also need to update the setting in the scrutiny.yaml config file.
+export INFLUXDB_SCRUTINY_BUCKET_BASENAME=metrics
+```
+
+### Create placeholder buckets
+
+<details>
+  <summary>Click to expand!</summary>
+
+```bash
+curl -sS -X POST ${INFLUXDB_HOSTNAME}/api/v2/buckets \
+-H "Content-Type: application/json" \
+-H "Authorization: Token ${INFLUXDB_ADMIN_TOKEN}" \
+--data-binary @- << EOF
+{
+"name": "${INFLUXDB_SCRUTINY_BUCKET_BASENAME}",
+"orgID": "${INFLUXDB_ORG_ID}",
+"retentionRules": []
+}
+EOF
+
+curl -sS -X POST ${INFLUXDB_HOSTNAME}/api/v2/buckets \
+-H "Content-Type: application/json" \
+-H "Authorization: Token ${INFLUXDB_ADMIN_TOKEN}" \
+--data-binary @- << EOF
+{
+"name": "${INFLUXDB_SCRUTINY_BUCKET_BASENAME}_weekly",
+"orgID": "${INFLUXDB_ORG_ID}",
+"retentionRules": []
+}
+EOF
+
+curl -sS -X POST ${INFLUXDB_HOSTNAME}/api/v2/buckets \
+-H "Content-Type: application/json" \
+-H "Authorization: Token ${INFLUXDB_ADMIN_TOKEN}" \
+--data-binary @- << EOF
+{
+"name": "${INFLUXDB_SCRUTINY_BUCKET_BASENAME}_monthly",
+"orgID": "${INFLUXDB_ORG_ID}",
+"retentionRules": []
+}
+EOF
+
+curl -sS -X POST ${INFLUXDB_HOSTNAME}/api/v2/buckets \
+-H "Content-Type: application/json" \
+-H "Authorization: Token ${INFLUXDB_ADMIN_TOKEN}" \
+--data-binary @- << EOF
+{
+"name": "${INFLUXDB_SCRUTINY_BUCKET_BASENAME}_yearly",
+"orgID": "${INFLUXDB_ORG_ID}",
+"retentionRules": []
+}
+EOF
+```
+
+</details>
+
+### Create placeholder tasks
+
+<details>
+  <summary>Click to expand!</summary>
+
+```bash
+curl -sS -X POST ${INFLUXDB_HOSTNAME}/api/v2/tasks \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token ${INFLUXDB_ADMIN_TOKEN}" \
+    --data-binary @- << EOF
+{
+  "orgID": "${INFLUXDB_ORG_ID}",
+  "flux": "option task = {name: \"tsk-weekly-aggr\", every: 1y} \nyield now()"
+}
+EOF
+
+curl -sS -X POST ${INFLUXDB_HOSTNAME}/api/v2/tasks \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token ${INFLUXDB_ADMIN_TOKEN}" \
+    --data-binary @- << EOF
+{
+  "orgID": "${INFLUXDB_ORG_ID}",
+  "flux": "option task = {name: \"tsk-monthly-aggr\", every: 1y} \nyield now()"
+}
+EOF
+
+curl -sS -X POST ${INFLUXDB_HOSTNAME}/api/v2/tasks \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token ${INFLUXDB_ADMIN_TOKEN}" \
+    --data-binary @- << EOF
+{
+  "orgID": "${INFLUXDB_ORG_ID}",
+  "flux": "option task = {name: \"tsk-yearly-aggr\", every: 1y} \nyield now()"
+}
+EOF
+
+```
+
+</details>
+
+### Create InfluxDB API Token
+
+<details>
+  <summary>Click to expand!</summary>
+
+```bash
+# replace these values with placeholder bucket and task ids from your InfluxDB installation. 
+export INFLUXDB_SCRUTINY_BASE_BUCKET_ID=1e0709xxxx
+export INFLUXDB_SCRUTINY_WEEKLY_BUCKET_ID=1af03dexxxxx
+export INFLUXDB_SCRUTINY_MONTHLY_BUCKET_ID=b3c59c7xxxxx
+export INFLUXDB_SCRUTINY_YEARLY_BUCKET_ID=f381d8cxxxxx
+
+export INFLUXDB_SCRUTINY_WEEKLY_TASK_ID=09a64ecxxxxx
+export INFLUXDB_SCRUTINY_MONTHLY_TASK_ID=09a64xxxxx
+export INFLUXDB_SCRUTINY_YEARLY_TASK_ID=09a64ecxxxxx
+
+
+curl -sS -X POST ${INFLUXDB_HOSTNAME}/api/v2/authorizations \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Token ${INFLUXDB_ADMIN_TOKEN}" \
+    --data-binary @- << EOF
+{
+  "description": "scrutiny - restricted scope token",
+  "orgID": "${INFLUXDB_ORG_ID}",
+  "permissions": [
+        {
+            "action": "read",
+            "resource": {
+                "type": "orgs"
+            }
+        },
+        {
+            "action": "read",
+            "resource": {
+                "type": "tasks"
+            }
+        },
+        {
+            "action": "write",
+            "resource": {
+                "type": "tasks",
+                "id": "${INFLUXDB_SCRUTINY_WEEKLY_TASK_ID}",
+                "orgID": "${INFLUXDB_ORG_ID}"
+            }
+        },
+        {
+            "action": "write",
+            "resource": {
+                "type": "tasks",
+                "id": "${INFLUXDB_SCRUTINY_MONTHLY_TASK_ID}",
+                "orgID": "${INFLUXDB_ORG_ID}"
+            }
+        },
+        {
+            "action": "write",
+            "resource": {
+                "type": "tasks",
+                "id": "${INFLUXDB_SCRUTINY_YEARLY_TASK_ID}",
+                "orgID": "${INFLUXDB_ORG_ID}"
+            }
+        },
+        {
+            "action": "read",
+            "resource": {
+                "type": "buckets",
+                "id": "${INFLUXDB_SCRUTINY_BASE_BUCKET_ID}",
+                "orgID": "${INFLUXDB_ORG_ID}"
+            }
+       },
+        {
+            "action": "write",
+            "resource": {
+                "type": "buckets",
+                "id": "${INFLUXDB_SCRUTINY_BASE_BUCKET_ID}",
+                "orgID": "${INFLUXDB_ORG_ID}"
+            }
+       },
+        {
+            "action": "read",
+            "resource": {
+                "type": "buckets",
+                "id": "${INFLUXDB_SCRUTINY_WEEKLY_BUCKET_ID}",
+                "orgID": "${INFLUXDB_ORG_ID}"
+            }
+       },
+        {
+            "action": "write",
+            "resource": {
+                "type": "buckets",
+                "id": "${INFLUXDB_SCRUTINY_WEEKLY_BUCKET_ID}",
+                "orgID": "${INFLUXDB_ORG_ID}"
+            }
+       },
+        {
+            "action": "read",
+            "resource": {
+                "type": "buckets",
+                "id": "${INFLUXDB_SCRUTINY_MONTHLY_BUCKET_ID}",
+                "orgID": "${INFLUXDB_ORG_ID}"
+            }
+       },
+        {
+            "action": "write",
+            "resource": {
+                "type": "buckets",
+                "id": "${INFLUXDB_SCRUTINY_MONTHLY_BUCKET_ID}",
+                "orgID": "${INFLUXDB_ORG_ID}"
+            }
+       },
+        {
+            "action": "read",
+            "resource": {
+                "type": "buckets",
+                "id": "${INFLUXDB_SCRUTINY_YEARLY_BUCKET_ID}",
+                "orgID": "${INFLUXDB_ORG_ID}"
+            }
+       },
+        {
+            "action": "write",
+            "resource": {
+                "type": "buckets",
+                "id": "${INFLUXDB_SCRUTINY_YEARLY_BUCKET_ID}",
+                "orgID": "${INFLUXDB_ORG_ID}"
+            }
+       }
+  ]
+}
+EOF
+```
+
+</details>
+
+### Save InfluxDB API Token
+
+After running the Curl command above, you'll see a JSON response that looks like the following:
+
+```json
+{
+  "token": "ksVU2t5SkQwYkvIxxxxxxxYt2xUt0uRKSbSF1Po0UQ==",
+  "status": "active",
+  "description": "scrutiny - restricted scope token",
+  "orgID": "b2495586xxxx",
+  "org": "my-org",
+  "user": "admin",
+  "permissions": [
+    {
+      "action": "read",
+      "resource": {
+        "type": "orgs"
+      }
+    },
+    {
+      "action": "read",
+      "resource": {
+        "type": "tasks"
+      }
+    },
+    {
+      "action": "write",
+      "resource": {
+        "type": "tasks",
+        "id": "09a64exxxxx",
+        "orgID": "b24955860xxxxx",
+        "org": "my-org"
+      }
+    },
+    ...
+  ]
+}
+```
+
+You must copy the token field from the JSON response, and save it in your `scrutiny.yaml` config file. After that's
+done, you can start the Scrutiny server
+

@@ -18,6 +18,7 @@ func GetDevicesSummary(c *gin.Context) {
 		return
 	}
 
+	//this must match DeviceSummaryWrapper (webapp/backend/pkg/models/device_summary.go)
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": map[string]interface{}{

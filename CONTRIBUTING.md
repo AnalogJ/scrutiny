@@ -9,8 +9,9 @@ Depending on the functionality you are adding, you may need to setup a developme
 
 # Modifying the Scrutiny Backend Server (API)
 
-1. install the [Go runtime](https://go.dev/doc/install) (v1.17+)
-2. download the `scrutiny-web-frontend.tar.gz` for the [latest release](https://github.com/AnalogJ/scrutiny/releases/latest). Extract to a folder named `dist`
+1. install the [Go runtime](https://go.dev/doc/install) (v1.18+)
+2. download the `scrutiny-web-frontend.tar.gz` for
+   the [latest release](https://github.com/AnalogJ/scrutiny/releases/latest). Extract to a folder named `dist`
 3. create a `scrutiny.yaml` config file
     ```yaml
     # config file for local development. store as scrutiny.yaml
@@ -62,7 +63,7 @@ The frontend is written in Angular. If you're working on the frontend and can us
 If you're developing a feature that requires changes to the backend and the frontend, or a frontend feature that requires real data, 
 you'll need to follow the steps below:
 
-1. install the [Go runtime](https://go.dev/doc/install) (v1.17+)
+1. install the [Go runtime](https://go.dev/doc/install) (v1.18+)
 2. install [NodeJS](https://nodejs.org/en/download/)
 3. create a `scrutiny.yaml` config file
     ```yaml

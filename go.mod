@@ -1,6 +1,6 @@
 module github.com/analogj/scrutiny
 
-go 1.17
+go 1.18
 
 require (
 	github.com/analogj/go-util v0.0.0-20190301173314-5295e364eb14
@@ -13,6 +13,7 @@ require (
 	github.com/influxdata/influxdb-client-go/v2 v2.9.0
 	github.com/jaypipes/ghw v0.6.1
 	github.com/mitchellh/mapstructure v1.2.2
+	github.com/samber/lo v1.25.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.7.1
@@ -23,7 +24,6 @@ require (
 
 require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
-	github.com/citilinkru/libudev v1.0.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/deepmap/oapi-codegen v1.8.2 // indirect
@@ -68,6 +68,7 @@ require (
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
+	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
 	golang.org/x/sys v0.0.0-20220405052023-b1e9470b6e64 // indirect
 	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
@@ -77,7 +78,7 @@ require (
 	gopkg.in/ini.v1 v1.55.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	gosrc.io/xmpp v0.5.1 // indirect
 	howett.net/plist v0.0.0-20181124034731-591f970eefbb // indirect
 	modernc.org/libc v1.16.8 // indirect

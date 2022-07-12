@@ -1,18 +1,21 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import humanizeDuration from 'humanize-duration';
+import {AfterViewInit, Component, Inject, LOCALE_ID, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ApexOptions} from 'ng-apexcharts';
-import {MatTableDataSource} from '@angular/material/table';
-import {MatSort} from '@angular/material/sort';
-import {Subject} from 'rxjs';
+import {AppConfig} from 'app/core/config/app.config';
 import {DetailService} from './detail.service';
-import {takeUntil} from 'rxjs/operators';
 import {DetailSettingsComponent} from 'app/layout/common/detail-settings/detail-settings.component';
 import {MatDialog} from '@angular/material/dialog';
-import humanizeDuration from 'humanize-duration';
+import {MatSort} from '@angular/material/sort';
+import {MatTableDataSource} from '@angular/material/table';
+import {Subject} from 'rxjs';
 import {TreoConfigService} from '@treo/services/config';
-import {AppConfig} from 'app/core/config/app.config';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {formatDate} from '@angular/common';
-import { LOCALE_ID, Inject } from '@angular/core';
+import {takeUntil} from 'rxjs/operators';
+import {DeviceModel} from 'app/core/models/device-model';
+import {SmartModel} from 'app/core/models/measurements/smart-model';
+import {SmartAttributeModel} from 'app/core/models/measurements/smart-attribute-model';
+import {AttributeMetadataModel} from 'app/core/models/thresholds/attribute-metadata-model';
 
 // from Constants.go - these must match
 const AttributeStatusPassed = 0
@@ -22,9 +25,9 @@ const AttributeStatusFailedScrutiny = 4
 
 
 @Component({
-  selector: 'detail',
-  templateUrl: './detail.component.html',
-  styleUrls: ['./detail.component.scss'],
+    selector: 'detail',
+    templateUrl: './detail.component.html',
+    styleUrls: ['./detail.component.scss'],
     animations: [
         trigger('detailExpand', [
             state('collapsed', style({height: '0px', minHeight: '0'})),
@@ -40,22 +43,23 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
      * Constructor
      *
      * @param {DetailService} _detailService
+     * @param {MatDialog} dialog
+     * @param {TreoConfigService} _configService
+     * @param {string} locale
      */
     constructor(
         private _detailService: DetailService,
         public dialog: MatDialog,
         private _configService: TreoConfigService,
         @Inject(LOCALE_ID) public locale: string
-
-    )
-    {
+    ) {
         // Set the private defaults
         this._unsubscribeAll = new Subject();
 
         // Set the defaults
         this.smartAttributeDataSource = new MatTableDataSource();
         // this.recentTransactionsTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh'];
-        this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh','ideal', 'failure', 'history'];
+        this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'worst', 'thresh', 'ideal', 'failure', 'history'];
 
         this.systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
@@ -65,14 +69,15 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     onlyCritical = true;
     // data: any;
-    expandedAttribute: any | null;
+    expandedAttribute: SmartAttributeModel | null;
 
-    metadata: any;
-    device: any;
-    smart_results: any[];
+    metadata: { [p: string]: AttributeMetadataModel } | { [p: number]: AttributeMetadataModel };
+    device: DeviceModel;
+    // tslint:disable-next-line:variable-name
+    smart_results: SmartModel[];
 
     commonSparklineOptions: Partial<ApexOptions>;
-    smartAttributeDataSource: MatTableDataSource<any>;
+    smartAttributeDataSource: MatTableDataSource<SmartAttributeModel>;
     smartAttributeTableColumns: string[];
 
     @ViewChild('smartAttributeTable', {read: MatSort})
@@ -91,8 +96,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     /**
      * On init
      */
-    ngOnInit(): void
-    {
+    ngOnInit(): void {
         // Subscribe to config changes
         this._configService.config$
             .pipe(takeUntil(this._unsubscribeAll))
@@ -104,13 +108,13 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         // Get the data
         this._detailService.data$
             .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((data) => {
+            .subscribe((respWrapper) => {
 
                 // Store the data
                 // this.data = data;
-                this.device = data.data.device;
-                this.smart_results = data.data.smart_results
-                this.metadata = data.metadata;
+                this.device = respWrapper.data.device;
+                this.smart_results = respWrapper.data.smart_results
+                this.metadata = respWrapper.metadata;
 
 
                 // Store the table data
@@ -124,8 +128,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     /**
      * After view init
      */
-    ngAfterViewInit(): void
-    {
+    ngAfterViewInit(): void {
         // Make the data source sortable
         this.smartAttributeDataSource.sort = this.smartAttributeTableMatSort;
     }
@@ -133,8 +136,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     /**
      * On destroy
      */
-    ngOnDestroy(): void
-    {
+    ngOnDestroy(): void {
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next();
         this._unsubscribeAll.complete();
@@ -147,22 +149,23 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     getAttributeStatusName(attributeStatus: number): string {
         // tslint:disable:no-bitwise
 
-        if(attributeStatus === AttributeStatusPassed){
+        if (attributeStatus === AttributeStatusPassed) {
             return 'passed'
 
-        } else if ((attributeStatus & AttributeStatusFailedScrutiny) !== 0 || (attributeStatus & AttributeStatusFailedSmart) !== 0 ){
+        } else if ((attributeStatus & AttributeStatusFailedScrutiny) !== 0 || (attributeStatus & AttributeStatusFailedSmart) !== 0) {
             return 'failed'
-        } else if ((attributeStatus & AttributeStatusWarningScrutiny) !== 0){
+        } else if ((attributeStatus & AttributeStatusWarningScrutiny) !== 0) {
             return 'warn'
         }
         return ''
         // tslint:enable:no-bitwise
     }
+
     getAttributeScrutinyStatusName(attributeStatus: number): string {
         // tslint:disable:no-bitwise
-        if ((attributeStatus & AttributeStatusFailedScrutiny) !== 0){
+        if ((attributeStatus & AttributeStatusFailedScrutiny) !== 0) {
             return 'failed'
-        } else if ((attributeStatus & AttributeStatusWarningScrutiny) !== 0){
+        } else if ((attributeStatus & AttributeStatusWarningScrutiny) !== 0) {
             return 'warn'
         } else {
             return 'passed'
@@ -172,7 +175,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     getAttributeSmartStatusName(attributeStatus: number): string {
         // tslint:disable:no-bitwise
-        if ((attributeStatus & AttributeStatusFailedSmart) !== 0){
+        if ((attributeStatus & AttributeStatusFailedSmart) !== 0) {
             return 'failed'
         } else {
             return 'passed'
@@ -181,138 +184,140 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
 
-    getAttributeName(attribute_data): string {
-        const attribute_metadata = this.metadata[attribute_data.attribute_id]
-        if(!attribute_metadata){
+    getAttributeName(attributeData: SmartAttributeModel): string {
+        const attributeMetadata = this.metadata[attributeData.attribute_id]
+        if (!attributeMetadata) {
             return 'Unknown Attribute Name'
         } else {
-            return attribute_metadata.display_name
+            return attributeMetadata.display_name
         }
     }
-    getAttributeDescription(attribute_data){
-        const attribute_metadata = this.metadata[attribute_data.attribute_id]
-        if(!attribute_metadata){
+
+    getAttributeDescription(attributeData: SmartAttributeModel): string {
+        const attributeMetadata = this.metadata[attributeData.attribute_id]
+        if (!attributeMetadata) {
             return 'Unknown'
         } else {
-            return attribute_metadata.description
+            return attributeMetadata.description
         }
-        return
     }
 
-    getAttributeValue(attribute_data){
-        if(this.isAta()) {
-            const attribute_metadata = this.metadata[attribute_data.attribute_id]
-            if(!attribute_metadata){
-                return attribute_data.value
-            } else if (attribute_metadata.display_type == 'raw') {
-                return attribute_data.raw_value
-            } else if (attribute_metadata.display_type == 'transformed' && attribute_data.transformed_value) {
-                return attribute_data.transformed_value
+    getAttributeValue(attributeData: SmartAttributeModel): number {
+        if (this.isAta()) {
+            const attributeMetadata = this.metadata[attributeData.attribute_id]
+            if (!attributeMetadata) {
+                return attributeData.value
+            } else if (attributeMetadata.display_type === 'raw') {
+                return attributeData.raw_value
+            } else if (attributeMetadata.display_type === 'transformed' && attributeData.transformed_value) {
+                return attributeData.transformed_value
             } else {
-                return attribute_data.value
+                return attributeData.value
             }
-        }
-        else{
-            return attribute_data.value
+        } else {
+            return attributeData.value
         }
     }
 
-    getAttributeValueType(attribute_data){
-        if(this.isAta()) {
-            const attribute_metadata = this.metadata[attribute_data.attribute_id]
-            if(!attribute_metadata){
+    getAttributeValueType(attributeData: SmartAttributeModel): string {
+        if (this.isAta()) {
+            const attributeMetadata = this.metadata[attributeData.attribute_id]
+            if (!attributeMetadata) {
                 return ''
             } else {
-                return attribute_metadata.display_type
+                return attributeMetadata.display_type
             }
         } else {
             return ''
         }
     }
 
-    getAttributeIdeal(attribute_data){
-        if(this.isAta()){
-            return this.metadata[attribute_data.attribute_id]?.display_type == 'raw' ? this.metadata[attribute_data.attribute_id]?.ideal : ''
+    getAttributeIdeal(attributeData: SmartAttributeModel): string {
+        if (this.isAta()) {
+            return this.metadata[attributeData.attribute_id]?.display_type === 'raw' ? this.metadata[attributeData.attribute_id]?.ideal : ''
         } else {
-            return this.metadata[attribute_data.attribute_id]?.ideal
+            return this.metadata[attributeData.attribute_id]?.ideal
         }
     }
 
-    getAttributeWorst(attribute_data){
-        const attribute_metadata = this.metadata[attribute_data.attribute_id]
-        if(!attribute_metadata){
-            return attribute_data.worst
+    getAttributeWorst(attributeData: SmartAttributeModel): number | string {
+        const attributeMetadata = this.metadata[attributeData.attribute_id]
+        if (!attributeMetadata) {
+            return attributeData.worst
         } else {
-            return attribute_metadata?.display_type == 'normalized' ? attribute_data.worst : ''
+            return attributeMetadata?.display_type === 'normalized' ? attributeData.worst : ''
         }
     }
 
-    getAttributeThreshold(attribute_data){
-        if(this.isAta()){
-            const attribute_metadata = this.metadata[attribute_data.attribute_id]
-            if(!attribute_metadata || attribute_metadata.display_type == 'normalized'){
-                return attribute_data.thresh
+    getAttributeThreshold(attributeData: SmartAttributeModel): number | string {
+        if (this.isAta()) {
+            const attributeMetadata = this.metadata[attributeData.attribute_id]
+            if (!attributeMetadata || attributeMetadata.display_type === 'normalized') {
+                return attributeData.thresh
             } else {
                 // if(this.data.metadata[attribute_data.attribute_id].observed_thresholds){
                 //
                 // } else {
                 // }
                 // return ''
-                return attribute_data.thresh
+                return attributeData.thresh
             }
         } else {
-            return (attribute_data.thresh == -1 ? '' : attribute_data.thresh )
+            return (attributeData.thresh === -1 ? '' : attributeData.thresh)
         }
     }
 
-    getAttributeCritical(attribute_data){
-        return this.metadata[attribute_data.attribute_id]?.critical
+    getAttributeCritical(attributeData: SmartAttributeModel): boolean {
+        return this.metadata[attributeData.attribute_id]?.critical
     }
-    getHiddenAttributes(){
-        if (!this.smart_results || this.smart_results.length == 0) {
+
+    getHiddenAttributes(): number {
+        if (!this.smart_results || this.smart_results.length === 0) {
             return 0
         }
 
-        let attributes_length = 0
+        let attributesLength = 0
         const attributes = this.smart_results[0]?.attrs
         if (attributes) {
-            attributes_length = Object.keys(attributes).length
+            attributesLength = Object.keys(attributes).length
         }
 
-        return attributes_length - this.smartAttributeDataSource.data.length
+        return attributesLength - this.smartAttributeDataSource.data.length
     }
 
     isAta(): boolean {
-        return this.device.device_protocol == 'ATA'
+        return this.device.device_protocol === 'ATA'
     }
+
     isScsi(): boolean {
-        return this.device.device_protocol == 'SCSI'
+        return this.device.device_protocol === 'SCSI'
     }
+
     isNvme(): boolean {
-        return this.device.device_protocol == 'NVMe'
+        return this.device.device_protocol === 'NVMe'
     }
 
-    private _generateSmartAttributeTableDataSource(smart_results){
-        const smartAttributeDataSource = [];
+    private _generateSmartAttributeTableDataSource(smartResults: SmartModel[]): SmartAttributeModel[] {
+        const smartAttributeDataSource: SmartAttributeModel[] = [];
 
-        if(smart_results.length == 0){
+        if (smartResults.length === 0) {
             return smartAttributeDataSource
         }
-        const latest_smart_result = smart_results[0];
-        let attributes = {}
-        if(this.isScsi()) {
+        const latestSmartResult = smartResults[0];
+        let attributes: { [p: string]: SmartAttributeModel } = {}
+        if (this.isScsi()) {
             this.smartAttributeTableColumns = ['status', 'name', 'value', 'thresh', 'history'];
-            attributes = latest_smart_result.attrs
-        } else if(this.isNvme()){
+            attributes = latestSmartResult.attrs
+        } else if (this.isNvme()) {
             this.smartAttributeTableColumns = ['status', 'name', 'value', 'thresh', 'ideal', 'history'];
-            attributes = latest_smart_result.attrs
+            attributes = latestSmartResult.attrs
         } else {
             // ATA
-            attributes = latest_smart_result.attrs
-            this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'thresh','ideal', 'failure', 'history'];
+            attributes = latestSmartResult.attrs
+            this.smartAttributeTableColumns = ['status', 'id', 'name', 'value', 'thresh', 'ideal', 'failure', 'history'];
         }
 
-        for(const attrId in attributes){
+        for (const attrId in attributes) {
             const attr = attributes[attrId]
 
             // chart history data
@@ -320,18 +325,18 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
                 const attrHistory = []
-                for (const smart_result of smart_results){
+                for (const smartResult of smartResults) {
                     // attrHistory.push(this.getAttributeValue(smart_result.attrs[attrId]))
 
                     const chartDatapoint = {
-                        x: formatDate(smart_result.date, 'MMMM dd, yyyy - HH:mm', this.locale),
-                        y: this.getAttributeValue(smart_result.attrs[attrId])
+                        x: formatDate(smartResult.date, 'MMMM dd, yyyy - HH:mm', this.locale),
+                        y: this.getAttributeValue(smartResult.attrs[attrId])
                     }
-                    const attributeStatusName = this.getAttributeStatusName(smart_result.attrs[attrId].status)
-                    if(attributeStatusName === 'failed') {
+                    const attributeStatusName = this.getAttributeStatusName(smartResult.attrs[attrId].status)
+                    if (attributeStatusName === 'failed') {
                         chartDatapoint['strokeColor'] = '#F05252'
                         chartDatapoint['fillColor'] = '#F05252'
-                    } else if (attributeStatusName === 'warn'){
+                    } else if (attributeStatusName === 'warn') {
                         chartDatapoint['strokeColor'] = '#C27803'
                         chartDatapoint['fillColor'] = '#C27803'
                     }
@@ -350,7 +355,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
             }
             // determine when to include the attributes in table.
 
-            if(!this.onlyCritical || this.onlyCritical && this.metadata[attr.attribute_id]?.critical || attr.value < attr.thresh){
+            if (!this.onlyCritical || this.onlyCritical && this.metadata[attr.attribute_id]?.critical || attr.value < attr.thresh) {
                 smartAttributeDataSource.push(attr)
             }
         }
@@ -362,8 +367,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
      *
      * @private
      */
-    private _prepareChartData(): void
-    {
+    private _prepareChartData(): void {
 
         // Account balance
         this.commonSparklineOptions = {
@@ -392,7 +396,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                 },
                 y: {
                     title: {
-                        formatter: function(seriesName) {
+                        formatter: (seriesName) => {
                             return '';
                         }
                     }
@@ -410,27 +414,28 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         };
     }
 
-    private determineTheme(config:AppConfig): string {
+    private determineTheme(config: AppConfig): string {
         if (config.theme === 'system') {
             return this.systemPrefersDark ? 'dark' : 'light'
         } else {
             return config.theme
         }
     }
+
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
 
-    toHex(decimalNumb){
+    toHex(decimalNumb: number | string): string {
         return '0x' + Number(decimalNumb).toString(16).padStart(2, '0').toUpperCase()
     }
-    toggleOnlyCritical(){
+
+    toggleOnlyCritical(): void {
         this.onlyCritical = !this.onlyCritical
         this.smartAttributeDataSource.data = this._generateSmartAttributeTableDataSource(this.smart_results);
-
     }
 
-    openDialog() {
+    openDialog(): void {
         const dialogRef = this.dialog.open(DetailSettingsComponent);
 
         dialogRef.afterClosed().subscribe(result => {
@@ -444,8 +449,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
      * @param index
      * @param item
      */
-    trackByFn(index: number, item: any): any
-    {
+    trackByFn(index: number, item: any): any {
         return index;
         // return item.id || index;
     }

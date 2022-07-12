@@ -1,16 +1,15 @@
-import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { Overlay } from '@angular/cdk/overlay';
-import { MAT_AUTOCOMPLETE_SCROLL_STRATEGY, MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { SharedModule } from 'app/shared/shared.module';
+import {NgModule} from '@angular/core';
+import {RouterModule} from '@angular/router';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatButtonModule} from '@angular/material/button';
+import {MatSelectModule} from '@angular/material/select';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {SharedModule} from 'app/shared/shared.module';
 import {DetailSettingsComponent} from 'app/layout/common/detail-settings/detail-settings.component'
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
@@ -20,7 +19,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     declarations: [
         DetailSettingsComponent
     ],
-    imports     : [
+    imports: [
         RouterModule.forChild([]),
         MatAutocompleteModule,
         MatDialogModule,
@@ -36,11 +35,10 @@ import {MatTooltipModule} from '@angular/material/tooltip';
         MatSlideToggleModule,
         SharedModule
     ],
-    exports     : [
+    exports: [
         DetailSettingsComponent
     ],
-    providers   : []
+    providers: []
 })
-export class DetailSettingsModule
-{
+export class DetailSettingsModule {
 }

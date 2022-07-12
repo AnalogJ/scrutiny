@@ -9,6 +9,7 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/detect"
 	"github.com/analogj/scrutiny/collector/pkg/errors"
 	"github.com/analogj/scrutiny/collector/pkg/models"
+	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"net/url"
 	"os"
@@ -56,10 +57,15 @@ func (mc *MetricsCollector) Run() error {
 		Logger: mc.logger,
 		Config: mc.config,
 	}
-	detectedStorageDevices, err := deviceDetector.Start()
+	rawDetectedStorageDevices, err := deviceDetector.Start()
 	if err != nil {
 		return err
 	}
+
+	//filter any device with empty wwn (they are invalid)
+	detectedStorageDevices := lo.Filter[models.Device](rawDetectedStorageDevices, func(dev models.Device, _ int) bool {
+		return len(dev.WWN) > 0
+	})
 
 	mc.logger.Infoln("Sending detected devices to API, for filtering & validation")
 	jsonObj, _ := json.Marshal(detectedStorageDevices)

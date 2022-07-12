@@ -1,4 +1,5 @@
 .ONESHELL: # Applies to every targets in the file! .ONESHELL instructs make to invoke a single instance of the shell and provide it with the entire recipe, regardless of how many lines it contains.
+.SHELLFLAGS = -ec
 
 ########################################################################################################################
 # Global Env Settings
@@ -89,6 +90,10 @@ ifneq ($(OS),Windows_NT)
 	./$(WEB_BINARY_NAME) || true
 endif
 
+########################################################################################################################
+# Binary
+########################################################################################################################
+
 .PHONY: binary-frontend
 # reduce logging, disable angular-cli analytics for ci environment
 binary-frontend: export NPM_CONFIG_LOGLEVEL = warn
@@ -100,6 +105,12 @@ binary-frontend:
 	npm ci
 	npm run build:prod -- --output-path=$(CURDIR)/dist
 
+.PHONY: binary-frontend-test-coverage
+# reduce logging, disable angular-cli analytics for ci environment
+binary-frontend-test-coverage:
+	cd webapp/frontend
+	npm ci
+	npx ng test --watch=false --browsers=ChromeHeadless --code-coverage
 
 ########################################################################################################################
 # Docker

@@ -1,11 +1,12 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
+import {DeviceModel} from 'app/core/models/device-model';
 
 @Pipe({
   name: 'deviceTitle'
 })
 export class DeviceTitlePipe implements PipeTransform {
 
-    static deviceTitleForType(device: any, titleType: string): string {
+    static deviceTitleForType(device: DeviceModel, titleType: string): string {
         const titleParts = []
         switch(titleType){
             case 'name':
@@ -35,7 +36,7 @@ export class DeviceTitlePipe implements PipeTransform {
         return titleParts.join(' - ')
     }
 
-    static deviceTitleWithFallback(device, titleType: string): string {
+    static deviceTitleWithFallback(device: DeviceModel, titleType: string): string {
         console.log(`Displaying Device ${device.wwn} with: ${titleType}`)
         const titleParts = []
         if (device.host_id) titleParts.push(device.host_id)
@@ -47,7 +48,7 @@ export class DeviceTitlePipe implements PipeTransform {
     }
 
 
-    transform(device: any, titleType: string = 'name'): string {
+    transform(device: DeviceModel, titleType: string = 'name'): string {
         return DeviceTitlePipe.deviceTitleWithFallback(device, titleType)
     }
 
