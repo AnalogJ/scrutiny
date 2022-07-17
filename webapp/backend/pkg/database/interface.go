@@ -28,4 +28,7 @@ type DeviceRepo interface {
 
 	GetSummary(ctx context.Context) (map[string]*models.DeviceSummary, error)
 	GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[string][]measurements.SmartTemperature, error)
+
+	GetSettings(ctx context.Context) (*models.Settings, error)
+	SaveSettings(ctx context.Context, settings models.Settings) error
 }

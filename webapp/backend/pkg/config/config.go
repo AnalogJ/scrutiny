@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/analogj/go-util/utils"
-	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
 	"github.com/spf13/viper"
 	"log"
@@ -39,8 +38,6 @@ func (c *configuration) Init() error {
 	c.SetDefault("log.file", "")
 
 	c.SetDefault("notify.urls", []string{})
-	c.SetDefault("notify.filter_attributes", pkg.NotifyFilterAttributesAll)
-	c.SetDefault("notify.level", pkg.NotifyLevelFail)
 
 	c.SetDefault("web.influxdb.scheme", "http")
 	c.SetDefault("web.influxdb.host", "localhost")
@@ -55,17 +52,6 @@ func (c *configuration) Init() error {
 	//c.SetDefault("disks.include", []string{})
 	//c.SetDefault("disks.exclude", []string{})
 
-	//c.SetDefault("notify.metric.script", "/opt/scrutiny/config/notify-metrics.sh")
-	//c.SetDefault("notify.long.script", "/opt/scrutiny/config/notify-long-test.sh")
-	//c.SetDefault("notify.short.script", "/opt/scrutiny/config/notify-short-test.sh")
-
-	//c.SetDefault("collect.metric.enable", true)
-	//c.SetDefault("collect.metric.command", "-a -o on -S on")
-	//c.SetDefault("collect.long.enable", true)
-	//c.SetDefault("collect.long.command", "-a -o on -S on")
-	//c.SetDefault("collect.short.enable", true)
-	//c.SetDefault("collect.short.command", "-a -o on -S on")
-
 	//if you want to load a non-standard location system config file (~/drawbridge.yml), use ReadConfig
 	c.SetConfigType("yaml")
 	//c.SetConfigName("drawbridge")
@@ -77,7 +63,7 @@ func (c *configuration) Init() error {
 	c.AutomaticEnv()
 
 	//CLI options will be added via the `Set()` function
-	return nil
+	return c.ValidateConfig()
 }
 
 func (c *configuration) ReadConfig(configFilePath string) error {
@@ -120,24 +106,18 @@ func (c *configuration) ReadConfig(configFilePath string) error {
 // This function ensures that the merged config works correctly.
 func (c *configuration) ValidateConfig() error {
 
-	////deserialize Questions
-	//questionsMap := map[string]Question{}
-	//err := c.UnmarshalKey("questions", &questionsMap)
-	//
-	//if err != nil {
-	//	log.Printf("questions could not be deserialized correctly. %v", err)
-	//	return err
-	//}
-	//
-	//for _, v := range questionsMap {
-	//
-	//	typeContent, ok := v.Schema["type"].(string)
-	//	if !ok || len(typeContent) == 0 {
-	//		return errors.QuestionSyntaxError("`type` is required for questions")
-	//	}
-	//}
-	//
-	//
+	//the following keys are deprecated, and no longer supported
+	/*
+		- notify.filter_attributes (replaced by metrics.status.filter_attributes SETTING)
+		- notify.level (replaced by metrics.notify.level and metrics.status.threshold SETTING)
+	*/
+	//TODO add docs and upgrade doc.
+	if c.IsSet("notify.filter_attributes") {
+		return errors.ConfigValidationError("`notify.filter_attributes` configuration option is deprecated. Replaced by option in Dashboard Settings page")
+	}
+	if c.IsSet("notify.level") {
+		return errors.ConfigValidationError("`notify.level` configuration option is deprecated. Replaced by option in Dashboard Settings page")
+	}
 
 	return nil
 }

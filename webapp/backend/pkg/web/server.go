@@ -50,6 +50,8 @@ func (ae *AppEngine) Setup(logger logrus.FieldLogger) *gin.Engine {
 			api.GET("/device/:wwn/details", handler.GetDeviceDetails) //used by Details
 			api.DELETE("/device/:wwn", handler.DeleteDevice)          //used by UI to delete device
 
+			api.GET("/settings", handler.GetSettings)   //used to get settings
+			api.POST("/settings", handler.SaveSettings) //used to save settings
 		}
 	}
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20201107210306"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220503120000"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220509170100"
@@ -281,7 +282,33 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 			Migrate: func(tx *gorm.DB) error {
 
 				// adding the settings table.
-				return tx.AutoMigrate(m20220716214900.Setting{})
+				err := tx.AutoMigrate(m20220716214900.Setting{})
+				if err != nil {
+					return err
+				}
+				//add defaults.
+
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "metrics.notify.level",
+						SettingKeyDescription: "Determines which device status will cause a notification (fail or warn)",
+						SettingDataType:       "numeric",
+						SettingValueNumeric:   int64(pkg.MetricsNotifyLevelFail), // options: 'fail' or 'warn'
+					},
+					{
+						SettingKeyName:        "metrics.status.filter_attributes",
+						SettingKeyDescription: "Determines which attributes should impact device status",
+						SettingDataType:       "numeric",
+						SettingValueNumeric:   int64(pkg.MetricsStatusFilterAttributesAll), // options: 'all' or  'critical'
+					},
+					{
+						SettingKeyName:        "metrics.status.threshold",
+						SettingKeyDescription: "Determines which threshold should impact device status",
+						SettingDataType:       "string",
+						SettingValueNumeric:   int64(pkg.MetricsStatusThresholdBoth), // options: 'scrutiny', 'smart', 'both'
+					},
+				}
+				return tx.Create(&defaultSettings).Error
 			},
 		},
 	})
