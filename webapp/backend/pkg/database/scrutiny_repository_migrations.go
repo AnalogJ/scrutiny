@@ -304,7 +304,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 					{
 						SettingKeyName:        "metrics.status.threshold",
 						SettingKeyDescription: "Determines which threshold should impact device status",
-						SettingDataType:       "string",
+						SettingDataType:       "numeric",
 						SettingValueNumeric:   int64(pkg.MetricsStatusThresholdBoth), // options: 'scrutiny', 'smart', 'both'
 					},
 				}

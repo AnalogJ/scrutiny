@@ -4,30 +4,79 @@ import (
 	"context"
 	"fmt"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
+	"github.com/mitchellh/mapstructure"
 )
 
-func (sr *scrutinyRepository) GetSettings(ctx context.Context) (*models.Settings, error) {
+const DBSETTING_SUBKEY = "dbsetting"
+
+// LoadSettings will retrieve settings from the database, store them in the AppConfig object, and return a Settings struct
+func (sr *scrutinyRepository) LoadSettings(ctx context.Context) (*models.Settings, error) {
 	settingsEntries := []models.SettingEntry{}
 	if err := sr.gormClient.WithContext(ctx).Find(&settingsEntries).Error; err != nil {
 		return nil, fmt.Errorf("Could not get settings from DB: %v", err)
 	}
 
-	settings := models.Settings{}
-	settings.PopulateFromSettingEntries(settingsEntries)
+	// store retrieved settings in the AppConfig obj
+	for _, settingsEntry := range settingsEntries {
+		configKey := fmt.Sprintf("%s.%s", DBSETTING_SUBKEY, settingsEntry.SettingKeyName)
 
+		if settingsEntry.SettingDataType == "numeric" {
+			sr.appConfig.SetDefault(configKey, settingsEntry.SettingValueNumeric)
+		} else if settingsEntry.SettingDataType == "string" {
+			sr.appConfig.SetDefault(configKey, settingsEntry.SettingValueString)
+		}
+	}
+
+	// unmarshal the dbsetting object data to a settings object.
+	var settings models.Settings
+	err := sr.appConfig.UnmarshalKey(DBSETTING_SUBKEY, &settings)
+	if err != nil {
+		return nil, err
+	}
 	return &settings, nil
 }
+
+// testing
+// curl -d '{"metrics": { "notify": { "level": 5 }, "status": { "filter_attributes": 5, "threshold": 5 } }}' -H "Content-Type: application/json" -X POST http://localhost:9090/api/settings
+// SaveSettings will update settings in AppConfig object, then save the settings to the database.
 func (sr *scrutinyRepository) SaveSettings(ctx context.Context, settings models.Settings) error {
 
-	//get current settings
+	//save the entries to the appconfig
+	settingsMap := &map[string]interface{}{}
+	err := mapstructure.Decode(settings, &settingsMap)
+	if err != nil {
+		return err
+	}
+	settingsWrapperMap := map[string]interface{}{}
+	settingsWrapperMap[DBSETTING_SUBKEY] = *settingsMap
+	err = sr.appConfig.MergeConfigMap(settingsWrapperMap)
+	if err != nil {
+		return err
+	}
+
+	//retrieve current settings from the database
 	settingsEntries := []models.SettingEntry{}
 	if err := sr.gormClient.WithContext(ctx).Find(&settingsEntries).Error; err != nil {
 		return fmt.Errorf("Could not get settings from DB: %v", err)
 	}
 
-	// override with values from settings object
-	settingsEntries = settings.UpdateSettingEntries(settingsEntries)
+	//update settingsEntries
+	for ndx, settingsEntry := range settingsEntries {
+		configKey := fmt.Sprintf("%s.%s", DBSETTING_SUBKEY, settingsEntry.SettingKeyName)
 
-	// store in database.
-	return sr.gormClient.Updates(&settingsEntries).Error
+		if settingsEntry.SettingDataType == "numeric" {
+			settingsEntries[ndx].SettingValueNumeric = sr.appConfig.GetInt(configKey)
+		} else if settingsEntry.SettingDataType == "string" {
+			settingsEntries[ndx].SettingValueString = sr.appConfig.GetString(configKey)
+		}
+
+		// store in database.
+		//TODO: this should be `sr.gormClient.Updates(&settingsEntries).Error`
+		err := sr.gormClient.Model(&models.SettingEntry{}).Where([]uint{settingsEntry.ID}).Select("setting_value_numeric", "setting_value_string").Updates(settingsEntries[ndx]).Error
+		if err != nil {
+			return err
+		}
+
+	}
+	return nil
 }

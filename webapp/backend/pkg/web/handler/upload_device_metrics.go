@@ -67,7 +67,12 @@ func UploadDeviceMetrics(c *gin.Context) {
 	}
 
 	//check for error
-	if notify.ShouldNotify(updatedDevice, smartData, appConfig.GetString("notify.level"), appConfig.GetString("notify.filter_attributes")) {
+	if notify.ShouldNotify(
+		updatedDevice,
+		smartData,
+		pkg.MetricsStatusThreshold(appConfig.GetInt("dbsetting.metrics.status.threshold")),
+		pkg.MetricsStatusFilterAttributes(appConfig.GetInt("dbsetting.metrics.status.filter_attributes")),
+	) {
 		//send notifications
 
 		liveNotify := notify.New(

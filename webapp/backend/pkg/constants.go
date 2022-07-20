@@ -68,13 +68,4 @@ const (
 const NotifyFilterAttributesAll = "all"
 
 // Deprecated
-const NotifyFilterAttributesCritical = "critical"
-
-// Deprecated
 const NotifyLevelFail = "fail"
-
-// Deprecated
-const NotifyLevelFailScrutiny = "fail_scrutiny"
-
-// Deprecated
-const NotifyLevelFailSmart = "fail_smart"

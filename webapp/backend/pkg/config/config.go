@@ -66,6 +66,10 @@ func (c *configuration) Init() error {
 	return c.ValidateConfig()
 }
 
+func (c *configuration) SubKeys(key string) []string {
+	return c.Sub(key).AllKeys()
+}
+
 func (c *configuration) ReadConfig(configFilePath string) error {
 	//make sure that we specify that this is the correct config path (for eventual WriteConfig() calls)
 	c.SetConfigFile(configFilePath)

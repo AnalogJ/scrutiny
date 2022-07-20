@@ -11,9 +11,6 @@ import (
 type DeviceRepo interface {
 	Close() error
 
-	//GetSettings()
-	//SaveSetting()
-
 	RegisterDevice(ctx context.Context, dev models.Device) error
 	GetDevices(ctx context.Context) ([]models.Device, error)
 	UpdateDevice(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (models.Device, error)
@@ -29,6 +26,6 @@ type DeviceRepo interface {
 	GetSummary(ctx context.Context) (map[string]*models.DeviceSummary, error)
 	GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[string][]measurements.SmartTemperature, error)
 
-	GetSettings(ctx context.Context) (*models.Settings, error)
+	LoadSettings(ctx context.Context) (*models.Settings, error)
 	SaveSettings(ctx context.Context, settings models.Settings) error
 }
