@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const DBSETTING_SUBKEY = "dbsetting"
+
 // When initializing this class the following methods must be called:
 // Config.New
 // Config.Init
@@ -68,6 +70,13 @@ func (c *configuration) Init() error {
 
 func (c *configuration) SubKeys(key string) []string {
 	return c.Sub(key).AllKeys()
+}
+
+func (c *configuration) Sub(key string) Interface {
+	config := configuration{
+		Viper: c.Viper.Sub(key),
+	}
+	return &config
 }
 
 func (c *configuration) ReadConfig(configFilePath string) error {

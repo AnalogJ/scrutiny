@@ -14,6 +14,7 @@ type Interface interface {
 	SetDefault(key string, value interface{})
 	MergeConfigMap(cfg map[string]interface{}) error
 
+	Sub(key string) Interface
 	AllSettings() map[string]interface{}
 	AllKeys() []string
 	SubKeys(key string) []string

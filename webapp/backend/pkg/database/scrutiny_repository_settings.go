@@ -3,11 +3,10 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/mitchellh/mapstructure"
 )
-
-const DBSETTING_SUBKEY = "dbsetting"
 
 // LoadSettings will retrieve settings from the database, store them in the AppConfig object, and return a Settings struct
 func (sr *scrutinyRepository) LoadSettings(ctx context.Context) (*models.Settings, error) {
@@ -18,18 +17,18 @@ func (sr *scrutinyRepository) LoadSettings(ctx context.Context) (*models.Setting
 
 	// store retrieved settings in the AppConfig obj
 	for _, settingsEntry := range settingsEntries {
-		configKey := fmt.Sprintf("%s.%s", DBSETTING_SUBKEY, settingsEntry.SettingKeyName)
+		configKey := fmt.Sprintf("%s.%s", config.DBSETTING_SUBKEY, settingsEntry.SettingKeyName)
 
 		if settingsEntry.SettingDataType == "numeric" {
-			sr.appConfig.SetDefault(configKey, settingsEntry.SettingValueNumeric)
+			sr.appConfig.Set(configKey, settingsEntry.SettingValueNumeric)
 		} else if settingsEntry.SettingDataType == "string" {
-			sr.appConfig.SetDefault(configKey, settingsEntry.SettingValueString)
+			sr.appConfig.Set(configKey, settingsEntry.SettingValueString)
 		}
 	}
 
 	// unmarshal the dbsetting object data to a settings object.
 	var settings models.Settings
-	err := sr.appConfig.UnmarshalKey(DBSETTING_SUBKEY, &settings)
+	err := sr.appConfig.UnmarshalKey(config.DBSETTING_SUBKEY, &settings)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +47,7 @@ func (sr *scrutinyRepository) SaveSettings(ctx context.Context, settings models.
 		return err
 	}
 	settingsWrapperMap := map[string]interface{}{}
-	settingsWrapperMap[DBSETTING_SUBKEY] = *settingsMap
+	settingsWrapperMap[config.DBSETTING_SUBKEY] = *settingsMap
 	err = sr.appConfig.MergeConfigMap(settingsWrapperMap)
 	if err != nil {
 		return err
@@ -62,7 +61,7 @@ func (sr *scrutinyRepository) SaveSettings(ctx context.Context, settings models.
 
 	//update settingsEntries
 	for ndx, settingsEntry := range settingsEntries {
-		configKey := fmt.Sprintf("%s.%s", DBSETTING_SUBKEY, settingsEntry.SettingKeyName)
+		configKey := fmt.Sprintf("%s.%s", config.DBSETTING_SUBKEY, settingsEntry.SettingKeyName)
 
 		if settingsEntry.SettingDataType == "numeric" {
 			settingsEntries[ndx].SettingValueNumeric = sr.appConfig.GetInt(configKey)
