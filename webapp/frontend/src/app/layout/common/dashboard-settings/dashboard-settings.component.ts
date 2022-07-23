@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {AppConfig} from 'app/core/config/app.config';
-import {TreoConfigService} from '@treo/services/config';
+import {AppConfig, DashboardDisplay, DashboardSort, TemperatureUnit, Theme} from 'app/core/config/app.config';
+import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 
@@ -20,7 +20,7 @@ export class DashboardSettingsComponent implements OnInit {
     private _unsubscribeAll: Subject<any>;
 
     constructor(
-        private _configService: TreoConfigService,
+        private _configService: ScrutinyConfigService,
     ) {
         // Set the private defaults
         this._unsubscribeAll = new Subject();
@@ -33,9 +33,9 @@ export class DashboardSettingsComponent implements OnInit {
             .subscribe((config: AppConfig) => {
 
                 // Store the config
-                this.dashboardDisplay = config.dashboardDisplay;
-                this.dashboardSort = config.dashboardSort;
-                this.temperatureUnit = config.temperatureUnit;
+                this.dashboardDisplay = config.dashboard_display;
+                this.dashboardSort = config.dashboard_sort;
+                this.temperatureUnit = config.temperature_unit;
                 this.theme = config.theme;
 
             });
@@ -43,11 +43,11 @@ export class DashboardSettingsComponent implements OnInit {
     }
 
     saveSettings(): void {
-        const newSettings = {
-            dashboardDisplay: this.dashboardDisplay,
-            dashboardSort: this.dashboardSort,
-            temperatureUnit: this.temperatureUnit,
-            theme: this.theme
+        const newSettings: AppConfig = {
+            dashboard_display: this.dashboardDisplay as DashboardDisplay,
+            dashboard_sort: this.dashboardSort as DashboardSort,
+            temperature_unit: this.temperatureUnit as TemperatureUnit,
+            theme: this.theme as Theme
         }
         this._configService.config = newSettings
         console.log(`Saved Settings: ${JSON.stringify(newSettings)}`)

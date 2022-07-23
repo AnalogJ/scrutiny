@@ -10,19 +10,47 @@ export type DashboardSort = 'status' | 'title' | 'age'
 
 export type TemperatureUnit = 'celsius' | 'fahrenheit'
 
+
+enum MetricsNotifyLevel {
+    Warn = 1,
+    Fail = 2
+}
+
+enum MetricsStatusFilterAttributes {
+    All = 0,
+    Critical = 1
+}
+
+enum MetricsStatusThreshold {
+    Smart = 1,
+    Scrutiny = 2,
+
+    // shortcut
+    Both = 3
+}
+
 /**
  * AppConfig interface. Update this interface to strictly type your config
  * object.
  */
 export interface AppConfig {
-    theme: Theme;
-    layout: Layout;
+    theme?: Theme;
+    layout?: Layout;
 
     // Dashboard options
-    dashboardDisplay: DashboardDisplay;
-    dashboardSort: DashboardSort;
+    dashboard_display?: DashboardDisplay;
+    dashboard_sort?: DashboardSort;
 
-    temperatureUnit: TemperatureUnit;
+    temperature_unit?: TemperatureUnit;
+
+    // Settings from Scrutiny API
+
+    metrics?: {
+        notify_level?: MetricsNotifyLevel
+        status_filter_attributes?: MetricsStatusFilterAttributes
+        status_threshold?: MetricsStatusThreshold
+    }
+
 }
 
 /**
@@ -34,12 +62,17 @@ export interface AppConfig {
  * "ConfigService".
  */
 export const appConfig: AppConfig = {
-    theme : 'light',
+    theme: 'light',
     layout: 'material',
 
-    dashboardDisplay: 'name',
-    dashboardSort: 'status',
+    dashboard_display: 'name',
+    dashboard_sort: 'status',
 
-    temperatureUnit: 'celsius',
+    temperature_unit: 'celsius',
+    metrics: {
+        notify_level: MetricsNotifyLevel.Fail,
+        status_filter_attributes: MetricsStatusFilterAttributes.All,
+        status_threshold: MetricsStatusThreshold.Both
+    }
 };
 

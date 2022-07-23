@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as moment from 'moment';
 import {takeUntil} from 'rxjs/operators';
 import {AppConfig} from 'app/core/config/app.config';
-import {TreoConfigService} from '@treo/services/config';
+import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
 import {Subject} from 'rxjs';
 import humanizeDuration from 'humanize-duration'
 import {MatDialog} from '@angular/material/dialog';
@@ -18,7 +18,7 @@ import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
 export class DashboardDeviceComponent implements OnInit {
 
     constructor(
-        private _configService: TreoConfigService,
+        private _configService: ScrutinyConfigService,
         public dialog: MatDialog,
     ) {
         // Set the private defaults
@@ -82,7 +82,7 @@ export class DashboardDeviceComponent implements OnInit {
             // width: '250px',
             data: {
                 wwn: this.deviceWWN,
-                title: DeviceTitlePipe.deviceTitleWithFallback(this.deviceSummary.device, this.config.dashboardDisplay)
+                title: DeviceTitlePipe.deviceTitleWithFallback(this.deviceSummary.device, this.config.dashboard_display)
             }
         });
 

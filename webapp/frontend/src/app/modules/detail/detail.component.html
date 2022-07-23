@@ -4,7 +4,7 @@
 
         <div class="flex items-center justify-between w-full my-4 px-4 xs:pr-0">
             <div class="mr-6">
-                <h2 class="m-0">Drive Details - {{device | deviceTitle:config.dashboardDisplay}} </h2>
+                <h2 class="m-0">Drive Details - {{device | deviceTitle:config.dashboard_display}} </h2>
                 <div class="text-secondary tracking-tight">Dive into S.M.A.R.T data</div>
             </div>
             <!-- Action buttons -->
@@ -126,7 +126,7 @@
                         <div class="text-secondary text-md">Powered On</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{smart_results[0]?.temp | temperature:config.temperatureUnit:true}}</div>
+                        <div>{{smart_results[0]?.temp | temperature:config.temperature_unit:true}}</div>
                         <div class="text-secondary text-md">Temperature</div>
                     </div>
                 </div>

@@ -9,13 +9,14 @@ import {MatMenuModule} from '@angular/material/menu';
 import {TREO_APP_CONFIG} from '@treo/services/config/config.constants';
 import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
 import * as moment from 'moment';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
 
 describe('DashboardDeviceComponent', () => {
     let component: DashboardDeviceComponent;
     let fixture: ComponentFixture<DashboardDeviceComponent>;
 
     const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-    // const configServiceSpy = jasmine.createSpyObj('TreoConfigService', ['config$']);
+    // const configServiceSpy = jasmine.createSpyObj('ScrutinyConfigService', ['config$']);
 
 
     beforeEach(async(() => {
@@ -25,10 +26,11 @@ describe('DashboardDeviceComponent', () => {
                 MatIconModule,
                 MatMenuModule,
                 SharedModule,
+                HttpClientTestingModule,
             ],
             providers: [
                 {provide: MatDialog, useValue: matDialogSpy},
-                {provide: TREO_APP_CONFIG, useValue: {dashboardDisplay: 'name'}}
+                {provide: TREO_APP_CONFIG, useValue: {dashboard_display: 'name'}}
             ],
             declarations: [DashboardDeviceComponent]
         })
