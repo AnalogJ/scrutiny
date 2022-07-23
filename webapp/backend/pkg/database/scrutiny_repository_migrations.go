@@ -302,38 +302,38 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						SettingValueString:    "material",
 					},
 					{
-						SettingKeyName:        "dashboardDisplay",
+						SettingKeyName:        "dashboard_display",
 						SettingKeyDescription: "Frontend device display title ('name' | 'serial_id' | 'uuid' | 'label')",
 						SettingDataType:       "string",
 						SettingValueString:    "name",
 					},
 					{
-						SettingKeyName:        "dashboardSort",
+						SettingKeyName:        "dashboard_sort",
 						SettingKeyDescription: "Frontend device sort by ('status' | 'title' | 'age')",
 						SettingDataType:       "string",
 						SettingValueString:    "status",
 					},
 					{
-						SettingKeyName:        "temperatureUnit",
+						SettingKeyName:        "temperature_unit",
 						SettingKeyDescription: "Frontend temperature unit ('celsius' | 'fahrenheit')",
 						SettingDataType:       "string",
 						SettingValueString:    "celsius",
 					},
 
 					{
-						SettingKeyName:        "metrics.notifyLevel",
+						SettingKeyName:        "metrics.notify_level",
 						SettingKeyDescription: "Determines which device status will cause a notification (fail or warn)",
 						SettingDataType:       "numeric",
 						SettingValueNumeric:   int(pkg.MetricsNotifyLevelFail), // options: 'fail' or 'warn'
 					},
 					{
-						SettingKeyName:        "metrics.statusFilterAttributes",
+						SettingKeyName:        "metrics.status_filter_attributes",
 						SettingKeyDescription: "Determines which attributes should impact device status",
 						SettingDataType:       "numeric",
 						SettingValueNumeric:   int(pkg.MetricsStatusFilterAttributesAll), // options: 'all' or  'critical'
 					},
 					{
-						SettingKeyName:        "metrics.statusThreshold",
+						SettingKeyName:        "metrics.status_threshold",
 						SettingKeyDescription: "Determines which threshold should impact device status",
 						SettingDataType:       "numeric",
 						SettingValueNumeric:   int(pkg.MetricsStatusThresholdBoth), // options: 'scrutiny', 'smart', 'both'

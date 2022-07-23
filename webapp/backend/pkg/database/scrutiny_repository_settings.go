@@ -6,6 +6,7 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/mitchellh/mapstructure"
+	"strings"
 )
 
 // LoadSettings will retrieve settings from the database, store them in the AppConfig object, and return a Settings struct
@@ -20,9 +21,9 @@ func (sr *scrutinyRepository) LoadSettings(ctx context.Context) (*models.Setting
 		configKey := fmt.Sprintf("%s.%s", config.DB_USER_SETTINGS_SUBKEY, settingsEntry.SettingKeyName)
 
 		if settingsEntry.SettingDataType == "numeric" {
-			sr.appConfig.Set(configKey, settingsEntry.SettingValueNumeric)
+			sr.appConfig.SetDefault(configKey, settingsEntry.SettingValueNumeric)
 		} else if settingsEntry.SettingDataType == "string" {
-			sr.appConfig.Set(configKey, settingsEntry.SettingValueString)
+			sr.appConfig.SetDefault(configKey, settingsEntry.SettingValueString)
 		}
 	}
 
@@ -36,10 +37,9 @@ func (sr *scrutinyRepository) LoadSettings(ctx context.Context) (*models.Setting
 }
 
 // testing
-// curl -d '{"metrics": { "notifyLevel": 5, "statusFilterAttributes": 5, "statusThreshold": 5 }}' -H "Content-Type: application/json" -X POST http://localhost:9090/api/settings
+// curl -d '{"metrics": { "notify_level": 5, "status_filter_attributes": 5, "status_threshold": 5 }}' -H "Content-Type: application/json" -X POST http://localhost:9090/api/settings
 // SaveSettings will update settings in AppConfig object, then save the settings to the database.
 func (sr *scrutinyRepository) SaveSettings(ctx context.Context, settings models.Settings) error {
-
 	//save the entries to the appconfig
 	settingsMap := &map[string]interface{}{}
 	err := mapstructure.Decode(settings, &settingsMap)
@@ -52,7 +52,7 @@ func (sr *scrutinyRepository) SaveSettings(ctx context.Context, settings models.
 	if err != nil {
 		return err
 	}
-
+	sr.logger.Debugf("after merge settings: %v", sr.appConfig.AllSettings())
 	//retrieve current settings from the database
 	settingsEntries := []models.SettingEntry{}
 	if err := sr.gormClient.WithContext(ctx).Find(&settingsEntries).Error; err != nil {
@@ -61,7 +61,7 @@ func (sr *scrutinyRepository) SaveSettings(ctx context.Context, settings models.
 
 	//update settingsEntries
 	for ndx, settingsEntry := range settingsEntries {
-		configKey := fmt.Sprintf("%s.%s", config.DB_USER_SETTINGS_SUBKEY, settingsEntry.SettingKeyName)
+		configKey := fmt.Sprintf("%s.%s", config.DB_USER_SETTINGS_SUBKEY, strings.ToLower(settingsEntry.SettingKeyName))
 
 		if settingsEntry.SettingDataType == "numeric" {
 			settingsEntries[ndx].SettingValueNumeric = sr.appConfig.GetInt(configKey)

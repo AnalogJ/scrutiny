@@ -63,9 +63,3 @@ const (
 	//shortcut
 	MetricsStatusThresholdBoth MetricsStatusThreshold = 3
 )
-
-// Deprecated
-const NotifyFilterAttributesAll = "all"
-
-// Deprecated
-const NotifyLevelFail = "fail"

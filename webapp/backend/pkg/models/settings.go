@@ -10,13 +10,13 @@ package models
 type Settings struct {
 	Theme            string `json:"theme" mapstructure:"theme"`
 	Layout           string `json:"layout" mapstructure:"layout"`
-	DashboardDisplay string `json:"dashboardDisplay" mapstructure:"dashboardDisplay"`
-	DashboardSort    string `json:"dashboardSort" mapstructure:"dashboardSort"`
-	TemperatureUnit  string `json:"temperatureUnit" mapstructure:"temperatureUnit"`
+	DashboardDisplay string `json:"dashboard_display" mapstructure:"dashboard_display"`
+	DashboardSort    string `json:"dashboard_sort" mapstructure:"dashboard_sort"`
+	TemperatureUnit  string `json:"temperature_unit" mapstructure:"temperature_unit"`
 
 	Metrics struct {
-		NotifyLevel            int `json:"notifyLevel" mapstructure:"notifyLevel"`
-		StatusFilterAttributes int `json:"statusFilterAttributes" mapstructure:"statusFilterAttributes"`
-		StatusThreshold        int `json:"statusThreshold" mapstructure:"statusThreshold"`
+		NotifyLevel            int `json:"notify_level" mapstructure:"notify_level"`
+		StatusFilterAttributes int `json:"status_filter_attributes" mapstructure:"status_filter_attributes"`
+		StatusThreshold        int `json:"status_threshold" mapstructure:"status_threshold"`
 	} `json:"metrics" mapstructure:"metrics"`
 }
