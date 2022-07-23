@@ -43,63 +43,27 @@
                     <mat-option value="fahrenheit">Fahrenheit</mat-option>
                 </mat-select>
             </mat-form-field>
-
         </div>
 
-        <div class="flex">
-            <mat-tab-group mat-align-tabs="start">
-                <mat-tab label="Ata">
+        <div class="flex flex-col mt-5 gt-md:flex-row">
+            <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
+                <mat-label>Device Status - Thresholds</mat-label>
+                <mat-select [(ngModel)]=statusThreshold>
+                    <mat-option [value]=1>Smart</mat-option>
+                    <mat-option [value]=2>Scrutiny</mat-option>
+                    <mat-option [value]=3>Both</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
 
-                    <div matTooltip="not yet implemented" class="flex flex-col mt-5 gt-md:flex-row">
-                        <mat-form-field class="flex-auto gt-md:pr-3">
-                            <mat-label class="text-hint">Critical Error Threshold</mat-label>
-                            <input disabled matInput [value]="'10%'">
-                        </mat-form-field>
-                        <mat-form-field class="flex-auto gt-md:pl-3">
-                            <mat-label class="text-hint">Critical Warning Threshold</mat-label>
-                            <input disabled matInput>
-                        </mat-form-field>
-                    </div>
-
-                    <div matTooltip="not yet implemented" class="flex flex-col gt-md:flex-row">
-                        <mat-form-field class="flex-auto gt-md:pr-3">
-                            <mat-label class="text-hint">Error Threshold</mat-label>
-                            <input disabled matInput [value]="'20%'">
-                        </mat-form-field>
-                        <mat-form-field class="flex-auto gt-md:pl-3">
-                            <mat-label class="text-hint">Warning Threshold</mat-label>
-                            <input disabled matInput [value]="'10%'">
-                        </mat-form-field>
-                    </div>
-
-                </mat-tab>
-                <mat-tab label="NVMe">
-
-                    <div matTooltip="not yet implemented" class="flex flex-col mt-5 gt-md:flex-row">
-                        <mat-form-field class="flex-auto gt-md:pr-3">
-                            <mat-label class="text-hint">Critical Error Threshold</mat-label>
-                            <input disabled matInput [value]="'enabled'">
-                        </mat-form-field>
-                        <mat-form-field class="flex-auto gt-md:pl-3">
-                            <mat-label class="text-hint">Critical Warning Threshold</mat-label>
-                            <input disabled matInput>
-                        </mat-form-field>
-                    </div>
-
-                </mat-tab>
-                <mat-tab label="SCSI">
-                    <div matTooltip="not yet implemented" class="flex flex-col mt-5 gt-md:flex-row">
-                        <mat-form-field class="flex-auto gt-md:pr-3">
-                            <mat-label class="text-hint">Critical Error Threshold</mat-label>
-                            <input disabled matInput [value]="'enabled'">
-                        </mat-form-field>
-                        <mat-form-field class="flex-auto gt-md:pl-3">
-                            <mat-label class="text-hint">Critical Warning Threshold</mat-label>
-                            <input disabled matInput>
-                        </mat-form-field>
-                    </div>
-                </mat-tab>
-            </mat-tab-group>
+        <div class="flex flex-col mt-5 gt-md:flex-row">
+            <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
+                <mat-label>Notify - Filter Attributes</mat-label>
+                <mat-select [(ngModel)]=statusFilterAttributes>
+                    <mat-option [value]=0>All</mat-option>
+                    <mat-option [value]=1>Critical</mat-option>
+                </mat-select>
+            </mat-form-field>
         </div>
     </div>
 

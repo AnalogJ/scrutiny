@@ -15,56 +15,56 @@ func TestShouldNotify_MustSkipPassingDevices(t *testing.T) {
 		DeviceStatus: pkg.DeviceStatusPassed,
 	}
 	smartAttrs := measurements.Smart{}
-	notifyLevel := pkg.NotifyLevelFail
-	notifyFilterAttributes := pkg.NotifyFilterAttributesAll
+	statusThreshold := pkg.MetricsStatusThresholdBoth
+	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
 
 	//assert
-	require.False(t, ShouldNotify(device, smartAttrs, notifyLevel, notifyFilterAttributes))
+	require.False(t, ShouldNotify(device, smartAttrs, statusThreshold, notifyFilterAttributes))
 }
 
-func TestShouldNotify_NotifyLevelFail_FailingSmartDevice(t *testing.T) {
+func TestShouldNotify_MetricsStatusThresholdBoth_FailingSmartDevice(t *testing.T) {
 	t.Parallel()
 	//setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedSmart,
 	}
 	smartAttrs := measurements.Smart{}
-	notifyLevel := pkg.NotifyLevelFail
-	notifyFilterAttributes := pkg.NotifyFilterAttributesAll
+	statusThreshold := pkg.MetricsStatusThresholdBoth
+	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
 
 	//assert
-	require.True(t, ShouldNotify(device, smartAttrs, notifyLevel, notifyFilterAttributes))
+	require.True(t, ShouldNotify(device, smartAttrs, statusThreshold, notifyFilterAttributes))
 }
 
-func TestShouldNotify_NotifyLevelFailSmart_FailingSmartDevice(t *testing.T) {
+func TestShouldNotify_MetricsStatusThresholdSmart_FailingSmartDevice(t *testing.T) {
 	t.Parallel()
 	//setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedSmart,
 	}
 	smartAttrs := measurements.Smart{}
-	notifyLevel := pkg.NotifyLevelFailSmart
-	notifyFilterAttributes := pkg.NotifyFilterAttributesAll
+	statusThreshold := pkg.MetricsStatusThresholdSmart
+	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
 
 	//assert
-	require.True(t, ShouldNotify(device, smartAttrs, notifyLevel, notifyFilterAttributes))
+	require.True(t, ShouldNotify(device, smartAttrs, statusThreshold, notifyFilterAttributes))
 }
 
-func TestShouldNotify_NotifyLevelFailScrutiny_FailingSmartDevice(t *testing.T) {
+func TestShouldNotify_MetricsStatusThresholdScrutiny_FailingSmartDevice(t *testing.T) {
 	t.Parallel()
 	//setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedSmart,
 	}
 	smartAttrs := measurements.Smart{}
-	notifyLevel := pkg.NotifyLevelFailScrutiny
-	notifyFilterAttributes := pkg.NotifyFilterAttributesAll
+	statusThreshold := pkg.MetricsStatusThresholdScrutiny
+	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
 
 	//assert
-	require.False(t, ShouldNotify(device, smartAttrs, notifyLevel, notifyFilterAttributes))
+	require.False(t, ShouldNotify(device, smartAttrs, statusThreshold, notifyFilterAttributes))
 }
 
-func TestShouldNotify_NotifyFilterAttributesCritical_WithCriticalAttrs(t *testing.T) {
+func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithCriticalAttrs(t *testing.T) {
 	t.Parallel()
 	//setup
 	device := models.Device{
@@ -75,14 +75,14 @@ func TestShouldNotify_NotifyFilterAttributesCritical_WithCriticalAttrs(t *testin
 			Status: pkg.AttributeStatusFailedSmart,
 		},
 	}}
-	notifyLevel := pkg.NotifyLevelFail
-	notifyFilterAttributes := pkg.NotifyFilterAttributesCritical
+	statusThreshold := pkg.MetricsStatusThresholdBoth
+	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesCritical
 
 	//assert
-	require.True(t, ShouldNotify(device, smartAttrs, notifyLevel, notifyFilterAttributes))
+	require.True(t, ShouldNotify(device, smartAttrs, statusThreshold, notifyFilterAttributes))
 }
 
-func TestShouldNotify_NotifyFilterAttributesCritical_WithMultipleCriticalAttrs(t *testing.T) {
+func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithMultipleCriticalAttrs(t *testing.T) {
 	t.Parallel()
 	//setup
 	device := models.Device{
@@ -96,14 +96,14 @@ func TestShouldNotify_NotifyFilterAttributesCritical_WithMultipleCriticalAttrs(t
 			Status: pkg.AttributeStatusFailedScrutiny,
 		},
 	}}
-	notifyLevel := pkg.NotifyLevelFail
-	notifyFilterAttributes := pkg.NotifyFilterAttributesCritical
+	statusThreshold := pkg.MetricsStatusThresholdBoth
+	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesCritical
 
 	//assert
-	require.True(t, ShouldNotify(device, smartAttrs, notifyLevel, notifyFilterAttributes))
+	require.True(t, ShouldNotify(device, smartAttrs, statusThreshold, notifyFilterAttributes))
 }
 
-func TestShouldNotify_NotifyFilterAttributesCritical_WithNoCriticalAttrs(t *testing.T) {
+func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithNoCriticalAttrs(t *testing.T) {
 	t.Parallel()
 	//setup
 	device := models.Device{
@@ -114,14 +114,14 @@ func TestShouldNotify_NotifyFilterAttributesCritical_WithNoCriticalAttrs(t *test
 			Status: pkg.AttributeStatusFailedSmart,
 		},
 	}}
-	notifyLevel := pkg.NotifyLevelFail
-	notifyFilterAttributes := pkg.NotifyFilterAttributesCritical
+	statusThreshold := pkg.MetricsStatusThresholdBoth
+	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesCritical
 
 	//assert
-	require.False(t, ShouldNotify(device, smartAttrs, notifyLevel, notifyFilterAttributes))
+	require.False(t, ShouldNotify(device, smartAttrs, statusThreshold, notifyFilterAttributes))
 }
 
-func TestShouldNotify_NotifyFilterAttributesCritical_WithNoFailingCriticalAttrs(t *testing.T) {
+func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithNoFailingCriticalAttrs(t *testing.T) {
 	t.Parallel()
 	//setup
 	device := models.Device{
@@ -132,14 +132,14 @@ func TestShouldNotify_NotifyFilterAttributesCritical_WithNoFailingCriticalAttrs(
 			Status: pkg.AttributeStatusPassed,
 		},
 	}}
-	notifyLevel := pkg.NotifyLevelFail
-	notifyFilterAttributes := pkg.NotifyFilterAttributesCritical
+	statusThreshold := pkg.MetricsStatusThresholdBoth
+	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesCritical
 
 	//assert
-	require.False(t, ShouldNotify(device, smartAttrs, notifyLevel, notifyFilterAttributes))
+	require.False(t, ShouldNotify(device, smartAttrs, statusThreshold, notifyFilterAttributes))
 }
 
-func TestShouldNotify_NotifyFilterAttributesCritical_NotifyLevelFailSmart_WithCriticalAttrsFailingScrutiny(t *testing.T) {
+func TestShouldNotify_MetricsStatusFilterAttributesCritical_MetricsStatusThresholdSmart_WithCriticalAttrsFailingScrutiny(t *testing.T) {
 	t.Parallel()
 	//setup
 	device := models.Device{
@@ -153,9 +153,9 @@ func TestShouldNotify_NotifyFilterAttributesCritical_NotifyLevelFailSmart_WithCr
 			Status: pkg.AttributeStatusFailedScrutiny,
 		},
 	}}
-	notifyLevel := pkg.NotifyLevelFailSmart
-	notifyFilterAttributes := pkg.NotifyFilterAttributesCritical
+	statusThreshold := pkg.MetricsStatusThresholdSmart
+	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesCritical
 
 	//assert
-	require.False(t, ShouldNotify(device, smartAttrs, notifyLevel, notifyFilterAttributes))
+	require.False(t, ShouldNotify(device, smartAttrs, statusThreshold, notifyFilterAttributes))
 }

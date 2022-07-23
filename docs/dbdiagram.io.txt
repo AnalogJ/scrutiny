@@ -1,62 +1,88 @@
 
 // SQLite Table(s)
-Table device {
-  created_at timestamp
 
-  wwn varchar [pk]
+Table Device  {
+	//GORM attributes, see: http://gorm.io/docs/conventions.html
+	CreatedAt time
+	UpdatedAt time
+	DeletedAt time
 
-  //user provided
-  label varchar
-  host_id varchar
+	WWN string
 
-  // smartctl provided
-  device_name varchar
-  manufacturer varchar
-  model_name varchar
-  interface_type varchar
-  interface_speed varchar
-  serial_number varchar
-  firmware varchar
-  rotational_speed varchar
-  capacity varchar
-  form_factor varchar
-  smart_support varchar
-  device_protocol varchar
-  device_type varchar
+	DeviceName     string
+	DeviceUUID     string
+	DeviceSerialID string
+	DeviceLabel    string
 
+	Manufacturer   string
+	ModelName      string
+	InterfaceType  string
+	InterfaceSpeed string
+	SerialNumber   string
+	Firmware       string
+	RotationSpeed  int
+	Capacity       int64
+	FormFactor     string
+	SmartSupport   bool
+	DeviceProtocol string//protocol determines which smart attribute types are available (ATA, NVMe, SCSI)
+	DeviceType     string//device type is used for querying with -d/t flag, should only be used by collector.
+
+	// User provided metadata
+	Label  string
+	HostId string
+
+	// Data set by Scrutiny
+	DeviceStatus enum
+}
+
+Table Setting {
+	//GORM attributes, see: http://gorm.io/docs/conventions.html
+
+	SettingKeyName  string
+    SettingKeyDescription  string
+	SettingDataType string
+
+	SettingValueNumeric int64
+	SettingValueString  string
 }
 
 
 // InfluxDB Tables
-Table device_temperature {
-  //timestamp
-  created_at timestamp
+Table SmartTemperature {
+    Date time
+	DeviceWWN      string //(tag)
+	Temp int64
+}
 
-  //tags (indexed & queryable)
-  device_wwn varchar [pk]
 
-  //fields
-  temp bigint
+Table Smart {
+    Date           time
+	DeviceWWN      string //(tag)
+	DeviceProtocol string
+
+	//Metrics (fields)
+	Temp            int64
+	PowerOnHours    int64
+	PowerCycleCount int64
+
+	//Smart Status
+	Status enum
+
+	//SMART Attributes (fields)
+	Attr_ID_AttributeId int
+	Attr_ID_Value       int64
+	Attr_ID_Threshold   int64
+	Attr_ID_Worst       int64
+    Attr_ID_RawValue    int64
+	Attr_ID_RawString   string
+	Attr_ID_WhenFailed  string
+	//Generated data
+	Attr_ID_TransformedValue int64
+	Attr_ID_Status           enum
+	Attr_ID_StatusReason     string
+	Attr_ID_FailureRate      float64
+
  }
 
-
-Table smart_ata_results {
-  //timestamp
-  created_at timestamp
-
-  //tags (indexed & queryable)
-  device_wwn varchar [pk]
-  smart_status varchar
-  scrutiny_status varchar
-
-
-
-  //fields
-  temp bigint
-  power_on_hours bigint
-  power_cycle_count bigint
-
-
- }
-
-Ref: device.wwn < smart_ata_results.device_wwn
+Ref: Device.WWN < Smart.DeviceWWN
+Ref: Device.WWN < SmartTemperature.DeviceWWN

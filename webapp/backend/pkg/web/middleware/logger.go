@@ -32,7 +32,7 @@ func LoggerMiddleware(logger logrus.FieldLogger) gin.HandlerFunc {
 
 	hostname, err := os.Hostname()
 	if err != nil {
-		hostname = "unknow"
+		hostname = "unknown"
 	}
 
 	return func(c *gin.Context) {

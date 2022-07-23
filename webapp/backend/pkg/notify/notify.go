@@ -29,20 +29,22 @@ const NotifyFailureTypeSmartFailure = "SmartFailure"
 const NotifyFailureTypeScrutinyFailure = "ScrutinyFailure"
 
 // ShouldNotify check if the error Message should be filtered (level mismatch or filtered_attributes)
-func ShouldNotify(device models.Device, smartAttrs measurements.Smart, notifyLevel string, notifyFilterAttributes string) bool {
+func ShouldNotify(device models.Device, smartAttrs measurements.Smart, statusThreshold pkg.MetricsStatusThreshold, statusFilterAttributes pkg.MetricsStatusFilterAttributes) bool {
 	// 1. check if the device is healthy
 	if device.DeviceStatus == pkg.DeviceStatusPassed {
 		return false
 	}
 
+	//TODO: cannot check for warning notifyLevel yet.
+
 	// setup constants for comparison
 	var requiredDeviceStatus pkg.DeviceStatus
 	var requiredAttrStatus pkg.AttributeStatus
-	if notifyLevel == pkg.NotifyLevelFail {
+	if statusThreshold == pkg.MetricsStatusThresholdBoth {
 		// either scrutiny or smart failures should trigger an email
 		requiredDeviceStatus = pkg.DeviceStatusSet(pkg.DeviceStatusFailedSmart, pkg.DeviceStatusFailedScrutiny)
 		requiredAttrStatus = pkg.AttributeStatusSet(pkg.AttributeStatusFailedSmart, pkg.AttributeStatusFailedScrutiny)
-	} else if notifyLevel == pkg.NotifyLevelFailSmart {
+	} else if statusThreshold == pkg.MetricsStatusThresholdSmart {
 		//only smart failures
 		requiredDeviceStatus = pkg.DeviceStatusFailedSmart
 		requiredAttrStatus = pkg.AttributeStatusFailedSmart
@@ -53,9 +55,9 @@ func ShouldNotify(device models.Device, smartAttrs measurements.Smart, notifyLev
 
 	// 2. check if the attributes that are failing should be filtered (non-critical)
 	// 3. for any unfiltered attribute, store the failure reason (Smart or Scrutiny)
-	if notifyFilterAttributes == pkg.NotifyFilterAttributesCritical {
+	if statusFilterAttributes == pkg.MetricsStatusFilterAttributesCritical {
 		hasFailingCriticalAttr := false
-		var statusFailingCrtiticalAttr pkg.AttributeStatus
+		var statusFailingCriticalAttr pkg.AttributeStatus
 
 		for attrId, attrData := range smartAttrs.Attributes {
 			//find failing attribute
@@ -64,7 +66,7 @@ func ShouldNotify(device models.Device, smartAttrs measurements.Smart, notifyLev
 			}
 
 			// merge the status's of all critical attributes
-			statusFailingCrtiticalAttr = pkg.AttributeStatusSet(statusFailingCrtiticalAttr, attrData.GetStatus())
+			statusFailingCriticalAttr = pkg.AttributeStatusSet(statusFailingCriticalAttr, attrData.GetStatus())
 
 			//found a failing attribute, see if its critical
 			if device.IsScsi() && thresholds.ScsiMetadata[attrId].Critical {
@@ -89,7 +91,7 @@ func ShouldNotify(device models.Device, smartAttrs measurements.Smart, notifyLev
 			return false
 		} else {
 			// check if any of the critical attributes have a status that we're looking for
-			return pkg.AttributeStatusHas(statusFailingCrtiticalAttr, requiredAttrStatus)
+			return pkg.AttributeStatusHas(statusFailingCriticalAttr, requiredAttrStatus)
 		}
 
 	} else {

@@ -7,6 +7,7 @@ package mock_config
 import (
 	reflect "reflect"
 
+	config "github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	gomock "github.com/golang/mock/gomock"
 	viper "github.com/spf13/viper"
 )
@@ -32,6 +33,20 @@ func NewMockInterface(ctrl *gomock.Controller) *MockInterface {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockInterface) EXPECT() *MockInterfaceMockRecorder {
 	return m.recorder
+}
+
+// AllKeys mocks base method.
+func (m *MockInterface) AllKeys() []string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AllKeys")
+	ret0, _ := ret[0].([]string)
+	return ret0
+}
+
+// AllKeys indicates an expected call of AllKeys.
+func (mr *MockInterfaceMockRecorder) AllKeys() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AllKeys", reflect.TypeOf((*MockInterface)(nil).AllKeys))
 }
 
 // AllSettings mocks base method.
@@ -90,6 +105,20 @@ func (mr *MockInterfaceMockRecorder) GetInt(key interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInt", reflect.TypeOf((*MockInterface)(nil).GetInt), key)
 }
 
+// GetInt64 mocks base method.
+func (m *MockInterface) GetInt64(key string) int64 {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetInt64", key)
+	ret0, _ := ret[0].(int64)
+	return ret0
+}
+
+// GetInt64 indicates an expected call of GetInt64.
+func (mr *MockInterfaceMockRecorder) GetInt64(key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInt64", reflect.TypeOf((*MockInterface)(nil).GetInt64), key)
+}
+
 // GetString mocks base method.
 func (m *MockInterface) GetString(key string) string {
 	m.ctrl.T.Helper()
@@ -146,6 +175,20 @@ func (mr *MockInterfaceMockRecorder) IsSet(key interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsSet", reflect.TypeOf((*MockInterface)(nil).IsSet), key)
 }
 
+// MergeConfigMap mocks base method.
+func (m *MockInterface) MergeConfigMap(cfg map[string]interface{}) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MergeConfigMap", cfg)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MergeConfigMap indicates an expected call of MergeConfigMap.
+func (mr *MockInterfaceMockRecorder) MergeConfigMap(cfg interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MergeConfigMap", reflect.TypeOf((*MockInterface)(nil).MergeConfigMap), cfg)
+}
+
 // ReadConfig mocks base method.
 func (m *MockInterface) ReadConfig(configFilePath string) error {
 	m.ctrl.T.Helper()
@@ -182,6 +225,34 @@ func (m *MockInterface) SetDefault(key string, value interface{}) {
 func (mr *MockInterfaceMockRecorder) SetDefault(key, value interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetDefault", reflect.TypeOf((*MockInterface)(nil).SetDefault), key, value)
+}
+
+// Sub mocks base method.
+func (m *MockInterface) Sub(key string) config.Interface {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Sub", key)
+	ret0, _ := ret[0].(config.Interface)
+	return ret0
+}
+
+// Sub indicates an expected call of Sub.
+func (mr *MockInterfaceMockRecorder) Sub(key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Sub", reflect.TypeOf((*MockInterface)(nil).Sub), key)
+}
+
+// SubKeys mocks base method.
+func (m *MockInterface) SubKeys(key string) []string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SubKeys", key)
+	ret0, _ := ret[0].([]string)
+	return ret0
+}
+
+// SubKeys indicates an expected call of SubKeys.
+func (mr *MockInterfaceMockRecorder) SubKeys(key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubKeys", reflect.TypeOf((*MockInterface)(nil).SubKeys), key)
 }
 
 // UnmarshalKey mocks base method.
