@@ -11,17 +11,17 @@ export type DashboardSort = 'status' | 'title' | 'age'
 export type TemperatureUnit = 'celsius' | 'fahrenheit'
 
 
-enum MetricsNotifyLevel {
+export enum MetricsNotifyLevel {
     Warn = 1,
     Fail = 2
 }
 
-enum MetricsStatusFilterAttributes {
+export enum MetricsStatusFilterAttributes {
     All = 0,
     Critical = 1
 }
 
-enum MetricsStatusThreshold {
+export enum MetricsStatusThreshold {
     Smart = 1,
     Scrutiny = 2,
 

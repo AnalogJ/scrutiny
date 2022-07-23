@@ -68,7 +68,15 @@ export class DashboardDeviceComponent implements OnInit {
         }
     }
 
-    deviceStatusString(deviceStatus: number): string {
+    deviceStatusString(deviceSummary: DeviceSummaryModel): string {
+        // no smart data, so treat the device status as unknown
+        if (!deviceSummary.smart) {
+            return 'unknown'
+        }
+
+        // determine the device status, by comparing it against the allowed threshold
+        // tslint:disable-next-line:no-bitwise
+        const deviceStatus = deviceSummary.device.device_status & this.config.metrics.status_threshold
         if (deviceStatus === 0) {
             return 'passed'
         } else {
