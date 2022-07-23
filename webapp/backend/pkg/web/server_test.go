@@ -3,7 +3,9 @@ package web_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	mock_config "github.com/analogj/scrutiny/webapp/backend/pkg/config/mock"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
@@ -192,9 +194,9 @@ func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 	} else {
 		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
 	}
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.notify.level").AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.filter_attributes").AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.threshold").AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.notifyLevel", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusFilterAttributes", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusThreshold", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
 
 	ae := web.AppEngine{
 		Config: fakeConfig,
@@ -230,9 +232,9 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
 	//fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return("testdata/scrutiny_test.db")
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").Return([]string{}).AnyTimes()
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.notify.level").AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.filter_attributes").AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.threshold").AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.notifyLevel", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusFilterAttributes", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusThreshold", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
@@ -342,9 +344,9 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_WebhookFailure() {
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"https://unroutable.domain.example.asdfghj"})
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.notify.level").AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.filter_attributes").AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.threshold").AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.notifyLevel", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusFilterAttributes", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusThreshold", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
 
 	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
 		// when running test suite in github actions, we run an influxdb service as a sidecar.
@@ -387,9 +389,9 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptFailure() {
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"script:///missing/path/on/disk"})
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.notify.level").AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.filter_attributes").AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.threshold").AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.notifyLevel", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusFilterAttributes", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusThreshold", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
 
 	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
 		// when running test suite in github actions, we run an influxdb service as a sidecar.
@@ -432,9 +434,9 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptSuccess() {
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"script:///usr/bin/env"})
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.notify.level").AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.filter_attributes").AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.threshold").AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.notifyLevel", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusFilterAttributes", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusThreshold", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
 
 	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
 		// when running test suite in github actions, we run an influxdb service as a sidecar.
@@ -477,9 +479,9 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ShoutrrrFailure() {
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{"discord://invalidtoken@channel"})
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.notify.level").AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.filter_attributes").AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.threshold").AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.notifyLevel", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusFilterAttributes", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusThreshold", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
 
 	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
 		// when running test suite in github actions, we run an influxdb service as a sidecar.
@@ -521,9 +523,9 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{})
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.notify.level").AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.filter_attributes").AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
-	fakeConfig.EXPECT().GetInt("dbsetting.metrics.status.threshold").AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.notifyLevel", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusFilterAttributes", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.statusThreshold", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
 
 	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
 		// when running test suite in github actions, we run an influxdb service as a sidecar.

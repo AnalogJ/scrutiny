@@ -12,6 +12,6 @@ type Setting struct {
 	SettingKeyDescription string `json:"setting_key_description"`
 	SettingDataType       string `json:"setting_data_type"`
 
-	SettingValueNumeric int64  `json:"setting_value_numeric"`
+	SettingValueNumeric int    `json:"setting_value_numeric"`
 	SettingValueString  string `json:"setting_value_string"`
 }

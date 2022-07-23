@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
@@ -70,8 +71,8 @@ func UploadDeviceMetrics(c *gin.Context) {
 	if notify.ShouldNotify(
 		updatedDevice,
 		smartData,
-		pkg.MetricsStatusThreshold(appConfig.GetInt("dbsetting.metrics.status.threshold")),
-		pkg.MetricsStatusFilterAttributes(appConfig.GetInt("dbsetting.metrics.status.filter_attributes")),
+		pkg.MetricsStatusThreshold(appConfig.GetInt(fmt.Sprintf("%s.metrics.statusThreshold", config.DB_USER_SETTINGS_SUBKEY))),
+		pkg.MetricsStatusFilterAttributes(appConfig.GetInt(fmt.Sprintf("%s.metrics.statusFilterAttributes", config.DB_USER_SETTINGS_SUBKEY))),
 	) {
 		//send notifications
 

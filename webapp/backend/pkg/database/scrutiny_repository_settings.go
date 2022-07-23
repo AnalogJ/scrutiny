@@ -17,7 +17,7 @@ func (sr *scrutinyRepository) LoadSettings(ctx context.Context) (*models.Setting
 
 	// store retrieved settings in the AppConfig obj
 	for _, settingsEntry := range settingsEntries {
-		configKey := fmt.Sprintf("%s.%s", config.DBSETTING_SUBKEY, settingsEntry.SettingKeyName)
+		configKey := fmt.Sprintf("%s.%s", config.DB_USER_SETTINGS_SUBKEY, settingsEntry.SettingKeyName)
 
 		if settingsEntry.SettingDataType == "numeric" {
 			sr.appConfig.Set(configKey, settingsEntry.SettingValueNumeric)
@@ -28,7 +28,7 @@ func (sr *scrutinyRepository) LoadSettings(ctx context.Context) (*models.Setting
 
 	// unmarshal the dbsetting object data to a settings object.
 	var settings models.Settings
-	err := sr.appConfig.UnmarshalKey(config.DBSETTING_SUBKEY, &settings)
+	err := sr.appConfig.UnmarshalKey(config.DB_USER_SETTINGS_SUBKEY, &settings)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (sr *scrutinyRepository) LoadSettings(ctx context.Context) (*models.Setting
 }
 
 // testing
-// curl -d '{"metrics": { "notify": { "level": 5 }, "status": { "filter_attributes": 5, "threshold": 5 } }}' -H "Content-Type: application/json" -X POST http://localhost:9090/api/settings
+// curl -d '{"metrics": { "notifyLevel": 5, "statusFilterAttributes": 5, "statusThreshold": 5 }}' -H "Content-Type: application/json" -X POST http://localhost:9090/api/settings
 // SaveSettings will update settings in AppConfig object, then save the settings to the database.
 func (sr *scrutinyRepository) SaveSettings(ctx context.Context, settings models.Settings) error {
 
@@ -47,7 +47,7 @@ func (sr *scrutinyRepository) SaveSettings(ctx context.Context, settings models.
 		return err
 	}
 	settingsWrapperMap := map[string]interface{}{}
-	settingsWrapperMap[config.DBSETTING_SUBKEY] = *settingsMap
+	settingsWrapperMap[config.DB_USER_SETTINGS_SUBKEY] = *settingsMap
 	err = sr.appConfig.MergeConfigMap(settingsWrapperMap)
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func (sr *scrutinyRepository) SaveSettings(ctx context.Context, settings models.
 
 	//update settingsEntries
 	for ndx, settingsEntry := range settingsEntries {
-		configKey := fmt.Sprintf("%s.%s", config.DBSETTING_SUBKEY, settingsEntry.SettingKeyName)
+		configKey := fmt.Sprintf("%s.%s", config.DB_USER_SETTINGS_SUBKEY, settingsEntry.SettingKeyName)
 
 		if settingsEntry.SettingDataType == "numeric" {
 			settingsEntries[ndx].SettingValueNumeric = sr.appConfig.GetInt(configKey)

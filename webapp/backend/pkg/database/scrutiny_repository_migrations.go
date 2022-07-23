@@ -290,22 +290,53 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 
 				var defaultSettings = []m20220716214900.Setting{
 					{
-						SettingKeyName:        "metrics.notify.level",
+						SettingKeyName:        "theme",
+						SettingKeyDescription: "Frontend theme ('light' | 'dark' | 'system')",
+						SettingDataType:       "string",
+						SettingValueString:    "system", // options: 'light' | 'dark' | 'system'
+					},
+					{
+						SettingKeyName:        "layout",
+						SettingKeyDescription: "Frontend layout ('material')",
+						SettingDataType:       "string",
+						SettingValueString:    "material",
+					},
+					{
+						SettingKeyName:        "dashboardDisplay",
+						SettingKeyDescription: "Frontend device display title ('name' | 'serial_id' | 'uuid' | 'label')",
+						SettingDataType:       "string",
+						SettingValueString:    "name",
+					},
+					{
+						SettingKeyName:        "dashboardSort",
+						SettingKeyDescription: "Frontend device sort by ('status' | 'title' | 'age')",
+						SettingDataType:       "string",
+						SettingValueString:    "status",
+					},
+					{
+						SettingKeyName:        "temperatureUnit",
+						SettingKeyDescription: "Frontend temperature unit ('celsius' | 'fahrenheit')",
+						SettingDataType:       "string",
+						SettingValueString:    "celsius",
+					},
+
+					{
+						SettingKeyName:        "metrics.notifyLevel",
 						SettingKeyDescription: "Determines which device status will cause a notification (fail or warn)",
 						SettingDataType:       "numeric",
-						SettingValueNumeric:   int64(pkg.MetricsNotifyLevelFail), // options: 'fail' or 'warn'
+						SettingValueNumeric:   int(pkg.MetricsNotifyLevelFail), // options: 'fail' or 'warn'
 					},
 					{
-						SettingKeyName:        "metrics.status.filter_attributes",
+						SettingKeyName:        "metrics.statusFilterAttributes",
 						SettingKeyDescription: "Determines which attributes should impact device status",
 						SettingDataType:       "numeric",
-						SettingValueNumeric:   int64(pkg.MetricsStatusFilterAttributesAll), // options: 'all' or  'critical'
+						SettingValueNumeric:   int(pkg.MetricsStatusFilterAttributesAll), // options: 'all' or  'critical'
 					},
 					{
-						SettingKeyName:        "metrics.status.threshold",
+						SettingKeyName:        "metrics.statusThreshold",
 						SettingKeyDescription: "Determines which threshold should impact device status",
 						SettingDataType:       "numeric",
-						SettingValueNumeric:   int64(pkg.MetricsStatusThresholdBoth), // options: 'scrutiny', 'smart', 'both'
+						SettingValueNumeric:   int(pkg.MetricsStatusThresholdBoth), // options: 'scrutiny', 'smart', 'both'
 					},
 				}
 				return tx.Create(&defaultSettings).Error
