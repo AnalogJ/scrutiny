@@ -10,6 +10,8 @@ import {DashboardDeviceDeleteDialogComponent} from 'app/layout/common/dashboard-
 import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
 import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
 
+export type deviceStatusName = 'unknown' | 'passed' | 'failed'
+
 @Component({
     selector: 'app-dashboard-device',
     templateUrl: './dashboard-device.component.html',
@@ -50,9 +52,10 @@ export class DashboardDeviceComponent implements OnInit {
     // -----------------------------------------------------------------------------------------------------
 
     classDeviceLastUpdatedOn(deviceSummary: DeviceSummaryModel): string {
-        if (deviceSummary.device.device_status !== 0) {
+        const deviceStatus = this.deviceStatusString(deviceSummary)
+        if (deviceStatus === 'failed') {
             return 'text-red' // if the device has failed, always highlight in red
-        } else if (deviceSummary.device.device_status === 0 && deviceSummary.smart) {
+        } else if (deviceStatus === 'passed') {
             if (moment().subtract(14, 'days').isBefore(deviceSummary.smart.collector_date)) {
                 // this device was updated in the last 2 weeks.
                 return 'text-green'
@@ -68,7 +71,8 @@ export class DashboardDeviceComponent implements OnInit {
         }
     }
 
-    deviceStatusString(deviceSummary: DeviceSummaryModel): string {
+
+    deviceStatusString(deviceSummary: DeviceSummaryModel): deviceStatusName {
         // no smart data, so treat the device status as unknown
         if (!deviceSummary.smart) {
             return 'unknown'
