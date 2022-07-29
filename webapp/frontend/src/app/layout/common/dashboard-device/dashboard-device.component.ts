@@ -9,8 +9,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {DashboardDeviceDeleteDialogComponent} from 'app/layout/common/dashboard-device-delete-dialog/dashboard-device-delete-dialog.component';
 import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
 import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
-
-export type deviceStatusName = 'unknown' | 'passed' | 'failed'
+import {DeviceStatusPipe} from 'app/shared/device-status.pipe';
 
 @Component({
     selector: 'app-dashboard-device',
@@ -37,6 +36,8 @@ export class DashboardDeviceComponent implements OnInit {
 
     readonly humanizeDuration = humanizeDuration;
 
+    deviceStatusForModelWithThreshold = DeviceStatusPipe.deviceStatusForModelWithThreshold
+
     ngOnInit(): void {
         // Subscribe to config changes
         this._configService.config$
@@ -52,7 +53,7 @@ export class DashboardDeviceComponent implements OnInit {
     // -----------------------------------------------------------------------------------------------------
 
     classDeviceLastUpdatedOn(deviceSummary: DeviceSummaryModel): string {
-        const deviceStatus = this.deviceStatusString(deviceSummary)
+        const deviceStatus = DeviceStatusPipe.deviceStatusForModelWithThreshold(deviceSummary.device, !!deviceSummary.smart, this.config.metrics.status_threshold)
         if (deviceStatus === 'failed') {
             return 'text-red' // if the device has failed, always highlight in red
         } else if (deviceStatus === 'passed') {
@@ -70,24 +71,6 @@ export class DashboardDeviceComponent implements OnInit {
             return ''
         }
     }
-
-
-    deviceStatusString(deviceSummary: DeviceSummaryModel): deviceStatusName {
-        // no smart data, so treat the device status as unknown
-        if (!deviceSummary.smart) {
-            return 'unknown'
-        }
-
-        // determine the device status, by comparing it against the allowed threshold
-        // tslint:disable-next-line:no-bitwise
-        const deviceStatus = deviceSummary.device.device_status & this.config.metrics.status_threshold
-        if (deviceStatus === 0) {
-            return 'passed'
-        } else {
-            return 'failed'
-        }
-    }
-
 
     openDeleteDialog(): void {
         const dialogRef = this.dialog.open(DashboardDeviceDeleteDialogComponent, {
