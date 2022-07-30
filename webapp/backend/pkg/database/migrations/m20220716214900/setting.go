@@ -14,4 +14,5 @@ type Setting struct {
 
 	SettingValueNumeric int    `json:"setting_value_numeric"`
 	SettingValueString  string `json:"setting_value_string"`
+	SettingValueBool    bool   `json:"setting_value_bool"`
 }

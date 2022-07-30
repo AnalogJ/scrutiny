@@ -43,6 +43,8 @@ export interface AppConfig {
 
     temperature_unit?: TemperatureUnit;
 
+    file_size_si_units?: boolean;
+
     // Settings from Scrutiny API
 
     metrics?: {
@@ -69,6 +71,8 @@ export const appConfig: AppConfig = {
     dashboard_sort: 'status',
 
     temperature_unit: 'celsius',
+    file_size_si_units: false,
+
     metrics: {
         notify_level: MetricsNotifyLevel.Fail,
         status_filter_attributes: MetricsStatusFilterAttributes.All,

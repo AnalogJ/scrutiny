@@ -22,6 +22,7 @@ export class DashboardSettingsComponent implements OnInit {
     dashboardDisplay: string;
     dashboardSort: string;
     temperatureUnit: string;
+    fileSizeSIUnits: boolean;
     theme: string;
     statusThreshold: number;
     statusFilterAttributes: number;
@@ -46,6 +47,7 @@ export class DashboardSettingsComponent implements OnInit {
                 this.dashboardDisplay = config.dashboard_display;
                 this.dashboardSort = config.dashboard_sort;
                 this.temperatureUnit = config.temperature_unit;
+                this.fileSizeSIUnits = config.file_size_si_units;
                 this.theme = config.theme;
 
                 this.statusFilterAttributes = config.metrics.status_filter_attributes;
@@ -60,6 +62,7 @@ export class DashboardSettingsComponent implements OnInit {
             dashboard_display: this.dashboardDisplay as DashboardDisplay,
             dashboard_sort: this.dashboardSort as DashboardSort,
             temperature_unit: this.temperatureUnit as TemperatureUnit,
+            file_size_si_units: this.fileSizeSIUnits,
             theme: this.theme as Theme,
             metrics: {
                 status_filter_attributes: this.statusFilterAttributes as MetricsStatusFilterAttributes,

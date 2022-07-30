@@ -319,6 +319,12 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						SettingDataType:       "string",
 						SettingValueString:    "celsius",
 					},
+					{
+						SettingKeyName:        "file_size_si_units",
+						SettingKeyDescription: "File size in SI units (true | false)",
+						SettingDataType:       "bool",
+						SettingValueBool:      false,
+					},
 
 					{
 						SettingKeyName:        "metrics.notify_level",
