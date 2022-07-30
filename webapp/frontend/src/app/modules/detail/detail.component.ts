@@ -16,6 +16,7 @@ import {DeviceModel} from 'app/core/models/device-model';
 import {SmartModel} from 'app/core/models/measurements/smart-model';
 import {SmartAttributeModel} from 'app/core/models/measurements/smart-attribute-model';
 import {AttributeMetadataModel} from 'app/core/models/thresholds/attribute-metadata-model';
+import {DeviceStatusPipe} from 'app/shared/device-status.pipe';
 
 // from Constants.go - these must match
 const AttributeStatusPassed = 0
@@ -89,6 +90,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     readonly humanizeDuration = humanizeDuration;
 
+    deviceStatusForModelWithThreshold = DeviceStatusPipe.deviceStatusForModelWithThreshold
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
     // -----------------------------------------------------------------------------------------------------
