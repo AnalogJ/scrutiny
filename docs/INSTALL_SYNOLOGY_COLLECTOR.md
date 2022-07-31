@@ -91,7 +91,7 @@ wget https://raw.githubusercontent.com/smartmontools/smartmontools/master/smartm
 ```
 #!/bin/bash
 
-/volume1/\@Entware/scrutiny/bin/scrutiny-collector-metrics-linux-arm64 run --config /volume1/\@Entware/scrutiny/config/collector.yaml
+/volume1/\@Entware/scrutiny/bin/scrutiny-collector-metrics-linux-arm64 run --config /volume1/\@Entware/scrutiny/conf/collector.yaml
 ```
 
 ## Set up Synology to run a scheduled task. 
