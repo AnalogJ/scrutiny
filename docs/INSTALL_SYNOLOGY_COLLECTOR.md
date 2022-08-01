@@ -94,6 +94,10 @@ wget https://raw.githubusercontent.com/smartmontools/smartmontools/master/smartm
 /volume1/\@Entware/scrutiny/bin/scrutiny-collector-metrics-linux-arm64 run --config /volume1/\@Entware/scrutiny/config/collector.yaml
 ```
 
+**Make `run_collect.sh` executable**
+
+`chmod +x /volume1/\@Entware/scrutiny/bin/run_collect.sh`
+
 ## Set up Synology to run a scheduled task. 
 
 Log in to DSM and do the following:
