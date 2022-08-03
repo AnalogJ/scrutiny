@@ -319,6 +319,12 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						SettingDataType:       "string",
 						SettingValueString:    "celsius",
 					},
+					{
+						SettingKeyName:        "file_size_si_units",
+						SettingKeyDescription: "File size in SI units (true | false)",
+						SettingDataType:       "bool",
+						SettingValueBool:      false,
+					},
 
 					{
 						SettingKeyName:        "metrics.notify_level",
@@ -349,6 +355,30 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 		return err
 	}
 	sr.logger.Infoln("Database migration completed successfully")
+
+	//these migrations cannot be done within a transaction, so they are done as a separate group, with `UseTransaction = false`
+	sr.logger.Infoln("SQLite global configuration migrations starting. Please wait....")
+	globalMigrateOptions := gormigrate.DefaultOptions
+	globalMigrateOptions.UseTransaction = false
+	gm := gormigrate.New(sr.gormClient, globalMigrateOptions, []*gormigrate.Migration{
+		{
+			ID: "g20220802211500",
+			Migrate: func(tx *gorm.DB) error {
+				//shrink the Database (maybe necessary after 20220503113100)
+				if err := tx.Exec("VACUUM;").Error; err != nil {
+					return err
+				}
+				return nil
+			},
+		},
+	})
+
+	if err := gm.Migrate(); err != nil {
+		sr.logger.Errorf("SQLite global configuration migrations failed with error. \n Please open a github issue at https://github.com/AnalogJ/scrutiny and attach a copy of your scrutiny.db file. \n %v", err)
+		return err
+	}
+	sr.logger.Infoln("SQLite global configuration migrations completed successfully")
+
 	return nil
 }
 

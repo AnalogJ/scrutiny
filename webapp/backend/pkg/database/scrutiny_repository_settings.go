@@ -24,6 +24,8 @@ func (sr *scrutinyRepository) LoadSettings(ctx context.Context) (*models.Setting
 			sr.appConfig.SetDefault(configKey, settingsEntry.SettingValueNumeric)
 		} else if settingsEntry.SettingDataType == "string" {
 			sr.appConfig.SetDefault(configKey, settingsEntry.SettingValueString)
+		} else if settingsEntry.SettingDataType == "bool" {
+			sr.appConfig.SetDefault(configKey, settingsEntry.SettingValueBool)
 		}
 	}
 
@@ -67,11 +69,13 @@ func (sr *scrutinyRepository) SaveSettings(ctx context.Context, settings models.
 			settingsEntries[ndx].SettingValueNumeric = sr.appConfig.GetInt(configKey)
 		} else if settingsEntry.SettingDataType == "string" {
 			settingsEntries[ndx].SettingValueString = sr.appConfig.GetString(configKey)
+		} else if settingsEntry.SettingDataType == "bool" {
+			settingsEntries[ndx].SettingValueBool = sr.appConfig.GetBool(configKey)
 		}
 
 		// store in database.
 		//TODO: this should be `sr.gormClient.Updates(&settingsEntries).Error`
-		err := sr.gormClient.Model(&models.SettingEntry{}).Where([]uint{settingsEntry.ID}).Select("setting_value_numeric", "setting_value_string").Updates(settingsEntries[ndx]).Error
+		err := sr.gormClient.Model(&models.SettingEntry{}).Where([]uint{settingsEntry.ID}).Select("setting_value_numeric", "setting_value_string", "setting_value_bool").Updates(settingsEntries[ndx]).Error
 		if err != nil {
 			return err
 		}

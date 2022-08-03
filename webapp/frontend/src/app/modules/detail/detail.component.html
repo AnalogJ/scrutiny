@@ -107,7 +107,7 @@
                         <div class="text-secondary text-md">Firmware Version</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{device?.capacity | fileSize}}</div>
+                        <div>{{device?.capacity | fileSize:config.file_size_si_units}}</div>
                         <div class="text-secondary text-md">Capacity</div>
                     </div>
                     <div *ngIf="device?.rotational_speed" class="my-2 col-span-2 lt-md:col-span-1">

@@ -58,7 +58,8 @@
         </div>
         <div class="flex flex-col mx-6 my-3 xs:w-full">
             <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Capacity</div>
-            <div class="mt-2 font-medium text-3xl leading-none">{{ deviceSummary.device.capacity | fileSize}}</div>
+            <div
+                class="mt-2 font-medium text-3xl leading-none">{{ deviceSummary.device.capacity | fileSize:config.file_size_si_units}}</div>
         </div>
         <div class="flex flex-col mx-6 my-3 xs:w-full">
             <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Powered On</div>

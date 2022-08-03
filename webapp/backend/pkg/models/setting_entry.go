@@ -15,6 +15,7 @@ type SettingEntry struct {
 
 	SettingValueNumeric int    `json:"setting_value_numeric"`
 	SettingValueString  string `json:"setting_value_string"`
+	SettingValueBool    bool   `json:"setting_value_bool"`
 }
 
 func (s SettingEntry) TableName() string {
