@@ -6,6 +6,7 @@ To install `eudev` in Alpine Linux (run as root):
 
 ```
 apk add eudev
+setup-udev
 ```
 
 Once your `udev` implementation is installed, create `/run/udev` with the following command:
