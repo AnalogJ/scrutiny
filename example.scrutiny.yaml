@@ -73,8 +73,6 @@ log:
 #    - "join://shoutrrr:api-key@join/?devices=device1[,device2, ...][&icon=icon][&title=title]"
 #    - "script:///file/path/on/disk"
 #    - "https://www.example.com/path"
-#  filter_attributes: 'all' # options: 'all' or  'critical'
-#  level: 'fail' # options: 'fail', 'fail_scrutiny', 'fail_smart'
 
 ########################################################################################################################
 # FEATURES COMING SOON
