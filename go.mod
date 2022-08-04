@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/analogj/go-util v0.0.0-20190301173314-5295e364eb14
-	github.com/containrrr/shoutrrr v0.4.4
+	github.com/containrrr/shoutrrr v0.6.1
 	github.com/fatih/color v1.10.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/glebarez/sqlite v1.4.5
