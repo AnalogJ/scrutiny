@@ -101,12 +101,13 @@ func ShouldNotify(device models.Device, smartAttrs measurements.Smart, statusThr
 	}
 }
 
-// TODO: include host and/or user label for device.
+// TODO: include user label for device.
 type Payload struct {
-	DeviceType   string `json:"device_type"`   //ATA/SCSI/NVMe
-	DeviceName   string `json:"device_name"`   //dev/sda
-	DeviceSerial string `json:"device_serial"` //WDDJ324KSO
-	Test         bool   `json:"test"`          // false
+	HostId       string `json:"host_id,omitempty"` //host id (optional)
+	DeviceType   string `json:"device_type"`       //ATA/SCSI/NVMe
+	DeviceName   string `json:"device_name"`       //dev/sda
+	DeviceSerial string `json:"device_serial"`     //WDDJ324KSO
+	Test         bool   `json:"test"`              // false
 
 	//private, populated during init (marked as Public for JSON serialization)
 	Date        string `json:"date"`         //populated by Send function.
@@ -115,8 +116,9 @@ type Payload struct {
 	Message     string `json:"message"`
 }
 
-func NewPayload(device models.Device, test bool) Payload {
+func NewPayload(device models.Device, test bool, currentTime ...time.Time) Payload {
 	payload := Payload{
+		HostId:       strings.TrimSpace(device.HostId),
 		DeviceType:   device.DeviceType,
 		DeviceName:   device.DeviceName,
 		DeviceSerial: device.SerialNumber,
@@ -124,7 +126,13 @@ func NewPayload(device models.Device, test bool) Payload {
 	}
 
 	//validate that the Payload is populated
-	sendDate := time.Now()
+	var sendDate time.Time
+	if currentTime != nil && len(currentTime) > 0 {
+		sendDate = currentTime[0]
+	} else {
+		sendDate = time.Now()
+	}
+
 	payload.Date = sendDate.Format(time.RFC3339)
 	payload.FailureType = payload.GenerateFailureType(device.DeviceStatus)
 	payload.Subject = payload.GenerateSubject()
@@ -148,25 +156,39 @@ func (p *Payload) GenerateFailureType(deviceStatus pkg.DeviceStatus) string {
 
 func (p *Payload) GenerateSubject() string {
 	//generate a detailed failure message
-	return fmt.Sprintf("Scrutiny SMART error (%s) detected on device: %s", p.FailureType, p.DeviceName)
+	var subject string
+	if len(p.HostId) > 0 {
+		subject = fmt.Sprintf("Scrutiny SMART error (%s) detected on [host]device: [%s]%s", p.FailureType, p.HostId, p.DeviceName)
+	} else {
+		subject = fmt.Sprintf("Scrutiny SMART error (%s) detected on device: %s", p.FailureType, p.DeviceName)
+	}
+	return subject
 }
 
 func (p *Payload) GenerateMessage() string {
 	//generate a detailed failure message
-	message := fmt.Sprintf(
-		`Scrutiny SMART error notification for device: %s
-Failure Type: %s
-Device Name: %s
-Device Serial: %s
-Device Type: %s
 
-Date: %s`, p.DeviceName, p.FailureType, p.DeviceName, p.DeviceSerial, p.DeviceType, p.Date)
+	messageParts := []string{}
 
-	if p.Test {
-		message = "TEST NOTIFICATION:\n" + message
+	messageParts = append(messageParts, fmt.Sprintf("Scrutiny SMART error notification for device: %s", p.DeviceName))
+	if len(p.HostId) > 0 {
+		messageParts = append(messageParts, fmt.Sprintf("Host Id: %s", p.HostId))
 	}
 
-	return message
+	messageParts = append(messageParts,
+		fmt.Sprintf("Failure Type: %s", p.FailureType),
+		fmt.Sprintf("Device Name: %s", p.DeviceName),
+		fmt.Sprintf("Device Serial: %s", p.DeviceSerial),
+		fmt.Sprintf("Device Type: %s", p.DeviceType),
+		"",
+		fmt.Sprintf("Date: %s", p.Date),
+	)
+
+	if p.Test {
+		messageParts = append([]string{"TEST NOTIFICATION:"}, messageParts...)
+	}
+
+	return strings.Join(messageParts, "\n")
 }
 
 func New(logger logrus.FieldLogger, appconfig config.Interface, device models.Device, test bool) Notify {
@@ -287,6 +309,9 @@ func (n *Notify) SendScriptNotification(scriptUrl string) error {
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_DEVICE_TYPE=%s", n.Payload.DeviceType))
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_DEVICE_SERIAL=%s", n.Payload.DeviceSerial))
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_MESSAGE=%s", n.Payload.Message))
+	if len(n.Payload.HostId) > 0 {
+		copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_HOST_ID=%s", n.Payload.HostId))
+	}
 	err := utils.CmdExec(scriptPath, []string{}, "", copyEnv, "")
 	if err != nil {
 		n.Logger.Errorf("An error occurred while executing script %s: %v", scriptPath, err)

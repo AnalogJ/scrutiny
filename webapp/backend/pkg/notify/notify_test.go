@@ -1,11 +1,13 @@
 package notify
 
 import (
+	"fmt"
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	"github.com/stretchr/testify/require"
 	"testing"
+	"time"
 )
 
 func TestShouldNotify_MustSkipPassingDevices(t *testing.T) {
@@ -158,4 +160,85 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_MetricsStatusThresho
 
 	//assert
 	require.False(t, ShouldNotify(device, smartAttrs, statusThreshold, notifyFilterAttributes))
+}
+
+func TestNewPayload(t *testing.T) {
+	t.Parallel()
+
+	//setup
+	device := models.Device{
+		SerialNumber: "FAKEWDDJ324KSO",
+		DeviceType:   pkg.DeviceProtocolAta,
+		DeviceName:   "/dev/sda",
+		DeviceStatus: pkg.DeviceStatusFailedScrutiny,
+	}
+	currentTime := time.Now()
+	//test
+
+	payload := NewPayload(device, false, currentTime)
+
+	//assert
+	require.Equal(t, "Scrutiny SMART error (ScrutinyFailure) detected on device: /dev/sda", payload.Subject)
+	require.Equal(t, fmt.Sprintf(`Scrutiny SMART error notification for device: /dev/sda
+Failure Type: ScrutinyFailure
+Device Name: /dev/sda
+Device Serial: FAKEWDDJ324KSO
+Device Type: ATA
+
+Date: %s`, currentTime.Format(time.RFC3339)), payload.Message)
+}
+
+func TestNewPayload_TestMode(t *testing.T) {
+	t.Parallel()
+
+	//setup
+	device := models.Device{
+		SerialNumber: "FAKEWDDJ324KSO",
+		DeviceType:   pkg.DeviceProtocolAta,
+		DeviceName:   "/dev/sda",
+		DeviceStatus: pkg.DeviceStatusFailedScrutiny,
+	}
+	currentTime := time.Now()
+	//test
+
+	payload := NewPayload(device, true, currentTime)
+
+	//assert
+	require.Equal(t, "Scrutiny SMART error (EmailTest) detected on device: /dev/sda", payload.Subject)
+	require.Equal(t, fmt.Sprintf(`TEST NOTIFICATION:
+Scrutiny SMART error notification for device: /dev/sda
+Failure Type: EmailTest
+Device Name: /dev/sda
+Device Serial: FAKEWDDJ324KSO
+Device Type: ATA
+
+Date: %s`, currentTime.Format(time.RFC3339)), payload.Message)
+}
+
+func TestNewPayload_WithHostId(t *testing.T) {
+	t.Parallel()
+
+	//setup
+	device := models.Device{
+		SerialNumber: "FAKEWDDJ324KSO",
+		DeviceType:   pkg.DeviceProtocolAta,
+		DeviceName:   "/dev/sda",
+		DeviceStatus: pkg.DeviceStatusFailedScrutiny,
+		HostId:       "custom-host",
+	}
+	currentTime := time.Now()
+	//test
+
+	payload := NewPayload(device, false, currentTime)
+
+	//assert
+	require.Equal(t, "Scrutiny SMART error (ScrutinyFailure) detected on [host]device: [custom-host]/dev/sda", payload.Subject)
+	require.Equal(t, fmt.Sprintf(`Scrutiny SMART error notification for device: /dev/sda
+Host Id: custom-host
+Failure Type: ScrutinyFailure
+Device Name: /dev/sda
+Device Serial: FAKEWDDJ324KSO
+Device Type: ATA
+
+Date: %s`, currentTime.Format(time.RFC3339)), payload.Message)
 }
