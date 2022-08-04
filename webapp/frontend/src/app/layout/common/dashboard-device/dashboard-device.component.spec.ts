@@ -9,26 +9,38 @@ import {MatMenuModule} from '@angular/material/menu';
 import {TREO_APP_CONFIG} from '@treo/services/config/config.constants';
 import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
 import * as moment from 'moment';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
+import {HttpClient} from '@angular/common/http';
+import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
+import {of} from 'rxjs';
+import {MetricsStatusThreshold} from 'app/core/config/app.config';
 
 describe('DashboardDeviceComponent', () => {
     let component: DashboardDeviceComponent;
     let fixture: ComponentFixture<DashboardDeviceComponent>;
 
     const matDialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-    // const configServiceSpy = jasmine.createSpyObj('TreoConfigService', ['config$']);
-
+    // const configServiceSpy = jasmine.createSpyObj('ScrutinyConfigService', ['config$']);
+    let configService: ScrutinyConfigService;
+    let httpClientSpy: jasmine.SpyObj<HttpClient>;
 
     beforeEach(async(() => {
+
+        httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
+        configService = new ScrutinyConfigService(httpClientSpy, {});
+
         TestBed.configureTestingModule({
             imports: [
                 MatButtonModule,
                 MatIconModule,
                 MatMenuModule,
                 SharedModule,
+                HttpClientTestingModule,
             ],
             providers: [
                 {provide: MatDialog, useValue: matDialogSpy},
-                {provide: TREO_APP_CONFIG, useValue: {dashboardDisplay: 'name'}}
+                {provide: TREO_APP_CONFIG, useValue: {dashboard_display: 'name', metrics: {status_threshold: 3}}},
+                {provide: ScrutinyConfigService, useValue: configService}
             ],
             declarations: [DashboardDeviceComponent]
         })
@@ -48,25 +60,53 @@ describe('DashboardDeviceComponent', () => {
     describe('#classDeviceLastUpdatedOn()', () => {
 
         it('if non-zero device status, should be red', () => {
+            httpClientSpy.get.and.returnValue(of({
+                settings: {
+                    metrics: {
+                        status_threshold: MetricsStatusThreshold.Both,
+                    }
+                }
+            }));
+            component.ngOnInit()
             // component.deviceSummary = summary.data.summary['0x5000c500673e6b5f'] as DeviceSummaryModel
             expect(component.classDeviceLastUpdatedOn({
                 device: {
-                    device_status: 2
-                }
+                    device_status: 2,
+                },
+                smart: {
+                    collector_date: moment().subtract(13, 'days').toISOString()
+                },
             } as DeviceSummaryModel)).toBe('text-red')
         });
 
         it('if non-zero device status, should be red', () => {
-            // component.deviceSummary = summary.data.summary['0x5000c500673e6b5f'] as DeviceSummaryModel
+            httpClientSpy.get.and.returnValue(of({
+                settings: {
+                    metrics: {
+                        status_threshold: MetricsStatusThreshold.Both,
+                    }
+                }
+            }));
+            component.ngOnInit()
             expect(component.classDeviceLastUpdatedOn({
                 device: {
                     device_status: 2
-                }
+                },
+                smart: {
+                    collector_date: moment().subtract(13, 'days').toISOString()
+                },
             } as DeviceSummaryModel)).toBe('text-red')
         });
 
         it('if healthy device status and updated in the last two weeks, should be green', () => {
-            // component.deviceSummary = summary.data.summary['0x5000c500673e6b5f'] as DeviceSummaryModel
+            httpClientSpy.get.and.returnValue(of({
+                settings: {
+                    metrics: {
+                        status_threshold: MetricsStatusThreshold.Both,
+                    }
+                }
+            }));
+            component.ngOnInit()
             expect(component.classDeviceLastUpdatedOn({
                 device: {
                     device_status: 0
@@ -78,7 +118,14 @@ describe('DashboardDeviceComponent', () => {
         });
 
         it('if healthy device status and updated more than two weeks ago, but less than 1 month, should be yellow', () => {
-            // component.deviceSummary = summary.data.summary['0x5000c500673e6b5f'] as DeviceSummaryModel
+            httpClientSpy.get.and.returnValue(of({
+                settings: {
+                    metrics: {
+                        status_threshold: MetricsStatusThreshold.Both,
+                    }
+                }
+            }));
+            component.ngOnInit()
             expect(component.classDeviceLastUpdatedOn({
                 device: {
                     device_status: 0
@@ -90,7 +137,14 @@ describe('DashboardDeviceComponent', () => {
         });
 
         it('if healthy device status and updated more 1 month ago, should be red', () => {
-            // component.deviceSummary = summary.data.summary['0x5000c500673e6b5f'] as DeviceSummaryModel
+            httpClientSpy.get.and.returnValue(of({
+                settings: {
+                    metrics: {
+                        status_threshold: MetricsStatusThreshold.Both,
+                    }
+                }
+            }));
+            component.ngOnInit()
             expect(component.classDeviceLastUpdatedOn({
                 device: {
                     device_status: 0
@@ -101,5 +155,4 @@ describe('DashboardDeviceComponent', () => {
             } as DeviceSummaryModel)).toBe('text-red')
         });
     })
-
 });

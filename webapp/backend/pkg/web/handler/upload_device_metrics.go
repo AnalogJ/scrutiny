@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
@@ -13,7 +14,7 @@ import (
 
 func UploadDeviceMetrics(c *gin.Context) {
 	//db := c.MustGet("DB").(*gorm.DB)
-	logger := c.MustGet("LOGGER").(logrus.FieldLogger)
+	logger := c.MustGet("LOGGER").(*logrus.Entry)
 	appConfig := c.MustGet("CONFIG").(config.Interface)
 	//influxWriteDb := c.MustGet("INFLUXDB_WRITE").(*api.WriteAPIBlocking)
 	deviceRepo := c.MustGet("DEVICE_REPOSITORY").(database.DeviceRepo)
@@ -67,7 +68,12 @@ func UploadDeviceMetrics(c *gin.Context) {
 	}
 
 	//check for error
-	if notify.ShouldNotify(updatedDevice, smartData, appConfig.GetString("notify.level"), appConfig.GetString("notify.filter_attributes")) {
+	if notify.ShouldNotify(
+		updatedDevice,
+		smartData,
+		pkg.MetricsStatusThreshold(appConfig.GetInt(fmt.Sprintf("%s.metrics.status_threshold", config.DB_USER_SETTINGS_SUBKEY))),
+		pkg.MetricsStatusFilterAttributes(appConfig.GetInt(fmt.Sprintf("%s.metrics.status_filter_attributes", config.DB_USER_SETTINGS_SUBKEY))),
+	) {
 		//send notifications
 
 		liveNotify := notify.New(

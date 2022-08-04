@@ -2,13 +2,14 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as moment from 'moment';
 import {takeUntil} from 'rxjs/operators';
 import {AppConfig} from 'app/core/config/app.config';
-import {TreoConfigService} from '@treo/services/config';
+import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
 import {Subject} from 'rxjs';
 import humanizeDuration from 'humanize-duration'
 import {MatDialog} from '@angular/material/dialog';
 import {DashboardDeviceDeleteDialogComponent} from 'app/layout/common/dashboard-device-delete-dialog/dashboard-device-delete-dialog.component';
 import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
 import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
+import {DeviceStatusPipe} from 'app/shared/device-status.pipe';
 
 @Component({
     selector: 'app-dashboard-device',
@@ -18,7 +19,7 @@ import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
 export class DashboardDeviceComponent implements OnInit {
 
     constructor(
-        private _configService: TreoConfigService,
+        private _configService: ScrutinyConfigService,
         public dialog: MatDialog,
     ) {
         // Set the private defaults
@@ -35,6 +36,8 @@ export class DashboardDeviceComponent implements OnInit {
 
     readonly humanizeDuration = humanizeDuration;
 
+    deviceStatusForModelWithThreshold = DeviceStatusPipe.deviceStatusForModelWithThreshold
+
     ngOnInit(): void {
         // Subscribe to config changes
         this._configService.config$
@@ -50,9 +53,10 @@ export class DashboardDeviceComponent implements OnInit {
     // -----------------------------------------------------------------------------------------------------
 
     classDeviceLastUpdatedOn(deviceSummary: DeviceSummaryModel): string {
-        if (deviceSummary.device.device_status !== 0) {
+        const deviceStatus = DeviceStatusPipe.deviceStatusForModelWithThreshold(deviceSummary.device, !!deviceSummary.smart, this.config.metrics.status_threshold)
+        if (deviceStatus === 'failed') {
             return 'text-red' // if the device has failed, always highlight in red
-        } else if (deviceSummary.device.device_status === 0 && deviceSummary.smart) {
+        } else if (deviceStatus === 'passed') {
             if (moment().subtract(14, 'days').isBefore(deviceSummary.smart.collector_date)) {
                 // this device was updated in the last 2 weeks.
                 return 'text-green'
@@ -68,21 +72,12 @@ export class DashboardDeviceComponent implements OnInit {
         }
     }
 
-    deviceStatusString(deviceStatus: number): string {
-        if (deviceStatus === 0) {
-            return 'passed'
-        } else {
-            return 'failed'
-        }
-    }
-
-
     openDeleteDialog(): void {
         const dialogRef = this.dialog.open(DashboardDeviceDeleteDialogComponent, {
             // width: '250px',
             data: {
                 wwn: this.deviceWWN,
-                title: DeviceTitlePipe.deviceTitleWithFallback(this.deviceSummary.device, this.config.dashboardDisplay)
+                title: DeviceTitlePipe.deviceTitleWithFallback(this.deviceSummary.device, this.config.dashboard_display)
             }
         });
 

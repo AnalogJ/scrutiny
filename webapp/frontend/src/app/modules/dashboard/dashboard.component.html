@@ -51,7 +51,11 @@
             <div class="flex flex-wrap w-full" *ngFor="let hostId of hostGroups | keyvalue">
                 <h3 class="ml-4" *ngIf="hostId.key">{{hostId.key}}</h3>
                 <div class="flex flex-wrap w-full">
-                    <app-dashboard-device (deviceDeleted)="onDeviceDeleted($event)" class="flex gt-sm:w-1/2 min-w-80 p-4" *ngFor="let deviceSummary of (deviceSummariesForHostGroup(hostId.value) | deviceSort:config.dashboardSort:config.dashboardDisplay )" [deviceWWN]="deviceSummary.device.wwn" [deviceSummary]="deviceSummary"></app-dashboard-device>
+                    <app-dashboard-device (deviceDeleted)="onDeviceDeleted($event)"
+                                          class="flex gt-sm:w-1/2 min-w-80 p-4"
+                                          *ngFor="let deviceSummary of (deviceSummariesForHostGroup(hostId.value) | deviceSort:config.dashboard_sort:config.dashboard_display )"
+                                          [deviceWWN]="deviceSummary.device.wwn"
+                                          [deviceSummary]="deviceSummary"></app-dashboard-device>
                 </div>
             </div>
 

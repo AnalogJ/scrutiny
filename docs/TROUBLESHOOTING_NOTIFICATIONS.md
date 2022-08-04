@@ -21,5 +21,6 @@ SCRUTINY_DEVICE_NAME - eg. /dev/sda
 SCRUTINY_DEVICE_TYPE - ATA/SCSI/NVMe
 SCRUTINY_DEVICE_SERIAL - eg. WDDJ324KSO
 SCRUTINY_MESSAGE - eg. "Scrutiny SMART error notification for device: %s\nFailure Type: %s\nDevice Name: %s\nDevice Serial: %s\nDevice Type: %s\nDate: %s"
+SCRUTINY_HOST_ID - (optional) eg. "my-custom-host-id"
 ```
 

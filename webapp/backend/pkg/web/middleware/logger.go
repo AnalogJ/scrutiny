@@ -28,11 +28,11 @@ import (
 var timeFormat = "02/Jan/2006:15:04:05 -0700"
 
 // Logger is the logrus logger handler
-func LoggerMiddleware(logger logrus.FieldLogger) gin.HandlerFunc {
+func LoggerMiddleware(logger *logrus.Entry) gin.HandlerFunc {
 
 	hostname, err := os.Hostname()
 	if err != nil {
-		hostname = "unknow"
+		hostname = "unknown"
 	}
 
 	return func(c *gin.Context) {

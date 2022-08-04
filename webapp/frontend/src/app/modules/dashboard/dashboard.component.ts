@@ -14,7 +14,7 @@ import {DashboardService} from 'app/modules/dashboard/dashboard.service';
 import {MatDialog} from '@angular/material/dialog';
 import {DashboardSettingsComponent} from 'app/layout/common/dashboard-settings/dashboard-settings.component';
 import {AppConfig} from 'app/core/config/app.config';
-import {TreoConfigService} from '@treo/services/config';
+import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
 import {Router} from '@angular/router';
 import {TemperaturePipe} from 'app/shared/temperature.pipe';
 import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
@@ -43,13 +43,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
      * Constructor
      *
      * @param {DashboardService} _dashboardService
-     * @param {TreoConfigService} _configService
+     * @param {ScrutinyConfigService} _configService
      * @param {MatDialog} dialog
      * @param {Router} router
      */
     constructor(
         private _dashboardService: DashboardService,
-        private _configService: TreoConfigService,
+        private _configService: ScrutinyConfigService,
         public dialog: MatDialog,
         private router: Router,
     )
@@ -150,7 +150,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                 continue
             }
 
-            const deviceName = DeviceTitlePipe.deviceTitleWithFallback(deviceSummary.device, this.config.dashboardDisplay)
+            const deviceName = DeviceTitlePipe.deviceTitleWithFallback(deviceSummary.device, this.config.dashboard_display)
 
             const deviceSeriesMetadata = {
                 name: deviceName,
@@ -161,7 +161,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                 const newDate = new Date(tempHistory.date);
                 deviceSeriesMetadata.data.push({
                     x: newDate,
-                    y: TemperaturePipe.formatTemperature(tempHistory.temp, this.config.temperatureUnit, false)
+                    y: TemperaturePipe.formatTemperature(tempHistory.temp, this.config.temperature_unit, false)
                 })
             }
             deviceTemperatureSeries.push(deviceSeriesMetadata)
@@ -212,7 +212,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                 y    : {
 
                     formatter: (value) => {
-                        return TemperaturePipe.formatTemperature(value, this.config.temperatureUnit, true) as string;
+                        return TemperaturePipe.formatTemperature(value, this.config.temperature_unit, true) as string;
                     }
                 }
             },
@@ -237,7 +237,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     openDialog(): void {
-        const dialogRef = this.dialog.open(DashboardSettingsComponent);
+        const dialogRef = this.dialog.open(DashboardSettingsComponent, {width: '600px',});
 
         dialogRef.afterClosed().subscribe(result => {
             console.log(`Dialog result: ${result}`);

@@ -14,7 +14,7 @@ RUN make binary-clean binary-collector
 
 ########
 FROM debian:bullseye-slim as runtime
-WORKDIR /scrutiny
+WORKDIR /opt/scrutiny
 ENV PATH="/opt/scrutiny/bin:${PATH}"
 
 RUN apt-get update && apt-get install -y cron smartmontools ca-certificates tzdata && update-ca-certificates

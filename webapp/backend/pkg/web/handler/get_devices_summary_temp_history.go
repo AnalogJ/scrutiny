@@ -8,7 +8,7 @@ import (
 )
 
 func GetDevicesSummaryTempHistory(c *gin.Context) {
-	logger := c.MustGet("LOGGER").(logrus.FieldLogger)
+	logger := c.MustGet("LOGGER").(*logrus.Entry)
 	deviceRepo := c.MustGet("DEVICE_REPOSITORY").(database.DeviceRepo)
 
 	durationKey, exists := c.GetQuery("duration_key")

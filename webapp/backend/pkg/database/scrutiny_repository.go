@@ -62,7 +62,20 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 	// Gorm/SQLite setup
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	globalLogger.Infof("Trying to connect to scrutiny sqlite db: %s\n", appConfig.GetString("web.database.location"))
-	database, err := gorm.Open(sqlite.Open(appConfig.GetString("web.database.location")), &gorm.Config{
+
+	// When a transaction cannot lock the database, because it is already locked by another one,
+	// SQLite by default throws an error: database is locked. This behavior is usually not appropriate when
+	// concurrent access is needed, typically when multiple processes write to the same database.
+	// PRAGMA busy_timeout lets you set a timeout or a handler for these events. When setting a timeout,
+	// SQLite will try the transaction multiple times within this timeout.
+	// fixes #341
+	// https://rsqlite.r-dbi.org/reference/sqlitesetbusyhandler
+	// retrying for 30000 milliseconds, 30seconds - this would be unreasonable for a distributed multi-tenant application,
+	// but should be fine for local usage.
+	pragmaStr := sqlitePragmaString(map[string]string{
+		"busy_timeout": "30000",
+	})
+	database, err := gorm.Open(sqlite.Open(appConfig.GetString("web.database.location")+pragmaStr), &gorm.Config{
 		//TODO: figure out how to log database queries again.
 		//Logger: logger
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -449,4 +462,17 @@ func (sr *scrutinyRepository) lookupNestedDurationKeys(durationKey string) []str
 		return []string{DURATION_KEY_WEEK, DURATION_KEY_MONTH, DURATION_KEY_YEAR, DURATION_KEY_FOREVER}
 	}
 	return []string{DURATION_KEY_WEEK}
+}
+
+func sqlitePragmaString(pragmas map[string]string) string {
+	q := url.Values{}
+	for key, val := range pragmas {
+		q.Add("_pragma", key+"="+val)
+	}
+
+	queryStr := q.Encode()
+	if len(queryStr) > 0 {
+		return "?" + queryStr
+	}
+	return ""
 }

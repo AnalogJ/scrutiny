@@ -8,7 +8,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
 import {Subject} from 'rxjs';
-import {TreoConfigService} from '@treo/services/config';
+import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {formatDate} from '@angular/common';
 import {takeUntil} from 'rxjs/operators';
@@ -16,6 +16,7 @@ import {DeviceModel} from 'app/core/models/device-model';
 import {SmartModel} from 'app/core/models/measurements/smart-model';
 import {SmartAttributeModel} from 'app/core/models/measurements/smart-attribute-model';
 import {AttributeMetadataModel} from 'app/core/models/thresholds/attribute-metadata-model';
+import {DeviceStatusPipe} from 'app/shared/device-status.pipe';
 
 // from Constants.go - these must match
 const AttributeStatusPassed = 0
@@ -44,13 +45,13 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
      *
      * @param {DetailService} _detailService
      * @param {MatDialog} dialog
-     * @param {TreoConfigService} _configService
+     * @param {ScrutinyConfigService} _configService
      * @param {string} locale
      */
     constructor(
         private _detailService: DetailService,
         public dialog: MatDialog,
-        private _configService: TreoConfigService,
+        private _configService: ScrutinyConfigService,
         @Inject(LOCALE_ID) public locale: string
     ) {
         // Set the private defaults
@@ -89,6 +90,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     readonly humanizeDuration = humanizeDuration;
 
+    deviceStatusForModelWithThreshold = DeviceStatusPipe.deviceStatusForModelWithThreshold
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
     // -----------------------------------------------------------------------------------------------------
@@ -349,7 +351,9 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                 attributes[attrId].chartData = [
                     {
                         name: 'chart-line-sparkline',
-                        data: attrHistory
+                        // attrHistory needs to be reversed, so the newest data is on the right
+                        // fixes #339
+                        data: attrHistory.reverse()
                     }
                 ]
             }
