@@ -115,7 +115,7 @@ func (suite *ServerTestSuite) TestHealthRoute() {
 		Config: fakeConfig,
 	}
 
-	router := ae.Setup(logrus.New())
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 
 	//test
 	w := httptest.NewRecorder()
@@ -156,7 +156,7 @@ func (suite *ServerTestSuite) TestRegisterDevicesRoute() {
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
-	router := ae.Setup(logrus.New())
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 	file, err := os.Open("testdata/register-devices-req.json")
 	require.NoError(suite.T(), err)
 
@@ -201,7 +201,7 @@ func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
-	router := ae.Setup(logrus.New())
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 	devicesfile, err := os.Open("testdata/register-devices-single-req.json")
 	require.NoError(suite.T(), err)
 
@@ -255,7 +255,7 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
-	router := ae.Setup(logrus.New())
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 	devicesfile, err := os.Open("testdata/register-devices-req.json")
 	require.NoError(suite.T(), err)
 
@@ -358,7 +358,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_WebhookFailure() {
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
-	router := ae.Setup(logrus.New())
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 
 	//test
 	wr := httptest.NewRecorder()
@@ -403,7 +403,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptFailure() {
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
-	router := ae.Setup(logrus.New())
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 
 	//test
 	wr := httptest.NewRecorder()
@@ -448,7 +448,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptSuccess() {
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
-	router := ae.Setup(logrus.New())
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 
 	//test
 	wr := httptest.NewRecorder()
@@ -492,7 +492,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ShoutrrrFailure() {
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
-	router := ae.Setup(logrus.New())
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 
 	//test
 	wr := httptest.NewRecorder()
@@ -537,7 +537,7 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	ae := web.AppEngine{
 		Config: fakeConfig,
 	}
-	router := ae.Setup(logrus.New())
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 	devicesfile, err := os.Open("testdata/register-devices-req-2.json")
 	require.NoError(suite.T(), err)
 
