@@ -351,7 +351,9 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                 attributes[attrId].chartData = [
                     {
                         name: 'chart-line-sparkline',
-                        data: attrHistory
+                        // attrHistory needs to be reversed, so the newest data is on the right
+                        // fixes #339
+                        data: attrHistory.reverse()
                     }
                 ]
             }
