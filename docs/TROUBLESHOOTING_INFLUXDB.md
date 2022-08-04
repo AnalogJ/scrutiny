@@ -1,7 +1,19 @@
 # InfluxDB Troubleshooting
 
-## Installation 
-InfluxDB is a required dependency for Scrutiny v0.4.0+. 
+## Why??
+
+Scrutiny has many features, but the relevant one to this conversation is the "S.M.A.R.T metric tracking for historical
+trends". Basically Scrutiny not only shows you the current SMART values, but how they've changed over weeks, months (or
+even years).
+
+To efficiently handle that data at scale (and to make my life easier as a developer) I decided to add InfluxDB as a
+dependency. It's a dedicated timeseries database, as opposed to the general purpose sqlite DB I used before. I also did
+a bunch of testing and analysis before I made the change. With InfluxDB the memory footprint for Scrutiny (at idle) is ~
+100mb, which is still fairly reasonable.
+
+## Installation
+
+InfluxDB is a required dependency for Scrutiny v0.4.0+.
 
 https://docs.influxdata.com/influxdb/v2.2/install/
 
