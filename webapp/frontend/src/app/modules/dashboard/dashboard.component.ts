@@ -237,7 +237,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     openDialog(): void {
-        const dialogRef = this.dialog.open(DashboardSettingsComponent);
+        const dialogRef = this.dialog.open(DashboardSettingsComponent, {width: '600px',});
 
         dialogRef.afterClosed().subscribe(result => {
             console.log(`Dialog result: ${result}`);
