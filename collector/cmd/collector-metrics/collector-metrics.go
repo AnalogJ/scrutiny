@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/analogj/scrutiny/collector/pkg/collector"
 	"github.com/analogj/scrutiny/collector/pkg/config"
@@ -120,26 +121,16 @@ OPTIONS:
 						config.Set("api.endpoint", apiEndpoint)
 					}
 
-					collectorLogger := logrus.WithFields(logrus.Fields{
-						"type": "metrics",
-					})
-
-					if level, err := logrus.ParseLevel(config.GetString("log.level")); err == nil {
-						logrus.SetLevel(level)
-					} else {
-						logrus.SetLevel(logrus.InfoLevel)
-					}
-
-					if config.IsSet("log.file") && len(config.GetString("log.file")) > 0 {
-						logFile, err := os.OpenFile(config.GetString("log.file"), os.O_CREATE|os.O_WRONLY, 0644)
-						if err != nil {
-							logrus.Errorf("Failed to open log file %s for output: %s", config.GetString("log.file"), err)
-							return err
-						}
+					collectorLogger, logFile, err := CreateLogger(config)
+					if logFile != nil {
 						defer logFile.Close()
-						logrus.SetOutput(io.MultiWriter(os.Stderr, logFile))
+					}
+					if err != nil {
+						return err
 					}
 
+					settingsData, err := json.MarshalIndent(config.AllSettings(), "", "\t")
+					collectorLogger.Debug(string(settingsData), err)
 					metricCollector, err := collector.CreateMetricsCollector(
 						config,
 						collectorLogger,
@@ -192,5 +183,28 @@ OPTIONS:
 	if err != nil {
 		log.Fatal(color.HiRedString("ERROR: %v", err))
 	}
+}
 
+func CreateLogger(appConfig config.Interface) (*logrus.Entry, *os.File, error) {
+	logger := logrus.WithFields(logrus.Fields{
+		"type": "metrics",
+	})
+
+	if level, err := logrus.ParseLevel(appConfig.GetString("log.level")); err == nil {
+		logger.Logger.SetLevel(level)
+	} else {
+		logger.Logger.SetLevel(logrus.InfoLevel)
+	}
+
+	var logFile *os.File
+	var err error
+	if appConfig.IsSet("log.file") && len(appConfig.GetString("log.file")) > 0 {
+		logFile, err = os.OpenFile(appConfig.GetString("log.file"), os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			logger.Logger.Errorf("Failed to open log file %s for output: %s", appConfig.GetString("log.file"), err)
+			return nil, logFile, err
+		}
+		logger.Logger.SetOutput(io.MultiWriter(os.Stderr, logFile))
+	}
+	return logger, logFile, nil
 }

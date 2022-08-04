@@ -14,7 +14,7 @@ import (
 
 func UploadDeviceMetrics(c *gin.Context) {
 	//db := c.MustGet("DB").(*gorm.DB)
-	logger := c.MustGet("LOGGER").(logrus.FieldLogger)
+	logger := c.MustGet("LOGGER").(*logrus.Entry)
 	appConfig := c.MustGet("CONFIG").(config.Interface)
 	//influxWriteDb := c.MustGet("INFLUXDB_WRITE").(*api.WriteAPIBlocking)
 	deviceRepo := c.MustGet("DEVICE_REPOSITORY").(database.DeviceRepo)
