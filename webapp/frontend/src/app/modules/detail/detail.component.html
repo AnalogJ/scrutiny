@@ -4,7 +4,7 @@
 
         <div class="flex items-center justify-between w-full my-4 px-4 xs:pr-0">
             <div class="mr-6">
-                <h2 class="m-0">Drive Details - {{device | deviceTitle:config.dashboardDisplay}} </h2>
+                <h2 class="m-0">Drive Details - {{device | deviceTitle:config.dashboard_display}} </h2>
                 <div class="text-secondary tracking-tight">Dive into S.M.A.R.T data</div>
             </div>
             <!-- Action buttons -->
@@ -17,7 +17,7 @@
                     <span class="ml-2">Export</span>
                 </button>
                 <button class="ml-2 xs:hidden"
-                        (click)="openDialog()"
+                        matTooltip="not yet implemented"
                         mat-stroked-button>
                     <mat-icon class="icon-size-20 rotate-90 mirror"
                               [svgIcon]="'tune'"></mat-icon>
@@ -56,12 +56,13 @@
                     <div *ngIf="device" class="my-2 col-span-2 lt-md:col-span-1">
                         <div>
                             <span class="inline-flex items-center font-bold text-xs px-2 py-2px rounded-full tracking-wide uppercase"
-                                   [ngClass]="{'red-200': device?.device_status != 0,
+                                  [ngClass]="{'red-200': deviceStatusForModelWithThreshold(device, !!smart_results, config.metrics.status_threshold) == 'failed',
                                   'green-200': device?.device_status == 0}">
                                 <span class="w-2 h-2 rounded-full mr-2"
                                       [ngClass]="{'bg-red': device?.device_status != 0,
                                   'bg-green': device?.device_status == 0}"></span>
-                                <span class="pr-2px leading-relaxed whitespace-no-wrap">{{device?.device_status | deviceStatus}}</span>
+                                <span
+                                    class="pr-2px leading-relaxed whitespace-no-wrap">{{device | deviceStatus:!!smart_results:config.metrics.status_threshold:true}}</span>
                             </span>
                         </div>
                         <div class="text-secondary text-md">Status</div>
@@ -106,7 +107,7 @@
                         <div class="text-secondary text-md">Firmware Version</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{device?.capacity | fileSize}}</div>
+                        <div>{{device?.capacity | fileSize:config.file_size_si_units}}</div>
                         <div class="text-secondary text-md">Capacity</div>
                     </div>
                     <div *ngIf="device?.rotational_speed" class="my-2 col-span-2 lt-md:col-span-1">
@@ -126,7 +127,7 @@
                         <div class="text-secondary text-md">Powered On</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
-                        <div>{{smart_results[0]?.temp | temperature:config.temperatureUnit:true}}</div>
+                        <div>{{smart_results[0]?.temp | temperature:config.temperature_unit:true}}</div>
                         <div class="text-secondary text-md">Temperature</div>
                     </div>
                 </div>

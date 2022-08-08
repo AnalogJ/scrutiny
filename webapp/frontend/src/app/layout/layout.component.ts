@@ -1,22 +1,21 @@
-import { Component, Inject, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
-import { TreoConfigService } from '@treo/services/config';
-import { TreoDrawerService } from '@treo/components/drawer';
-import { Layout } from 'app/layout/layout.types';
-import { AppConfig, Theme } from 'app/core/config/app.config';
+import {Component, Inject, OnDestroy, OnInit, ViewEncapsulation} from '@angular/core';
+import {DOCUMENT} from '@angular/common';
+import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
+import {MatSlideToggleChange} from '@angular/material/slide-toggle';
+import {Subject} from 'rxjs';
+import {filter, takeUntil} from 'rxjs/operators';
+import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
+import {TreoDrawerService} from '@treo/components/drawer';
+import {Layout} from 'app/layout/layout.types';
+import {AppConfig, Theme} from 'app/core/config/app.config';
 
 @Component({
-    selector     : 'layout',
-    templateUrl  : './layout.component.html',
-    styleUrls    : ['./layout.component.scss'],
+    selector: 'layout',
+    templateUrl: './layout.component.html',
+    styleUrls: ['./layout.component.scss'],
     encapsulation: ViewEncapsulation.None
 })
-export class LayoutComponent implements OnInit, OnDestroy
-{
+export class LayoutComponent implements OnInit, OnDestroy {
     config: AppConfig;
     layout: Layout;
     theme: Theme;
@@ -29,14 +28,14 @@ export class LayoutComponent implements OnInit, OnDestroy
      * Constructor
      *
      * @param {ActivatedRoute} _activatedRoute
-     * @param {TreoConfigService} _treoConfigService
+     * @param {ScrutinyConfigService} _scrutinyConfigService
      * @param {TreoDrawerService} _treoDrawerService
      * @param {DOCUMENT} _document
      * @param {Router} _router
      */
     constructor(
         private _activatedRoute: ActivatedRoute,
-        private _treoConfigService: TreoConfigService,
+        private _scrutinyConfigService: ScrutinyConfigService,
         private _treoDrawerService: TreoDrawerService,
         @Inject(DOCUMENT) private _document: any,
         private _router: Router
@@ -59,7 +58,7 @@ export class LayoutComponent implements OnInit, OnDestroy
     ngOnInit(): void
     {
         // Subscribe to config changes
-        this._treoConfigService.config$
+        this._scrutinyConfigService.config$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((config: AppConfig) => {
 
@@ -180,18 +179,17 @@ export class LayoutComponent implements OnInit, OnDestroy
      *
      * @param layout
      */
-    setLayout(layout: string): void
-    {
+    setLayout(layout: Layout): void {
         // Clear the 'layout' query param to allow layout changes
         this._router.navigate([], {
-            queryParams        : {
+            queryParams: {
                 layout: null
             },
             queryParamsHandling: 'merge'
         }).then(() => {
 
             // Set the config
-            this._treoConfigService.config = {layout};
+            this._scrutinyConfigService.config = {layout};
         });
     }
 
@@ -202,6 +200,6 @@ export class LayoutComponent implements OnInit, OnDestroy
      */
     setTheme(change: MatSlideToggleChange): void
     {
-        this._treoConfigService.config = {theme: change.checked ? 'dark' : 'light'};
+        this._scrutinyConfigService.config = {theme: change.checked ? 'dark' : 'light'};
     }
 }

@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20201107210306"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220503120000"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220509170100"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220716214900"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
@@ -275,6 +277,77 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				return tx.Where("wwn = ?", "").Delete(&models.Device{}).Error
 			},
 		},
+		{
+			ID: "m20220716214900", // add settings table.
+			Migrate: func(tx *gorm.DB) error {
+
+				// adding the settings table.
+				err := tx.AutoMigrate(m20220716214900.Setting{})
+				if err != nil {
+					return err
+				}
+				//add defaults.
+
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "theme",
+						SettingKeyDescription: "Frontend theme ('light' | 'dark' | 'system')",
+						SettingDataType:       "string",
+						SettingValueString:    "system", // options: 'light' | 'dark' | 'system'
+					},
+					{
+						SettingKeyName:        "layout",
+						SettingKeyDescription: "Frontend layout ('material')",
+						SettingDataType:       "string",
+						SettingValueString:    "material",
+					},
+					{
+						SettingKeyName:        "dashboard_display",
+						SettingKeyDescription: "Frontend device display title ('name' | 'serial_id' | 'uuid' | 'label')",
+						SettingDataType:       "string",
+						SettingValueString:    "name",
+					},
+					{
+						SettingKeyName:        "dashboard_sort",
+						SettingKeyDescription: "Frontend device sort by ('status' | 'title' | 'age')",
+						SettingDataType:       "string",
+						SettingValueString:    "status",
+					},
+					{
+						SettingKeyName:        "temperature_unit",
+						SettingKeyDescription: "Frontend temperature unit ('celsius' | 'fahrenheit')",
+						SettingDataType:       "string",
+						SettingValueString:    "celsius",
+					},
+					{
+						SettingKeyName:        "file_size_si_units",
+						SettingKeyDescription: "File size in SI units (true | false)",
+						SettingDataType:       "bool",
+						SettingValueBool:      false,
+					},
+
+					{
+						SettingKeyName:        "metrics.notify_level",
+						SettingKeyDescription: "Determines which device status will cause a notification (fail or warn)",
+						SettingDataType:       "numeric",
+						SettingValueNumeric:   int(pkg.MetricsNotifyLevelFail), // options: 'fail' or 'warn'
+					},
+					{
+						SettingKeyName:        "metrics.status_filter_attributes",
+						SettingKeyDescription: "Determines which attributes should impact device status",
+						SettingDataType:       "numeric",
+						SettingValueNumeric:   int(pkg.MetricsStatusFilterAttributesAll), // options: 'all' or  'critical'
+					},
+					{
+						SettingKeyName:        "metrics.status_threshold",
+						SettingKeyDescription: "Determines which threshold should impact device status",
+						SettingDataType:       "numeric",
+						SettingValueNumeric:   int(pkg.MetricsStatusThresholdBoth), // options: 'scrutiny', 'smart', 'both'
+					},
+				}
+				return tx.Create(&defaultSettings).Error
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
@@ -282,6 +355,30 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 		return err
 	}
 	sr.logger.Infoln("Database migration completed successfully")
+
+	//these migrations cannot be done within a transaction, so they are done as a separate group, with `UseTransaction = false`
+	sr.logger.Infoln("SQLite global configuration migrations starting. Please wait....")
+	globalMigrateOptions := gormigrate.DefaultOptions
+	globalMigrateOptions.UseTransaction = false
+	gm := gormigrate.New(sr.gormClient, globalMigrateOptions, []*gormigrate.Migration{
+		{
+			ID: "g20220802211500",
+			Migrate: func(tx *gorm.DB) error {
+				//shrink the Database (maybe necessary after 20220503113100)
+				if err := tx.Exec("VACUUM;").Error; err != nil {
+					return err
+				}
+				return nil
+			},
+		},
+	})
+
+	if err := gm.Migrate(); err != nil {
+		sr.logger.Errorf("SQLite global configuration migrations failed with error. \n Please open a github issue at https://github.com/AnalogJ/scrutiny and attach a copy of your scrutiny.db file. \n %v", err)
+		return err
+	}
+	sr.logger.Infoln("SQLite global configuration migrations completed successfully")
+
 	return nil
 }
 

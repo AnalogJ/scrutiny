@@ -13,7 +13,7 @@ import (
 // This function is run everytime a collector is about to start a run. It can be used to update device metadata.
 func RegisterDevices(c *gin.Context) {
 	deviceRepo := c.MustGet("DEVICE_REPOSITORY").(database.DeviceRepo)
-	logger := c.MustGet("LOGGER").(logrus.FieldLogger)
+	logger := c.MustGet("LOGGER").(*logrus.Entry)
 
 	var collectorDeviceWrapper models.DeviceWrapper
 	err := c.BindJSON(&collectorDeviceWrapper)

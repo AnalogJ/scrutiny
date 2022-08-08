@@ -8,7 +8,7 @@ import (
 )
 
 func DeleteDevice(c *gin.Context) {
-	logger := c.MustGet("LOGGER").(logrus.FieldLogger)
+	logger := c.MustGet("LOGGER").(*logrus.Entry)
 	deviceRepo := c.MustGet("DEVICE_REPOSITORY").(database.DeviceRepo)
 
 	err := deviceRepo.DeleteDevice(c, c.Param("wwn"))

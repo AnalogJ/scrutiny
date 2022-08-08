@@ -13,7 +13,7 @@ import (
 // Send test notification
 func SendTestNotification(c *gin.Context) {
 	appConfig := c.MustGet("CONFIG").(config.Interface)
-	logger := c.MustGet("LOGGER").(logrus.FieldLogger)
+	logger := c.MustGet("LOGGER").(*logrus.Entry)
 
 	testNotify := notify.New(
 		logger,
