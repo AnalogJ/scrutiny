@@ -1,0 +1,34 @@
+{{- if and .Values.influxdb2.persistence.hostPath .Values.influxdb2.persistence.useExisting }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.influxdb2.persistence.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  storageClassName: {{ .Values.influxdb2.persistence.storageClass }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.influxdb2.persistence.size }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Namespace }}-{{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    type: local
+spec:
+  {{- with .Values.influxdb2.persistence.hostPath.nodeAffinity }}
+  nodeAffinity:
+    {{- . | toYaml | nindent 4 }}
+  {{- end }}
+  storageClassName: {{ .Values.influxdb2.persistence.storageClass }}
+  capacity:
+    storage: {{ .Values.influxdb2.persistence.size }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: {{ .Values.influxdb2.persistence.hostPath.path }}
+{{- end }}
