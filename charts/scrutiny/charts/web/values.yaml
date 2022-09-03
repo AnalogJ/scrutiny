@@ -5,8 +5,6 @@
 env:
   SCRUTINY_WEB_INFLUXDB_HOST: scrutiny-influxdb2
 
-replicaCount: 1
-
 persistence:
   config:
     # Volume spec, without `name`.
