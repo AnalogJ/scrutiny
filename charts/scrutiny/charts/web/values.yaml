@@ -14,7 +14,8 @@ image:
   repository: ghcr.io/analogj/scrutiny
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: master-web
+  # Should contain the -web suffix, e.g. "v0.5.0-web"
+  tag:
 
 imagePullSecrets: []
 nameOverride: ""
