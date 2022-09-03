@@ -54,11 +54,15 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
+            {{- with .Values.persistence.config }}
             - mountPath: /opt/scrutiny/config
               name: config
+            {{- end }}
       volumes:
+        {{- with .Values.persistence.config }}
         - name: config
-          {{- .Values.persistence.config | toYaml | nindent 10 }}
+          {{- . | toYaml | nindent 10 }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

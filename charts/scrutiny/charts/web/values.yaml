@@ -6,7 +6,7 @@ env:
   SCRUTINY_WEB_INFLUXDB_HOST: scrutiny-influxdb2
 
 persistence:
-  config:
+  config: {}
     # Volume spec, without `name`.
     #emptyDir: {}
 
