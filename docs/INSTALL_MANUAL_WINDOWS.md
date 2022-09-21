@@ -38,8 +38,9 @@ should be up and running but the dashboard will be empty (default location is `l
       1. In the **Program/Script** field, put: `scrutiny-collector-metrics-windows-amd64.exe`
       2. In the **Add arguments (optional)** field, put: `run --api-endpoint "http://localhost:8080" --config collector.yaml`
          > **NOTE:** 
-         >  * Make sure that you put the correct port number (as specified in the docker-compose file) for the webapp (default is `8080`)
-         > * The `--config` param is optional and is not needed if you just want to use the default collector config, see [example.collector.yaml](https://github.com/AnalogJ/scrutiny/blob/master/example.collector.yaml) for more info on the collector config.
+         > * Make sure that you put the correct port number (as specified in the docker-compose file) for the webapp (default is `8080`)
+         > * The `--config` param is optional and is not needed if you just want to use the default collector config, see 
+      [example.collector.yaml](https://github.com/AnalogJ/scrutiny/blob/master/example.collector.yaml) for more info on the collector config.
       3. In the **Start in (optional)** field, put: FOLDER_PATH_TO_YOUR `scrutiny-collector-metrics-windows-amd64.exe` file
           > **NOTE:** Must be exact and do not include `scrutiny-collector-metrics-windows-amd64.exe` in the path
       4. Click Ok when finished
