@@ -52,6 +52,10 @@ log:
   file: '' #absolute or relative paths allowed, eg. web.log
   level: INFO
 
+failures:
+  transient:
+    ata:
+      - 195 # Hardware_ECC_Recovered, see https://superuser.com/a/1511916/169872
 
 # Notification "urls" look like the following. For more information about service specific configuration see
 # Shoutrrr's documentation: https://containrrr.dev/shoutrrr/services/overview/

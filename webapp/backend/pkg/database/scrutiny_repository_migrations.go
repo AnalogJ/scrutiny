@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20201107210306"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220503120000"
@@ -17,8 +20,6 @@ import (
 	"github.com/influxdata/influxdb-client-go/v2/api/http"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"strconv"
-	"time"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -384,8 +385,8 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 
 // helpers
 
-//When adding data to influxdb, an error may be returned if the data point is outside the range of the retention policy.
-//This function will ignore retention policy errors, and allow the migration to continue.
+// When adding data to influxdb, an error may be returned if the data point is outside the range of the retention policy.
+// This function will ignore retention policy errors, and allow the migration to continue.
 func ignorePastRetentionPolicyError(err error) error {
 	var influxDbWriteError *http.Error
 	if errors.As(err, &influxDbWriteError) {
@@ -468,7 +469,7 @@ func m20201107210306_FromPreInfluxDBSmartResultsCreatePostInfluxDBSmartResults(d
 			})
 		}
 
-		postDeviceSmartData.ProcessAtaSmartInfo(preAtaSmartAttributesTable)
+		postDeviceSmartData.ProcessAtaSmartInfo(nil, preAtaSmartAttributesTable)
 
 	} else if preDevice.IsNvme() {
 		//info collector.SmartInfo

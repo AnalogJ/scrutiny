@@ -1,12 +1,13 @@
 package config
 
 import (
-	"github.com/analogj/go-util/utils"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/analogj/go-util/utils"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
+	"github.com/spf13/viper"
 )
 
 const DB_USER_SETTINGS_SUBKEY = "user"
@@ -50,6 +51,8 @@ func (c *configuration) Init() error {
 	c.SetDefault("web.influxdb.init_password", "password12345")
 	c.SetDefault("web.influxdb.token", "scrutiny-default-admin-token")
 	c.SetDefault("web.influxdb.retention_policy", true)
+
+	c.SetDefault("failures.transient.ata", []int{195})
 
 	//c.SetDefault("disks.include", []string{})
 	//c.SetDefault("disks.exclude", []string{})
