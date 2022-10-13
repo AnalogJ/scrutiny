@@ -11,8 +11,9 @@ in `docs/guides/` or elsewhere) it will be linked here.
 - [ ] OMV
 - [ ] Amahi
 - [ ] Running in a LXC container
-- [x] [PFSense](./INSTALL_UNRAID.md)
+- [x] [PFSense](./INSTALL_PFSENSE.md)
 - [x] QNAP
 - [x] [RockStor](https://rockstor.com/docs/interface/docker-based-rock-ons/scrutiny.html)
 - [ ] Solaris/OmniOS CE Support
 - [ ] Kubernetes
+- [x] [Windows](./INSTALL_MANUAL_WINDOWS.md)

@@ -61,7 +61,8 @@ using a collector config file. See [example.collector.yaml](/example.collector.y
 
 > NOTE: If you use docker, you **must** pass though the RAID virtual disk to the container using `--device` (see below)
 >
-> This device may be in `/dev/*` or `/dev/bus/*`. 
+> This device may be in `/dev/*` or `/dev/bus/*`.
+> If you do not see a virtual device file `/dev/bus/*` you may need to use the `--privileged` flag. See [#366 for more info](https://github.com/AnalogJ/scrutiny/issues/366#issuecomment-1253196407)
 >
 > If you're unsure, run `smartctl --scan` on your host, and pass all listed devices to the container.
 
@@ -92,7 +93,7 @@ devices:
     type:
       - aacraid,0,0,0
       - aacraid,0,0,1
-  
+
   # HPE Smart Array example:  https://github.com/AnalogJ/scrutiny/issues/213
   - device: /dev/sda
     type:
@@ -100,8 +101,11 @@ devices:
       - 'cciss,1'
 ```
 
+>
+
 ### NVMe Drives
-As mentioned in the [README.md](/README.md), NVMe devices require both `--cap-add SYS_RAWIO` and `--cap-add SYS_ADMIN` 
+
+As mentioned in the [README.md](/README.md), NVMe devices require both `--cap-add SYS_RAWIO` and `--cap-add SYS_ADMIN`
 to allow smartctl permission to query your NVMe device SMART data [#26](https://github.com/AnalogJ/scrutiny/issues/26)
 
 When attaching NVMe devices using `--device=/dev/nvme..`, make sure to provide the device controller (`/dev/nvme0`)
