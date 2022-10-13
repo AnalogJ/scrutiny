@@ -7,7 +7,9 @@ in `docs/guides/` or elsewhere) it will be linked here.
 - [x] [unraid](./INSTALL_UNRAID.md)
 - [ ] ESXI
 - [ ] Proxmox
-- [x] [Synology](./INSTALL_SYNOLOGY_COLLECTOR.md)
+- [x] Synology 
+  - [Hub/Spoke Deployment - Collector](./INSTALL_SYNOLOGY_COLLECTOR.md)
+  - [Omnibus Deployment](https://drfrankenstein.co.uk/2022/07/28/scrutiny-in-docker-on-a-synology-nas)
 - [ ] OMV
 - [ ] Amahi
 - [ ] Running in a LXC container
