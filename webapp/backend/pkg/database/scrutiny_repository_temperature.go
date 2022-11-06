@@ -17,6 +17,10 @@ func (sr *scrutinyRepository) SaveSmartTemperature(ctx context.Context, wwn stri
 	if len(collectorSmartData.AtaSctTemperatureHistory.Table) > 0 {
 
 		for ndx, temp := range collectorSmartData.AtaSctTemperatureHistory.Table {
+			//temp value may be null, we must skip/ignore them. See #393
+			if temp == 0 {
+				continue
+			}
 
 			minutesOffset := collectorSmartData.AtaSctTemperatureHistory.LoggingIntervalMinutes * int64(ndx) * 60
 			smartTemp := measurements.SmartTemperature{
