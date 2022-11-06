@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var httpClient = &http.Client{Timeout: 10 * time.Second}
+var httpClient = &http.Client{Timeout: 60 * time.Second}
 
 type BaseCollector struct {
 	logger *logrus.Entry
