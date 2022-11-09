@@ -19,6 +19,25 @@ Scrutiny stores and references the devices by their `WWN` which is globally uniq
 As such, passing devices to the Scrutiny collector container using `/dev/disk/by-id/`, `/dev/disk/by-label/`, `/dev/disk/by-path/` and `/dev/disk/by-uuid/`
 paths are unnecessary, unless you'd like to ensure the docker run command never needs to change.
 
+#### Force /dev/disk/by-id paths
+
+Since Scrutiny uses WWN under the hood, it really doesn't care about `/dev/sd*` vs `/dev/disk/by-id/`. The problem is the interaction between docker and smartmontools when using `--device /dev/disk/by-id` paths. 
+
+Basically Scrutiny offloads all device detection to smartmontools, which doesn't seem to detect devices that have been passed into the docker container using `/dev/disk/by-id` paths.
+
+If you must use "static" device references, you can map the host device id/uuid/wwn references to device names within the container:
+
+```
+# --device=<Host Device>:<Container Device Mapping>
+
+docker run ....
+--device=/dev/disk/by-id/wwn-0x5000xxxxx:/dev/sda
+--device=/dev/disk/by-id/wwn-0x5001xxxxx:/dev/sdb
+--device=/dev/disk/by-id/wwn-0x5003xxxxx:/dev/sdc
+...
+```
+
+
 
 ## Device Detection By Smartctl
 
