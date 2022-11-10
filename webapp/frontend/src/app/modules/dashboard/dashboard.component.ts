@@ -201,7 +201,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
             },
             series : this._deviceDataTemperatureSeries(),
             stroke : {
-                curve: 'straight',
+                curve: this.config.line_stroke,
                 width: 2
             },
             tooltip: {

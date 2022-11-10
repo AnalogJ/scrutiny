@@ -325,6 +325,12 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						SettingDataType:       "bool",
 						SettingValueBool:      false,
 					},
+					{
+                        SettingKeyName:        "line_stroke",
+                        SettingKeyDescription: "Temperature chart line stroke ('smooth' | 'straight' | 'stepline')",
+                        SettingDataType:       "string",
+                        SettingValueString:    "smooth",
+                    },
 
 					{
 						SettingKeyName:        "metrics.notify_level",
