@@ -36,7 +36,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     config: AppConfig;
 
     // Private
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
     @ViewChild('tempChart', { static: false }) tempChart: ChartComponent;
 
     /**
@@ -193,11 +193,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                     enabled: true
                 }
             },
-            colors : ['#A3BFFA', '#667EEA'],
+            colors : ['#667eea', '#9066ea', '#66c0ea', '#66ead2', '#d266ea', '#66ea90'],
             fill   : {
-                colors : ['#CED9FB', '#AECDFD'],
+                colors : ['#b2bef4', '#c7b2f4', '#b2dff4', '#b2f4e8', '#e8b2f4', '#b2f4c7'],
                 opacity: 0.5,
-                type   : 'solid'
+                type   : 'gradient'
             },
             series : this._deviceDataTemperatureSeries(),
             stroke : {

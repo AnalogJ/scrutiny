@@ -20,7 +20,7 @@ export class TreoMockApiModule
      *
      * @param mockDataServices
      */
-    static forRoot(mockDataServices: any[]): ModuleWithProviders
+    static forRoot(mockDataServices: any[]): ModuleWithProviders<TreoMockApiModule>
     {
         return {
             ngModule : TreoMockApiModule,

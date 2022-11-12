@@ -19,7 +19,7 @@ export class ScrutinyConfigModule {
      *
      * @param config
      */
-    static forRoot(config: any): ModuleWithProviders {
+    static forRoot(config: any): ModuleWithProviders<ScrutinyConfigModule> {
         return {
             ngModule: ScrutinyConfigModule,
             providers: [

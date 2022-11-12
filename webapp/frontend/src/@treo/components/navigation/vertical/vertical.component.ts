@@ -65,7 +65,7 @@ export class TreoVerticalNavigationComponent implements OnInit, AfterViewInit, O
     private _position: TreoVerticalNavigationPosition;
     private _scrollStrategy: ScrollStrategy;
     private _transparentOverlay: boolean | '';
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
 
     @HostBinding('class.treo-vertical-navigation-animations-enabled')
     private _animationsEnabled: boolean;

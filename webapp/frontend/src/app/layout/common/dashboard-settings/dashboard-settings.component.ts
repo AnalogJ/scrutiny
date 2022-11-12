@@ -30,7 +30,7 @@ export class DashboardSettingsComponent implements OnInit {
     statusFilterAttributes: number;
 
     // Private
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
 
     constructor(
         private _configService: ScrutinyConfigService,
