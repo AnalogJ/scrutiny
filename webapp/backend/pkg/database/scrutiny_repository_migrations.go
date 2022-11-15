@@ -326,11 +326,11 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						SettingValueBool:      false,
 					},
 					{
-                        SettingKeyName:        "line_stroke",
-                        SettingKeyDescription: "Temperature chart line stroke ('smooth' | 'straight' | 'stepline')",
-                        SettingDataType:       "string",
-                        SettingValueString:    "smooth",
-                    },
+						SettingKeyName:        "line_stroke",
+						SettingKeyDescription: "Temperature chart line stroke ('smooth' | 'straight' | 'stepline')",
+						SettingDataType:       "string",
+						SettingValueString:    "smooth",
+					},
 
 					{
 						SettingKeyName:        "metrics.notify_level",
@@ -349,6 +349,21 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						SettingKeyDescription: "Determines which threshold should impact device status",
 						SettingDataType:       "numeric",
 						SettingValueNumeric:   int(pkg.MetricsStatusThresholdBoth), // options: 'scrutiny', 'smart', 'both'
+					},
+				}
+				return tx.Create(&defaultSettings).Error
+			},
+		},
+		{
+			ID: "m20221115214900", // add line_stroke setting.
+			Migrate: func(tx *gorm.DB) error {
+				//add line_stroke setting default.
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "line_stroke",
+						SettingKeyDescription: "Temperature chart line stroke ('smooth' | 'straight' | 'stepline')",
+						SettingDataType:       "string",
+						SettingValueString:    "smooth",
 					},
 				}
 				return tx.Create(&defaultSettings).Error
