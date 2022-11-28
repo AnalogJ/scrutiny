@@ -77,6 +77,8 @@ jobs:
       - name: "Generate frontend"
         uses: addnab/docker-run-action@v3
         with:
+          env:
+            NODE_OPTIONS: '--openssl-legacy-provider'
           image: node:lts
           options: -v ${{ github.workspace }}:/work
           run: |
