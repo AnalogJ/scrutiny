@@ -46,7 +46,7 @@ Scrutiny is a simple but focused application, with a couple of core features:
 - Customized thresholds using real world failure rates
 - Temperature tracking
 - Provided as an all-in-one Docker image (but can be installed manually)
-- Future Configurable Alerting/Notifications via Webhooks
+- Configurable Alerting/Notifications via Webhooks
 - (Future) Hard Drive performance testing & tracking
 
 # Getting Started
