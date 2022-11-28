@@ -26,5 +26,6 @@ SCRUTINY_HOST_ID - (optional) eg. "my-custom-host-id"
 
 # Testing Notifications
 You can test that your notifications are configured correctly by posting an empty payload to the notifications health check API.
-
+```
 curl -X POST http://localhost:8080/api/health/notify
+```
