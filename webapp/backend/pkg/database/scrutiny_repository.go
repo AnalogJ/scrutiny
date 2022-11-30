@@ -195,6 +195,29 @@ func (sr *scrutinyRepository) Close() error {
 	return nil
 }
 
+func (sr *scrutinyRepository) HealthCheck(ctx context.Context) error {
+	//check influxdb
+	status, err := sr.influxClient.Health(ctx)
+	if err != nil {
+		return fmt.Errorf("influxdb healthcheck failed: %w", err)
+	}
+	if status.Status != "pass" {
+		return fmt.Errorf("influxdb healthcheckf failed: status=%s", status.Status)
+	}
+
+	//check sqlite db.
+	database, err := sr.gormClient.DB()
+	if err != nil {
+		return fmt.Errorf("sqlite healthcheck failed: %w", err)
+	}
+	err = database.Ping()
+	if err != nil {
+		return fmt.Errorf("sqlite healthcheck failed during ping: %w", err)
+	}
+	return nil
+
+}
+
 func InfluxSetupComplete(influxEndpoint string) (bool, error) {
 	influxUri, err := url.Parse(influxEndpoint)
 	if err != nil {

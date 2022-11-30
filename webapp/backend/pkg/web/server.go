@@ -34,15 +34,7 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 	{
 		api := base.Group("/api")
 		{
-			api.GET("/health", func(c *gin.Context) {
-				//TODO:
-				// check if the /web folder is populated.
-				// check if access to influxdb
-				// check if access to sqlitedb.
-				c.JSON(http.StatusOK, gin.H{
-					"success": true,
-				})
-			})
+			api.GET("/health", handler.HealthCheck)
 			api.POST("/health/notify", handler.SendTestNotification) //check if notifications are configured correctly
 
 			api.POST("/devices/register", handler.RegisterDevices)         //used by Collector to register new devices and retrieve filtered list
