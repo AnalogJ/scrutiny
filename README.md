@@ -97,7 +97,7 @@ other Docker images:
 - `ghcr.io/analogj/scrutiny:master-collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like
   scheduler. You can run one collector on each server.
 - `ghcr.io/analogj/scrutiny:master-web` - Contains the Web UI and API. Only one container necessary
-- `influxdb:2.2` - InfluxDB image, used by the Web container to persist SMART data.
+- `influxdb:2.2` - InfluxDB image, used by the Web container to persist SMART data. Only one container necessary
   See [docs/TROUBLESHOOTING_INFLUXDB.md](./docs/TROUBLESHOOTING_INFLUXDB.md)
 
 > See [docker/example.hubspoke.docker-compose.yml](./docker/example.hubspoke.docker-compose.yml) for a docker-compose file.
