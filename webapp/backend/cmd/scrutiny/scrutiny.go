@@ -34,6 +34,7 @@ func main() {
 	if _, ok := err.(errors.ConfigFileMissingError); ok {         // Handle errors reading the config file
 		//ignore "could not find config file"
 	} else if err != nil {
+		log.Print(color.HiRedString("CONFIG ERROR: %v", err))
 		os.Exit(1)
 	}
 
