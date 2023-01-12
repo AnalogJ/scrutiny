@@ -108,6 +108,7 @@ binary-frontend:
 
 .PHONY: binary-frontend-test-coverage
 # reduce logging, disable angular-cli analytics for ci environment
+binary-frontend-test-coverage: export NODE_OPTIONS = --openssl-legacy-provider
 binary-frontend-test-coverage:
 	cd webapp/frontend
 	npm ci
