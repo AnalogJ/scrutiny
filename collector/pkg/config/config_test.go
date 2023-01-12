@@ -36,6 +36,25 @@ func TestConfiguration_GetScanOverrides_Simple(t *testing.T) {
 	require.Equal(t, []models.ScanOverride{{Device: "/dev/sda", DeviceType: []string{"sat"}, Ignore: false}}, scanOverrides)
 }
 
+// fixes #418
+func TestConfiguration_GetScanOverrides_DeviceTypeComma(t *testing.T) {
+	t.Parallel()
+
+	//setup
+	testConfig, _ := config.Create()
+
+	//test
+	err := testConfig.ReadConfig(path.Join("testdata", "device_type_comma.yaml"))
+	require.NoError(t, err, "should correctly load simple device config")
+	scanOverrides := testConfig.GetDeviceOverrides()
+
+	//assert
+	require.Equal(t, []models.ScanOverride{
+		{Device: "/dev/sda", DeviceType: []string{"sat", "auto"}, Ignore: false},
+		{Device: "/dev/sdb", DeviceType: []string{"sat,auto"}, Ignore: false},
+	}, scanOverrides)
+}
+
 func TestConfiguration_GetScanOverrides_Ignore(t *testing.T) {
 	t.Parallel()
 
