@@ -305,3 +305,20 @@ Or if you're not using docker, you can pass CLI arguments to the collector durin
 ```bash
 scrutiny-collector-metrics run --debug --log-file /tmp/collector.log
 ```
+
+## Collector trigger on startup
+
+When the `omnibus` docker image starts up, it will automatically trigger the collector, which will populate the Scrutiny
+Webui with your disks.
+This is not the case when running the collector docker image in **hub/spoke** mode, as the collector and webui are
+running in different containers (and potentially different host machines), so
+the web container may not be ready for incoming connections. By default the container will only run the collector at the
+time specified in the cron schedule.
+
+You can force the collector to run on startup using the following env variables:
+
+- `-e COLLECTOR_RUN_STARTUP=true` - forces the collector to run on startup (cron will be started after the collector
+  completes)
+- `-e COLLECTOR_RUN_STARTUP_SLEEP=10` - if `COLLECTOR_RUN_STARTUP` is enabled, you can use this env variable to
+  configure the delay before the collector is run (default: `1` second). Used to ensure the web container has started
+  successfully.  
