@@ -394,3 +394,32 @@ After running the Curl command above, you'll see a JSON response that looks like
 You must copy the token field from the JSON response, and save it in your `scrutiny.yaml` config file. After that's
 done, you can start the Scrutiny server
 
+## Customize InfluxDB Admin Username & Password
+
+The full set of InfluxDB configuration options are available
+in [code](https://github.com/AnalogJ/scrutiny/blob/master/webapp/backend/pkg/config/config.go?rgh-link-date=2023-01-19T16%3A23%3A40Z#L49-L51)
+.
+
+During first startup Scrutiny will connect to the unprotected InfluxDB server, start the setup process (via API) using a
+username and password of `admin`:`password12345` and then create an API token of `scrutiny-default-admin-token`.
+
+After that's complete, it will use the api token for all subsequent communication with InfluxDB.
+
+You can configure the values for the Admin username, password and token using the config file, or env variables:
+
+#### Config File Example
+
+```yaml
+web:
+  influxdb:
+    token: 'my-custom-token'
+    init_username: 'my-custom-username'
+    init_password: 'my-custom-password'
+```
+
+#### Environmental Variables Example
+
+`SCRUTINY_WEB_INFLUXDB_TOKEN` , `SCRUTINY_WEB_INFLUXDB_INIT_USERNAME` and `SCRUTINY_WEB_INFLUXDB_INIT_PASSWORD`
+
+It's safe to change the InfluxDB Admin username/password after setup has completed, only the API token is used for
+subsequent communication with InfluxDB.
