@@ -59,7 +59,7 @@
     },
     "devDependencies": {
         "@angular-devkit/build-angular": "0.901.4",
-        "@angular/cli": "9.1.4",
+        "@angular/cli": "15.1.4",
         "@angular/compiler-cli": "9.1.4",
         "@angular/language-service": "9.1.4",
         "@types/crypto-js": "3.1.45",
