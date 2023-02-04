@@ -82,6 +82,7 @@ this usually related to either:
   variables
   - remove the `SCRUTINY_WEB=true` and `SCRUTINY_COLLECTOR=true` environmental variables. They were used by the LSIO
     image, but are unnecessary and cause issues with the official Scrutiny image.
+  - Change your volume mappings to `/opt/scrutiny` from `/scrutiny`
 - Updated versions of the [LSIO Scrutiny images are broken](https://github.com/linuxserver/docker-scrutiny/issues/22),
   as they have not installed InfluxDB which is a required dependency of Scrutiny v0.4.x
   - You can revert to an earlier version of the LSIO image (`lscr.io/linuxserver/scrutiny:060ac7b8-ls34`), or just
