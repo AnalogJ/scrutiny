@@ -47,6 +47,11 @@ web:
 #    org: 'my-org'
 #    bucket: 'bucket'
     retention_policy: true
+    # if you wish to disable TLS certificate verification,
+    # when using self-signed certificates for example,
+    # then uncomment the lines below and set `insecure_skip_verify: true`
+    # tls:
+    #   insecure_skip_verify: false
 
 log:
   file: '' #absolute or relative paths allowed, eg. web.log

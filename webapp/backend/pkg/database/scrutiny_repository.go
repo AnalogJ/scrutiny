@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
@@ -95,11 +96,20 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 	influxdbUrl := fmt.Sprintf("%s://%s:%s", appConfig.GetString("web.influxdb.scheme"), appConfig.GetString("web.influxdb.host"), appConfig.GetString("web.influxdb.port"))
 	globalLogger.Debugf("InfluxDB url: %s", influxdbUrl)
 
-	client := influxdb2.NewClient(influxdbUrl, appConfig.GetString("web.influxdb.token"))
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: appConfig.GetBool("web.influxdb.tls.insecure_skip_verify"),
+	}
+	globalLogger.Infof("InfluxDB certificate verification: %t\n", !tlsConfig.InsecureSkipVerify)
+
+	client := influxdb2.NewClientWithOptions(
+		influxdbUrl,
+		appConfig.GetString("web.influxdb.token"),
+		influxdb2.DefaultOptions().SetTLSConfig(tlsConfig),
+	)
 
 	//if !appConfig.IsSet("web.influxdb.token") {
 	globalLogger.Debugf("Determine Influxdb setup status...")
-	influxSetupComplete, err := InfluxSetupComplete(influxdbUrl)
+	influxSetupComplete, err := InfluxSetupComplete(influxdbUrl, tlsConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to check influxdb setup status - %w", err)
 	}
@@ -218,7 +228,7 @@ func (sr *scrutinyRepository) HealthCheck(ctx context.Context) error {
 
 }
 
-func InfluxSetupComplete(influxEndpoint string) (bool, error) {
+func InfluxSetupComplete(influxEndpoint string, tlsConfig *tls.Config) (bool, error) {
 	influxUri, err := url.Parse(influxEndpoint)
 	if err != nil {
 		return false, err
@@ -228,7 +238,8 @@ func InfluxSetupComplete(influxEndpoint string) (bool, error) {
 		return false, err
 	}
 
-	res, err := http.Get(influxUri.String())
+    client := &http.Client{Transport: &http.Transport{TLSClientConfig: tlsConfig}}
+	res, err := client.Get(influxUri.String())
 	if err != nil {
 		return false, err
 	}
