@@ -6,7 +6,7 @@ require (
 	github.com/analogj/go-util v0.0.0-20190301173314-5295e364eb14
 	github.com/containrrr/shoutrrr v0.6.1
 	github.com/fatih/color v1.10.0
-	github.com/gin-gonic/gin v1.6.3
+	github.com/gin-gonic/gin v1.7.7
 	github.com/glebarez/sqlite v1.4.5
 	github.com/go-gormigrate/gormigrate/v2 v2.0.0
 	github.com/golang/mock v1.4.3
@@ -34,7 +34,7 @@ require (
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
-	github.com/go-playground/validator/v10 v10.2.0 // indirect
+	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
