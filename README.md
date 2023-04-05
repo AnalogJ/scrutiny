@@ -46,7 +46,7 @@ Scrutiny is a simple but focused application, with a couple of core features:
 - Customized thresholds using real world failure rates
 - Temperature tracking
 - Provided as an all-in-one Docker image (but can be installed manually)
-- Future Configurable Alerting/Notifications via Webhooks
+- Configurable Alerting/Notifications via Webhooks
 - (Future) Hard Drive performance testing & tracking
 
 # Getting Started
@@ -91,10 +91,14 @@ docker run -it --rm -p 8080:8080 -p 8086:8086 \
 
 ### Hub/Spoke Deployment
 
-In addition to the Omnibus image (available under the `latest` tag) there are 2 other Docker images available:
+In addition to the Omnibus image (available under the `latest` tag) you can deploy in Hub/Spoke mode, which requires 3
+other Docker images:
 
-- `ghcr.io/analogj/scrutiny:master-collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like scheduler. You can run one collector on each server.
-- `ghcr.io/analogj/scrutiny:master-web` - Contains the Web UI, API and Database. Only one container necessary
+- `ghcr.io/analogj/scrutiny:master-collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like
+  scheduler. You can run one collector on each server.
+- `ghcr.io/analogj/scrutiny:master-web` - Contains the Web UI and API. Only one container necessary
+- `influxdb:2.2` - InfluxDB image, used by the Web container to persist SMART data. Only one container necessary
+  See [docs/TROUBLESHOOTING_INFLUXDB.md](./docs/TROUBLESHOOTING_INFLUXDB.md)
 
 > See [docker/example.hubspoke.docker-compose.yml](./docker/example.hubspoke.docker-compose.yml) for a docker-compose file.
 

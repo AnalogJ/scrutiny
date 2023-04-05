@@ -1,0 +1,9 @@
+version: 1
+devices:
+  # the scrutiny config parser will detect `sat,auto` as two separate items in a list. If you want to use `-d sat,auto` you must
+  # set 'sat,auto' in a list (see eg. /dev/sbd)
+  - device: /dev/sda
+    type: 'sat,auto'
+  - device: /dev/sdb
+    type:
+      - sat,auto

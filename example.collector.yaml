@@ -31,6 +31,10 @@ devices:
 #  - device: /dev/sda
 #    type: 'sat'
 #
+#  # example for using `-d sat,auto`, notice the square brackets (workaround for #418)
+#  - device: /dev/sda
+#    type: ['sat,auto']
+#
 #  # example to show how to ignore a specific disk/device.
 #  - device: /dev/sda
 #    ignore: true

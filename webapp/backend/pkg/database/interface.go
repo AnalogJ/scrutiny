@@ -10,6 +10,7 @@ import (
 
 type DeviceRepo interface {
 	Close() error
+	HealthCheck(ctx context.Context) error
 
 	RegisterDevice(ctx context.Context, dev models.Device) error
 	GetDevices(ctx context.Context) ([]models.Device, error)
