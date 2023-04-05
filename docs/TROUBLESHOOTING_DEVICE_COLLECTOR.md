@@ -275,10 +275,12 @@ to disable Scrutiny analysis for them. Both are non-critical, and have low-corre
 If this is effecting your drives, you'll need to do the following:
 
 1. Upgrade to v0.4.13+
-2. Reset your drive status using the SQLite script in [#device-failed-but-smart--scrutiny-passed](https://github.com/AnalogJ/scrutiny/blob/master/docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md#device-failed-but-smart--scrutiny-passed)
+2. Reset your drive status using the SQLite script
+   in [#device-failed-but-smart--scrutiny-passed](https://github.com/AnalogJ/scrutiny/blob/master/docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md#device-failed-but-smart--scrutiny-passed)
 3. Wait for (or manually start) the collector.
 
-If you'd like to learn more about how the Seagate Ironwolf SMART attributes work under the hood, and how they differ from
+If you'd like to learn more about how the Seagate Ironwolf SMART attributes work under the hood, and how they differ
+from
 other drives, please read the following:
 
 - http://www.users.on.net/~fzabkar/HDD/Seagate_SER_RRER_HEC.html
@@ -286,10 +288,23 @@ other drives, please read the following:
 
 ## Hub & Spoke model, with multiple Hosts.
 
-When deploying Scrutiny in a hub & spoke model, it can be difficult to determine exactly which node a set of devices are associated with.
-Thankfully the collector has a special `--host-id` flag (or `COLLECTOR_HOST_ID` env variable) that can be used to associate devices with a friendly host name.
+![multiple-host-ids image](multiple-host-ids.png)
 
-See the [docs/INSTALL_HUB_SPOKE.md](/docs/INSTALL_HUB_SPOKE.md) guide for more information. 
+When deploying Scrutiny in a hub & spoke model, it can be difficult to determine exactly which node a set of devices are
+associated with.
+Thankfully the collector has a special `--host-id` flag (or `COLLECTOR_HOST_ID` env variable) that can be used to
+associate devices with a friendly host name.
+
+The host-id is passed from the collector to the web-api when SMART device data is uploaded. There's 3 ways you can set
+the host-id:
+
+- using the collector config
+  file: [master/example.collector.yaml#L19-L22](https://github.com/AnalogJ/scrutiny/blob/master/example.collector.yaml?rgh-link-date=2022-05-25T15%3A08%3A56Z#L19-L22)
+- using the `--host-id` collector CLI
+  argument: [master/collector/cmd/collector-metrics/collector-metrics.go#L180-L185](https://github.com/AnalogJ/scrutiny/blob/master/collector/cmd/collector-metrics/collector-metrics.go?rgh-link-date=2022-05-25T15%3A08%3A56Z#L180-L185)
+- using the `COLLECTOR_HOST_ID` environmental variable.
+
+See the [docs/INSTALL_HUB_SPOKE.md](/docs/INSTALL_HUB_SPOKE.md) guide for more information.
 
 ## Collector DEBUG mode
 
