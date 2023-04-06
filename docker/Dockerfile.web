@@ -24,7 +24,9 @@ RUN apt-get update && apt-get install -y ca-certificates curl tzdata && update-c
 
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny /opt/scrutiny/bin/
 COPY dist /opt/scrutiny/web
-RUN chmod +x /opt/scrutiny/bin/scrutiny && \
+RUN useradd -u 0 -U -d /config -s /bin/false abc && \
+    usermod -G users abc && \
+    chmod +x /opt/scrutiny/bin/scrutiny && \
     mkdir -p /opt/scrutiny/web && \
     mkdir -p /opt/scrutiny/config && \
     chmod -R ugo+rwx /opt/scrutiny/config

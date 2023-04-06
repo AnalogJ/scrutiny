@@ -22,7 +22,9 @@ RUN apt-get update && apt-get install -y cron smartmontools ca-certificates tzda
 COPY /docker/entrypoint-collector.sh /entrypoint-collector.sh
 COPY /rootfs/etc/cron.d/scrutiny /etc/cron.d/scrutiny
 COPY --from=backendbuild /go/src/github.com/analogj/scrutiny/scrutiny-collector-metrics /opt/scrutiny/bin/
-RUN chmod +x /opt/scrutiny/bin/scrutiny-collector-metrics && \
+RUN useradd -u 0 -U -d /config -s /bin/false abc && \
+    usermod -G users abc && \
+    chmod +x /opt/scrutiny/bin/scrutiny-collector-metrics && \
     chmod +x /entrypoint-collector.sh && \
     chmod 0644 /etc/cron.d/scrutiny && \
     rm -f /etc/cron.daily/apt /etc/cron.daily/dpkg /etc/cron.daily/passwd
