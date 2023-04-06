@@ -5,18 +5,18 @@ The Scrutiny repository is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) 
 - Scrutiny Frontend Angular SPA
 - S.M.A.R.T Collector
 
-Depending on the functionality you are adding, you may need to setup a development environment for 1 or more projects. 
+Depending on the functionality you are adding, you may need to setup a development environment for 1 or more projects.
 
 # Modifying the Scrutiny Backend Server (API)
 
-1. install the [Go runtime](https://go.dev/doc/install) (v1.18+)
+1. install the [Go runtime](https://go.dev/doc/install) (v1.20+)
 2. download the `scrutiny-web-frontend.tar.gz` for
    the [latest release](https://github.com/AnalogJ/scrutiny/releases/latest). Extract to a folder named `dist`
 3. create a `scrutiny.yaml` config file
     ```yaml
     # config file for local development. store as scrutiny.yaml
     version: 1
-    
+
     web:
       listen:
         port: 8080
@@ -29,13 +29,13 @@ Depending on the functionality you are adding, you may need to setup a developme
           path: ./dist
       influxdb:
         retention_policy: false
-    
+
     log:
       file: 'web.log' #absolute or relative paths allowed, eg. web.log
       level: DEBUG
 
     ```
-4. start a InfluxDB docker container. 
+4. start a InfluxDB docker container.
     ```bash
     docker run -p 8086:8086 --rm influxdb:2.2
     ```
@@ -60,16 +60,16 @@ The frontend is written in Angular. If you're working on the frontend and can us
 3. open your browser and visit [http://localhost:4200/web](http://localhost:4200/web)
 
 # Modifying both Scrutiny Backend and Frontend Applications
-If you're developing a feature that requires changes to the backend and the frontend, or a frontend feature that requires real data, 
+If you're developing a feature that requires changes to the backend and the frontend, or a frontend feature that requires real data,
 you'll need to follow the steps below:
 
-1. install the [Go runtime](https://go.dev/doc/install) (v1.18+)
+1. install the [Go runtime](https://go.dev/doc/install) (v1.20+)
 2. install [NodeJS](https://nodejs.org/en/download/)
 3. create a `scrutiny.yaml` config file
     ```yaml
     # config file for local development. store as scrutiny.yaml
     version: 1
-    
+
     web:
       listen:
         port: 8080
@@ -82,7 +82,7 @@ you'll need to follow the steps below:
           path: ./dist
       influxdb:
         retention_policy: false
-    
+
     log:
       file: 'web.log' #absolute or relative paths allowed, eg. web.log
       level: DEBUG
