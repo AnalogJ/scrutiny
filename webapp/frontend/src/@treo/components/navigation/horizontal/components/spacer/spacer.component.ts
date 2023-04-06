@@ -23,7 +23,7 @@ export class TreoHorizontalNavigationSpacerItemComponent implements OnInit, OnDe
 
     // Private
     private _treoHorizontalNavigationComponent: TreoHorizontalNavigationComponent;
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
 
     /**
      * Constructor

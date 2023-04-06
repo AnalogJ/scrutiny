@@ -21,7 +21,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
     theme: Theme;
 
     // Private
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
     private systemPrefersDark: boolean;
 
     /**

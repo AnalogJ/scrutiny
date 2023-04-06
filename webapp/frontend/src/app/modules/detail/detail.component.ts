@@ -85,7 +85,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     smartAttributeTableMatSort: MatSort;
 
     // Private
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
     private systemPrefersDark: boolean;
 
     readonly humanizeDuration = humanizeDuration;

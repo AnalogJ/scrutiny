@@ -98,7 +98,6 @@ endif
 # reduce logging, disable angular-cli analytics for ci environment
 binary-frontend: export NPM_CONFIG_LOGLEVEL = warn
 binary-frontend: export NG_CLI_ANALYTICS = false
-binary-frontend: export NODE_OPTIONS = --openssl-legacy-provider
 binary-frontend:
 	cd webapp/frontend
 	npm install -g @angular/cli@9.1.4
@@ -108,7 +107,6 @@ binary-frontend:
 
 .PHONY: binary-frontend-test-coverage
 # reduce logging, disable angular-cli analytics for ci environment
-binary-frontend-test-coverage: export NODE_OPTIONS = --openssl-legacy-provider
 binary-frontend-test-coverage:
 	cd webapp/frontend
 	npm ci

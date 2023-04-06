@@ -56,7 +56,7 @@ export class TreoDateRangeComponent implements ControlValueAccessor, OnInit, OnD
     private _timeFormat: string;
     private _timeRange: boolean;
     private readonly _timeRegExp: RegExp;
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
 
     /**
      * Constructor
