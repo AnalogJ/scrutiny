@@ -69,7 +69,7 @@ See [docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md](./docs/TROUBLESHOOTING_DEVICE_COL
 
 If you're using Docker, getting started is as simple as running the following command:
 
-> See [docker/example.omnibus.docker-compose.yml](./docker/example.omnibus.docker-compose.yml) for a docker-compose file. 
+> See [docker/example.omnibus.docker-compose.yml](./docker/example.omnibus.docker-compose.yml) for a docker-compose file.
 
 ```bash
 docker run -it --rm -p 8080:8080 -p 8086:8086 \
@@ -157,7 +157,7 @@ Neither file is required, however if provided, it allows you to configure how Sc
 
 ## Cron Schedule
 Unfortunately the Cron schedule cannot be configured via the `collector.yaml` (as the collector binary needs to be trigged by a scheduler/cron).
-However, if you are using the official `ghcr.io/analogj/scrutiny:master-collector` or `ghcr.io/analogj/scrutiny:master-omnibus` docker images, 
+However, if you are using the official `ghcr.io/analogj/scrutiny:master-collector` or `ghcr.io/analogj/scrutiny:master-omnibus` docker images,
 you can use the `COLLECTOR_CRON_SCHEDULE` environmental variable to override the default cron schedule (daily @ midnight - `0 0 * * *`).
 
 `docker run -e COLLECTOR_CRON_SCHEDULE="0 0 * * *" ...`
@@ -174,6 +174,7 @@ Scrutiny supports sending SMART device failure notifications via the following s
 - IFTTT
 - Join
 - Mattermost
+- ntfy
 - Pushbullet
 - Pushover
 - Slack
@@ -243,7 +244,7 @@ scrutiny-collector-metrics run --debug --log-file /tmp/collector.log
 | linux-arm-6 | :white_check_mark: |  |
 | linux-arm-7 | :white_check_mark: | web/collector only. see [#236](https://github.com/AnalogJ/scrutiny/issues/236)  |
 | linux-arm64 | :white_check_mark: | :white_check_mark: |
-| freebsd-amd64 | :white_check_mark: |  | 
+| freebsd-amd64 | :white_check_mark: |  |
 | macos-amd64 | :white_check_mark: | :white_check_mark: |
 | macos-arm64 | :white_check_mark: | :white_check_mark: |
 | windows-amd64 | :white_check_mark: | WIP, see [#15](https://github.com/AnalogJ/scrutiny/issues/15) |
