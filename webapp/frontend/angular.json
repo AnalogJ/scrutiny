@@ -52,7 +52,6 @@
                             "optimization": true,
                             "outputHashing": "all",
                             "sourceMap": false,
-                            "extractCss": true,
                             "namedChunks": false,
                             "extractLicenses": true,
                             "vendorChunk": false,
@@ -91,7 +90,6 @@
                 },
                 "test": {
                     "builder": "@angular-devkit/build-angular:karma",
-                    "defaultConfiguration": "production",
                     "options": {
                         "main": "src/test.ts",
                         "polyfills": "src/polyfills.ts",

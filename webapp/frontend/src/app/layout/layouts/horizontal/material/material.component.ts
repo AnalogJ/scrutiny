@@ -25,7 +25,7 @@ export class MaterialLayoutComponent implements OnInit, OnDestroy
     fixedFooter: boolean;
 
     // Private
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
 
     /**
      * Constructor

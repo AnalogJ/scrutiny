@@ -24,7 +24,7 @@ export class TreoScrollbarDirective implements OnInit, OnDestroy
     private _animation: number | null;
     private _enabled: boolean;
     private _options: any;
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
 
     /**
      * Constructor

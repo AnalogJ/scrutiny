@@ -10,6 +10,8 @@ export type DashboardSort = 'status' | 'title' | 'age'
 
 export type TemperatureUnit = 'celsius' | 'fahrenheit'
 
+export type LineStroke = 'smooth' | 'straight' | 'stepline'
+
 
 export enum MetricsNotifyLevel {
     Warn = 1,
@@ -45,6 +47,8 @@ export interface AppConfig {
 
     file_size_si_units?: boolean;
 
+    line_stroke?: LineStroke;
+
     // Settings from Scrutiny API
 
     metrics?: {
@@ -72,6 +76,8 @@ export const appConfig: AppConfig = {
 
     temperature_unit: 'celsius',
     file_size_si_units: false,
+
+    line_stroke: 'smooth',
 
     metrics: {
         notify_level: MetricsNotifyLevel.Fail,

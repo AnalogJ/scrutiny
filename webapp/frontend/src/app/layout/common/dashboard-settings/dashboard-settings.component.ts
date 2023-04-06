@@ -6,6 +6,7 @@ import {
     MetricsStatusFilterAttributes,
     MetricsStatusThreshold,
     TemperatureUnit,
+    LineStroke,
     Theme
 } from 'app/core/config/app.config';
 import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
@@ -23,12 +24,13 @@ export class DashboardSettingsComponent implements OnInit {
     dashboardSort: string;
     temperatureUnit: string;
     fileSizeSIUnits: boolean;
+    lineStroke: string;
     theme: string;
     statusThreshold: number;
     statusFilterAttributes: number;
 
     // Private
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
 
     constructor(
         private _configService: ScrutinyConfigService,
@@ -48,6 +50,7 @@ export class DashboardSettingsComponent implements OnInit {
                 this.dashboardSort = config.dashboard_sort;
                 this.temperatureUnit = config.temperature_unit;
                 this.fileSizeSIUnits = config.file_size_si_units;
+                this.lineStroke = config.line_stroke;
                 this.theme = config.theme;
 
                 this.statusFilterAttributes = config.metrics.status_filter_attributes;
@@ -63,6 +66,7 @@ export class DashboardSettingsComponent implements OnInit {
             dashboard_sort: this.dashboardSort as DashboardSort,
             temperature_unit: this.temperatureUnit as TemperatureUnit,
             file_size_si_units: this.fileSizeSIUnits,
+            line_stroke: this.lineStroke as LineStroke,
             theme: this.theme as Theme,
             metrics: {
                 status_filter_attributes: this.statusFilterAttributes as MetricsStatusFilterAttributes,

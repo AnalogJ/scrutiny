@@ -23,7 +23,7 @@ export class TreoHorizontalNavigationDividerItemComponent implements OnInit, OnD
 
     // Private
     private _treoHorizontalNavigationComponent: TreoHorizontalNavigationComponent;
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
 
     /**
      * Constructor

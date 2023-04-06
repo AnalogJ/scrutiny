@@ -23,7 +23,7 @@ export class TreoVerticalNavigationDividerItemComponent implements OnInit, OnDes
 
     // Private
     private _treoVerticalNavigationComponent: TreoVerticalNavigationComponent;
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
 
     /**
      * Constructor

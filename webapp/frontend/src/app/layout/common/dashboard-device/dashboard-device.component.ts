@@ -32,7 +32,7 @@ export class DashboardDeviceComponent implements OnInit {
 
     config: AppConfig;
 
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
 
     readonly humanizeDuration = humanizeDuration;
 

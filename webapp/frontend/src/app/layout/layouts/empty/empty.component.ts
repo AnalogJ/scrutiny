@@ -10,7 +10,7 @@ import { Subject } from 'rxjs';
 export class EmptyLayoutComponent implements OnInit, OnDestroy
 {
     // Private
-    private _unsubscribeAll: Subject<any>;
+    private _unsubscribeAll: Subject<void>;
 
     /**
      * Constructor

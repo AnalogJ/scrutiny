@@ -14,6 +14,7 @@ type Settings struct {
 	DashboardSort    string `json:"dashboard_sort" mapstructure:"dashboard_sort"`
 	TemperatureUnit  string `json:"temperature_unit" mapstructure:"temperature_unit"`
 	FileSizeSIUnits  bool   `json:"file_size_si_units" mapstructure:"file_size_si_units"`
+	LineStroke       string `json:"line_stroke" mapstructure:"line_stroke"`
 
 	Metrics struct {
 		NotifyLevel            int `json:"notify_level" mapstructure:"notify_level"`
