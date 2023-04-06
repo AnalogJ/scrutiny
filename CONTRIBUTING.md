@@ -55,7 +55,7 @@ The frontend is written in Angular. If you're working on the frontend and can us
     ```bash
     cd webapp/frontend
     npm install
-    npm run start -- --deploy-url="/web/" --base-href="/web/" --port 4200
+    npm run start -- --serve-path="/web/" --port 4200
     ```
 3. open your browser and visit [http://localhost:4200/web](http://localhost:4200/web)
 
