@@ -30,8 +30,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	configFilePath := "/opt/scrutiny/config/collector.yaml"
+	configFilePathAlternative := "/opt/scrutiny/config/collector.yml"
+	if !utils.FileExists(configFilePath) && utils.FileExists(configFilePathAlternative) {
+		configFilePath = configFilePathAlternative
+	}
+
 	//we're going to load the config file manually, since we need to validate it.
-	err = config.ReadConfig("/opt/scrutiny/config/collector.yaml") // Find and read the config file
+	err = config.ReadConfig(configFilePath) // Find and read the config file
 	if _, ok := err.(errors.ConfigFileMissingError); ok {          // Handle errors reading the config file
 		//ignore "could not find config file"
 	} else if err != nil {
