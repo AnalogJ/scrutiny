@@ -5,6 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/url"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
@@ -15,12 +22,6 @@ import (
 	shoutrrrTypes "github.com/containrrr/shoutrrr/pkg/types"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
-	"net/http"
-	"net/url"
-	"os"
-	"strconv"
-	"strings"
-	"time"
 )
 
 const NotifyFailureTypeEmailTest = "EmailTest"
@@ -384,6 +385,9 @@ func (n *Notify) GenShoutrrrNotificationParams(shoutrrrUrl string) (string, *sho
 	case "ifttt":
 		(*params)["title"] = subject
 	case "join":
+		(*params)["title"] = subject
+		(*params)["icon"] = logoUrl
+	case "ntfy":
 		(*params)["title"] = subject
 		(*params)["icon"] = logoUrl
 	case "opsgenie":

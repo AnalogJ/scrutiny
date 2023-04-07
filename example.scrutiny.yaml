@@ -73,6 +73,7 @@ log:
 #    - "pushbullet://api-token[/device/#channel/email]"
 #    - "ifttt://key/?events=event1[,event2,...]&value1=value1&value2=value2&value3=value3"
 #    - "mattermost://[username@]mattermost-host/token[/channel]"
+#    - "ntfy://username:password@host:port/topic"
 #    - "hangouts://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz"
 #    - "zulip://bot-mail:bot-key@zulip-domain/?stream=name-or-id&topic=name"
 #    - "join://shoutrrr:api-key@join/?devices=device1[,device2, ...][&icon=icon][&title=title]"
