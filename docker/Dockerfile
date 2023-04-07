@@ -53,8 +53,6 @@ COPY /rootfs /
 COPY --link --from=backendbuild --chmod=755 /go/src/github.com/analogj/scrutiny/scrutiny /opt/scrutiny/bin/
 COPY --link --from=backendbuild --chmod=755 /go/src/github.com/analogj/scrutiny/scrutiny-collector-metrics /opt/scrutiny/bin/
 COPY --link --from=frontendbuild --chmod=644 /go/src/github.com/analogj/scrutiny/dist /opt/scrutiny/web
-
-COPY dist /opt/scrutiny/web
 RUN chmod 0644 /etc/cron.d/scrutiny && \
     rm -f /etc/cron.daily/* && \
     mkdir -p /opt/scrutiny/web && \
