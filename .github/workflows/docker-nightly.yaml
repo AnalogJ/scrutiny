@@ -19,13 +19,6 @@ jobs:
         uses: actions/checkout@v2
       - name: "Populate frontend version information"
         run: "cd webapp/frontend && ./git.version.sh"
-      - name: "Install Node"
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: "Generate frontend"
-        run: |
-          make binary-frontend && echo "print contents of ./dist" && ls -alt ./dist
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:
