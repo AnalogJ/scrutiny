@@ -30,9 +30,6 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (printf "%s-collector" .Chart.AppVersion) }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          envFrom:
-            - secretRef:
-                name: {{ include "collector.fullname" . }}-credentials
           env:
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}

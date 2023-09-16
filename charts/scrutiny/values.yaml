@@ -17,5 +17,5 @@ influxdb2:
 #    hostPath:
 #      path: /some/host/path
 
-collector:
+web:
   influxdbToken: CHANGE_ME
