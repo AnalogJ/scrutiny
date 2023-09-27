@@ -107,7 +107,8 @@ You may also configure these values using the following environmental variables 
  
 ## Traefik
 
-Example of a `docker-compose.yml` file, with labels to enable Traefik reverse proxy and basic auth
+Assuming, that you have Traefik up and running with [AutoDiscovery Using Traefik For Docker ](https://doc.traefik.io/traefik/providers/docker/),
+here is an example of a `docker-compose.yml` file, with labels to enable Traefik reverse proxy and basic auth
 ```yaml
 version: '3.5'
 services:
@@ -125,6 +126,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.scrutiny.rule=Host(`example.com`)
       - traefik.http.services.scrutiny.loadbalancer.server.port=8080
+        # 2 labels below are optional, in case you want basic auth in Traefik:
       - traefik.http.routers.scrutiny.middlewares=auth
       - "traefik.http.middlewares.auth.basicauth.users=user:$$2y$$05$$G11Wm/dlWpXHENK..m8se.zxvaE8USJBp1Ws56sSCrOcwWDjsYHni"
         # Note: when used in docker-compose.yml all dollar signs in the hash need to be doubled for escaping.
