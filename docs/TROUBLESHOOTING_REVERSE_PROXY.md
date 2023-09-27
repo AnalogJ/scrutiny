@@ -104,3 +104,36 @@ You may also configure these values using the following environmental variables 
     ```
 3. run `docker-compose up`
 4. visit [http://localhost:9090/custom/web](http://localhost:9090/custom/web) - access the scrutiny container via caddy reverse proxy
+ 
+## Traefik
+
+Assuming, that you have Traefik up and running with [AutoDiscovery Using Traefik For Docker ](https://doc.traefik.io/traefik/providers/docker/),
+here is an example of a `docker-compose.yml` file, with labels to enable Traefik reverse proxy and basic auth
+```yaml
+version: '3.5'
+services:
+  scrutiny:
+    container_name: scrutiny
+    image: ghcr.io/analogj/scrutiny:master-omnibus
+    cap_add:
+      - SYS_RAWIO
+      - SYS_ADMIN
+    volumes:
+      - /run/udev:/run/udev:ro
+      - ./config:/opt/scrutiny/config
+      - ./influxdb:/opt/scrutiny/influxdb
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.scrutiny.rule=Host(`example.com`)
+      - traefik.http.services.scrutiny.loadbalancer.server.port=8080
+        # 2 labels below are optional, in case you want basic auth in Traefik:
+      - traefik.http.routers.scrutiny.middlewares=auth
+      - "traefik.http.middlewares.auth.basicauth.users=user:$$2y$$05$$G11Wm/dlWpXHENK..m8se.zxvaE8USJBp1Ws56sSCrOcwWDjsYHni"
+        # Note: when used in docker-compose.yml all dollar signs in the hash need to be doubled for escaping.
+        # To create user:password pair, it's possible to use this command:
+        # echo $(htpasswd -nB user) | sed -e s/\\$/\\$\\$/g
+    devices:
+      - "/dev/sda"
+      - "/dev/sdb"
+      - "/dev/nvme0"
+```
