@@ -1,5 +1,10 @@
 package thresholds
 
+import (
+	"strconv"
+	"strings"
+)
+
 const AtaSmartAttributeDisplayTypeRaw = "raw"
 const AtaSmartAttributeDisplayTypeNormalized = "normalized"
 const AtaSmartAttributeDisplayTypeTransformed = "transformed"
@@ -662,13 +667,33 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 	188: {
 		ID:          188,
 		DisplayName: "Command Timeout",
-		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+		DisplayType: AtaSmartAttributeDisplayTypeTransformed,
 		Ideal:       ObservedThresholdIdealLow,
 		Critical:    true,
 		Description: "The count of aborted operations due to HDD timeout. Normally this attribute value should be equal to zero.",
+		Transform: func(normValue int64, rawValue int64, rawString string) int64 {
+			// Parse Seagate command timeout values if the string contains 3 pieces
+			// and each piece is less than or equal to the next (as a sanity check)
+			// See https://github.com/AnalogJ/scrutiny/issues/522
+			pieces := strings.Split(rawString, " ")
+			if len(pieces) == 3 {
+				int_pieces := make([]int, len(pieces))
+				var err error
+				for i, s := range pieces {
+					int_pieces[i], err = strconv.Atoi(s)
+					if err != nil {
+						return rawValue
+					}
+				}
+				if int_pieces[2] >= int_pieces[1] && int_pieces[1] >= int_pieces[0] {
+					return int64(int_pieces[2])
+				}
+			}
+			return rawValue
+		},
 		ObservedThresholds: []ObservedThreshold{
 			{
-				Low:               0,
+				Low: 0,
 				// This is set arbitrarily to avoid notifications caused by low
 				// historical numbers of command timeouts (e.g. caused by a bad cable)
 				High:              100,
