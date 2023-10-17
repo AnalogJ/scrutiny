@@ -31,5 +31,6 @@ COPY --link --from=backendbuild --chmod=755 /go/src/github.com/analogj/scrutiny/
 COPY --link --from=frontendbuild --chmod=644 /go/src/github.com/analogj/scrutiny/dist /opt/scrutiny/web
 RUN mkdir -p /opt/scrutiny/web && \
     mkdir -p /opt/scrutiny/config && \
-    chmod -R ugo+rwx /opt/scrutiny/config
+    chmod -R a+rX /opt/scrutiny && \
+    chmod -R a+w /opt/scrutiny/config
 CMD ["/opt/scrutiny/bin/scrutiny", "start"]
