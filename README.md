@@ -69,7 +69,7 @@ See [docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md](./docs/TROUBLESHOOTING_DEVICE_COL
 
 If you're using Docker, getting started is as simple as running the following command:
 
-> See [docker/example.omnibus.docker-compose.yml](./docker/example.omnibus.docker-compose.yml) for a docker-compose file.
+> See [docker/example.omnibus.docker-compose.yml](https://github.com/AnalogJ/scrutiny/blob/master/docker/example.omnibus.docker-compose.yml) for a docker-compose file.
 
 ```bash
 docker run -it --rm -p 8080:8080 -p 8086:8086 \
@@ -100,7 +100,7 @@ other Docker images:
 - `influxdb:2.2` - InfluxDB image, used by the Web container to persist SMART data. Only one container necessary
   See [docs/TROUBLESHOOTING_INFLUXDB.md](./docs/TROUBLESHOOTING_INFLUXDB.md)
 
-> See [docker/example.hubspoke.docker-compose.yml](./docker/example.hubspoke.docker-compose.yml) for a docker-compose file.
+> See [docker/example.hubspoke.docker-compose.yml](https://github.com/AnalogJ/scrutiny/blob/master/docker/example.hubspoke.docker-compose.yml) for a docker-compose file.
 
 ```bash
 docker run --rm -p 8086:8086 \
