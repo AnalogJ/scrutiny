@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20201107210306"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220503120000"
@@ -17,8 +20,6 @@ import (
 	"github.com/influxdata/influxdb-client-go/v2/api/http"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"strconv"
-	"time"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -364,6 +365,21 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						SettingKeyDescription: "Temperature chart line stroke ('smooth' | 'straight' | 'stepline')",
 						SettingDataType:       "string",
 						SettingValueString:    "smooth",
+					},
+				}
+				return tx.Create(&defaultSettings).Error
+			},
+		},
+		{
+			ID: "m20231123123300", // add repeat_notifications setting.
+			Migrate: func(tx *gorm.DB) error {
+				//add repeat_notifications setting default.
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "metrics.repeat_notifications",
+						SettingKeyDescription: "Whether to repeat all notifications or just when values change (true | false)",
+						SettingDataType:       "bool",
+						SettingValueBool:      true,
 					},
 				}
 				return tx.Create(&defaultSettings).Error
