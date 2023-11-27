@@ -15,11 +15,13 @@ import (
 	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"github.com/containrrr/shoutrrr"
 	shoutrrrTypes "github.com/containrrr/shoutrrr/pkg/types"
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -30,7 +32,7 @@ const NotifyFailureTypeSmartFailure = "SmartFailure"
 const NotifyFailureTypeScrutinyFailure = "ScrutinyFailure"
 
 // ShouldNotify check if the error Message should be filtered (level mismatch or filtered_attributes)
-func ShouldNotify(device models.Device, smartAttrs measurements.Smart, statusThreshold pkg.MetricsStatusThreshold, statusFilterAttributes pkg.MetricsStatusFilterAttributes) bool {
+func ShouldNotify(device models.Device, smartAttrs measurements.Smart, statusThreshold pkg.MetricsStatusThreshold, statusFilterAttributes pkg.MetricsStatusFilterAttributes, repeatNotifications bool, c *gin.Context, deviceRepo database.DeviceRepo) bool {
 	// 1. check if the device is healthy
 	if device.DeviceStatus == pkg.DeviceStatusPassed {
 		return false
@@ -54,52 +56,79 @@ func ShouldNotify(device models.Device, smartAttrs measurements.Smart, statusThr
 		requiredAttrStatus = pkg.AttributeStatusFailedScrutiny
 	}
 
-	// 2. check if the attributes that are failing should be filtered (non-critical)
-	// 3. for any unfiltered attribute, store the failure reason (Smart or Scrutiny)
-	if statusFilterAttributes == pkg.MetricsStatusFilterAttributesCritical {
-		hasFailingCriticalAttr := false
-		var statusFailingCriticalAttr pkg.AttributeStatus
+	// This is the only case where individual attributes need not be considered
+	if statusFilterAttributes == pkg.MetricsStatusFilterAttributesAll && repeatNotifications {
+		return pkg.DeviceStatusHas(device.DeviceStatus, requiredDeviceStatus)
+	}
 
-		for attrId, attrData := range smartAttrs.Attributes {
-			//find failing attribute
-			if attrData.GetStatus() == pkg.AttributeStatusPassed {
-				continue //skip all passing attributes
-			}
+	var failingAttributes []string
+	for attrId, attrData := range smartAttrs.Attributes {
+		var status pkg.AttributeStatus = attrData.GetStatus()
+		if status == pkg.AttributeStatusPassed {
+			continue
+		}
 
-			// merge the status's of all critical attributes
-			statusFailingCriticalAttr = pkg.AttributeStatusSet(statusFailingCriticalAttr, attrData.GetStatus())
-
-			//found a failing attribute, see if its critical
-			if device.IsScsi() && thresholds.ScsiMetadata[attrId].Critical {
-				hasFailingCriticalAttr = true
-			} else if device.IsNvme() && thresholds.NmveMetadata[attrId].Critical {
-				hasFailingCriticalAttr = true
+		if statusFilterAttributes == pkg.MetricsStatusFilterAttributesCritical {
+			critical := false
+			if device.IsScsi() {
+				critical = thresholds.ScsiMetadata[attrId].Critical
+			} else if device.IsNvme() {
+				critical = thresholds.NmveMetadata[attrId].Critical
 			} else {
 				//this is ATA
 				attrIdInt, err := strconv.Atoi(attrId)
 				if err != nil {
 					continue
 				}
-				if thresholds.AtaMetadata[attrIdInt].Critical {
-					hasFailingCriticalAttr = true
+				critical = thresholds.AtaMetadata[attrIdInt].Critical
+			}
+			if !critical {
+				continue
+			}
+		}
+
+		failingAttributes = append(failingAttributes, attrId)
+	}
+
+	if repeatNotifications {
+		lastPoints, err := deviceRepo.GetSmartAttributeHistoryTail(c, c.Param("wwn"), 1, 1, failingAttributes)
+		if err == nil && len(lastPoints) > 1 {
+			for _, attrId := range failingAttributes {
+				if old, ok := lastPoints[0].Attributes[attrId].(*measurements.SmartAtaAttribute); ok {
+					if current, ok := smartAttrs.Attributes[attrId].(*measurements.SmartAtaAttribute); ok {
+						if old.TransformedValue != current.TransformedValue {
+							return true
+						}
+					}
+				}
+				if old, ok := lastPoints[0].Attributes[attrId].(*measurements.SmartNvmeAttribute); ok {
+					if current, ok := smartAttrs.Attributes[attrId].(*measurements.SmartNvmeAttribute); ok {
+						if old.TransformedValue != current.TransformedValue {
+							return true
+						}
+					}
+				}
+				if old, ok := lastPoints[0].Attributes[attrId].(*measurements.SmartScsiAttribute); ok {
+					if current, ok := smartAttrs.Attributes[attrId].(*measurements.SmartScsiAttribute); ok {
+						if old.TransformedValue != current.TransformedValue {
+							return true
+						}
+					}
 				}
 			}
-
-		}
-
-		if !hasFailingCriticalAttr {
-			//no critical attributes are failing, and notifyFilterAttributes == "critical"
 			return false
-		} else {
-			// check if any of the critical attributes have a status that we're looking for
-			return pkg.AttributeStatusHas(statusFailingCriticalAttr, requiredAttrStatus)
 		}
-
+		return true
 	} else {
-		// 2. SKIP - we are processing every attribute.
-		// 3. check if the device failure level matches the wanted failure level.
-		return pkg.DeviceStatusHas(device.DeviceStatus, requiredDeviceStatus)
+		for _, attr := range failingAttributes {
+			attrStatus := smartAttrs.Attributes[attr].GetStatus()
+			if pkg.AttributeStatusHas(attrStatus, requiredAttrStatus) {
+				return true
+			}
+		}
 	}
+
+	return false
 }
 
 // TODO: include user label for device.

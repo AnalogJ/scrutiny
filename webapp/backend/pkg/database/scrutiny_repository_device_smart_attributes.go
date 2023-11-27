@@ -3,13 +3,14 @@ package database
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	log "github.com/sirupsen/logrus"
-	"strings"
-	"time"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +83,73 @@ func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn 
 	//	return
 	//}
 
+}
+
+// GetSmartAttributeHistory MUST return in sorted order, where newest entries are at the beginning of the list, and oldest are at the end.
+func (sr *scrutinyRepository) GetSmartAttributeHistoryTail(ctx context.Context, wwn string, n int, offset int, attributes []string) ([]measurements.Smart, error) {
+	partialQueryStr := []string{
+		`import "influxdata/influxdb/schema"`,
+	}
+
+	nestedDurationKeys := sr.lookupNestedDurationKeys(DURATION_KEY_FOREVER)
+	subQueryNames := []string{}
+	for _, nestedDurationKey := range nestedDurationKeys {
+		bucketName := sr.lookupBucketName(nestedDurationKey)
+		durationRange := sr.lookupDuration(nestedDurationKey)
+
+		subQueryNames = append(subQueryNames, fmt.Sprintf(`%sData`, nestedDurationKey))
+		partialQueryStr = append(partialQueryStr, []string{
+			fmt.Sprintf(`%sData = from(bucket: "%s")`, nestedDurationKey, bucketName),
+			fmt.Sprintf(`|> range(start: %s, stop: %s)`, durationRange[0], durationRange[1]),
+			`|> filter(fn: (r) => r["_measurement"] == "smart" )`,
+			fmt.Sprintf(`|> filter(fn: (r) => r["device_wwn"] == "%s" )`, wwn),
+			// We only need the last `offset` # of entries from each table to guarantee we can
+			// get the last `n` # of entries starting from `offset` of the union
+			fmt.Sprintf(`|> tail(n: %d)`, offset),
+			"|> schema.fieldsAsCols()",
+		}...)
+	}
+
+	partialQueryStr = append(partialQueryStr, []string{
+		fmt.Sprintf("union(tables: [%s])", strings.Join(subQueryNames, ", ")),
+		"|> group()",
+		`|> sort(columns: ["_time"], desc: false)`,
+		fmt.Sprintf(`|> tail(n: %d, offset: %d)`, n, offset),
+		`|> yield(name: "last")`,
+	}...)
+
+	queryStr := strings.Join(partialQueryStr, "\n")
+	log.Infoln(queryStr)
+
+	smartResults := []measurements.Smart{}
+
+	result, err := sr.influxQueryApi.Query(ctx, queryStr)
+	if err == nil {
+		// Use Next() to iterate over query result lines
+		for result.Next() {
+			// Observe when there is new grouping key producing new table
+			if result.TableChanged() {
+				//fmt.Printf("table: %s\n", result.TableMetadata().String())
+			}
+
+			smartData, err := measurements.NewSmartFromInfluxDB(result.Record().Values())
+			if err != nil {
+				return nil, err
+			}
+			smartResults = append(smartResults, *smartData)
+
+		}
+		if result.Err() != nil {
+			fmt.Printf("Query error: %s\n", result.Err().Error())
+		}
+	} else {
+		return nil, err
+	}
+
+	//we have to sort the smartResults again, because the `union` command will return multiple 'tables' and only sort the records in each table.
+	sortSmartMeasurementsDesc(smartResults)
+
+	return smartResults, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

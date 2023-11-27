@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
@@ -21,6 +22,7 @@ type DeviceRepo interface {
 
 	SaveSmartAttributes(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (measurements.Smart, error)
 	GetSmartAttributeHistory(ctx context.Context, wwn string, durationKey string, attributes []string) ([]measurements.Smart, error)
+	GetSmartAttributeHistoryTail(ctx context.Context, wwn string, n int, offset int, attributes []string) ([]measurements.Smart, error)
 
 	SaveSmartTemperature(ctx context.Context, wwn string, deviceProtocol string, collectorSmartData collector.SmartInfo) error
 
