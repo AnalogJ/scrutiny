@@ -693,6 +693,12 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 		},
 		ObservedThresholds: []ObservedThreshold{
 			{
+				Low:               0,
+				High:              0,
+				AnnualFailureRate: 0.024893587674442153,
+				ErrorInterval:     []float64{0.020857343769186413, 0.0294830350167543},
+			},
+			{
 				Low: 0,
 				// This is set arbitrarily to avoid notifications caused by low
 				// historical numbers of command timeouts (e.g. caused by a bad cable)
