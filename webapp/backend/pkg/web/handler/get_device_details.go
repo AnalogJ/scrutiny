@@ -1,11 +1,12 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 func GetDeviceDetails(c *gin.Context) {
@@ -24,7 +25,7 @@ func GetDeviceDetails(c *gin.Context) {
 		durationKey = "forever"
 	}
 
-	smartResults, err := deviceRepo.GetSmartAttributeHistory(c, c.Param("wwn"), durationKey, nil)
+	smartResults, err := deviceRepo.GetSmartAttributeHistory(c, c.Param("wwn"), durationKey, 0, 0, nil)
 	if err != nil {
 		logger.Errorln("An error occurred while retrieving device smart results", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false})

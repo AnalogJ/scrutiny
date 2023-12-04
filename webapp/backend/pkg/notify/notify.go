@@ -90,30 +90,12 @@ func ShouldNotify(device models.Device, smartAttrs measurements.Smart, statusThr
 		failingAttributes = append(failingAttributes, attrId)
 	}
 
-	if repeatNotifications {
-		lastPoints, err := deviceRepo.GetSmartAttributeHistoryTail(c, c.Param("wwn"), 1, 1, failingAttributes)
+	if !repeatNotifications {
+		lastPoints, err := deviceRepo.GetSmartAttributeHistory(c, c.Param("wwn"), database.DURATION_KEY_FOREVER, 1, 1, failingAttributes)
 		if err == nil && len(lastPoints) > 1 {
 			for _, attrId := range failingAttributes {
-				if old, ok := lastPoints[0].Attributes[attrId].(*measurements.SmartAtaAttribute); ok {
-					if current, ok := smartAttrs.Attributes[attrId].(*measurements.SmartAtaAttribute); ok {
-						if old.TransformedValue != current.TransformedValue {
-							return true
-						}
-					}
-				}
-				if old, ok := lastPoints[0].Attributes[attrId].(*measurements.SmartNvmeAttribute); ok {
-					if current, ok := smartAttrs.Attributes[attrId].(*measurements.SmartNvmeAttribute); ok {
-						if old.TransformedValue != current.TransformedValue {
-							return true
-						}
-					}
-				}
-				if old, ok := lastPoints[0].Attributes[attrId].(*measurements.SmartScsiAttribute); ok {
-					if current, ok := smartAttrs.Attributes[attrId].(*measurements.SmartScsiAttribute); ok {
-						if old.TransformedValue != current.TransformedValue {
-							return true
-						}
-					}
+				if lastPoints[0].Attributes[attrId].GetTransformedValue() != smartAttrs.Attributes[attrId].GetTransformedValue() {
+					return true
 				}
 			}
 			return false
@@ -251,7 +233,7 @@ func (n *Notify) Send() error {
 	notifyScripts := []string{}
 	notifyShoutrrr := []string{}
 
-	for ndx, _ := range configUrls {
+	for ndx := range configUrls {
 		if strings.HasPrefix(configUrls[ndx], "https://") || strings.HasPrefix(configUrls[ndx], "http://") {
 			notifyWebhooks = append(notifyWebhooks, configUrls[ndx])
 		} else if strings.HasPrefix(configUrls[ndx], "script://") {
