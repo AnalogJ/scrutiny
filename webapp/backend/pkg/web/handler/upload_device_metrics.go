@@ -70,6 +70,7 @@ func UploadDeviceMetrics(c *gin.Context) {
 
 	//check for error
 	if notify.ShouldNotify(
+		logger,
 		updatedDevice,
 		smartData,
 		pkg.MetricsStatusThreshold(appConfig.GetInt(fmt.Sprintf("%s.metrics.status_threshold", config.DB_USER_SETTINGS_SUBKEY))),

@@ -31,14 +31,17 @@ func (sr *scrutinyRepository) SaveSmartAttributes(ctx context.Context, wwn strin
 }
 
 // GetSmartAttributeHistory MUST return in sorted order, where newest entries are at the beginning of the list, and oldest are at the end.
-func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn string, durationKey string, n int, offset int, attributes []string) ([]measurements.Smart, error) {
+// When selectEntries is > 0, only the most recent selectEntries database entries are returned, starting from the selectEntriesOffset entry.
+// For example, with selectEntries = 5, selectEntries = 0, the most recent 5 are returned. With selectEntries = 3, selectEntries = 2, entries
+// 2 to 4 are returned (2 being the third newest, since it is zero-indexed)
+func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn string, durationKey string, selectEntries int, selectEntriesOffset int, attributes []string) ([]measurements.Smart, error) {
 	// Get SMartResults from InfluxDB
 
 	//TODO: change the filter startrange to a real number.
 
 	// Get parser flux query result
 	//appConfig.GetString("web.influxdb.bucket")
-	queryStr := sr.aggregateSmartAttributesQuery(wwn, durationKey, n, offset, attributes)
+	queryStr := sr.aggregateSmartAttributesQuery(wwn, durationKey, selectEntries, selectEntriesOffset, attributes)
 	log.Infoln(queryStr)
 
 	smartResults := []measurements.Smart{}
@@ -97,7 +100,7 @@ func (sr *scrutinyRepository) saveDatapoint(influxWriteApi api.WriteAPIBlocking,
 	return influxWriteApi.WritePoint(ctx, p)
 }
 
-func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, durationKey string, n int, offset int, attributes []string) string {
+func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, durationKey string, selectEntries int, selectEntriesOffset int, attributes []string) string {
 
 	/*
 
@@ -147,7 +150,7 @@ func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, duration
 	if len(nestedDurationKeys) == 1 {
 		//there's only one bucket being queried, no need to union, just aggregate the dataset and return
 		partialQueryStr = append(partialQueryStr, []string{
-			sr.generateSmartAttributesSubquery(wwn, nestedDurationKeys[0], n, offset, attributes),
+			sr.generateSmartAttributesSubquery(wwn, nestedDurationKeys[0], selectEntries, selectEntriesOffset, attributes),
 			fmt.Sprintf(`%sData`, nestedDurationKeys[0]),
 			`|> sort(columns: ["_time"], desc: true)`,
 			`|> yield()`,
@@ -159,10 +162,10 @@ func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, duration
 	subQueryNames := []string{}
 	for _, nestedDurationKey := range nestedDurationKeys {
 		subQueryNames = append(subQueryNames, fmt.Sprintf(`%sData`, nestedDurationKey))
-		if n > 0 {
+		if selectEntries > 0 {
 			// We only need the last `n + offset` # of entries from each table to guarantee we can
 			// get the last `n` # of entries starting from `offset` of the union
-			subQueries = append(subQueries, sr.generateSmartAttributesSubquery(wwn, nestedDurationKey, n+offset, 0, attributes))
+			subQueries = append(subQueries, sr.generateSmartAttributesSubquery(wwn, nestedDurationKey, selectEntries+selectEntriesOffset, 0, attributes))
 		} else {
 			subQueries = append(subQueries, sr.generateSmartAttributesSubquery(wwn, nestedDurationKey, 0, 0, attributes))
 		}
@@ -173,15 +176,15 @@ func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, duration
 		`|> group()`,
 		`|> sort(columns: ["_time"], desc: true)`,
 	}...)
-	if n > 0 {
-		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> tail(n: %d, offset: %d)`, n, offset))
+	if selectEntries > 0 {
+		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> tail(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))
 	}
 	partialQueryStr = append(partialQueryStr, `|> yield(name: "last")`)
 
 	return strings.Join(partialQueryStr, "\n")
 }
 
-func (sr *scrutinyRepository) generateSmartAttributesSubquery(wwn string, durationKey string, n int, offset int, attributes []string) string {
+func (sr *scrutinyRepository) generateSmartAttributesSubquery(wwn string, durationKey string, selectEntries int, selectEntriesOffset int, attributes []string) string {
 	bucketName := sr.lookupBucketName(durationKey)
 	durationRange := sr.lookupDuration(durationKey)
 
@@ -191,8 +194,8 @@ func (sr *scrutinyRepository) generateSmartAttributesSubquery(wwn string, durati
 		`|> filter(fn: (r) => r["_measurement"] == "smart" )`,
 		fmt.Sprintf(`|> filter(fn: (r) => r["device_wwn"] == "%s" )`, wwn),
 	}
-	if n > 0 {
-		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> tail(n: %d, offset: %d)`, n, offset))
+	if selectEntries > 0 {
+		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> tail(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))
 	}
 	partialQueryStr = append(partialQueryStr, "|> schema.fieldsAsCols()")
 

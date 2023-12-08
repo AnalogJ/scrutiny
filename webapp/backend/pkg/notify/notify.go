@@ -32,7 +32,7 @@ const NotifyFailureTypeSmartFailure = "SmartFailure"
 const NotifyFailureTypeScrutinyFailure = "ScrutinyFailure"
 
 // ShouldNotify check if the error Message should be filtered (level mismatch or filtered_attributes)
-func ShouldNotify(device models.Device, smartAttrs measurements.Smart, statusThreshold pkg.MetricsStatusThreshold, statusFilterAttributes pkg.MetricsStatusFilterAttributes, repeatNotifications bool, c *gin.Context, deviceRepo database.DeviceRepo) bool {
+func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs measurements.Smart, statusThreshold pkg.MetricsStatusThreshold, statusFilterAttributes pkg.MetricsStatusFilterAttributes, repeatNotifications bool, c *gin.Context, deviceRepo database.DeviceRepo) bool {
 	// 1. check if the device is healthy
 	if device.DeviceStatus == pkg.DeviceStatusPassed {
 		return false
@@ -62,12 +62,16 @@ func ShouldNotify(device models.Device, smartAttrs measurements.Smart, statusThr
 	}
 
 	var failingAttributes []string
+	// Loop through the attributes to find the failing ones
 	for attrId, attrData := range smartAttrs.Attributes {
 		var status pkg.AttributeStatus = attrData.GetStatus()
+		// Skip over passing attributes
 		if status == pkg.AttributeStatusPassed {
 			continue
 		}
 
+		// If the user only wants to consider critical attributes, we have to check
+		// if the not-passing attribute is critical or not
 		if statusFilterAttributes == pkg.MetricsStatusFilterAttributesCritical {
 			critical := false
 			if device.IsScsi() {
@@ -82,34 +86,38 @@ func ShouldNotify(device models.Device, smartAttrs measurements.Smart, statusThr
 				}
 				critical = thresholds.AtaMetadata[attrIdInt].Critical
 			}
+			// Skip non-critical, non-passing attributes when this setting is on
 			if !critical {
 				continue
 			}
 		}
 
+		// Record any attribute that doesn't get skipped by the above two checks
 		failingAttributes = append(failingAttributes, attrId)
 	}
 
+	// If the user doesn't want repeated notifications when the failing value doesn't change, we need to get the last value from the db
+	var lastPoints []measurements.Smart
+	var err error
 	if !repeatNotifications {
-		lastPoints, err := deviceRepo.GetSmartAttributeHistory(c, c.Param("wwn"), database.DURATION_KEY_FOREVER, 1, 1, failingAttributes)
-		if err == nil && len(lastPoints) > 1 {
-			for _, attrId := range failingAttributes {
-				if lastPoints[0].Attributes[attrId].GetTransformedValue() != smartAttrs.Attributes[attrId].GetTransformedValue() {
-					return true
-				}
-			}
-			return false
+		lastPoints, err = deviceRepo.GetSmartAttributeHistory(c, c.Param("wwn"), database.DURATION_KEY_FOREVER, 1, 1, failingAttributes)
+		if err == nil || len(lastPoints) < 1 {
+			logger.Warningln("Could not get the most recent data points from the database. This is expected to happen only if this is the very first submission of data for the device.")
 		}
-		return true
-	} else {
-		for _, attr := range failingAttributes {
-			attrStatus := smartAttrs.Attributes[attr].GetStatus()
-			if pkg.AttributeStatusHas(attrStatus, requiredAttrStatus) {
+	}
+	for _, attrId := range failingAttributes {
+		attrStatus := smartAttrs.Attributes[attrId].GetStatus()
+		if pkg.AttributeStatusHas(attrStatus, requiredAttrStatus) {
+			if repeatNotifications {
+				return true
+			}
+			// This is checked again here to avoid repeating the entire for loop in the check above.
+			// Probably unnoticeably worse performance, but cleaner code.
+			if err != nil || len(lastPoints) < 1 || lastPoints[0].Attributes[attrId].GetTransformedValue() != smartAttrs.Attributes[attrId].GetTransformedValue() {
 				return true
 			}
 		}
 	}
-
 	return false
 }
 
