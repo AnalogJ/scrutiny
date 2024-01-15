@@ -40,6 +40,7 @@ services:
       - '/run/udev:/run/udev:ro'
     environment:
       COLLECTOR_API_ENDPOINT: 'http://web:8080'
+      COLLECTOR_HOST_ID: 'scrutiny-collector-hostname'
     depends_on:
       web:
         condition: service_healthy
