@@ -9,6 +9,8 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 )
 
+// Create mock using:
+// mockgen -source=webapp/backend/pkg/database/interface.go -destination=webapp/backend/pkg/database/mock/mock_database.go
 type DeviceRepo interface {
 	Close() error
 	HealthCheck(ctx context.Context) error
