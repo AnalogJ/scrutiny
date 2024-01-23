@@ -27,14 +27,11 @@ type SmartInfo struct {
 		Oui uint64 `json:"oui"`
 		ID  uint64 `json:"id"`
 	} `json:"wwn"`
-	FirmwareVersion string `json:"firmware_version"`
-	UserCapacity    struct {
-		Blocks int64 `json:"blocks"`
-		Bytes  int64 `json:"bytes"`
-	} `json:"user_capacity"`
-	LogicalBlockSize  int `json:"logical_block_size"`
-	PhysicalBlockSize int `json:"physical_block_size"`
-	RotationRate      int `json:"rotation_rate"`
+	FirmwareVersion   string       `json:"firmware_version"`
+	UserCapacity      UserCapacity `json:"user_capacity"`
+	LogicalBlockSize  int          `json:"logical_block_size"`
+	PhysicalBlockSize int          `json:"physical_block_size"`
+	RotationRate      int          `json:"rotation_rate"`
 	FormFactor        struct {
 		AtaValue int    `json:"ata_value"`
 		Name     string `json:"name"`
@@ -210,9 +207,10 @@ type SmartInfo struct {
 		ID          int `json:"id"`
 		SubsystemID int `json:"subsystem_id"`
 	} `json:"nvme_pci_vendor"`
-	NvmeIeeeOuiIdentifier  int `json:"nvme_ieee_oui_identifier"`
-	NvmeControllerID       int `json:"nvme_controller_id"`
-	NvmeNumberOfNamespaces int `json:"nvme_number_of_namespaces"`
+	NvmeIeeeOuiIdentifier  int   `json:"nvme_ieee_oui_identifier"`
+	NvmeTotalCapacity      int64 `json:"nvme_total_capacity"`
+	NvmeControllerID       int   `json:"nvme_controller_id"`
+	NvmeNumberOfNamespaces int   `json:"nvme_number_of_namespaces"`
 	NvmeNamespaces         []struct {
 		ID   int `json:"id"`
 		Size struct {
@@ -239,7 +237,23 @@ type SmartInfo struct {
 	ScsiErrorCounterLog ScsiErrorCounterLog `json:"scsi_error_counter_log"`
 }
 
-//Primary Attribute Structs
+// Capacity finds the total capacity of the device in bytes, or 0 if unknown.
+func (s *SmartInfo) Capacity() int64 {
+	switch {
+	case s.NvmeTotalCapacity > 0:
+		return s.NvmeTotalCapacity
+	case s.UserCapacity.Bytes > 0:
+		return s.UserCapacity.Bytes
+	}
+	return 0
+}
+
+type UserCapacity struct {
+	Blocks int64 `json:"blocks"`
+	Bytes  int64 `json:"bytes"`
+}
+
+// Primary Attribute Structs
 type AtaSmartAttributesTableItem struct {
 	ID         int    `json:"id"`
 	Name       string `json:"name"`
