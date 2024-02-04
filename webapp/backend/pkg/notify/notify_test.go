@@ -1,11 +1,13 @@
 package notify
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 	"time"
 
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	mock_database "github.com/analogj/scrutiny/webapp/backend/pkg/database/mock"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
@@ -189,6 +191,71 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_MetricsStatusThresho
 
 	//assert
 	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
+}
+func TestShouldNotify_NoRepeat_DatabaseFailure(t *testing.T) {
+	t.Parallel()
+	//setup
+	device := models.Device{
+		DeviceStatus: pkg.DeviceStatusFailedScrutiny,
+	}
+	smartAttrs := measurements.Smart{Attributes: map[string]measurements.SmartAttribute{
+		"5": &measurements.SmartAtaAttribute{
+			Status: pkg.AttributeStatusFailedScrutiny,
+		},
+	}}
+	statusThreshold := pkg.MetricsStatusThresholdBoth
+	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
+	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, "", database.DURATION_KEY_FOREVER, 1, 1, []string{"5"}).Return([]measurements.Smart{}, errors.New("")).Times(1)
+
+	//assert
+	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, false, &gin.Context{}, fakeDatabase))
+}
+
+func TestShouldNotify_NoRepeat_NoDatabaseData(t *testing.T) {
+	t.Parallel()
+	//setup
+	device := models.Device{
+		DeviceStatus: pkg.DeviceStatusFailedScrutiny,
+	}
+	smartAttrs := measurements.Smart{Attributes: map[string]measurements.SmartAttribute{
+		"5": &measurements.SmartAtaAttribute{
+			Status: pkg.AttributeStatusFailedScrutiny,
+		},
+	}}
+	statusThreshold := pkg.MetricsStatusThresholdBoth
+	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
+	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, "", database.DURATION_KEY_FOREVER, 1, 1, []string{"5"}).Return([]measurements.Smart{}, nil).Times(1)
+
+	//assert
+	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, false, &gin.Context{}, fakeDatabase))
+}
+func TestShouldNotify_NoRepeat(t *testing.T) {
+	t.Parallel()
+	//setup
+	device := models.Device{
+		DeviceStatus: pkg.DeviceStatusFailedScrutiny,
+	}
+	smartAttrs := measurements.Smart{Attributes: map[string]measurements.SmartAttribute{
+		"5": &measurements.SmartAtaAttribute{
+			Status:           pkg.AttributeStatusFailedScrutiny,
+			TransformedValue: 0,
+		},
+	}}
+	statusThreshold := pkg.MetricsStatusThresholdBoth
+	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
+	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, "", database.DURATION_KEY_FOREVER, 1, 1, []string{"5"}).Return([]measurements.Smart{smartAttrs}, nil).Times(1)
+
+	//assert
+	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, false, &gin.Context{}, fakeDatabase))
 }
 
 func TestNewPayload(t *testing.T) {
