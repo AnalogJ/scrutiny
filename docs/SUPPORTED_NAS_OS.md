@@ -9,7 +9,8 @@ in `docs/guides/` or elsewhere) it will be linked here.
 - [ ] Proxmox
 - [x] Synology 
   - [Hub/Spoke Deployment - Collector](./INSTALL_SYNOLOGY_COLLECTOR.md)
-  - [Omnibus Deployment](https://drfrankenstein.co.uk/2022/07/28/scrutiny-in-docker-on-a-synology-nas)
+  - [Omnibus Deployment](https://drfrankenstein.co.uk/2022/07/28/scrutiny-in-docker-on-a-synology-nas) -  Docker Package
+  - [Omnibus Deployment](https://drfrankenstein.co.uk/scrutiny-in-container-manager-on-a-synology-nas/) -  Container Manager Package
 - [ ] OMV
 - [ ] Amahi
 - [ ] Running in a LXC container
