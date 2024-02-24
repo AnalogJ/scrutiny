@@ -3,13 +3,14 @@ package detect
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/analogj/scrutiny/collector/pkg/common/shell"
 	"github.com/analogj/scrutiny/collector/pkg/config"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/sirupsen/logrus"
-	"os"
-	"strings"
 )
 
 type Detect struct {
@@ -47,7 +48,7 @@ func (d *Detect) SmartctlScan() ([]models.Device, error) {
 	return detectedDevices, nil
 }
 
-//updates a device model with information from smartctl --scan
+// updates a device model with information from smartctl --scan
 // It has a couple of issues however:
 // - WWN is provided as component data, rather than a "string". We'll have to generate the WWN value ourselves
 // - WWN from smartctl only provided for ATA protocol drives, NVMe and SCSI drives do not include WWN.
@@ -81,8 +82,9 @@ func (d *Detect) SmartCtlInfo(device *models.Device) error {
 	device.SerialNumber = availableDeviceInfo.SerialNumber
 	device.Firmware = availableDeviceInfo.FirmwareVersion
 	device.RotationSpeed = availableDeviceInfo.RotationRate
-	device.Capacity = availableDeviceInfo.UserCapacity.Bytes
+	device.Capacity = availableDeviceInfo.Capacity()
 	device.FormFactor = availableDeviceInfo.FormFactor.Name
+	device.DeviceType = availableDeviceInfo.Device.Type
 	device.DeviceProtocol = availableDeviceInfo.Device.Protocol
 	if len(availableDeviceInfo.Vendor) > 0 {
 		device.Manufacturer = availableDeviceInfo.Vendor
