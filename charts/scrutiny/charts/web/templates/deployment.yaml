@@ -45,7 +45,7 @@ spec:
             {{- end }}
           livenessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
           readinessProbe:
             httpGet:
