@@ -28,6 +28,7 @@ export class DashboardSettingsComponent implements OnInit {
     theme: string;
     statusThreshold: number;
     statusFilterAttributes: number;
+    repeatNotifications: boolean;
 
     // Private
     private _unsubscribeAll: Subject<void>;
@@ -55,6 +56,7 @@ export class DashboardSettingsComponent implements OnInit {
 
                 this.statusFilterAttributes = config.metrics.status_filter_attributes;
                 this.statusThreshold = config.metrics.status_threshold;
+                this.repeatNotifications = config.metrics.repeat_notifications;
 
             });
 
@@ -70,7 +72,8 @@ export class DashboardSettingsComponent implements OnInit {
             theme: this.theme as Theme,
             metrics: {
                 status_filter_attributes: this.statusFilterAttributes as MetricsStatusFilterAttributes,
-                status_threshold: this.statusThreshold as MetricsStatusThreshold
+                status_threshold: this.statusThreshold as MetricsStatusThreshold,
+                repeat_notifications: this.repeatNotifications
             }
         }
         this._configService.config = newSettings

@@ -84,6 +84,16 @@
                 </mat-select>
             </mat-form-field>
         </div>
+
+        <div class="flex flex-col mt-5 gt-md:flex-row">
+            <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
+                <mat-label>Repeat Notifications</mat-label>
+                <mat-select [(ngModel)]=repeatNotifications>
+                    <mat-option [value]=true>Always</mat-option>
+                    <mat-option [value]=false>Only when the value has changed</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
     </div>
 
 </mat-dialog-content>
