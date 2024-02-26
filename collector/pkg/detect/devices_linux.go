@@ -2,12 +2,13 @@ package detect
 
 import (
 	"fmt"
-	"github.com/analogj/scrutiny/collector/pkg/common/shell"
-	"github.com/analogj/scrutiny/collector/pkg/models"
-	"github.com/jaypipes/ghw"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
+
+	"github.com/analogj/scrutiny/collector/pkg/common/shell"
+	"github.com/analogj/scrutiny/collector/pkg/models"
+	"github.com/jaypipes/ghw"
 )
 
 func DevicePrefix() string {
@@ -22,16 +23,16 @@ func (d *Detect) Start() ([]models.Device, error) {
 		return nil, err
 	}
 
-	//inflate device info for detected devices.
-	for ndx, _ := range detectedDevices {
-		d.SmartCtlInfo(&detectedDevices[ndx]) //ignore errors.
-		populateUdevInfo(&detectedDevices[ndx]) //ignore errors.
+	// inflate device info for detected devices.
+	for ndx := range detectedDevices {
+		d.SmartCtlInfo(&detectedDevices[ndx])   // ignore errors.
+		populateUdevInfo(&detectedDevices[ndx]) // ignore errors.
 	}
 
 	return detectedDevices, nil
 }
 
-//WWN values NVMe and SCSI
+// WWN values NVMe and SCSI
 func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 	block, err := ghw.Block()
 	if err == nil {
@@ -44,13 +45,13 @@ func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 		}
 	}
 
-	//no WWN found, or could not open Block devices. Either way, fallback to serial number
+	// no WWN found, or could not open Block devices. Either way, fallback to serial number
 	if len(detectedDevice.WWN) == 0 {
 		d.Logger.Debugf("WWN is empty, falling back to serial number: %s", detectedDevice.SerialNumber)
 		detectedDevice.WWN = detectedDevice.SerialNumber
 	}
 
-	//wwn must always be lowercase.
+	// wwn must always be lowercase.
 	detectedDevice.WWN = strings.ToLower(detectedDevice.WWN)
 }
 
@@ -86,7 +87,7 @@ func populateUdevInfo(detectedDevice *models.Device) error {
 		}
 	}
 
-	//Set additional device information.
+	// Set additional device information.
 	if deviceLabel, exists := udevInfo["ID_FS_LABEL"]; exists {
 		detectedDevice.DeviceLabel = deviceLabel
 	}
@@ -97,7 +98,5 @@ func populateUdevInfo(detectedDevice *models.Device) error {
 		detectedDevice.DeviceSerialID = fmt.Sprintf("%s-%s", udevInfo["ID_BUS"], deviceSerialID)
 	}
 
-
 	return nil
 }
-

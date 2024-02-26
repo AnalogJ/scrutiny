@@ -18,7 +18,7 @@ type SmartAtaAttribute struct {
 	RawString   string `json:"raw_string"`
 	WhenFailed  string `json:"when_failed"`
 
-	//Generated data
+	// Generated data
 	TransformedValue int64               `json:"transformed_value"`
 	Status           pkg.AttributeStatus `json:"status"`
 	StatusReason     string              `json:"status_reason,omitempty"`
@@ -34,7 +34,6 @@ func (sa *SmartAtaAttribute) GetStatus() pkg.AttributeStatus {
 }
 
 func (sa *SmartAtaAttribute) Flatten() map[string]interface{} {
-
 	idString := strconv.Itoa(sa.AttributeId)
 
 	return map[string]interface{}{
@@ -46,13 +45,14 @@ func (sa *SmartAtaAttribute) Flatten() map[string]interface{} {
 		fmt.Sprintf("attr.%s.raw_string", idString):   sa.RawString,
 		fmt.Sprintf("attr.%s.when_failed", idString):  sa.WhenFailed,
 
-		//Generated Data
+		// Generated Data
 		fmt.Sprintf("attr.%s.transformed_value", idString): sa.TransformedValue,
 		fmt.Sprintf("attr.%s.status", idString):            int64(sa.Status),
 		fmt.Sprintf("attr.%s.status_reason", idString):     sa.StatusReason,
 		fmt.Sprintf("attr.%s.failure_rate", idString):      sa.FailureRate,
 	}
 }
+
 func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
 	if val == nil {
 		return
@@ -78,7 +78,7 @@ func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
 	case "when_failed":
 		sa.WhenFailed = val.(string)
 
-	//generated
+	// generated
 	case "transformed_value":
 		sa.TransformedValue = val.(int64)
 	case "status":
@@ -91,14 +91,14 @@ func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
 	}
 }
 
-//populate attribute status, using SMART Thresholds & Observed Metadata
+// populate attribute status, using SMART Thresholds & Observed Metadata
 // Chainable
 func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
 	if strings.ToUpper(sa.WhenFailed) == pkg.AttributeWhenFailedFailingNow {
-		//this attribute has previously failed
+		// this attribute has previously failed
 		sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedSmart)
 		sa.StatusReason += "Attribute is failing manufacturer SMART threshold"
-		//if the Smart Status is failed, we should exit early, no need to look at thresholds.
+		// if the Smart Status is failed, we should exit early, no need to look at thresholds.
 		return sa
 
 	} else if strings.ToUpper(sa.WhenFailed) == pkg.AttributeWhenFailedInThePast {
@@ -115,7 +115,7 @@ func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
 
 // compare the attribute (raw, normalized, transformed) value to observed thresholds, and update status if necessary
 func (sa *SmartAtaAttribute) ValidateThreshold(smartMetadata thresholds.AtaAttributeMetadata) {
-	//TODO: multiple rules
+	// TODO: multiple rules
 	// try to predict the failure rates for observed thresholds that have 0 failure rate and error bars.
 	// - if the attribute is critical
 	//		- the failure rate is over 10 - set to failed
@@ -124,7 +124,7 @@ func (sa *SmartAtaAttribute) ValidateThreshold(smartMetadata thresholds.AtaAttri
 	//		- if failure rate is above 20 - set to failed
 	// 		- if failure rate is above 10 but below 20 - set to warn
 
-	//update the smart attribute status based on Observed thresholds.
+	// update the smart attribute status based on Observed thresholds.
 	var value int64
 	if smartMetadata.DisplayType == thresholds.AtaSmartAttributeDisplayTypeNormalized {
 		value = int64(sa.Value)
@@ -135,8 +135,7 @@ func (sa *SmartAtaAttribute) ValidateThreshold(smartMetadata thresholds.AtaAttri
 	}
 
 	for _, obsThresh := range smartMetadata.ObservedThresholds {
-
-		//check if "value" is in this bucket
+		// check if "value" is in this bucket
 		if ((obsThresh.Low == obsThresh.High) && value == obsThresh.Low) ||
 			(obsThresh.Low < value && value <= obsThresh.High) {
 			sa.FailureRate = obsThresh.AnnualFailureRate
@@ -156,7 +155,7 @@ func (sa *SmartAtaAttribute) ValidateThreshold(smartMetadata thresholds.AtaAttri
 				}
 			}
 
-			//we've found the correct bucket, we can drop out of this loop
+			// we've found the correct bucket, we can drop out of this loop
 			return
 		}
 	}

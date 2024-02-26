@@ -26,10 +26,12 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const NotifyFailureTypeEmailTest = "EmailTest"
-const NotifyFailureTypeBothFailure = "SmartFailure" //SmartFailure always takes precedence when Scrutiny & Smart failed.
-const NotifyFailureTypeSmartFailure = "SmartFailure"
-const NotifyFailureTypeScrutinyFailure = "ScrutinyFailure"
+const (
+	NotifyFailureTypeEmailTest       = "EmailTest"
+	NotifyFailureTypeBothFailure     = "SmartFailure" // SmartFailure always takes precedence when Scrutiny & Smart failed.
+	NotifyFailureTypeSmartFailure    = "SmartFailure"
+	NotifyFailureTypeScrutinyFailure = "ScrutinyFailure"
+)
 
 // ShouldNotify check if the error Message should be filtered (level mismatch or filtered_attributes)
 func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs measurements.Smart, statusThreshold pkg.MetricsStatusThreshold, statusFilterAttributes pkg.MetricsStatusFilterAttributes, repeatNotifications bool, c *gin.Context, deviceRepo database.DeviceRepo) bool {
@@ -38,7 +40,7 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 		return false
 	}
 
-	//TODO: cannot check for warning notifyLevel yet.
+	// TODO: cannot check for warning notifyLevel yet.
 
 	// setup constants for comparison
 	var requiredDeviceStatus pkg.DeviceStatus
@@ -48,7 +50,7 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 		requiredDeviceStatus = pkg.DeviceStatusSet(pkg.DeviceStatusFailedSmart, pkg.DeviceStatusFailedScrutiny)
 		requiredAttrStatus = pkg.AttributeStatusSet(pkg.AttributeStatusFailedSmart, pkg.AttributeStatusFailedScrutiny)
 	} else if statusThreshold == pkg.MetricsStatusThresholdSmart {
-		//only smart failures
+		// only smart failures
 		requiredDeviceStatus = pkg.DeviceStatusFailedSmart
 		requiredAttrStatus = pkg.AttributeStatusFailedSmart
 	} else {
@@ -79,7 +81,7 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 			} else if device.IsNvme() {
 				critical = thresholds.NmveMetadata[attrId].Critical
 			} else {
-				//this is ATA
+				// this is ATA
 				attrIdInt, err := strconv.Atoi(attrId)
 				if err != nil {
 					continue
@@ -123,15 +125,15 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 
 // TODO: include user label for device.
 type Payload struct {
-	HostId       string `json:"host_id,omitempty"` //host id (optional)
-	DeviceType   string `json:"device_type"`       //ATA/SCSI/NVMe
-	DeviceName   string `json:"device_name"`       //dev/sda
-	DeviceSerial string `json:"device_serial"`     //WDDJ324KSO
+	HostId       string `json:"host_id,omitempty"` // host id (optional)
+	DeviceType   string `json:"device_type"`       // ATA/SCSI/NVMe
+	DeviceName   string `json:"device_name"`       // dev/sda
+	DeviceSerial string `json:"device_serial"`     // WDDJ324KSO
 	Test         bool   `json:"test"`              // false
 
-	//private, populated during init (marked as Public for JSON serialization)
-	Date        string `json:"date"`         //populated by Send function.
-	FailureType string `json:"failure_type"` //EmailTest, BothFail, SmartFail, ScrutinyFail
+	// private, populated during init (marked as Public for JSON serialization)
+	Date        string `json:"date"`         // populated by Send function.
+	FailureType string `json:"failure_type"` // EmailTest, BothFail, SmartFail, ScrutinyFail
 	Subject     string `json:"subject"`
 	Message     string `json:"message"`
 }
@@ -145,7 +147,7 @@ func NewPayload(device models.Device, test bool, currentTime ...time.Time) Paylo
 		Test:         test,
 	}
 
-	//validate that the Payload is populated
+	// validate that the Payload is populated
 	var sendDate time.Time
 	if currentTime != nil && len(currentTime) > 0 {
 		sendDate = currentTime[0]
@@ -161,21 +163,21 @@ func NewPayload(device models.Device, test bool, currentTime ...time.Time) Paylo
 }
 
 func (p *Payload) GenerateFailureType(deviceStatus pkg.DeviceStatus) string {
-	//generate a failure type, given Test and DeviceStatus
+	// generate a failure type, given Test and DeviceStatus
 	if p.Test {
 		return NotifyFailureTypeEmailTest // must be an email test if "Test" is true
 	}
 	if pkg.DeviceStatusHas(deviceStatus, pkg.DeviceStatusFailedSmart) && pkg.DeviceStatusHas(deviceStatus, pkg.DeviceStatusFailedScrutiny) {
-		return NotifyFailureTypeBothFailure //both failed
+		return NotifyFailureTypeBothFailure // both failed
 	} else if pkg.DeviceStatusHas(deviceStatus, pkg.DeviceStatusFailedSmart) {
-		return NotifyFailureTypeSmartFailure //only SMART failed
+		return NotifyFailureTypeSmartFailure // only SMART failed
 	} else {
-		return NotifyFailureTypeScrutinyFailure //only Scrutiny failed
+		return NotifyFailureTypeScrutinyFailure // only Scrutiny failed
 	}
 }
 
 func (p *Payload) GenerateSubject() string {
-	//generate a detailed failure message
+	// generate a detailed failure message
 	var subject string
 	if len(p.HostId) > 0 {
 		subject = fmt.Sprintf("Scrutiny SMART error (%s) detected on [host]device: [%s]%s", p.FailureType, p.HostId, p.DeviceName)
@@ -186,7 +188,7 @@ func (p *Payload) GenerateSubject() string {
 }
 
 func (p *Payload) GenerateMessage() string {
-	//generate a detailed failure message
+	// generate a detailed failure message
 
 	messageParts := []string{}
 
@@ -226,8 +228,7 @@ type Notify struct {
 }
 
 func (n *Notify) Send() error {
-
-	//retrieve list of notification endpoints from config file
+	// retrieve list of notification endpoints from config file
 	configUrls := n.Config.GetStringSlice("notify.urls")
 	n.Logger.Debugf("Configured notification services: %v", configUrls)
 
@@ -236,7 +237,7 @@ func (n *Notify) Send() error {
 		return nil
 	}
 
-	//remove http:// https:// and script:// prefixed urls
+	// remove http:// https:// and script:// prefixed urls
 	notifyWebhooks := []string{}
 	notifyScripts := []string{}
 	notifyShoutrrr := []string{}
@@ -255,8 +256,8 @@ func (n *Notify) Send() error {
 	n.Logger.Debugf("Configured webhooks: %v", notifyWebhooks)
 	n.Logger.Debugf("Configured shoutrrr: %v", notifyShoutrrr)
 
-	//run all scripts, webhooks and shoutrr commands in parallel
-	//var wg sync.WaitGroup
+	// run all scripts, webhooks and shoutrr commands in parallel
+	// var wg sync.WaitGroup
 	var eg errgroup.Group
 
 	for _, url := range notifyWebhooks {
@@ -275,7 +276,7 @@ func (n *Notify) Send() error {
 		eg.Go(func() error { return n.SendShoutrrrNotification(_url) })
 	}
 
-	//and wait for completion, error or timeout.
+	// and wait for completion, error or timeout.
 	n.Logger.Debugf("Main: waiting for notifications to complete.")
 
 	if err := eg.Wait(); err == nil {
@@ -307,12 +308,12 @@ func (n *Notify) SendWebhookNotification(webhookUrl string) error {
 		return err
 	}
 	defer resp.Body.Close()
-	//we don't care about resp body content, but maybe we should log it?
+	// we don't care about resp body content, but maybe we should log it?
 	return nil
 }
 
 func (n *Notify) SendScriptNotification(scriptUrl string) error {
-	//check if the script exists.
+	// check if the script exists.
 	scriptPath := strings.TrimPrefix(scriptUrl, "script://")
 	n.Logger.Infof("Executing Script %s", scriptPath)
 
@@ -341,7 +342,6 @@ func (n *Notify) SendScriptNotification(scriptUrl string) error {
 }
 
 func (n *Notify) SendShoutrrrNotification(shoutrrrUrl string) error {
-
 	fmt.Printf("Sending Notifications to %v", shoutrrrUrl)
 	n.Logger.Infof("Sending notifications to %v", shoutrrrUrl)
 
@@ -351,7 +351,7 @@ func (n *Notify) SendShoutrrrNotification(shoutrrrUrl string) error {
 		return err
 	}
 
-	//sender.SetLogger(n.Logger.)
+	// sender.SetLogger(n.Logger.)
 	serviceName, params, err := n.GenShoutrrrNotificationParams(shoutrrrUrl)
 	n.Logger.Debugf("notification data for %s: (%s)\n%v", serviceName, shoutrrrUrl, params)
 
@@ -370,7 +370,7 @@ func (n *Notify) SendShoutrrrNotification(shoutrrrUrl string) error {
 			}
 			errstrings = append(errstrings, err.Error())
 		}
-		//sometimes there are empty errs, we're going to skip them.
+		// sometimes there are empty errs, we're going to skip them.
 		if len(errstrings) == 0 {
 			return nil
 		} else {

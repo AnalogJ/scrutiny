@@ -5,6 +5,11 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/glebarez/sqlite"
@@ -13,10 +18,6 @@ import (
 	"github.com/influxdata/influxdb-client-go/v2/domain"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"time"
 )
 
 const (
@@ -77,8 +78,8 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 		"busy_timeout": "30000",
 	})
 	database, err := gorm.Open(sqlite.Open(appConfig.GetString("web.database.location")+pragmaStr), &gorm.Config{
-		//TODO: figure out how to log database queries again.
-		//Logger: logger
+		// TODO: figure out how to log database queries again.
+		// Logger: logger
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
@@ -86,7 +87,7 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 	}
 	globalLogger.Infof("Successfully connected to scrutiny sqlite db: %s\n", appConfig.GetString("web.database.location"))
 
-	//database.SetLogger()
+	// database.SetLogger()
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// InfluxDB setup
@@ -107,7 +108,7 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 		influxdb2.DefaultOptions().SetTLSConfig(tlsConfig),
 	)
 
-	//if !appConfig.IsSet("web.influxdb.token") {
+	// if !appConfig.IsSet("web.influxdb.token") {
 	globalLogger.Debugf("Determine Influxdb setup status...")
 	influxSetupComplete, err := InfluxSetupComplete(influxdbUrl, tlsConfig)
 	if err != nil {
@@ -206,7 +207,7 @@ func (sr *scrutinyRepository) Close() error {
 }
 
 func (sr *scrutinyRepository) HealthCheck(ctx context.Context) error {
-	//check influxdb
+	// check influxdb
 	status, err := sr.influxClient.Health(ctx)
 	if err != nil {
 		return fmt.Errorf("influxdb healthcheck failed: %w", err)
@@ -215,7 +216,7 @@ func (sr *scrutinyRepository) HealthCheck(ctx context.Context) error {
 		return fmt.Errorf("influxdb healthcheckf failed: status=%s", status.Status)
 	}
 
-	//check sqlite db.
+	// check sqlite db.
 	database, err := sr.gormClient.DB()
 	if err != nil {
 		return fmt.Errorf("sqlite healthcheck failed: %w", err)
@@ -225,7 +226,6 @@ func (sr *scrutinyRepository) HealthCheck(ctx context.Context) error {
 		return fmt.Errorf("sqlite healthcheck failed during ping: %w", err)
 	}
 	return nil
-
 }
 
 func InfluxSetupComplete(influxEndpoint string, tlsConfig *tls.Config) (bool, error) {
@@ -238,7 +238,7 @@ func InfluxSetupComplete(influxEndpoint string, tlsConfig *tls.Config) (bool, er
 		return false, err
 	}
 
-    client := &http.Client{Transport: &http.Transport{TLSClientConfig: tlsConfig}}
+	client := &http.Client{Transport: &http.Transport{TLSClientConfig: tlsConfig}}
 	res, err := client.Get(influxUri.String())
 	if err != nil {
 		return false, err
@@ -261,7 +261,6 @@ func InfluxSetupComplete(influxEndpoint string, tlsConfig *tls.Config) (bool, er
 }
 
 func (sr *scrutinyRepository) EnsureBuckets(ctx context.Context, org *domain.Organization) error {
-
 	var mainBucketRetentionRule domain.RetentionRule
 	var weeklyBucketRetentionRule domain.RetentionRule
 	var monthlyBucketRetentionRule domain.RetentionRule
@@ -282,12 +281,12 @@ func (sr *scrutinyRepository) EnsureBuckets(ctx context.Context, org *domain.Org
 			return err
 		}
 	} else if sr.appConfig.GetBool("web.influxdb.retention_policy") {
-		//correctly set the retention period for the main bucket (cant do it during setup/creation)
+		// correctly set the retention period for the main bucket (cant do it during setup/creation)
 		foundMainBucket.RetentionRules = domain.RetentionRules{mainBucketRetentionRule}
 		sr.influxClient.BucketsAPI().UpdateBucket(ctx, foundMainBucket)
 	}
 
-	//create buckets (used for downsampling)
+	// create buckets (used for downsampling)
 	weeklyBucket := fmt.Sprintf("%s_weekly", sr.appConfig.GetString("web.influxdb.bucket"))
 	if foundWeeklyBucket, foundErr := sr.influxClient.BucketsAPI().FindBucketByName(ctx, weeklyBucket); foundErr != nil {
 		// metrics_weekly bucket will have a retention period of 8+1 weeks (since it will be down-sampled once a month)
@@ -296,7 +295,7 @@ func (sr *scrutinyRepository) EnsureBuckets(ctx context.Context, org *domain.Org
 			return err
 		}
 	} else if sr.appConfig.GetBool("web.influxdb.retention_policy") {
-		//correctly set the retention period for the bucket (may not be able to do it during setup/creation)
+		// correctly set the retention period for the bucket (may not be able to do it during setup/creation)
 		foundWeeklyBucket.RetentionRules = domain.RetentionRules{weeklyBucketRetentionRule}
 		sr.influxClient.BucketsAPI().UpdateBucket(ctx, foundWeeklyBucket)
 	}
@@ -309,7 +308,7 @@ func (sr *scrutinyRepository) EnsureBuckets(ctx context.Context, org *domain.Org
 			return err
 		}
 	} else if sr.appConfig.GetBool("web.influxdb.retention_policy") {
-		//correctly set the retention period for the bucket (may not be able to do it during setup/creation)
+		// correctly set the retention period for the bucket (may not be able to do it during setup/creation)
 		foundMonthlyBucket.RetentionRules = domain.RetentionRules{monthlyBucketRetentionRule}
 		sr.influxClient.BucketsAPI().UpdateBucket(ctx, foundMonthlyBucket)
 	}
@@ -344,7 +343,7 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 	}
 
 	// Get parser flux query result
-	//appConfig.GetString("web.influxdb.bucket")
+	// appConfig.GetString("web.influxdb.bucket")
 	queryStr := fmt.Sprintf(`
   	import "influxdata/influxdb/schema"
   	bucketBaseName = "%s"
@@ -396,15 +395,15 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 		for result.Next() {
 			// Observe when there is new grouping key producing new table
 			if result.TableChanged() {
-				//fmt.Printf("table: %s\n", result.TableMetadata().String())
+				// fmt.Printf("table: %s\n", result.TableMetadata().String())
 			}
 			// read result
 
-			//get summary data from Influxdb.
-			//result.Record().Values()
+			// get summary data from Influxdb.
+			// result.Record().Values()
 			if deviceWWN, ok := result.Record().Values()["device_wwn"]; ok {
 
-				//ensure summaries is intialized for this wwn
+				// ensure summaries is intialized for this wwn
 				if _, exists := summaries[deviceWWN.(string)]; !exists {
 					summaries[deviceWWN.(string)] = &models.DeviceSummary{}
 				}
@@ -446,7 +445,7 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 func (sr *scrutinyRepository) lookupBucketName(durationKey string) string {
 	switch durationKey {
 	case DURATION_KEY_WEEK:
-		//data stored in the last week
+		// data stored in the last week
 		return sr.appConfig.GetString("web.influxdb.bucket")
 	case DURATION_KEY_MONTH:
 		// data stored in the last month (after the first week)
@@ -455,17 +454,16 @@ func (sr *scrutinyRepository) lookupBucketName(durationKey string) string {
 		// data stored in the last year (after the first month)
 		return fmt.Sprintf("%s_monthly", sr.appConfig.GetString("web.influxdb.bucket"))
 	case DURATION_KEY_FOREVER:
-		//data stored before the last year
+		// data stored before the last year
 		return fmt.Sprintf("%s_yearly", sr.appConfig.GetString("web.influxdb.bucket"))
 	}
 	return sr.appConfig.GetString("web.influxdb.bucket")
 }
 
 func (sr *scrutinyRepository) lookupDuration(durationKey string) []string {
-
 	switch durationKey {
 	case DURATION_KEY_WEEK:
-		//data stored in the last week
+		// data stored in the last week
 		return []string{"-1w", "now()"}
 	case DURATION_KEY_MONTH:
 		// data stored in the last month (after the first week)
@@ -474,7 +472,7 @@ func (sr *scrutinyRepository) lookupDuration(durationKey string) []string {
 		// data stored in the last year (after the first month)
 		return []string{"-1y", "-1mo"}
 	case DURATION_KEY_FOREVER:
-		//data stored before the last year
+		// data stored before the last year
 		return []string{"-10y", "-1y"}
 	}
 	return []string{"-1w", "now()"}
@@ -483,16 +481,16 @@ func (sr *scrutinyRepository) lookupDuration(durationKey string) []string {
 func (sr *scrutinyRepository) lookupNestedDurationKeys(durationKey string) []string {
 	switch durationKey {
 	case DURATION_KEY_WEEK:
-		//all data is stored in a single bucket
+		// all data is stored in a single bucket
 		return []string{DURATION_KEY_WEEK}
 	case DURATION_KEY_MONTH:
-		//data is stored in the week bucket and the month bucket
+		// data is stored in the week bucket and the month bucket
 		return []string{DURATION_KEY_WEEK, DURATION_KEY_MONTH}
 	case DURATION_KEY_YEAR:
 		// data stored in the last year (after the first month)
 		return []string{DURATION_KEY_WEEK, DURATION_KEY_MONTH, DURATION_KEY_YEAR}
 	case DURATION_KEY_FOREVER:
-		//data stored before the last year
+		// data stored before the last year
 		return []string{DURATION_KEY_WEEK, DURATION_KEY_MONTH, DURATION_KEY_YEAR, DURATION_KEY_FOREVER}
 	}
 	return []string{DURATION_KEY_WEEK}

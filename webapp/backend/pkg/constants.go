@@ -1,11 +1,14 @@
 package pkg
 
-const DeviceProtocolAta = "ATA"
-const DeviceProtocolScsi = "SCSI"
-const DeviceProtocolNvme = "NVMe"
+const (
+	DeviceProtocolAta  = "ATA"
+	DeviceProtocolScsi = "SCSI"
+	DeviceProtocolNvme = "NVMe"
+)
 
-//go:generate stringer -type=AttributeStatus
 // AttributeStatus bitwise flag, 1,2,4,8,16,32,etc
+//
+//go:generate stringer -type=AttributeStatus
 type AttributeStatus uint8
 
 const (
@@ -15,16 +18,19 @@ const (
 	AttributeStatusFailedScrutiny  AttributeStatus = 4
 )
 
-const AttributeWhenFailedFailingNow = "FAILING_NOW"
-const AttributeWhenFailedInThePast = "IN_THE_PAST"
+const (
+	AttributeWhenFailedFailingNow = "FAILING_NOW"
+	AttributeWhenFailedInThePast  = "IN_THE_PAST"
+)
 
 func AttributeStatusSet(b, flag AttributeStatus) AttributeStatus    { return b | flag }
 func AttributeStatusClear(b, flag AttributeStatus) AttributeStatus  { return b &^ flag }
 func AttributeStatusToggle(b, flag AttributeStatus) AttributeStatus { return b ^ flag }
 func AttributeStatusHas(b, flag AttributeStatus) bool               { return b&flag != 0 }
 
-//go:generate stringer -type=DeviceStatus
 // DeviceStatus bitwise flag, 1,2,4,8,16,32,etc
+//
+//go:generate stringer -type=DeviceStatus
 type DeviceStatus uint8
 
 const (
@@ -60,6 +66,6 @@ const (
 	MetricsStatusThresholdSmart    MetricsStatusThreshold = 1
 	MetricsStatusThresholdScrutiny MetricsStatusThreshold = 2
 
-	//shortcut
+	// shortcut
 	MetricsStatusThresholdBoth MetricsStatusThreshold = 3
 )

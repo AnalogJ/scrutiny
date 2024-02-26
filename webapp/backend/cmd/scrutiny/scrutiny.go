@@ -3,26 +3,28 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
+	"os"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web"
 	"github.com/sirupsen/logrus"
-	"io"
-	"log"
-	"os"
-	"time"
 
 	utils "github.com/analogj/go-util/utils"
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 )
 
-var goos string
-var goarch string
+var (
+	goos   string
+	goarch string
+)
 
 func main() {
-
 	config, err := config.Create()
 	if err != nil {
 		fmt.Printf("FATAL: %+v\n", err)
@@ -35,10 +37,10 @@ func main() {
 		configFilePath = configFilePathAlternative
 	}
 
-	//we're going to load the config file manually, since we need to validate it.
-	err = config.ReadConfig(configFilePath) // Find and read the config file
-	if _, ok := err.(errors.ConfigFileMissingError); ok {         // Handle errors reading the config file
-		//ignore "could not find config file"
+	// we're going to load the config file manually, since we need to validate it.
+	err = config.ReadConfig(configFilePath)               // Find and read the config file
+	if _, ok := err.(errors.ConfigFileMissingError); ok { // Handle errors reading the config file
+		// ignore "could not find config file"
 	} else if err != nil {
 		log.Print(color.HiRedString("CONFIG ERROR: %v", err))
 		os.Exit(1)
@@ -69,7 +71,6 @@ OPTIONS:
 			},
 		},
 		Before: func(c *cli.Context) error {
-
 			scrutiny := "github.com/AnalogJ/scrutiny"
 
 			var versionInfo string
@@ -103,7 +104,7 @@ OPTIONS:
 					if c.IsSet("config") {
 						err = config.ReadConfig(c.String("config")) // Find and read the config file
 						if err != nil {                             // Handle errors reading the config file
-							//ignore "could not find config file"
+							// ignore "could not find config file"
 							fmt.Printf("Could not find config file at specified path: %s", c.String("config"))
 							return err
 						}
@@ -159,14 +160,13 @@ OPTIONS:
 	if err != nil {
 		log.Fatal(color.HiRedString("ERROR: %v", err))
 	}
-
 }
 
 func CreateLogger(appConfig config.Interface) (*logrus.Entry, *os.File, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"type": "web",
 	})
-	//set default log level
+	// set default log level
 	if level, err := logrus.ParseLevel(appConfig.GetString("log.level")); err == nil {
 		logger.Logger.SetLevel(level)
 	} else {
@@ -176,7 +176,7 @@ func CreateLogger(appConfig config.Interface) (*logrus.Entry, *os.File, error) {
 	var logFile *os.File
 	var err error
 	if appConfig.IsSet("log.file") && len(appConfig.GetString("log.file")) > 0 {
-		logFile, err = os.OpenFile(appConfig.GetString("log.file"), os.O_CREATE|os.O_WRONLY, 0644)
+		logFile, err = os.OpenFile(appConfig.GetString("log.file"), os.O_CREATE|os.O_WRONLY, 0o644)
 		if err != nil {
 			logger.Logger.Errorf("Failed to open log file %s for output: %s", appConfig.GetString("log.file"), err)
 			return nil, logFile, err

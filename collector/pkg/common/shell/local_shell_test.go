@@ -1,21 +1,22 @@
 package shell
 
 import (
-	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/require"
 	"os/exec"
 	"testing"
+
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLocalShellCommand(t *testing.T) {
 	t.Parallel()
 
-	//setup
+	// setup
 	testShell := localShell{}
-	//test
+	// test
 	result, err := testShell.Command(logrus.WithField("exec", "test"), "echo", []string{"hello world"}, "", nil)
 
-	//assert
+	// assert
 	require.NoError(t, err)
 	require.Equal(t, "hello world\n", result)
 }
@@ -23,13 +24,13 @@ func TestLocalShellCommand(t *testing.T) {
 func TestLocalShellCommand_Date(t *testing.T) {
 	t.Parallel()
 
-	//setup
+	// setup
 	testShell := localShell{}
 
-	//test
+	// test
 	_, err := testShell.Command(logrus.WithField("exec", "test"), "date", []string{}, "", nil)
 
-	//assert
+	// assert
 	require.NoError(t, err)
 }
 
@@ -54,13 +55,13 @@ func TestLocalShellCommand_Date(t *testing.T) {
 func TestLocalShellCommand_InvalidCommand(t *testing.T) {
 	t.Parallel()
 
-	//setup
+	// setup
 	testShell := localShell{}
 
-	//test
+	// test
 	_, err := testShell.Command(logrus.WithField("exec", "test"), "invalid_binary", []string{}, "", nil)
 
-	//assert
+	// assert
 	_, castOk := err.(*exec.ExitError)
 	require.False(t, castOk)
 }

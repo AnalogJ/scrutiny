@@ -1,12 +1,13 @@
 package config
 
 import (
-	"github.com/analogj/go-util/utils"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/analogj/go-util/utils"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
+	"github.com/spf13/viper"
 )
 
 const DB_USER_SETTINGS_SUBKEY = "user"
@@ -19,7 +20,7 @@ type configuration struct {
 	*viper.Viper
 }
 
-//Viper uses the following precedence order. Each item takes precedence over the item below it:
+// Viper uses the following precedence order. Each item takes precedence over the item below it:
 // explicit call to Set
 // flag
 // env
@@ -29,7 +30,7 @@ type configuration struct {
 
 func (c *configuration) Init() error {
 	c.Viper = viper.New()
-	//set defaults
+	// set defaults
 	c.SetDefault("web.listen.port", "8080")
 	c.SetDefault("web.listen.host", "0.0.0.0")
 	c.SetDefault("web.listen.basepath", "")
@@ -52,20 +53,20 @@ func (c *configuration) Init() error {
 	c.SetDefault("web.influxdb.tls.insecure_skip_verify", false)
 	c.SetDefault("web.influxdb.retention_policy", true)
 
-	//c.SetDefault("disks.include", []string{})
-	//c.SetDefault("disks.exclude", []string{})
+	// c.SetDefault("disks.include", []string{})
+	// c.SetDefault("disks.exclude", []string{})
 
-	//if you want to load a non-standard location system config file (~/drawbridge.yml), use ReadConfig
+	// if you want to load a non-standard location system config file (~/drawbridge.yml), use ReadConfig
 	c.SetConfigType("yaml")
-	//c.SetConfigName("drawbridge")
-	//c.AddConfigPath("$HOME/")
+	// c.SetConfigName("drawbridge")
+	// c.AddConfigPath("$HOME/")
 
-	//configure env variable parsing.
+	// configure env variable parsing.
 	c.SetEnvPrefix("SCRUTINY")
 	c.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
 	c.AutomaticEnv()
 
-	//CLI options will be added via the `Set()` function
+	// CLI options will be added via the `Set()` function
 	return c.ValidateConfig()
 }
 
@@ -81,7 +82,7 @@ func (c *configuration) Sub(key string) Interface {
 }
 
 func (c *configuration) ReadConfig(configFilePath string) error {
-	//make sure that we specify that this is the correct config path (for eventual WriteConfig() calls)
+	// make sure that we specify that this is the correct config path (for eventual WriteConfig() calls)
 	c.SetConfigFile(configFilePath)
 
 	configFilePath, err := utils.ExpandPath(configFilePath)
@@ -119,7 +120,6 @@ func (c *configuration) ReadConfig(configFilePath string) error {
 
 // This function ensures that the merged config works correctly.
 func (c *configuration) ValidateConfig() error {
-
 	//the following keys are deprecated, and no longer supported
 	/*
 		- notify.filter_attributes (replaced by metrics.status.filter_attributes SETTING)

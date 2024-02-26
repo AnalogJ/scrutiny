@@ -1,8 +1,9 @@
 package collector
 
 import (
-	"github.com/sirupsen/logrus"
 	"net/url"
+
+	"github.com/sirupsen/logrus"
 )
 
 type SelfTestCollector struct {

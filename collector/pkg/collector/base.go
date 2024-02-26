@@ -3,9 +3,10 @@ package collector
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 var httpClient = &http.Client{Timeout: 60 * time.Second}
@@ -15,7 +16,6 @@ type BaseCollector struct {
 }
 
 func (c *BaseCollector) getJson(url string, target interface{}) error {
-
 	r, err := httpClient.Get(url)
 	if err != nil {
 		return err
@@ -25,7 +25,7 @@ func (c *BaseCollector) getJson(url string, target interface{}) error {
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
-func (c *BaseCollector) postJson(url string, body interface{}, target interface{}) error {
+func (c *BaseCollector) postJson(url string, body, target interface{}) error {
 	requestBody, err := json.Marshal(body)
 	if err != nil {
 		return err

@@ -23,9 +23,9 @@ type DeviceRepo interface {
 	DeleteDevice(ctx context.Context, wwn string) error
 
 	SaveSmartAttributes(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (measurements.Smart, error)
-	GetSmartAttributeHistory(ctx context.Context, wwn string, durationKey string, selectEntries int, selectEntriesOffset int, attributes []string) ([]measurements.Smart, error)
+	GetSmartAttributeHistory(ctx context.Context, wwn, durationKey string, selectEntries, selectEntriesOffset int, attributes []string) ([]measurements.Smart, error)
 
-	SaveSmartTemperature(ctx context.Context, wwn string, deviceProtocol string, collectorSmartData collector.SmartInfo) error
+	SaveSmartTemperature(ctx context.Context, wwn, deviceProtocol string, collectorSmartData collector.SmartInfo) error
 
 	GetSummary(ctx context.Context) (map[string]*models.DeviceSummary, error)
 	GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[string][]measurements.SmartTemperature, error)

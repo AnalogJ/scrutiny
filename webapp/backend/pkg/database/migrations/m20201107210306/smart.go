@@ -1,8 +1,9 @@
 package m20201107210306
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // Deprecated: m20201107210306.Smart is deprecated, only used by db migrations
@@ -15,7 +16,7 @@ type Smart struct {
 	TestDate    time.Time `json:"date"`
 	SmartStatus string    `json:"smart_status"` // SmartStatusPassed or SmartStatusFailed
 
-	//Metrics
+	// Metrics
 	Temp            int64 `json:"temp"`
 	PowerOnHours    int64 `json:"power_on_hours"`
 	PowerCycleCount int64 `json:"power_cycle_count"`

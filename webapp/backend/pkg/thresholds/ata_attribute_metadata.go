@@ -5,9 +5,11 @@ import (
 	"strings"
 )
 
-const AtaSmartAttributeDisplayTypeRaw = "raw"
-const AtaSmartAttributeDisplayTypeNormalized = "normalized"
-const AtaSmartAttributeDisplayTypeTransformed = "transformed"
+const (
+	AtaSmartAttributeDisplayTypeRaw         = "raw"
+	AtaSmartAttributeDisplayTypeNormalized  = "normalized"
+	AtaSmartAttributeDisplayTypeTransformed = "transformed"
+)
 
 type AtaAttributeMetadata struct {
 	ID          int64  `json:"-"`
@@ -16,20 +18,22 @@ type AtaAttributeMetadata struct {
 	Critical    bool   `json:"critical"`
 	Description string `json:"description"`
 
-	Transform          func(int64, int64, string) int64 `json:"-"` //this should be a method to extract/tranform the normalized or raw data to a chartable format. Str
+	Transform          func(int64, int64, string) int64 `json:"-"` // this should be a method to extract/tranform the normalized or raw data to a chartable format. Str
 	TransformValueUnit string                           `json:"transform_value_unit,omitempty"`
-	ObservedThresholds []ObservedThreshold              `json:"observed_thresholds,omitempty"` //these thresholds must match the DisplayType
+	ObservedThresholds []ObservedThreshold              `json:"observed_thresholds,omitempty"` // these thresholds must match the DisplayType
 	DisplayType        string                           `json:"display_type"`                  //"raw" "normalized" or "transformed"
 }
 
-const ObservedThresholdIdealLow = "low"
-const ObservedThresholdIdealHigh = "high"
+const (
+	ObservedThresholdIdealLow  = "low"
+	ObservedThresholdIdealHigh = "high"
+)
 
 type ObservedThreshold struct {
-	Low  int64 `json:"low"`  //threshold (row/normalized data) boundary low value
-	High int64 `json:"high"` //threshold (row/normalized data) boundary high value
+	Low  int64 `json:"low"`  // threshold (row/normalized data) boundary low value
+	High int64 `json:"high"` // threshold (row/normalized data) boundary high value
 
-	AnnualFailureRate float64   `json:"annual_failure_rate"` //error rate %
+	AnnualFailureRate float64   `json:"annual_failure_rate"` // error rate %
 	ErrorInterval     []float64 `json:"error_interval"`
 }
 
@@ -255,7 +259,6 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 		Description: "Average performance of seek operations of the magnetic heads. If this attribute is decreasing, it is a sign of problems in the mechanical subsystem.",
 	},
 	9: {
-
 		ID:          9,
 		DisplayName: "Power-On Hours",
 		DisplayType: AtaSmartAttributeDisplayTypeNormalized,
@@ -277,7 +280,7 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 				AnnualFailureRate: 0.05459827163896099,
 				ErrorInterval:     []float64{0.05113785787727033, 0.05823122757702782},
 			},
-			{ //TODO: using fake data from attribute 11. Not enough data, but critical and correlated with failure.
+			{ // TODO: using fake data from attribute 11. Not enough data, but critical and correlated with failure.
 				Low:               0,
 				High:              80,
 				AnnualFailureRate: 0.5555555555555556,
@@ -671,7 +674,7 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 		Ideal:       ObservedThresholdIdealLow,
 		Critical:    true,
 		Description: "The count of aborted operations due to HDD timeout. Normally this attribute value should be equal to zero.",
-		Transform: func(normValue int64, rawValue int64, rawString string) int64 {
+		Transform: func(normValue, rawValue int64, rawString string) int64 {
 			// Parse Seagate command timeout values if the string contains 3 pieces
 			// and each piece is less than or equal to the next (as a sanity check)
 			// See https://github.com/AnalogJ/scrutiny/issues/522
@@ -897,7 +900,7 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 		Ideal:       ObservedThresholdIdealLow,
 		Critical:    false,
 		Description: "Indicates the device temperature, if the appropriate sensor is fitted. Lowest byte of the raw value contains the exact temperature value (Celsius degrees).",
-		Transform: func(normValue int64, rawValue int64, rawString string) int64 {
+		Transform: func(normValue, rawValue int64, rawString string) int64 {
 			return rawValue & 0b11111111
 		},
 		TransformValueUnit: "°C",

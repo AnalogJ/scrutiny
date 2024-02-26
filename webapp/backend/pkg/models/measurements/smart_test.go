@@ -2,18 +2,19 @@ package measurements_test
 
 import (
 	"encoding/json"
-	"github.com/analogj/scrutiny/webapp/backend/pkg"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
-	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSmart_Flatten(t *testing.T) {
-	//setup
+	// setup
 	timeNow := time.Now()
 	smart := measurements.Smart{
 		Date:            timeNow,
@@ -26,16 +27,16 @@ func TestSmart_Flatten(t *testing.T) {
 		Status:          0,
 	}
 
-	//test
+	// test
 	tags, fields := smart.Flatten()
 
-	//assert
+	// assert
 	require.Equal(t, map[string]string{"device_protocol": "ATA", "device_wwn": "test-wwn"}, tags)
 	require.Equal(t, map[string]interface{}{"power_cycle_count": int64(10), "power_on_hours": int64(10), "temp": int64(50)}, fields)
 }
 
 func TestSmart_Flatten_ATA(t *testing.T) {
-	//setup
+	// setup
 	timeNow := time.Now()
 	smart := measurements.Smart{
 		Date:            timeNow,
@@ -67,10 +68,10 @@ func TestSmart_Flatten_ATA(t *testing.T) {
 		},
 	}
 
-	//test
+	// test
 	tags, fields := smart.Flatten()
 
-	//assert
+	// assert
 	require.Equal(t, map[string]string{"device_protocol": "ATA", "device_wwn": "test-wwn"}, tags)
 	require.Equal(t, map[string]interface{}{
 		"attr.1.attribute_id":      "1",
@@ -104,7 +105,7 @@ func TestSmart_Flatten_ATA(t *testing.T) {
 }
 
 func TestSmart_Flatten_SCSI(t *testing.T) {
-	//setup
+	// setup
 	timeNow := time.Now()
 	smart := measurements.Smart{
 		Date:            timeNow,
@@ -122,10 +123,10 @@ func TestSmart_Flatten_SCSI(t *testing.T) {
 		},
 	}
 
-	//test
+	// test
 	tags, fields := smart.Flatten()
 
-	//assert
+	// assert
 	require.Equal(t, map[string]string{"device_protocol": "SCSI", "device_wwn": "test-wwn"}, tags)
 	require.Equal(t, map[string]interface{}{
 		"attr.read_errors_corrected_by_eccfast.attribute_id":      "read_errors_corrected_by_eccfast",
@@ -137,12 +138,13 @@ func TestSmart_Flatten_SCSI(t *testing.T) {
 		"attr.read_errors_corrected_by_eccfast.value":             int64(300357663),
 		"power_cycle_count": int64(10),
 		"power_on_hours":    int64(10),
-		"temp":              int64(50)},
+		"temp":              int64(50),
+	},
 		fields)
 }
 
 func TestSmart_Flatten_NVMe(t *testing.T) {
-	//setup
+	// setup
 	timeNow := time.Now()
 	smart := measurements.Smart{
 		Date:            timeNow,
@@ -160,10 +162,10 @@ func TestSmart_Flatten_NVMe(t *testing.T) {
 		},
 	}
 
-	//test
+	// test
 	tags, fields := smart.Flatten()
 
-	//assert
+	// assert
 	require.Equal(t, map[string]string{"device_protocol": "NVMe", "device_wwn": "test-wwn"}, tags)
 	require.Equal(t, map[string]interface{}{
 		"attr.available_spare.attribute_id":      "available_spare",
@@ -175,11 +177,12 @@ func TestSmart_Flatten_NVMe(t *testing.T) {
 		"attr.available_spare.value":             int64(100),
 		"power_cycle_count":                      int64(10),
 		"power_on_hours":                         int64(10),
-		"temp":                                   int64(50)}, fields)
+		"temp":                                   int64(50),
+	}, fields)
 }
 
 func TestNewSmartFromInfluxDB_ATA(t *testing.T) {
-	//setup
+	// setup
 	timeNow := time.Now()
 	attrs := map[string]interface{}{
 		"_time":                    timeNow,
@@ -201,10 +204,10 @@ func TestNewSmartFromInfluxDB_ATA(t *testing.T) {
 		"temp":                     int64(50),
 	}
 
-	//test
+	// test
 	smart, err := measurements.NewSmartFromInfluxDB(attrs)
 
-	//assert
+	// assert
 	require.NoError(t, err)
 	require.Equal(t, &measurements.Smart{
 		Date:            timeNow,
@@ -223,11 +226,12 @@ func TestNewSmartFromInfluxDB_ATA(t *testing.T) {
 				RawString:   "108",
 				WhenFailed:  "",
 			},
-		}, Status: 0}, smart)
+		}, Status: 0,
+	}, smart)
 }
 
 func TestNewSmartFromInfluxDB_NVMe(t *testing.T) {
-	//setup
+	// setup
 	timeNow := time.Now()
 	attrs := map[string]interface{}{
 		"_time":                                  timeNow,
@@ -245,10 +249,10 @@ func TestNewSmartFromInfluxDB_NVMe(t *testing.T) {
 		"temp":                                   int64(50),
 	}
 
-	//test
+	// test
 	smart, err := measurements.NewSmartFromInfluxDB(attrs)
 
-	//assert
+	// assert
 	require.NoError(t, err)
 	require.Equal(t, &measurements.Smart{
 		Date:            timeNow,
@@ -262,11 +266,12 @@ func TestNewSmartFromInfluxDB_NVMe(t *testing.T) {
 				AttributeId: "available_spare",
 				Value:       int64(100),
 			},
-		}, Status: 0}, smart)
+		}, Status: 0,
+	}, smart)
 }
 
 func TestNewSmartFromInfluxDB_SCSI(t *testing.T) {
-	//setup
+	// setup
 	timeNow := time.Now()
 	attrs := map[string]interface{}{
 		"_time":           timeNow,
@@ -284,10 +289,10 @@ func TestNewSmartFromInfluxDB_SCSI(t *testing.T) {
 		"temp":              int64(50),
 	}
 
-	//test
+	// test
 	smart, err := measurements.NewSmartFromInfluxDB(attrs)
 
-	//assert
+	// assert
 	require.NoError(t, err)
 	require.Equal(t, &measurements.Smart{
 		Date:            timeNow,
@@ -301,11 +306,12 @@ func TestNewSmartFromInfluxDB_SCSI(t *testing.T) {
 				AttributeId: "read_errors_corrected_by_eccfast",
 				Value:       int64(300357663),
 			},
-		}, Status: 0}, smart)
+		}, Status: 0,
+	}, smart)
 }
 
 func TestFromCollectorSmartInfo(t *testing.T) {
-	//setup
+	// setup
 	smartDataFile, err := os.Open("../testdata/smart-ata.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -317,27 +323,26 @@ func TestFromCollectorSmartInfo(t *testing.T) {
 	err = json.Unmarshal(smartDataBytes, &smartJson)
 	require.NoError(t, err)
 
-	//test
+	// test
 	smartMdl := measurements.Smart{}
 	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
 
-	//assert
+	// assert
 	require.NoError(t, err)
 	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
 	require.Equal(t, pkg.DeviceStatusPassed, smartMdl.Status)
 	require.Equal(t, 18, len(smartMdl.Attributes))
 
-	//check that temperature was correctly parsed
+	// check that temperature was correctly parsed
 	require.Equal(t, int64(163210330144), smartMdl.Attributes["194"].(*measurements.SmartAtaAttribute).RawValue)
 	require.Equal(t, int64(32), smartMdl.Attributes["194"].(*measurements.SmartAtaAttribute).TransformedValue)
 
-	//ensure that Scrutiny warning for a non critical attribute does not set device status to failed.
+	// ensure that Scrutiny warning for a non critical attribute does not set device status to failed.
 	require.Equal(t, pkg.AttributeStatusWarningScrutiny, smartMdl.Attributes["3"].GetStatus())
-
 }
 
 func TestFromCollectorSmartInfo_Fail_Smart(t *testing.T) {
-	//setup
+	// setup
 	smartDataFile, err := os.Open("../testdata/smart-fail.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -349,11 +354,11 @@ func TestFromCollectorSmartInfo_Fail_Smart(t *testing.T) {
 	err = json.Unmarshal(smartDataBytes, &smartJson)
 	require.NoError(t, err)
 
-	//test
+	// test
 	smartMdl := measurements.Smart{}
 	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
 
-	//assert
+	// assert
 	require.NoError(t, err)
 	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
 	require.Equal(t, pkg.DeviceStatusFailedSmart, smartMdl.Status)
@@ -361,7 +366,7 @@ func TestFromCollectorSmartInfo_Fail_Smart(t *testing.T) {
 }
 
 func TestFromCollectorSmartInfo_Fail_ScrutinySmart(t *testing.T) {
-	//setup
+	// setup
 	smartDataFile, err := os.Open("../testdata/smart-fail2.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -373,11 +378,11 @@ func TestFromCollectorSmartInfo_Fail_ScrutinySmart(t *testing.T) {
 	err = json.Unmarshal(smartDataBytes, &smartJson)
 	require.NoError(t, err)
 
-	//test
+	// test
 	smartMdl := measurements.Smart{}
 	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
 
-	//assert
+	// assert
 	require.NoError(t, err)
 	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
 	require.Equal(t, pkg.DeviceStatusFailedScrutiny|pkg.DeviceStatusFailedSmart, smartMdl.Status)
@@ -385,7 +390,7 @@ func TestFromCollectorSmartInfo_Fail_ScrutinySmart(t *testing.T) {
 }
 
 func TestFromCollectorSmartInfo_Fail_ScrutinyNonCriticalFailed(t *testing.T) {
-	//setup
+	// setup
 	smartDataFile, err := os.Open("../testdata/smart-ata-failed-scrutiny.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -397,11 +402,11 @@ func TestFromCollectorSmartInfo_Fail_ScrutinyNonCriticalFailed(t *testing.T) {
 	err = json.Unmarshal(smartDataBytes, &smartJson)
 	require.NoError(t, err)
 
-	//test
+	// test
 	smartMdl := measurements.Smart{}
 	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
 
-	//assert
+	// assert
 	require.NoError(t, err)
 	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
 	require.Equal(t, pkg.DeviceStatusFailedScrutiny, smartMdl.Status)
@@ -414,11 +419,10 @@ func TestFromCollectorSmartInfo_Fail_ScrutinyNonCriticalFailed(t *testing.T) {
 	require.Equal(t, 14, len(smartMdl.Attributes))
 }
 
-//TODO: Scrutiny Warn
-//TODO: Smart + Scrutiny Warn
-
+// TODO: Scrutiny Warn
+// TODO: Smart + Scrutiny Warn
 func TestFromCollectorSmartInfo_NVMe_Fail_Scrutiny(t *testing.T) {
-	//setup
+	// setup
 	smartDataFile, err := os.Open("../testdata/smart-nvme-failed.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -430,11 +434,11 @@ func TestFromCollectorSmartInfo_NVMe_Fail_Scrutiny(t *testing.T) {
 	err = json.Unmarshal(smartDataBytes, &smartJson)
 	require.NoError(t, err)
 
-	//test
+	// test
 	smartMdl := measurements.Smart{}
 	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
 
-	//assert
+	// assert
 	require.NoError(t, err)
 	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
 	require.Equal(t, pkg.DeviceStatusFailedScrutiny, smartMdl.Status)
@@ -449,7 +453,7 @@ func TestFromCollectorSmartInfo_NVMe_Fail_Scrutiny(t *testing.T) {
 }
 
 func TestFromCollectorSmartInfo_Nvme(t *testing.T) {
-	//setup
+	// setup
 	smartDataFile, err := os.Open("../testdata/smart-nvme.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -461,11 +465,11 @@ func TestFromCollectorSmartInfo_Nvme(t *testing.T) {
 	err = json.Unmarshal(smartDataBytes, &smartJson)
 	require.NoError(t, err)
 
-	//test
+	// test
 	smartMdl := measurements.Smart{}
 	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
 
-	//assert
+	// assert
 	require.NoError(t, err)
 	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
 	require.Equal(t, pkg.DeviceStatusPassed, smartMdl.Status)
@@ -476,7 +480,7 @@ func TestFromCollectorSmartInfo_Nvme(t *testing.T) {
 }
 
 func TestFromCollectorSmartInfo_Scsi(t *testing.T) {
-	//setup
+	// setup
 	smartDataFile, err := os.Open("../testdata/smart-scsi.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -488,16 +492,16 @@ func TestFromCollectorSmartInfo_Scsi(t *testing.T) {
 	err = json.Unmarshal(smartDataBytes, &smartJson)
 	require.NoError(t, err)
 
-	//test
+	// test
 	smartMdl := measurements.Smart{}
 	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
 
-	//assert
+	// assert
 	require.NoError(t, err)
 	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
 	require.Equal(t, pkg.DeviceStatusPassed, smartMdl.Status)
 	require.Equal(t, 13, len(smartMdl.Attributes))
 
 	require.Equal(t, int64(56), smartMdl.Attributes["scsi_grown_defect_list"].(*measurements.SmartScsiAttribute).Value)
-	require.Equal(t, int64(300357663), smartMdl.Attributes["read_errors_corrected_by_eccfast"].(*measurements.SmartScsiAttribute).Value) //total_errors_corrected
+	require.Equal(t, int64(300357663), smartMdl.Attributes["read_errors_corrected_by_eccfast"].(*measurements.SmartScsiAttribute).Value) // total_errors_corrected
 }

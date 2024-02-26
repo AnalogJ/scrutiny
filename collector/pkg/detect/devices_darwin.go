@@ -1,10 +1,11 @@
 package detect
 
 import (
+	"strings"
+
 	"github.com/analogj/scrutiny/collector/pkg/common/shell"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/jaypipes/ghw"
-	"strings"
 )
 
 func DevicePrefix() string {
@@ -19,22 +20,21 @@ func (d *Detect) Start() ([]models.Device, error) {
 		return nil, err
 	}
 
-	//smartctl --scan doesn't seem to detect mac nvme drives, lets see if we can detect them manually.
-	missingDevices, err := d.findMissingDevices(detectedDevices) //we dont care about the error here, just continue retrieving device info.
+	// smartctl --scan doesn't seem to detect mac nvme drives, lets see if we can detect them manually.
+	missingDevices, err := d.findMissingDevices(detectedDevices) // we dont care about the error here, just continue retrieving device info.
 	if err == nil {
 		detectedDevices = append(detectedDevices, missingDevices...)
 	}
 
-	//inflate device info for detected devices.
-	for ndx, _ := range detectedDevices {
-		d.SmartCtlInfo(&detectedDevices[ndx]) //ignore errors.
+	// inflate device info for detected devices.
+	for ndx := range detectedDevices {
+		d.SmartCtlInfo(&detectedDevices[ndx]) // ignore errors.
 	}
 
 	return detectedDevices, nil
 }
 
 func (d *Detect) findMissingDevices(detectedDevices []models.Device) ([]models.Device, error) {
-
 	missingDevices := []models.Device{}
 
 	block, err := ghw.Block()
@@ -69,11 +69,10 @@ func (d *Detect) findMissingDevices(detectedDevices []models.Device) ([]models.D
 			continue
 		}
 
-		//check if device is already detected.
+		// check if device is already detected.
 		alreadyDetected := false
 		diskName := strings.TrimPrefix(disk.Name, DevicePrefix())
 		for _, detectedDevice := range detectedDevices {
-
 			if detectedDevice.DeviceName == diskName {
 				alreadyDetected = true
 				break
@@ -89,7 +88,7 @@ func (d *Detect) findMissingDevices(detectedDevices []models.Device) ([]models.D
 	return missingDevices, nil
 }
 
-//WWN values NVMe and SCSI
+// WWN values NVMe and SCSI
 func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 	block, err := ghw.Block()
 	if err == nil {
@@ -102,12 +101,12 @@ func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 		}
 	}
 
-	//no WWN found, or could not open Block devices. Either way, fallback to serial number
+	// no WWN found, or could not open Block devices. Either way, fallback to serial number
 	if len(detectedDevice.WWN) == 0 {
 		d.Logger.Debugf("WWN is empty, falling back to serial number: %s", detectedDevice.SerialNumber)
 		detectedDevice.WWN = detectedDevice.SerialNumber
 	}
 
-	//wwn must always be lowercase.
+	// wwn must always be lowercase.
 	detectedDevice.WWN = strings.ToLower(detectedDevice.WWN)
 }

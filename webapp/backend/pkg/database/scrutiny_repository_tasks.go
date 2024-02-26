@@ -3,23 +3,24 @@ package database
 import (
 	"context"
 	"fmt"
+
 	"github.com/influxdata/influxdb-client-go/v2/api"
 )
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tasks
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 func (sr *scrutinyRepository) EnsureTasks(ctx context.Context, orgID string) error {
 	weeklyTaskName := "tsk-weekly-aggr"
 	weeklyTaskScript := sr.DownsampleScript("weekly", weeklyTaskName, "0 1 * * 0")
 	if found, findErr := sr.influxTaskApi.FindTasks(ctx, &api.TaskFilter{Name: weeklyTaskName}); findErr == nil && len(found) == 0 {
-		//weekly on Sunday at 1:00am
+		// weekly on Sunday at 1:00am
 		_, err := sr.influxTaskApi.CreateTaskByFlux(ctx, weeklyTaskScript, orgID)
 		if err != nil {
 			return err
 		}
 	} else if len(found) == 1 {
-		//check if we should update
+		// check if we should update
 		task := &found[0]
 		if weeklyTaskScript != task.Flux {
 			sr.logger.Infoln("updating weekly task script")
@@ -34,13 +35,13 @@ func (sr *scrutinyRepository) EnsureTasks(ctx context.Context, orgID string) err
 	monthlyTaskName := "tsk-monthly-aggr"
 	monthlyTaskScript := sr.DownsampleScript("monthly", monthlyTaskName, "30 1 1 * *")
 	if found, findErr := sr.influxTaskApi.FindTasks(ctx, &api.TaskFilter{Name: monthlyTaskName}); findErr == nil && len(found) == 0 {
-		//monthly on first day of the month at 1:30am
+		// monthly on first day of the month at 1:30am
 		_, err := sr.influxTaskApi.CreateTaskByFlux(ctx, monthlyTaskScript, orgID)
 		if err != nil {
 			return err
 		}
 	} else if len(found) == 1 {
-		//check if we should update
+		// check if we should update
 		task := &found[0]
 		if monthlyTaskScript != task.Flux {
 			sr.logger.Infoln("updating monthly task script")
@@ -55,13 +56,13 @@ func (sr *scrutinyRepository) EnsureTasks(ctx context.Context, orgID string) err
 	yearlyTaskName := "tsk-yearly-aggr"
 	yearlyTaskScript := sr.DownsampleScript("yearly", yearlyTaskName, "0 2 1 1 *")
 	if found, findErr := sr.influxTaskApi.FindTasks(ctx, &api.TaskFilter{Name: yearlyTaskName}); findErr == nil && len(found) == 0 {
-		//yearly on the first day of the year at 2:00am
+		// yearly on the first day of the year at 2:00am
 		_, err := sr.influxTaskApi.CreateTaskByFlux(ctx, yearlyTaskScript, orgID)
 		if err != nil {
 			return err
 		}
 	} else if len(found) == 1 {
-		//check if we should update
+		// check if we should update
 		task := &found[0]
 		if yearlyTaskScript != task.Flux {
 			sr.logger.Infoln("updating yearly task script")
@@ -75,7 +76,7 @@ func (sr *scrutinyRepository) EnsureTasks(ctx context.Context, orgID string) err
 	return nil
 }
 
-func (sr *scrutinyRepository) DownsampleScript(aggregationType string, name string, cron string) string {
+func (sr *scrutinyRepository) DownsampleScript(aggregationType, name, cron string) string {
 	var sourceBucket string // the source of the data
 	var destBucket string   // the destination for the aggregated data
 	var rangeStart string

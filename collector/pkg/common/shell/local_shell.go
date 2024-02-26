@@ -3,11 +3,12 @@ package shell
 import (
 	"bytes"
 	"errors"
-	"github.com/sirupsen/logrus"
 	"io"
 	"os/exec"
 	"path"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 type localShell struct{}
@@ -41,5 +42,4 @@ func (s *localShell) Command(logger *logrus.Entry, cmdName string, cmdArgs []str
 
 	err := cmd.Run()
 	return stdBuffer.String(), err
-
 }

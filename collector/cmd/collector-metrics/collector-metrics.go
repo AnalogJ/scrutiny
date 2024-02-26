@@ -3,27 +3,29 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/analogj/scrutiny/collector/pkg/collector"
-	"github.com/analogj/scrutiny/collector/pkg/config"
-	"github.com/analogj/scrutiny/collector/pkg/errors"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
-	"github.com/sirupsen/logrus"
 	"io"
 	"log"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/analogj/scrutiny/collector/pkg/collector"
+	"github.com/analogj/scrutiny/collector/pkg/config"
+	"github.com/analogj/scrutiny/collector/pkg/errors"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
+	"github.com/sirupsen/logrus"
+
 	utils "github.com/analogj/go-util/utils"
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 )
 
-var goos string
-var goarch string
+var (
+	goos   string
+	goarch string
+)
 
 func main() {
-
 	config, err := config.Create()
 	if err != nil {
 		fmt.Printf("FATAL: %+v\n", err)
@@ -36,10 +38,10 @@ func main() {
 		configFilePath = configFilePathAlternative
 	}
 
-	//we're going to load the config file manually, since we need to validate it.
-	err = config.ReadConfig(configFilePath) // Find and read the config file
-	if _, ok := err.(errors.ConfigFileMissingError); ok {          // Handle errors reading the config file
-		//ignore "could not find config file"
+	// we're going to load the config file manually, since we need to validate it.
+	err = config.ReadConfig(configFilePath)               // Find and read the config file
+	if _, ok := err.(errors.ConfigFileMissingError); ok { // Handle errors reading the config file
+		// ignore "could not find config file"
 	} else if err != nil {
 		os.Exit(1)
 	}
@@ -69,7 +71,6 @@ OPTIONS:
 			},
 		},
 		Before: func(c *cli.Context) error {
-
 			collectorMetrics := "AnalogJ/scrutiny/metrics"
 
 			var versionInfo string
@@ -102,12 +103,12 @@ OPTIONS:
 					if c.IsSet("config") {
 						err = config.ReadConfig(c.String("config")) // Find and read the config file
 						if err != nil {                             // Handle errors reading the config file
-							//ignore "could not find config file"
+							// ignore "could not find config file"
 							fmt.Printf("Could not find config file at specified path: %s", c.String("config"))
 							return err
 						}
 					}
-					//override config with flags if set
+					// override config with flags if set
 					if c.IsSet("host-id") {
 						config.Set("host.id", c.String("host-id")) // set/override the host-id using CLI.
 					}
@@ -121,8 +122,8 @@ OPTIONS:
 					}
 
 					if c.IsSet("api-endpoint") {
-						//if the user is providing an api-endpoint with a basepath (eg. http://localhost:8080/scrutiny),
-						//we need to ensure the basepath has a trailing slash, otherwise the url.Parse() path concatenation doesnt work.
+						// if the user is providing an api-endpoint with a basepath (eg. http://localhost:8080/scrutiny),
+						// we need to ensure the basepath has a trailing slash, otherwise the url.Parse() path concatenation doesnt work.
 						apiEndpoint := strings.TrimSuffix(c.String("api-endpoint"), "/") + "/"
 						config.Set("api.endpoint", apiEndpoint)
 					}
@@ -142,7 +143,6 @@ OPTIONS:
 						collectorLogger,
 						config.GetString("api.endpoint"),
 					)
-
 					if err != nil {
 						return err
 					}
@@ -159,7 +159,7 @@ OPTIONS:
 						Name:    "api-endpoint",
 						Usage:   "The api server endpoint",
 						EnvVars: []string{"COLLECTOR_API_ENDPOINT", "SCRUTINY_API_ENDPOINT"},
-						//SCRUTINY_API_ENDPOINT is deprecated, but kept for backwards compatibility
+						// SCRUTINY_API_ENDPOINT is deprecated, but kept for backwards compatibility
 					},
 
 					&cli.StringFlag{
@@ -205,7 +205,7 @@ func CreateLogger(appConfig config.Interface) (*logrus.Entry, *os.File, error) {
 	var logFile *os.File
 	var err error
 	if appConfig.IsSet("log.file") && len(appConfig.GetString("log.file")) > 0 {
-		logFile, err = os.OpenFile(appConfig.GetString("log.file"), os.O_CREATE|os.O_WRONLY, 0644)
+		logFile, err = os.OpenFile(appConfig.GetString("log.file"), os.O_CREATE|os.O_WRONLY, 0o644)
 		if err != nil {
 			logger.Logger.Errorf("Failed to open log file %s for output: %s", appConfig.GetString("log.file"), err)
 			return nil, logFile, err

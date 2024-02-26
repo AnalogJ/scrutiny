@@ -3,18 +3,19 @@ package database
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"gorm.io/gorm/clause"
-	"time"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Device
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//insert device into DB (and update specified columns if device is already registered)
+// insert device into DB (and update specified columns if device is already registered)
 // update device fields that may change: (DeviceType, HostID)
 func (sr *scrutinyRepository) RegisterDevice(ctx context.Context, dev models.Device) error {
 	if err := sr.gormClient.WithContext(ctx).Clauses(clause.OnConflict{
@@ -28,7 +29,7 @@ func (sr *scrutinyRepository) RegisterDevice(ctx context.Context, dev models.Dev
 
 // get a list of all devices (only device metadata, no SMART data)
 func (sr *scrutinyRepository) GetDevices(ctx context.Context) ([]models.Device, error) {
-	//Get a list of all the active devices.
+	// Get a list of all the active devices.
 	devices := []models.Device{}
 	if err := sr.gormClient.WithContext(ctx).Find(&devices).Error; err != nil {
 		return nil, fmt.Errorf("Could not get device summary from DB: %v", err)
@@ -43,7 +44,7 @@ func (sr *scrutinyRepository) UpdateDevice(ctx context.Context, wwn string, coll
 		return device, fmt.Errorf("Could not get device from DB: %v", err)
 	}
 
-	//TODO catch GormClient err
+	// TODO catch GormClient err
 	err := device.UpdateFromCollectorSmartInfo(collectorSmartData)
 	if err != nil {
 		return device, err
@@ -51,7 +52,7 @@ func (sr *scrutinyRepository) UpdateDevice(ctx context.Context, wwn string, coll
 	return device, sr.gormClient.Model(&device).Updates(device).Error
 }
 
-//Update Device Status
+// Update Device Status
 func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, wwn string, status pkg.DeviceStatus) (models.Device, error) {
 	var device models.Device
 	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
@@ -79,7 +80,7 @@ func (sr *scrutinyRepository) DeleteDevice(ctx context.Context, wwn string) erro
 		return err
 	}
 
-	//delete data from influxdb.
+	// delete data from influxdb.
 	buckets := []string{
 		sr.appConfig.GetString("web.influxdb.bucket"),
 		fmt.Sprintf("%s_weekly", sr.appConfig.GetString("web.influxdb.bucket")),

@@ -1,12 +1,13 @@
 package m20220509170100
 
 import (
-	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"time"
+
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
 )
 
 type Device struct {
-	//GORM attributes, see: http://gorm.io/docs/conventions.html
+	// GORM attributes, see: http://gorm.io/docs/conventions.html
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt *time.Time
@@ -14,9 +15,9 @@ type Device struct {
 	WWN string `json:"wwn" gorm:"primary_key"`
 
 	DeviceName     string `json:"device_name"`
-	DeviceUUID	   string `json:"device_uuid"`
-	DeviceSerialID	   string `json:"device_serial_id"`
-	DeviceLabel	   string `json:"device_label"`
+	DeviceUUID     string `json:"device_uuid"`
+	DeviceSerialID string `json:"device_serial_id"`
+	DeviceLabel    string `json:"device_label"`
 
 	Manufacturer   string `json:"manufacturer"`
 	ModelName      string `json:"model_name"`
@@ -28,8 +29,8 @@ type Device struct {
 	Capacity       int64  `json:"capacity"`
 	FormFactor     string `json:"form_factor"`
 	SmartSupport   bool   `json:"smart_support"`
-	DeviceProtocol string `json:"device_protocol"` //protocol determines which smart attribute types are available (ATA, NVMe, SCSI)
-	DeviceType     string `json:"device_type"`     //device type is used for querying with -d/t flag, should only be used by collector.
+	DeviceProtocol string `json:"device_protocol"` // protocol determines which smart attribute types are available (ATA, NVMe, SCSI)
+	DeviceType     string `json:"device_type"`     // device type is used for querying with -d/t flag, should only be used by collector.
 
 	// User provided metadata
 	Label  string `json:"label"`
@@ -38,4 +39,3 @@ type Device struct {
 	// Data set by Scrutiny
 	DeviceStatus pkg.DeviceStatus `json:"device_status"`
 }
-

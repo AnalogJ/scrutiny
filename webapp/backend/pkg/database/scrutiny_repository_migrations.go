@@ -28,7 +28,6 @@ import (
 //database.AutoMigrate(&models.Device{})
 
 func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
-
 	sr.logger.Infoln("Database migration starting. Please wait, this process may take a long time....")
 
 	gormMigrateOptions := gormigrate.DefaultOptions
@@ -58,18 +57,18 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 					return err
 				}
 
-				//add columns to the Device schema, so we can start adding data to the database & influxdb
-				err = tx.Migrator().AddColumn(&models.Device{}, "Label") //Label  string `json:"label"`
+				// add columns to the Device schema, so we can start adding data to the database & influxdb
+				err = tx.Migrator().AddColumn(&models.Device{}, "Label") // Label  string `json:"label"`
 				if err != nil {
 					return err
 				}
-				err = tx.Migrator().AddColumn(&models.Device{}, "DeviceStatus") //DeviceStatus pkg.DeviceStatus `json:"device_status"`
+				err = tx.Migrator().AddColumn(&models.Device{}, "DeviceStatus") // DeviceStatus pkg.DeviceStatus `json:"device_status"`
 				if err != nil {
 					return err
 				}
 
-				//TODO: migrate the data from GORM to influxdb.
-				//get a list of all devices:
+				// TODO: migrate the data from GORM to influxdb.
+				// get a list of all devices:
 				//	get a list of all smart scans in the last 2 weeks:
 				//		get a list of associated smart attribute data:
 				//			translate to a measurements.Smart{} object
@@ -81,31 +80,31 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				//	get a list of all smart scans:
 				//		do same as above (select 1 scan per year)
 
-				preDevices := []m20201107210306.Device{} //pre-migration device information
+				preDevices := []m20201107210306.Device{} // pre-migration device information
 				if err = tx.Preload("SmartResults", func(db *gorm.DB) *gorm.DB {
-					return db.Order("smarts.created_at ASC") //OLD: .Limit(devicesCount)
+					return db.Order("smarts.created_at ASC") // OLD: .Limit(devicesCount)
 				}).Find(&preDevices).Error; err != nil {
 					sr.logger.Errorln("Could not get device summary from DB", err)
 					return err
 				}
 
-				//calculate bucket oldest dates
+				// calculate bucket oldest dates
 				today := time.Now()
-				dailyBucketMax := today.Add(-RETENTION_PERIOD_15_DAYS_IN_SECONDS * time.Second)     //15 days
-				weeklyBucketMax := today.Add(-RETENTION_PERIOD_9_WEEKS_IN_SECONDS * time.Second)    //9 weeks
-				monthlyBucketMax := today.Add(-RETENTION_PERIOD_25_MONTHS_IN_SECONDS * time.Second) //25 weeks
+				dailyBucketMax := today.Add(-RETENTION_PERIOD_15_DAYS_IN_SECONDS * time.Second)     // 15 days
+				weeklyBucketMax := today.Add(-RETENTION_PERIOD_9_WEEKS_IN_SECONDS * time.Second)    // 9 weeks
+				monthlyBucketMax := today.Add(-RETENTION_PERIOD_25_MONTHS_IN_SECONDS * time.Second) // 25 weeks
 
 				for _, preDevice := range preDevices {
 					sr.logger.Debugf("====================================")
 					sr.logger.Infof("begin processing device: %s", preDevice.WWN)
 
-					//weekly, monthly, yearly lookup storage, so we don't add more data to the buckets than necessary.
+					// weekly, monthly, yearly lookup storage, so we don't add more data to the buckets than necessary.
 					weeklyLookup := map[string]bool{}
 					monthlyLookup := map[string]bool{}
 					yearlyLookup := map[string]bool{}
-					for _, preSmartResult := range preDevice.SmartResults { //pre-migration smart results
+					for _, preSmartResult := range preDevice.SmartResults { // pre-migration smart results
 
-						//we're looping in ASC mode, so from oldest entry to most current.
+						// we're looping in ASC mode, so from oldest entry to most current.
 
 						err, postSmartResults := m20201107210306_FromPreInfluxDBSmartResultsCreatePostInfluxDBSmartResults(tx, preDevice, preSmartResult)
 						if err != nil {
@@ -127,7 +126,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						yearMonthStr := fmt.Sprintf("%d-%d", year, month)
 						yearWeekStr := fmt.Sprintf("%d-%d", year, week)
 
-						//write data to daily bucket if in the last 15 days
+						// write data to daily bucket if in the last 15 days
 						if postSmartResults.Date.After(dailyBucketMax) {
 							sr.logger.Debugf("device (%s) smart data added to bucket: daily", preDevice.WWN)
 							// write point immediately
@@ -152,11 +151,11 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 							}
 						}
 
-						//write data to the weekly bucket if in the last 9 weeks, and week has not been processed yet
+						// write data to the weekly bucket if in the last 9 weeks, and week has not been processed yet
 						if _, weekExists := weeklyLookup[yearWeekStr]; !weekExists && postSmartResults.Date.After(weeklyBucketMax) {
 							sr.logger.Debugf("device (%s) smart data added to bucket: weekly", preDevice.WWN)
 
-							//this week/year pair has not been processed
+							// this week/year pair has not been processed
 							weeklyLookup[yearWeekStr] = true
 							// write point immediately
 							err = sr.saveDatapoint(
@@ -181,11 +180,11 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 							}
 						}
 
-						//write data to the monthly bucket if in the last 9 weeks, and week has not been processed yet
+						// write data to the monthly bucket if in the last 9 weeks, and week has not been processed yet
 						if _, monthExists := monthlyLookup[yearMonthStr]; !monthExists && postSmartResults.Date.After(monthlyBucketMax) {
 							sr.logger.Debugf("device (%s) smart data added to bucket: monthly", preDevice.WWN)
 
-							//this month/year pair has not been processed
+							// this month/year pair has not been processed
 							monthlyLookup[yearMonthStr] = true
 							// write point immediately
 							err = sr.saveDatapoint(
@@ -212,7 +211,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						if _, yearExists := yearlyLookup[yearStr]; !yearExists && year != today.Year() {
 							sr.logger.Debugf("device (%s) smart data added to bucket: yearly", preDevice.WWN)
 
-							//this year has not been processed
+							// this year has not been processed
 							yearlyLookup[yearStr] = true
 							// write point immediately
 							err = sr.saveDatapoint(
@@ -257,15 +256,14 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 					return err
 				}
 
-				//migrate the device database
+				// migrate the device database
 				return tx.AutoMigrate(m20220503120000.Device{})
 			},
 		},
 		{
 			ID: "m20220509170100", // addl udev device data
 			Migrate: func(tx *gorm.DB) error {
-
-				//migrate the device database.
+				// migrate the device database.
 				// adding addl columns (device_label, device_uuid, device_serial_id)
 				return tx.AutoMigrate(m20220509170100.Device{})
 			},
@@ -273,7 +271,6 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 		{
 			ID: "m20220709181300",
 			Migrate: func(tx *gorm.DB) error {
-
 				// delete devices with empty `wwn` field (they are impossible to delete manually), and are invalid.
 				return tx.Where("wwn = ?", "").Delete(&models.Device{}).Error
 			},
@@ -281,15 +278,14 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 		{
 			ID: "m20220716214900", // add settings table.
 			Migrate: func(tx *gorm.DB) error {
-
 				// adding the settings table.
 				err := tx.AutoMigrate(m20220716214900.Setting{})
 				if err != nil {
 					return err
 				}
-				//add defaults.
+				// add defaults.
 
-				var defaultSettings = []m20220716214900.Setting{
+				defaultSettings := []m20220716214900.Setting{
 					{
 						SettingKeyName:        "theme",
 						SettingKeyDescription: "Frontend theme ('light' | 'dark' | 'system')",
@@ -358,8 +354,8 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 		{
 			ID: "m20221115214900", // add line_stroke setting.
 			Migrate: func(tx *gorm.DB) error {
-				//add line_stroke setting default.
-				var defaultSettings = []m20220716214900.Setting{
+				// add line_stroke setting default.
+				defaultSettings := []m20220716214900.Setting{
 					{
 						SettingKeyName:        "line_stroke",
 						SettingKeyDescription: "Temperature chart line stroke ('smooth' | 'straight' | 'stepline')",
@@ -373,8 +369,8 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 		{
 			ID: "m20231123123300", // add repeat_notifications setting.
 			Migrate: func(tx *gorm.DB) error {
-				//add repeat_notifications setting default.
-				var defaultSettings = []m20220716214900.Setting{
+				// add repeat_notifications setting default.
+				defaultSettings := []m20220716214900.Setting{
 					{
 						SettingKeyName:        "metrics.repeat_notifications",
 						SettingKeyDescription: "Whether to repeat all notifications or just when values change (true | false)",
@@ -393,7 +389,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 	}
 	sr.logger.Infoln("Database migration completed successfully")
 
-	//these migrations cannot be done within a transaction, so they are done as a separate group, with `UseTransaction = false`
+	// these migrations cannot be done within a transaction, so they are done as a separate group, with `UseTransaction = false`
 	sr.logger.Infoln("SQLite global configuration migrations starting. Please wait....")
 	globalMigrateOptions := gormigrate.DefaultOptions
 	globalMigrateOptions.UseTransaction = false
@@ -401,7 +397,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 		{
 			ID: "g20220802211500",
 			Migrate: func(tx *gorm.DB) error {
-				//shrink the Database (maybe necessary after 20220503113100)
+				// shrink the Database (maybe necessary after 20220503113100)
 				if err := tx.Exec("VACUUM;").Error; err != nil {
 					return err
 				}
@@ -421,8 +417,8 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 
 // helpers
 
-//When adding data to influxdb, an error may be returned if the data point is outside the range of the retention policy.
-//This function will ignore retention policy errors, and allow the migration to continue.
+// When adding data to influxdb, an error may be returned if the data point is outside the range of the retention policy.
+// This function will ignore retention policy errors, and allow the migration to continue.
 func ignorePastRetentionPolicyError(err error) error {
 	var influxDbWriteError *http.Error
 	if errors.As(err, &influxDbWriteError) {
@@ -436,7 +432,7 @@ func ignorePastRetentionPolicyError(err error) error {
 
 // Deprecated
 func m20201107210306_FromPreInfluxDBTempCreatePostInfluxDBTemp(preDevice m20201107210306.Device, preSmartResult m20201107210306.Smart) (error, measurements.SmartTemperature) {
-	//extract temperature data for every datapoint
+	// extract temperature data for every datapoint
 	postSmartTemp := measurements.SmartTemperature{
 		Date: preSmartResult.TestDate,
 		Temp: preSmartResult.Temp,
@@ -447,7 +443,7 @@ func m20201107210306_FromPreInfluxDBTempCreatePostInfluxDBTemp(preDevice m202011
 
 // Deprecated
 func m20201107210306_FromPreInfluxDBSmartResultsCreatePostInfluxDBSmartResults(database *gorm.DB, preDevice m20201107210306.Device, preSmartResult m20201107210306.Smart) (error, measurements.Smart) {
-	//create a measurements.Smart object (which we will then push to the InfluxDB)
+	// create a measurements.Smart object (which we will then push to the InfluxDB)
 	postDeviceSmartData := measurements.Smart{
 		Date:            preSmartResult.TestDate,
 		DeviceWWN:       preDevice.WWN,
@@ -508,7 +504,7 @@ func m20201107210306_FromPreInfluxDBSmartResultsCreatePostInfluxDBSmartResults(d
 		postDeviceSmartData.ProcessAtaSmartInfo(preAtaSmartAttributesTable)
 
 	} else if preDevice.IsNvme() {
-		//info collector.SmartInfo
+		// info collector.SmartInfo
 		postNvmeSmartHealthInformation := collector.NvmeSmartHealthInformationLog{}
 
 		for _, preNvmeAttribute := range preSmartResult.NvmeAttributes {
@@ -553,7 +549,7 @@ func m20201107210306_FromPreInfluxDBSmartResultsCreatePostInfluxDBSmartResults(d
 		postDeviceSmartData.ProcessNvmeSmartInfo(postNvmeSmartHealthInformation)
 
 	} else if preDevice.IsScsi() {
-		//info collector.SmartInfo
+		// info collector.SmartInfo
 		var postScsiGrownDefectList int64
 		postScsiErrorCounterLog := collector.ScsiErrorCounterLog{
 			Read: struct {

@@ -2,24 +2,26 @@ package main
 
 import (
 	"fmt"
-	"github.com/analogj/scrutiny/collector/pkg/collector"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
-	"github.com/sirupsen/logrus"
 	"io"
 	"log"
 	"os"
 	"time"
+
+	"github.com/analogj/scrutiny/collector/pkg/collector"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
+	"github.com/sirupsen/logrus"
 
 	utils "github.com/analogj/go-util/utils"
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 )
 
-var goos string
-var goarch string
+var (
+	goos   string
+	goarch string
+)
 
 func main() {
-
 	cli.CommandHelpTemplate = `NAME:
    {{.HelpName}} - {{.Usage}}
 USAGE:
@@ -45,7 +47,6 @@ OPTIONS:
 			},
 		},
 		Before: func(c *cli.Context) error {
-
 			collectorSelfTest := "AnalogJ/scrutiny/selftest"
 
 			var versionInfo string
@@ -75,7 +76,6 @@ OPTIONS:
 				Name:  "run",
 				Usage: "Run the scrutiny self-test data collector",
 				Action: func(c *cli.Context) error {
-
 					collectorLogger := logrus.WithFields(logrus.Fields{
 						"type": "selftest",
 					})
@@ -87,7 +87,7 @@ OPTIONS:
 					}
 
 					if c.IsSet("log-file") {
-						logFile, err := os.OpenFile(c.String("log-file"), os.O_CREATE|os.O_WRONLY, 0644)
+						logFile, err := os.OpenFile(c.String("log-file"), os.O_CREATE|os.O_WRONLY, 0o644)
 						if err != nil {
 							logrus.Errorf("Failed to open log file %s for output: %s", c.String("log-file"), err)
 							return err
@@ -96,12 +96,11 @@ OPTIONS:
 						logrus.SetOutput(io.MultiWriter(os.Stderr, logFile))
 					}
 
-					//TODO: pass in the collector, use configuration from collector-metrics
+					// TODO: pass in the collector, use configuration from collector-metrics
 					stCollector, err := collector.CreateSelfTestCollector(
 						collectorLogger,
 						c.String("api-endpoint"),
 					)
-
 					if err != nil {
 						return err
 					}
@@ -138,5 +137,4 @@ OPTIONS:
 	if err != nil {
 		log.Fatal(color.HiRedString("ERROR: %v", err))
 	}
-
 }
