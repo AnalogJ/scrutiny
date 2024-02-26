@@ -17,6 +17,7 @@ import (
 	utils "github.com/analogj/go-util/utils"
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
+	_ "go.uber.org/automaxprocs"
 )
 
 var goos string
@@ -37,8 +38,8 @@ func main() {
 	}
 
 	//we're going to load the config file manually, since we need to validate it.
-	err = config.ReadConfig(configFilePath) // Find and read the config file
-	if _, ok := err.(errors.ConfigFileMissingError); ok {          // Handle errors reading the config file
+	err = config.ReadConfig(configFilePath)               // Find and read the config file
+	if _, ok := err.(errors.ConfigFileMissingError); ok { // Handle errors reading the config file
 		//ignore "could not find config file"
 	} else if err != nil {
 		os.Exit(1)

@@ -13,6 +13,7 @@ import (
 	utils "github.com/analogj/go-util/utils"
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
+	_ "go.uber.org/automaxprocs"
 )
 
 var goos string
