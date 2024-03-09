@@ -25,4 +25,4 @@ fi
 
 # now that we have the env start cron in the foreground
 echo "starting cron"
-su -c "cron -f -L 15" root
+exec su -c "cron -f -L 15" root
