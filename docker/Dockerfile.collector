@@ -4,16 +4,17 @@
 
 
 ########
-FROM golang:1.20-bullseye as backendbuild
+FROM golang:1.20-bookworm as backendbuild
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 
 COPY . /go/src/github.com/analogj/scrutiny
 
+RUN apt-get update && apt-get install -y file
 RUN make binary-clean binary-collector
 
 ########
-FROM debian:bullseye-slim as runtime
+FROM debian:bookworm-slim as runtime
 WORKDIR /opt/scrutiny
 ENV PATH="/opt/scrutiny/bin:${PATH}"
 
