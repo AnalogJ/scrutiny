@@ -18,7 +18,8 @@ WORKDIR /go/src/github.com/analogj/scrutiny
 COPY --link . /go/src/github.com/analogj/scrutiny
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
     apt-get install -y --no-install-recommends \
-    file
+    file \
+    && rm -rf /var/lib/apt/lists/*
 RUN make binary-clean binary-all WEB_BINARY_NAME=scrutiny
 
 
@@ -40,15 +41,16 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
     curl \
     smartmontools \
     tzdata \
-    && update-ca-certificates
-RUN case ${TARGETARCH} in \
-        "amd64")  S6_ARCH=amd64  ;; \
-        "arm64")  S6_ARCH=aarch64  ;; \
-    esac \
+    && rm -rf /var/lib/apt/lists/* \
+    && update-ca-certificates \
+    && case ${TARGETARCH} in \
+           "amd64")  S6_ARCH=amd64  ;; \
+           "arm64")  S6_ARCH=aarch64  ;; \
+       esac \
     && curl https://github.com/just-containers/s6-overlay/releases/download/v${S6VER}/s6-overlay-${S6_ARCH}.tar.gz -L -s --output /tmp/s6-overlay-${S6_ARCH}.tar.gz \
     && tar xzf /tmp/s6-overlay-${S6_ARCH}.tar.gz -C / \
-    && rm -rf /tmp/s6-overlay-${S6_ARCH}.tar.gz
-RUN curl -L https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXVER}-${TARGETARCH}.deb --output /tmp/influxdb2-${INFLUXVER}-${TARGETARCH}.deb \
+    && rm -rf /tmp/s6-overlay-${S6_ARCH}.tar.gz \
+    curl -L https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXVER}-${TARGETARCH}.deb --output /tmp/influxdb2-${INFLUXVER}-${TARGETARCH}.deb \
     && ln -s /usr/bin/false /bin/false \
     && ln -s /usr/bin/bash /bin/bash \
     && dpkg -i --force-all /tmp/influxdb2-${INFLUXVER}-${TARGETARCH}.deb \

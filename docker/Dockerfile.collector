@@ -10,7 +10,7 @@ WORKDIR /go/src/github.com/analogj/scrutiny
 
 COPY . /go/src/github.com/analogj/scrutiny
 
-RUN apt-get update && apt-get install -y file
+RUN apt-get update && apt-get install -y file && rm -rf /var/lib/apt/lists/*
 RUN make binary-clean binary-collector
 
 ########
@@ -18,7 +18,7 @@ FROM debian:bookworm-slim as runtime
 WORKDIR /opt/scrutiny
 ENV PATH="/opt/scrutiny/bin:${PATH}"
 
-RUN apt-get update && apt-get install -y cron smartmontools ca-certificates tzdata && update-ca-certificates
+RUN apt-get update && apt-get install -y cron smartmontools ca-certificates tzdata && rm -rf /var/lib/apt/lists/* && update-ca-certificates
 
 COPY /docker/entrypoint-collector.sh /entrypoint-collector.sh
 COPY /rootfs/etc/cron.d/scrutiny /etc/cron.d/scrutiny
