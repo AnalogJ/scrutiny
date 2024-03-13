@@ -50,7 +50,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
     && curl https://github.com/just-containers/s6-overlay/releases/download/v${S6VER}/s6-overlay-${S6_ARCH}.tar.gz -L -s --output /tmp/s6-overlay-${S6_ARCH}.tar.gz \
     && tar xzf /tmp/s6-overlay-${S6_ARCH}.tar.gz -C / \
     && rm -rf /tmp/s6-overlay-${S6_ARCH}.tar.gz \
-    curl -L https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXVER}-${TARGETARCH}.deb --output /tmp/influxdb2-${INFLUXVER}-${TARGETARCH}.deb \
+    && curl -L https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXVER}-${TARGETARCH}.deb --output /tmp/influxdb2-${INFLUXVER}-${TARGETARCH}.deb \
     && ln -s /usr/bin/false /bin/false \
     && ln -s /usr/bin/bash /bin/bash \
     && dpkg -i --force-all /tmp/influxdb2-${INFLUXVER}-${TARGETARCH}.deb \
