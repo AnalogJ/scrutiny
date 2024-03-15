@@ -421,8 +421,8 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 
 // helpers
 
-//When adding data to influxdb, an error may be returned if the data point is outside the range of the retention policy.
-//This function will ignore retention policy errors, and allow the migration to continue.
+// When adding data to influxdb, an error may be returned if the data point is outside the range of the retention policy.
+// This function will ignore retention policy errors, and allow the migration to continue.
 func ignorePastRetentionPolicyError(err error) error {
 	var influxDbWriteError *http.Error
 	if errors.As(err, &influxDbWriteError) {
@@ -505,7 +505,7 @@ func m20201107210306_FromPreInfluxDBSmartResultsCreatePostInfluxDBSmartResults(d
 			})
 		}
 
-		postDeviceSmartData.ProcessAtaSmartInfo(preAtaSmartAttributesTable)
+		postDeviceSmartData.ProcessAtaSmartInfo(nil, preAtaSmartAttributesTable)
 
 	} else if preDevice.IsNvme() {
 		//info collector.SmartInfo
