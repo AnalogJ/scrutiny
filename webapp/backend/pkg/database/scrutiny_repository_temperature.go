@@ -3,59 +3,32 @@ package database
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
-	"strings"
-	"time"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Temperature Data
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 func (sr *scrutinyRepository) SaveSmartTemperature(ctx context.Context, wwn string, deviceProtocol string, collectorSmartData collector.SmartInfo) error {
-	if len(collectorSmartData.AtaSctTemperatureHistory.Table) > 0 {
+	// collectorSmartData.AtaSctTemperatureHistory isn't reliable, only use current temperature
 
-		for ndx, temp := range collectorSmartData.AtaSctTemperatureHistory.Table {
-			//temp value may be null, we must skip/ignore them. See #393
-			if temp == 0 {
-				continue
-			}
-
-			minutesOffset := collectorSmartData.AtaSctTemperatureHistory.LoggingIntervalMinutes * int64(ndx) * 60
-			smartTemp := measurements.SmartTemperature{
-				Date: time.Unix(collectorSmartData.LocalTime.TimeT-minutesOffset, 0),
-				Temp: temp,
-			}
-
-			tags, fields := smartTemp.Flatten()
-			tags["device_wwn"] = wwn
-			p := influxdb2.NewPoint("temp",
-				tags,
-				fields,
-				smartTemp.Date)
-			err := sr.influxWriteApi.WritePoint(ctx, p)
-			if err != nil {
-				return err
-			}
-		}
-		// also add the current temperature.
-	} else {
-
-		smartTemp := measurements.SmartTemperature{
-			Date: time.Unix(collectorSmartData.LocalTime.TimeT, 0),
-			Temp: collectorSmartData.Temperature.Current,
-		}
-
-		tags, fields := smartTemp.Flatten()
-		tags["device_wwn"] = wwn
-		p := influxdb2.NewPoint("temp",
-			tags,
-			fields,
-			smartTemp.Date)
-		return sr.influxWriteApi.WritePoint(ctx, p)
+	smartTemp := measurements.SmartTemperature{
+		Date: time.Unix(collectorSmartData.LocalTime.TimeT, 0),
+		Temp: collectorSmartData.Temperature.Current,
 	}
-	return nil
+
+	tags, fields := smartTemp.Flatten()
+	tags["device_wwn"] = wwn
+	p := influxdb2.NewPoint("temp",
+		tags,
+		fields,
+		smartTemp.Date)
+	return sr.influxWriteApi.WritePoint(ctx, p)
 }
 
 func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[string][]measurements.SmartTemperature, error) {
