@@ -1,10 +1,11 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 func HealthCheck(c *gin.Context) {
@@ -12,7 +13,7 @@ func HealthCheck(c *gin.Context) {
 	deviceRepo := c.MustGet("DEVICE_REPOSITORY").(database.DeviceRepo)
 	logger.Infof("Checking Influxdb & Sqlite health")
 
-	//check sqlite and influxdb health
+	// check sqlite and influxdb health
 	err := deviceRepo.HealthCheck(c)
 	if err != nil {
 		logger.Errorln("An error occurred during healthcheck", err)
@@ -20,7 +21,7 @@ func HealthCheck(c *gin.Context) {
 		return
 	}
 
-	//TODO:
+	// TODO:
 	// check if the /web folder is populated.
 
 	c.JSON(http.StatusOK, gin.H{

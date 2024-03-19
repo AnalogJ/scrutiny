@@ -1,16 +1,17 @@
 package database
 
 import (
+	"testing"
+
 	mock_config "github.com/analogj/scrutiny/webapp/backend/pkg/config/mock"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func Test_aggregateTempQuery_Week(t *testing.T) {
 	t.Parallel()
 
-	//setup
+	// setup
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -23,10 +24,10 @@ func Test_aggregateTempQuery_Week(t *testing.T) {
 
 	aggregationType := DURATION_KEY_WEEK
 
-	//test
+	// test
 	influxDbScript := deviceRepo.aggregateTempQuery(aggregationType)
 
-	//assert
+	// assert
 	require.Equal(t, `import "influxdata/influxdb/schema"
 weekData = from(bucket: "metrics")
 |> range(start: -1w, stop: now())
@@ -43,7 +44,7 @@ weekData
 func Test_aggregateTempQuery_Month(t *testing.T) {
 	t.Parallel()
 
-	//setup
+	// setup
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -56,10 +57,10 @@ func Test_aggregateTempQuery_Month(t *testing.T) {
 
 	aggregationType := DURATION_KEY_MONTH
 
-	//test
+	// test
 	influxDbScript := deviceRepo.aggregateTempQuery(aggregationType)
 
-	//assert
+	// assert
 	require.Equal(t, `import "influxdata/influxdb/schema"
 weekData = from(bucket: "metrics")
 |> range(start: -1w, stop: now())
@@ -84,7 +85,7 @@ union(tables: [weekData, monthData])
 func Test_aggregateTempQuery_Year(t *testing.T) {
 	t.Parallel()
 
-	//setup
+	// setup
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -97,10 +98,10 @@ func Test_aggregateTempQuery_Year(t *testing.T) {
 
 	aggregationType := DURATION_KEY_YEAR
 
-	//test
+	// test
 	influxDbScript := deviceRepo.aggregateTempQuery(aggregationType)
 
-	//assert
+	// assert
 	require.Equal(t, `import "influxdata/influxdb/schema"
 weekData = from(bucket: "metrics")
 |> range(start: -1w, stop: now())
@@ -132,7 +133,7 @@ union(tables: [weekData, monthData, yearData])
 func Test_aggregateTempQuery_Forever(t *testing.T) {
 	t.Parallel()
 
-	//setup
+	// setup
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -145,10 +146,10 @@ func Test_aggregateTempQuery_Forever(t *testing.T) {
 
 	aggregationType := DURATION_KEY_FOREVER
 
-	//test
+	// test
 	influxDbScript := deviceRepo.aggregateTempQuery(aggregationType)
 
-	//assert
+	// assert
 	require.Equal(t, `import "influxdata/influxdb/schema"
 weekData = from(bucket: "metrics")
 |> range(start: -1w, stop: now())

@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 // register devices that are detected by various collectors.
@@ -23,14 +24,14 @@ func RegisterDevices(c *gin.Context) {
 		return
 	}
 
-	//filter any device with empty wwn (they are invalid)
+	// filter any device with empty wwn (they are invalid)
 	detectedStorageDevices := lo.Filter[models.Device](collectorDeviceWrapper.Data, func(dev models.Device, _ int) bool {
 		return len(dev.WWN) > 0
 	})
 
 	errs := []error{}
 	for _, dev := range detectedStorageDevices {
-		//insert devices into DB (and update specified columns if device is already registered)
+		// insert devices into DB (and update specified columns if device is already registered)
 		// update device fields that may change: (DeviceType, HostID)
 		if err := deviceRepo.RegisterDevice(c, dev); err != nil {
 			errs = append(errs, err)

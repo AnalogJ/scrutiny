@@ -1,16 +1,17 @@
 package database
 
 import (
+	"testing"
+
 	mock_config "github.com/analogj/scrutiny/webapp/backend/pkg/config/mock"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func Test_DownsampleScript_Weekly(t *testing.T) {
 	t.Parallel()
 
-	//setup
+	// setup
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -23,10 +24,10 @@ func Test_DownsampleScript_Weekly(t *testing.T) {
 
 	aggregationType := "weekly"
 
-	//test
+	// test
 	influxDbScript := deviceRepo.DownsampleScript(aggregationType, "tsk-weekly-aggr", "0 1 * * 0")
 
-	//assert
+	// assert
 	require.Equal(t, `
 option task = { 
   name: "tsk-weekly-aggr",
@@ -62,7 +63,7 @@ from(bucket: sourceBucket)
 func Test_DownsampleScript_Monthly(t *testing.T) {
 	t.Parallel()
 
-	//setup
+	// setup
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -75,10 +76,10 @@ func Test_DownsampleScript_Monthly(t *testing.T) {
 
 	aggregationType := "monthly"
 
-	//test
+	// test
 	influxDbScript := deviceRepo.DownsampleScript(aggregationType, "tsk-monthly-aggr", "30 1 1 * *")
 
-	//assert
+	// assert
 	require.Equal(t, `
 option task = { 
   name: "tsk-monthly-aggr",
@@ -114,7 +115,7 @@ from(bucket: sourceBucket)
 func Test_DownsampleScript_Yearly(t *testing.T) {
 	t.Parallel()
 
-	//setup
+	// setup
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -127,10 +128,10 @@ func Test_DownsampleScript_Yearly(t *testing.T) {
 
 	aggregationType := "yearly"
 
-	//test
+	// test
 	influxDbScript := deviceRepo.DownsampleScript(aggregationType, "tsk-yearly-aggr", "0 2 1 1 *")
 
-	//assert
+	// assert
 	require.Equal(t, `
 option task = { 
   name: "tsk-yearly-aggr",

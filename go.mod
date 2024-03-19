@@ -18,6 +18,7 @@ require (
 	github.com/spf13/viper v1.14.0
 	github.com/stretchr/testify v1.8.1
 	github.com/urfave/cli/v2 v2.2.0
+	go.uber.org/automaxprocs v1.5.3
 	golang.org/x/sync v0.1.0
 	gorm.io/gorm v1.23.5
 )

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,6 @@ import (
 )
 
 func RepositoryMiddleware(appConfig config.Interface, globalLogger logrus.FieldLogger) gin.HandlerFunc {
-
 	deviceRepo, err := database.NewScrutinyRepository(appConfig, globalLogger)
 	if err != nil {
 		panic(err)
@@ -21,9 +21,9 @@ func RepositoryMiddleware(appConfig config.Interface, globalLogger logrus.FieldL
 		panic(err)
 	}
 
-	//settings.UpdateSettingEntries()
+	// settings.UpdateSettingEntries()
 
-	//TODO: determine where we can call defer deviceRepo.Close()
+	// TODO: determine where we can call defer deviceRepo.Close()
 	return func(c *gin.Context) {
 		c.Set("DEVICE_REPOSITORY", deviceRepo)
 		c.Next()
