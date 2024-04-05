@@ -47,7 +47,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
     && rm -rf /var/lib/apt/lists/* \
     && update-ca-certificates \
     && case ${TARGETARCH} in \
-           "amd64")  S6_ARCH=amd64  ;; \
+           "amd64")  S6_ARCH=x86_64  ;; \
            "arm64")  S6_ARCH=aarch64  ;; \
        esac \
     && curl https://github.com/just-containers/s6-overlay/releases/download/v${S6VER}/s6-overlay-noarch.tar.xz -L -s --output /tmp/s6-overlay-noarch.tar.xz \
