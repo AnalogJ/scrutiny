@@ -30,8 +30,9 @@ EXPOSE 8080
 WORKDIR /opt/scrutiny
 ENV PATH="/opt/scrutiny/bin:${PATH}"
 ENV INFLUXD_CONFIG_PATH=/opt/scrutiny/influxdb
-ENV S6VER="1.21.8.0"
+ENV S6VER="3.1.6.2"
 ENV INFLUXVER="2.2.0"
+ENV S6_SERVICES_READYTIME=1000
 SHELL ["/usr/bin/sh", "-c"]
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
@@ -41,20 +42,22 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
     curl \
     smartmontools \
     tzdata \
+    procps \
+    xz-utils \
     && rm -rf /var/lib/apt/lists/* \
     && update-ca-certificates \
     && case ${TARGETARCH} in \
            "amd64")  S6_ARCH=amd64  ;; \
            "arm64")  S6_ARCH=aarch64  ;; \
        esac \
-    && curl https://github.com/just-containers/s6-overlay/releases/download/v${S6VER}/s6-overlay-${S6_ARCH}.tar.gz -L -s --output /tmp/s6-overlay-${S6_ARCH}.tar.gz \
-    && tar xzf /tmp/s6-overlay-${S6_ARCH}.tar.gz -C / \
-    && rm -rf /tmp/s6-overlay-${S6_ARCH}.tar.gz \
-    && curl -L https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXVER}-${TARGETARCH}.deb --output /tmp/influxdb2-${INFLUXVER}-${TARGETARCH}.deb \
-    && ln -s /usr/bin/false /bin/false \
-    && ln -s /usr/bin/bash /bin/bash \
+    && curl https://github.com/just-containers/s6-overlay/releases/download/v${S6VER}/s6-overlay-noarch.tar.xz -L -s --output /tmp/s6-overlay-noarch.tar.xz \
+    && tar -Jxpf /tmp/s6-overlay-noarch.tar.xz -C / \
+    && rm -rf /tmp/s6-overlay-noarch.tar.xz \
+    && curl https://github.com/just-containers/s6-overlay/releases/download/v${S6VER}/s6-overlay-${S6_ARCH}.tar.xz -L -s --output /tmp/s6-overlay-${S6_ARCH}.tar.xz \
+    && tar -Jxpf /tmp/s6-overlay-${S6_ARCH}.tar.xz -C / \
+    && rm -rf /tmp/s6-overlay-${S6_ARCH}.tar.xz
+RUN curl -L https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXVER}-${TARGETARCH}.deb --output /tmp/influxdb2-${INFLUXVER}-${TARGETARCH}.deb \
     && dpkg -i --force-all /tmp/influxdb2-${INFLUXVER}-${TARGETARCH}.deb \
-    && rm -f /bin/bash \
     && rm -rf /tmp/influxdb2-${INFLUXVER}-${TARGETARCH}.deb
 
 COPY /rootfs /
@@ -66,6 +69,9 @@ RUN chmod 0644 /etc/cron.d/scrutiny && \
     rm -f /etc/cron.daily/* && \
     mkdir -p /opt/scrutiny/web && \
     mkdir -p /opt/scrutiny/config && \
-    chmod -R ugo+rwx /opt/scrutiny/config
+    chmod -R ugo+rwx /opt/scrutiny/config && \
+    chmod +x /etc/cont-init.d/* && \
+    chmod +x /etc/services.d/*/run && \
+    chmod +x /etc/services.d/*/finish
 
 CMD ["/init"]

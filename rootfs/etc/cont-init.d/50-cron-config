@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bash
+#!/command/with-contenv bash
 
 # Cron runs in its own isolated environment (usually using only /etc/environment )
 # So when the container starts up, we will do a dump of the runtime environment into a .env file that we
