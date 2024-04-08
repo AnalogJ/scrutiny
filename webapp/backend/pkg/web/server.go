@@ -2,6 +2,10 @@ package web
 
 import (
 	"fmt"
+	"net/http"
+	"path/filepath"
+	"strings"
+
 	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
@@ -9,9 +13,6 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
-	"path/filepath"
-	"strings"
 )
 
 type AppEngine struct {
@@ -35,30 +36,30 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 		api := base.Group("/api")
 		{
 			api.GET("/health", handler.HealthCheck)
-			api.POST("/health/notify", handler.SendTestNotification) //check if notifications are configured correctly
+			api.POST("/health/notify", handler.SendTestNotification) // check if notifications are configured correctly
 
-			api.POST("/devices/register", handler.RegisterDevices)         //used by Collector to register new devices and retrieve filtered list
-			api.GET("/summary", handler.GetDevicesSummary)                 //used by Dashboard
-			api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory) //used by Dashboard (Temperature history dropdown)
-			api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics)    //used by Collector to upload data
+			api.POST("/devices/register", handler.RegisterDevices)         // used by Collector to register new devices and retrieve filtered list
+			api.GET("/summary", handler.GetDevicesSummary)                 // used by Dashboard
+			api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory) // used by Dashboard (Temperature history dropdown)
+			api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics)    // used by Collector to upload data
 			api.POST("/device/:wwn/selftest", handler.UploadDeviceSelfTests)
-			api.GET("/device/:wwn/details", handler.GetDeviceDetails) //used by Details
-			api.DELETE("/device/:wwn", handler.DeleteDevice)          //used by UI to delete device
+			api.GET("/device/:wwn/details", handler.GetDeviceDetails) // used by Details
+			api.DELETE("/device/:wwn", handler.DeleteDevice)          // used by UI to delete device
 
-			api.GET("/settings", handler.GetSettings)   //used to get settings
-			api.POST("/settings", handler.SaveSettings) //used to save settings
+			api.GET("/settings", handler.GetSettings)   // used to get settings
+			api.POST("/settings", handler.SaveSettings) // used to save settings
 		}
 	}
 
-	//Static request routing
+	// Static request routing
 	base.StaticFS("/web", http.Dir(ae.Config.GetString("web.src.frontend.path")))
 
-	//redirect base url to /web
+	// redirect base url to /web
 	base.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusFound, basePath+"/web")
 	})
 
-	//catch-all, serve index page.
+	// catch-all, serve index page.
 	r.NoRoute(func(c *gin.Context) {
 		c.File(fmt.Sprintf("%s/index.html", ae.Config.GetString("web.src.frontend.path")))
 	})
@@ -66,13 +67,13 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 }
 
 func (ae *AppEngine) Start() error {
-	//set the gin mode
+	// set the gin mode
 	gin.SetMode(gin.ReleaseMode)
 	if strings.ToLower(ae.Config.GetString("log.level")) == "debug" {
 		gin.SetMode(gin.DebugMode)
 	}
 
-	//check if the database parent directory exists, fail here rather than in a handler.
+	// check if the database parent directory exists, fail here rather than in a handler.
 	if !utils.FileExists(filepath.Dir(ae.Config.GetString("web.database.location"))) {
 		return errors.ConfigValidationError(fmt.Sprintf(
 			"Database parent directory does not exist. Please check path (%s)",

@@ -1,9 +1,10 @@
 package collector
 
 import (
-	"github.com/stretchr/testify/require"
 	"net/url"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestApiEndpointParse(t *testing.T) {
@@ -19,7 +20,7 @@ func TestApiEndpointParse(t *testing.T) {
 func TestApiEndpointParse_WithBasepathWithoutTrailingSlash(t *testing.T) {
 	baseURL, _ := url.Parse("http://localhost:8080/scrutiny")
 
-	//This testcase is unexpected and can cause issues. We need to ensure the apiEndpoint always has a trailing slash.
+	// This testcase is unexpected and can cause issues. We need to ensure the apiEndpoint always has a trailing slash.
 	url1, _ := baseURL.Parse("d/e")
 	require.Equal(t, "http://localhost:8080/d/e", url1.String())
 

@@ -9,7 +9,7 @@ type SmartScsiAttribute struct {
 	SmartId int    `json:"smart_id"`
 	Smart   Device `json:"-" gorm:"foreignkey:SmartId"` // use SmartId as foreign key
 
-	AttributeId string `json:"attribute_id"` //json string from smartctl
+	AttributeId string `json:"attribute_id"` // json string from smartctl
 	Name        string `json:"name"`
 	Value       int    `json:"value"`
 	Threshold   int    `json:"thresh"`

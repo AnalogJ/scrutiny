@@ -46,14 +46,13 @@ type Wwn struct {
 */
 
 func (wwn *Wwn) ToString() string {
-
 	var wwnBuffer uint64
 
-	wwnBuffer = wwn.Id           //start with vendor ID
-	wwnBuffer += (wwn.Oui << 36) //add left-shifted OUI
-	wwnBuffer += (wwn.Naa << 60) //NAA is a number from 1-6, so decimal == hex.
+	wwnBuffer = wwn.Id           // start with vendor ID
+	wwnBuffer += (wwn.Oui << 36) // add left-shifted OUI
+	wwnBuffer += (wwn.Naa << 60) // NAA is a number from 1-6, so decimal == hex.
 
-	//TODO: may need to support additional versions in the future.
+	// TODO: may need to support additional versions in the future.
 
 	return strings.ToLower(fmt.Sprintf("%#x", wwnBuffer))
 }

@@ -3,21 +3,21 @@ package database
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
-	"strings"
-	"time"
 )
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Temperature Data
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-func (sr *scrutinyRepository) SaveSmartTemperature(ctx context.Context, wwn string, deviceProtocol string, collectorSmartData collector.SmartInfo) error {
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+func (sr *scrutinyRepository) SaveSmartTemperature(ctx context.Context, wwn, deviceProtocol string, collectorSmartData collector.SmartInfo) error {
 	if len(collectorSmartData.AtaSctTemperatureHistory.Table) > 0 {
-
 		for ndx, temp := range collectorSmartData.AtaSctTemperatureHistory.Table {
-			//temp value may be null, we must skip/ignore them. See #393
+			// temp value may be null, we must skip/ignore them. See #393
 			if temp == 0 {
 				continue
 			}
@@ -59,21 +59,20 @@ func (sr *scrutinyRepository) SaveSmartTemperature(ctx context.Context, wwn stri
 }
 
 func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[string][]measurements.SmartTemperature, error) {
-	//we can get temp history for "week", "month", DURATION_KEY_YEAR, "forever"
+	// we can get temp history for "week", "month", DURATION_KEY_YEAR, "forever"
 
 	deviceTempHistory := map[string][]measurements.SmartTemperature{}
 
-	//TODO: change the query range to a variable.
+	// TODO: change the query range to a variable.
 	queryStr := sr.aggregateTempQuery(durationKey)
 
 	result, err := sr.influxQueryApi.Query(ctx, queryStr)
 	if err == nil {
 		// Use Next() to iterate over query result lines
 		for result.Next() {
-
 			if deviceWWN, ok := result.Record().Values()["device_wwn"]; ok {
 
-				//check if deviceWWN has been seen and initialized already
+				// check if deviceWWN has been seen and initialized already
 				if _, ok := deviceTempHistory[deviceWWN.(string)]; !ok {
 					deviceTempHistory[deviceWWN.(string)] = []measurements.SmartTemperature{}
 				}
@@ -96,7 +95,6 @@ func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context, du
 		return nil, err
 	}
 	return deviceTempHistory, nil
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +102,6 @@ func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context, du
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (sr *scrutinyRepository) aggregateTempQuery(durationKey string) string {
-
 	/*
 		import "influxdata/influxdb/schema"
 		weekData = from(bucket: "metrics")
@@ -152,7 +149,7 @@ func (sr *scrutinyRepository) aggregateTempQuery(durationKey string) string {
 	}
 
 	if len(subQueryNames) == 1 {
-		//there's only one bucket being queried, no need to union, just aggregate the dataset and return
+		// there's only one bucket being queried, no need to union, just aggregate the dataset and return
 		partialQueryStr = append(partialQueryStr, []string{
 			subQueryNames[0],
 			"|> schema.fieldsAsCols()",

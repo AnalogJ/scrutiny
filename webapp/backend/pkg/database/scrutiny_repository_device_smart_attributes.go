@@ -13,9 +13,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SMART
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 func (sr *scrutinyRepository) SaveSmartAttributes(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (measurements.Smart, error) {
 	deviceSmartData := measurements.Smart{}
 	err := deviceSmartData.FromCollectorSmartInfo(wwn, collectorSmartData)
@@ -34,13 +34,13 @@ func (sr *scrutinyRepository) SaveSmartAttributes(ctx context.Context, wwn strin
 // When selectEntries is > 0, only the most recent selectEntries database entries are returned, starting from the selectEntriesOffset entry.
 // For example, with selectEntries = 5, selectEntries = 0, the most recent 5 are returned. With selectEntries = 3, selectEntries = 2, entries
 // 2 to 4 are returned (2 being the third newest, since it is zero-indexed)
-func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn string, durationKey string, selectEntries int, selectEntriesOffset int, attributes []string) ([]measurements.Smart, error) {
+func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn, durationKey string, selectEntries, selectEntriesOffset int, attributes []string) ([]measurements.Smart, error) {
 	// Get SMartResults from InfluxDB
 
-	//TODO: change the filter startrange to a real number.
+	// TODO: change the filter startrange to a real number.
 
 	// Get parser flux query result
-	//appConfig.GetString("web.influxdb.bucket")
+	// appConfig.GetString("web.influxdb.bucket")
 	queryStr := sr.aggregateSmartAttributesQuery(wwn, durationKey, selectEntries, selectEntriesOffset, attributes)
 	log.Infoln(queryStr)
 
@@ -52,7 +52,7 @@ func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn 
 		for result.Next() {
 			// Observe when there is new grouping key producing new table
 			if result.TableChanged() {
-				//fmt.Printf("table: %s\n", result.TableMetadata().String())
+				// fmt.Printf("table: %s\n", result.TableMetadata().String())
 			}
 
 			smartData, err := measurements.NewSmartFromInfluxDB(result.Record().Values())
@@ -82,7 +82,6 @@ func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn 
 	//	c.JSON(http.StatusInternalServerError, gin.H{"success": false})
 	//	return
 	//}
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +89,7 @@ func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (sr *scrutinyRepository) saveDatapoint(influxWriteApi api.WriteAPIBlocking, measurement string, tags map[string]string, fields map[string]interface{}, date time.Time, ctx context.Context) error {
-	//sr.logger.Debugf("Storing datapoint in measurement '%s'. tags: %d fields: %d", measurement, len(tags), len(fields))
+	// sr.logger.Debugf("Storing datapoint in measurement '%s'. tags: %d fields: %d", measurement, len(tags), len(fields))
 	p := influxdb2.NewPoint(measurement,
 		tags,
 		fields,
@@ -100,8 +99,7 @@ func (sr *scrutinyRepository) saveDatapoint(influxWriteApi api.WriteAPIBlocking,
 	return influxWriteApi.WritePoint(ctx, p)
 }
 
-func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, durationKey string, selectEntries int, selectEntriesOffset int, attributes []string) string {
-
+func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn, durationKey string, selectEntries, selectEntriesOffset int, attributes []string) string {
 	/*
 
 		import "influxdata/influxdb/schema"
@@ -148,7 +146,7 @@ func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, duration
 	nestedDurationKeys := sr.lookupNestedDurationKeys(durationKey)
 
 	if len(nestedDurationKeys) == 1 {
-		//there's only one bucket being queried, no need to union, just aggregate the dataset and return
+		// there's only one bucket being queried, no need to union, just aggregate the dataset and return
 		partialQueryStr = append(partialQueryStr, []string{
 			sr.generateSmartAttributesSubquery(wwn, nestedDurationKeys[0], selectEntries, selectEntriesOffset, attributes),
 			fmt.Sprintf(`%sData`, nestedDurationKeys[0]),
@@ -184,7 +182,7 @@ func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, duration
 	return strings.Join(partialQueryStr, "\n")
 }
 
-func (sr *scrutinyRepository) generateSmartAttributesSubquery(wwn string, durationKey string, selectEntries int, selectEntriesOffset int, attributes []string) string {
+func (sr *scrutinyRepository) generateSmartAttributesSubquery(wwn, durationKey string, selectEntries, selectEntriesOffset int, attributes []string) string {
 	bucketName := sr.lookupBucketName(durationKey)
 	durationRange := sr.lookupDuration(durationKey)
 

@@ -4,6 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/url"
+	"os"
+	"os/exec"
+	"strings"
+
 	"github.com/analogj/scrutiny/collector/pkg/common/shell"
 	"github.com/analogj/scrutiny/collector/pkg/config"
 	"github.com/analogj/scrutiny/collector/pkg/detect"
@@ -11,10 +16,6 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
-	"net/url"
-	"os"
-	"os/exec"
-	"strings"
 )
 
 type MetricsCollector struct {
@@ -49,7 +50,7 @@ func (mc *MetricsCollector) Run() error {
 	}
 
 	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
-	apiEndpoint, _ = apiEndpoint.Parse("api/devices/register") //this acts like filepath.Join()
+	apiEndpoint, _ = apiEndpoint.Parse("api/devices/register") // this acts like filepath.Join()
 
 	deviceRespWrapper := new(models.DeviceWrapper)
 
@@ -62,7 +63,7 @@ func (mc *MetricsCollector) Run() error {
 		return err
 	}
 
-	//filter any device with empty wwn (they are invalid)
+	// filter any device with empty wwn (they are invalid)
 	detectedStorageDevices := lo.Filter[models.Device](rawDetectedStorageDevices, func(dev models.Device, _ int) bool {
 		return len(dev.WWN) > 0
 	})
@@ -83,19 +84,19 @@ func (mc *MetricsCollector) Run() error {
 		return errors.ApiServerCommunicationError("An error occurred while retrieving filtered devices")
 	} else {
 		mc.logger.Debugln(deviceRespWrapper)
-		//var wg sync.WaitGroup
+		// var wg sync.WaitGroup
 		for _, device := range deviceRespWrapper.Data {
 			// execute collection in parallel go-routines
-			//wg.Add(1)
-			//go mc.Collect(&wg, device.WWN, device.DeviceName, device.DeviceType)
+			// wg.Add(1)
+			// go mc.Collect(&wg, device.WWN, device.DeviceName, device.DeviceType)
 			mc.Collect(device.WWN, device.DeviceName, device.DeviceType)
 
 			// TODO: we may need to sleep for between each call to smartctl -a
-			//time.Sleep(30 * time.Millisecond)
+			// time.Sleep(30 * time.Millisecond)
 		}
 
-		//mc.logger.Infoln("Main: Waiting for workers to finish")
-		//wg.Wait()
+		// mc.logger.Infoln("Main: Waiting for workers to finish")
+		// wg.Wait()
 		mc.logger.Infoln("Main: Completed")
 	}
 
@@ -113,9 +114,9 @@ func (mc *MetricsCollector) Validate() error {
 	return nil
 }
 
-//func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
-func (mc *MetricsCollector) Collect(deviceWWN string, deviceName string, deviceType string) {
-	//defer wg.Done()
+// func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
+func (mc *MetricsCollector) Collect(deviceWWN, deviceName, deviceType string) {
+	// defer wg.Done()
 	if len(deviceWWN) == 0 {
 		mc.logger.Errorf("no device WWN detected for %s. Skipping collection for this device (no data association possible).\n", deviceName)
 		return
@@ -124,7 +125,7 @@ func (mc *MetricsCollector) Collect(deviceWWN string, deviceName string, deviceT
 
 	fullDeviceName := fmt.Sprintf("%s%s", detect.DevicePrefix(), deviceName)
 	args := strings.Split(mc.config.GetCommandMetricsSmartArgs(fullDeviceName), " ")
-	//only include the device type if its a non-standard one. In some cases ata drives are detected as scsi in docker, and metadata is lost.
+	// only include the device type if its a non-standard one. In some cases ata drives are detected as scsi in docker, and metadata is lost.
 	if len(deviceType) > 0 && deviceType != "scsi" && deviceType != "ata" {
 		args = append(args, "--device", deviceType)
 	}
@@ -145,7 +146,7 @@ func (mc *MetricsCollector) Collect(deviceWWN string, deviceName string, deviceT
 		}
 		return
 	} else {
-		//successful run, pass the results directly to webapp backend for parsing and processing.
+		// successful run, pass the results directly to webapp backend for parsing and processing.
 		mc.Publish(deviceWWN, resultBytes)
 	}
 }

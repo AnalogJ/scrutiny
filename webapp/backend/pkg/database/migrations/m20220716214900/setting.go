@@ -5,7 +5,7 @@ import (
 )
 
 type Setting struct {
-	//GORM attributes, see: http://gorm.io/docs/conventions.html
+	// GORM attributes, see: http://gorm.io/docs/conventions.html
 	gorm.Model
 
 	SettingKeyName        string `json:"setting_key_name"`

@@ -9,7 +9,7 @@ import (
 )
 
 type SmartNvmeAttribute struct {
-	AttributeId string `json:"attribute_id"` //json string from smartctl
+	AttributeId string `json:"attribute_id"` // json string from smartctl
 	Value       int64  `json:"value"`
 	Threshold   int64  `json:"thresh"`
 
@@ -33,13 +33,14 @@ func (sa *SmartNvmeAttribute) Flatten() map[string]interface{} {
 		fmt.Sprintf("attr.%s.value", sa.AttributeId):        sa.Value,
 		fmt.Sprintf("attr.%s.thresh", sa.AttributeId):       sa.Threshold,
 
-		//Generated Data
+		// Generated Data
 		fmt.Sprintf("attr.%s.transformed_value", sa.AttributeId): sa.TransformedValue,
 		fmt.Sprintf("attr.%s.status", sa.AttributeId):            int64(sa.Status),
 		fmt.Sprintf("attr.%s.status_reason", sa.AttributeId):     sa.StatusReason,
 		fmt.Sprintf("attr.%s.failure_rate", sa.AttributeId):      sa.FailureRate,
 	}
 }
+
 func (sa *SmartNvmeAttribute) Inflate(key string, val interface{}) {
 	if val == nil {
 		return
@@ -55,7 +56,7 @@ func (sa *SmartNvmeAttribute) Inflate(key string, val interface{}) {
 	case "thresh":
 		sa.Threshold = val.(int64)
 
-	//generated
+	// generated
 	case "transformed_value":
 		sa.TransformedValue = val.(int64)
 	case "status":
@@ -67,14 +68,13 @@ func (sa *SmartNvmeAttribute) Inflate(key string, val interface{}) {
 	}
 }
 
-//populate attribute status, using SMART Thresholds & Observed Metadata
+// populate attribute status, using SMART Thresholds & Observed Metadata
 // Chainable
 func (sa *SmartNvmeAttribute) PopulateAttributeStatus() *SmartNvmeAttribute {
-
 	//-1 is a special number meaning no threshold.
 	if sa.Threshold != -1 {
 		if smartMetadata, ok := thresholds.NmveMetadata[sa.AttributeId]; ok {
-			//check what the ideal is. Ideal tells us if we our recorded value needs to be above, or below the threshold
+			// check what the ideal is. Ideal tells us if we our recorded value needs to be above, or below the threshold
 			if (smartMetadata.Ideal == "low" && sa.Value > sa.Threshold) ||
 				(smartMetadata.Ideal == "high" && sa.Value < sa.Threshold) {
 				sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedScrutiny)
@@ -82,7 +82,7 @@ func (sa *SmartNvmeAttribute) PopulateAttributeStatus() *SmartNvmeAttribute {
 			}
 		}
 	}
-	//TODO: eventually figure out the critical_warning bits and determine correct error messages here.
+	// TODO: eventually figure out the critical_warning bits and determine correct error messages here.
 
 	return sa
 }

@@ -2,13 +2,14 @@ package measurements
 
 import (
 	"fmt"
-	"github.com/analogj/scrutiny/webapp/backend/pkg"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"log"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 )
 
 type Smart struct {
@@ -16,15 +17,15 @@ type Smart struct {
 	DeviceWWN      string    `json:"device_wwn"` //(tag)
 	DeviceProtocol string    `json:"device_protocol"`
 
-	//Metrics (fields)
+	// Metrics (fields)
 	Temp            int64 `json:"temp"`
 	PowerOnHours    int64 `json:"power_on_hours"`
 	PowerCycleCount int64 `json:"power_cycle_count"`
 
-	//Attributes (fields)
+	// Attributes (fields)
 	Attributes map[string]SmartAttribute `json:"attrs"`
 
-	//status
+	// status
 	Status pkg.DeviceStatus
 }
 
@@ -50,10 +51,10 @@ func (sm *Smart) Flatten() (tags map[string]string, fields map[string]interface{
 }
 
 func NewSmartFromInfluxDB(attrs map[string]interface{}) (*Smart, error) {
-	//go though the massive map returned from influxdb. If a key is associated with the Smart struct, assign it. If it starts with "attr.*" group it by attributeId, and pass to attribute inflate.
+	// go though the massive map returned from influxdb. If a key is associated with the Smart struct, assign it. If it starts with "attr.*" group it by attributeId, and pass to attribute inflate.
 
 	sm := Smart{
-		//required fields
+		// required fields
 		Date:           attrs["_time"].(time.Time),
 		DeviceWWN:      attrs["device_wwn"].(string),
 		DeviceProtocol: attrs["device_protocol"].(string),
@@ -74,7 +75,7 @@ func NewSmartFromInfluxDB(attrs map[string]interface{}) (*Smart, error) {
 			if !strings.HasPrefix(key, "attr.") {
 				continue
 			}
-			//this is a attribute, lets group it with its related "siblings", populating a SmartAttribute object
+			// this is a attribute, lets group it with its related "siblings", populating a SmartAttribute object
 			keyParts := strings.Split(key, ".")
 			attributeId := keyParts[1]
 			if _, ok := sm.Attributes[attributeId]; !ok {
@@ -92,7 +93,6 @@ func NewSmartFromInfluxDB(attrs map[string]interface{}) (*Smart, error) {
 
 			sm.Attributes[attributeId].Inflate(key, val)
 		}
-
 	}
 
 	log.Printf("Found Smart Device (%s) Attributes (%v)", sm.DeviceWWN, len(sm.Attributes))
@@ -100,12 +100,12 @@ func NewSmartFromInfluxDB(attrs map[string]interface{}) (*Smart, error) {
 	return &sm, nil
 }
 
-//Parse Collector SMART data results and create Smart object (and associated SmartAtaAttribute entries)
+// Parse Collector SMART data results and create Smart object (and associated SmartAtaAttribute entries)
 func (sm *Smart) FromCollectorSmartInfo(wwn string, info collector.SmartInfo) error {
 	sm.DeviceWWN = wwn
 	sm.Date = time.Unix(info.LocalTime.TimeT, 0)
 
-	//smart metrics
+	// smart metrics
 	sm.Temp = info.Temperature.Current
 	sm.PowerCycleCount = info.PowerCycleCount
 	sm.PowerOnHours = info.PowerOnTime.Hours
@@ -127,7 +127,7 @@ func (sm *Smart) FromCollectorSmartInfo(wwn string, info collector.SmartInfo) er
 	return nil
 }
 
-//generate SmartAtaAttribute entries from Scrutiny Collector Smart data.
+// generate SmartAtaAttribute entries from Scrutiny Collector Smart data.
 func (sm *Smart) ProcessAtaSmartInfo(tableItems []collector.AtaSmartAttributesTableItem) {
 	for _, collectorAttr := range tableItems {
 		attrModel := SmartAtaAttribute{
@@ -140,7 +140,7 @@ func (sm *Smart) ProcessAtaSmartInfo(tableItems []collector.AtaSmartAttributesTa
 			WhenFailed:  collectorAttr.WhenFailed,
 		}
 
-		//now that we've parsed the data from the smartctl response, lets match it against our metadata rules and add additional Scrutiny specific data.
+		// now that we've parsed the data from the smartctl response, lets match it against our metadata rules and add additional Scrutiny specific data.
 		if smartMetadata, ok := thresholds.AtaMetadata[collectorAttr.ID]; ok {
 			if smartMetadata.Transform != nil {
 				attrModel.TransformedValue = smartMetadata.Transform(attrModel.Value, attrModel.RawValue, attrModel.RawString)
@@ -155,9 +155,8 @@ func (sm *Smart) ProcessAtaSmartInfo(tableItems []collector.AtaSmartAttributesTa
 	}
 }
 
-//generate SmartNvmeAttribute entries from Scrutiny Collector Smart data.
+// generate SmartNvmeAttribute entries from Scrutiny Collector Smart data.
 func (sm *Smart) ProcessNvmeSmartInfo(nvmeSmartHealthInformationLog collector.NvmeSmartHealthInformationLog) {
-
 	sm.Attributes = map[string]SmartAttribute{
 		"critical_warning":     (&SmartNvmeAttribute{AttributeId: "critical_warning", Value: nvmeSmartHealthInformationLog.CriticalWarning, Threshold: 0}).PopulateAttributeStatus(),
 		"temperature":          (&SmartNvmeAttribute{AttributeId: "temperature", Value: nvmeSmartHealthInformationLog.Temperature, Threshold: -1}).PopulateAttributeStatus(),
@@ -177,7 +176,7 @@ func (sm *Smart) ProcessNvmeSmartInfo(nvmeSmartHealthInformationLog collector.Nv
 		"critical_comp_time":   (&SmartNvmeAttribute{AttributeId: "critical_comp_time", Value: nvmeSmartHealthInformationLog.CriticalCompTime, Threshold: -1}).PopulateAttributeStatus(),
 	}
 
-	//find analyzed attribute status
+	// find analyzed attribute status
 	for _, val := range sm.Attributes {
 		if pkg.AttributeStatusHas(val.GetStatus(), pkg.AttributeStatusFailedScrutiny) {
 			sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
@@ -185,7 +184,7 @@ func (sm *Smart) ProcessNvmeSmartInfo(nvmeSmartHealthInformationLog collector.Nv
 	}
 }
 
-//generate SmartScsiAttribute entries from Scrutiny Collector Smart data.
+// generate SmartScsiAttribute entries from Scrutiny Collector Smart data.
 func (sm *Smart) ProcessScsiSmartInfo(defectGrownList int64, scsiErrorCounterLog collector.ScsiErrorCounterLog) {
 	sm.Attributes = map[string]SmartAttribute{
 		"scsi_grown_defect_list":                     (&SmartScsiAttribute{AttributeId: "scsi_grown_defect_list", Value: defectGrownList, Threshold: 0}).PopulateAttributeStatus(),
@@ -203,7 +202,7 @@ func (sm *Smart) ProcessScsiSmartInfo(defectGrownList int64, scsiErrorCounterLog
 		"write_total_uncorrected_errors":             (&SmartScsiAttribute{AttributeId: "write_total_uncorrected_errors", Value: scsiErrorCounterLog.Write.TotalUncorrectedErrors, Threshold: 0}).PopulateAttributeStatus(),
 	}
 
-	//find analyzed attribute status
+	// find analyzed attribute status
 	for _, val := range sm.Attributes {
 		if pkg.AttributeStatusHas(val.GetStatus(), pkg.AttributeStatusFailedScrutiny) {
 			sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
