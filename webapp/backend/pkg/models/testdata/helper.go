@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
+	_ "go.uber.org/automaxprocs"
 )
 
 func main() {
