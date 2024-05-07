@@ -332,6 +332,12 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						SettingDataType:       "string",
 						SettingValueString:    "smooth",
 					},
+					{
+						SettingKeyName:        "powered_on_hours_unit",
+						SettingKeyDescription: "Presentation format for device powered on time ('humanize' | 'device-hours')",
+						SettingDataType:       "string",
+						SettingValueString:    "humanize",
+					},
 
 					{
 						SettingKeyName:        "metrics.notify_level",
