@@ -6,6 +6,7 @@ import { DeviceSortPipe } from './device-sort.pipe';
 import { TemperaturePipe } from './temperature.pipe';
 import { DeviceTitlePipe } from './device-title.pipe';
 import { DeviceStatusPipe } from './device-status.pipe';
+import { DeviceHoursPipe } from './device-hours.pipe';
 
 @NgModule({
     declarations: [
@@ -13,7 +14,8 @@ import { DeviceStatusPipe } from './device-status.pipe';
         DeviceSortPipe,
         TemperaturePipe,
         DeviceTitlePipe,
-        DeviceStatusPipe
+        DeviceStatusPipe,
+        DeviceHoursPipe
     ],
     imports: [
         CommonModule,
@@ -28,7 +30,8 @@ import { DeviceStatusPipe } from './device-status.pipe';
         DeviceSortPipe,
         DeviceTitlePipe,
         DeviceStatusPipe,
-        TemperaturePipe
+        TemperaturePipe,
+        DeviceHoursPipe
     ]
 })
 export class SharedModule

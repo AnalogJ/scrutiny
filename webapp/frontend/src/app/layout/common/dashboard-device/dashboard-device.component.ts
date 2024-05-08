@@ -4,7 +4,6 @@ import {takeUntil} from 'rxjs/operators';
 import {AppConfig} from 'app/core/config/app.config';
 import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
 import {Subject} from 'rxjs';
-import humanizeDuration from 'humanize-duration'
 import {MatDialog} from '@angular/material/dialog';
 import {DashboardDeviceDeleteDialogComponent} from 'app/layout/common/dashboard-device-delete-dialog/dashboard-device-delete-dialog.component';
 import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
@@ -33,8 +32,6 @@ export class DashboardDeviceComponent implements OnInit {
     config: AppConfig;
 
     private _unsubscribeAll: Subject<void>;
-
-    readonly humanizeDuration = humanizeDuration;
 
     deviceStatusForModelWithThreshold = DeviceStatusPipe.deviceStatusForModelWithThreshold
 

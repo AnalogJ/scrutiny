@@ -55,6 +55,14 @@
 
         <div class="flex flex-col mt-5 gt-md:flex-row">
             <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
+                <mat-label>Powered On Format</mat-label>
+                <mat-select [(ngModel)]="poweredOnHoursUnit">
+                    <mat-option value="humanize">Humanize</mat-option>
+                    <mat-option value="device_hours">Device Hours</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
                 <mat-label>Line stroke</mat-label>
                 <mat-select [(ngModel)]="lineStroke">
                     <mat-option value="smooth">Smooth</mat-option>
