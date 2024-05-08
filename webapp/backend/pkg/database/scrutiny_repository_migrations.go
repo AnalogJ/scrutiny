@@ -334,7 +334,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 					},
 					{
 						SettingKeyName:        "powered_on_hours_unit",
-						SettingKeyDescription: "Presentation format for device powered on time ('humanize' | 'device-hours')",
+						SettingKeyDescription: "Presentation format for device powered on time ('humanize' | 'device_hours')",
 						SettingDataType:       "string",
 						SettingValueString:    "humanize",
 					},
