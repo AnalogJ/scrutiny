@@ -67,7 +67,7 @@ log:
 
 #notify:
 #  urls:
-#    - "discord://token@channel"
+#    - "discord://token@webhookid"
 #    - "telegram://token@telegram?channels=channel-1[,channel-2,...]"
 #    - "pushover://shoutrrr:apiToken@userKey/?priority=1&devices=device1[,device2, ...]"
 #    - "slack://[botname@]token-a/token-b/token-c"
