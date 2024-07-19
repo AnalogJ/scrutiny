@@ -121,7 +121,7 @@ apt install smartmontools -y
 # 3. Make it exacutable
 # 4. List the contents of the library for confirmation
 mkdir -p /opt/scrutiny/bin && \
-curl -L https://github.com/AnalogJ/scrutiny/releases/download/v0.5.0/scrutiny-collector-metrics-linux-amd64 > /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 && \
+curl -L https://github.com/AnalogJ/scrutiny/releases/download/v0.8.1/scrutiny-collector-metrics-linux-amd64 > /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 && \
 chmod +x /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 && \
 ls -lha /opt/scrutiny/bin
 ```
