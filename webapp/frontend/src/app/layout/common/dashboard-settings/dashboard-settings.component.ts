@@ -26,6 +26,7 @@ export class DashboardSettingsComponent implements OnInit {
     fileSizeSIUnits: boolean;
     lineStroke: string;
     theme: string;
+    retrieveSCTTemperatureHistory: boolean;
     statusThreshold: number;
     statusFilterAttributes: number;
     repeatNotifications: boolean;
@@ -54,6 +55,8 @@ export class DashboardSettingsComponent implements OnInit {
                 this.lineStroke = config.line_stroke;
                 this.theme = config.theme;
 
+                this.retrieveSCTTemperatureHistory = config.collector.retrieve_sct_temperature_history;
+
                 this.statusFilterAttributes = config.metrics.status_filter_attributes;
                 this.statusThreshold = config.metrics.status_threshold;
                 this.repeatNotifications = config.metrics.repeat_notifications;
@@ -70,6 +73,9 @@ export class DashboardSettingsComponent implements OnInit {
             file_size_si_units: this.fileSizeSIUnits,
             line_stroke: this.lineStroke as LineStroke,
             theme: this.theme as Theme,
+            collector: {
+                retrieve_sct_temperature_history: this.retrieveSCTTemperatureHistory
+            },
             metrics: {
                 status_filter_attributes: this.statusFilterAttributes as MetricsStatusFilterAttributes,
                 status_threshold: this.statusThreshold as MetricsStatusThreshold,

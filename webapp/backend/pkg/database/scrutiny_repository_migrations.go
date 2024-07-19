@@ -385,6 +385,21 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				return tx.Create(&defaultSettings).Error
 			},
 		},
+		{
+			ID: "m20240719190500", // add retrieve_sct_history setting.
+			Migrate: func(tx *gorm.DB) error {
+				//add retrieve_sct_history setting default.
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "collector.retrieve_sct_temperature_history",
+						SettingKeyDescription: "Whether to retrieve SCT Temperature history (true | false)",
+						SettingDataType:       "bool",
+						SettingValueBool:      true,
+					},
+				}
+				return tx.Create(&defaultSettings).Error
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
@@ -421,8 +436,8 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 
 // helpers
 
-//When adding data to influxdb, an error may be returned if the data point is outside the range of the retention policy.
-//This function will ignore retention policy errors, and allow the migration to continue.
+// When adding data to influxdb, an error may be returned if the data point is outside the range of the retention policy.
+// This function will ignore retention policy errors, and allow the migration to continue.
 func ignorePastRetentionPolicyError(err error) error {
 	var influxDbWriteError *http.Error
 	if errors.As(err, &influxDbWriteError) {

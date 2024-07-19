@@ -16,6 +16,10 @@ type Settings struct {
 	FileSizeSIUnits  bool   `json:"file_size_si_units" mapstructure:"file_size_si_units"`
 	LineStroke       string `json:"line_stroke" mapstructure:"line_stroke"`
 
+	Collector struct {
+		RetrieveSCTHistory bool `json:"retrieve_sct_temperature_history" mapstructure:"retrieve_sct_temperature_history"`
+	} `json:"collector" mapstructure:"collector"`
+
 	Metrics struct {
 		NotifyLevel            int  `json:"notify_level" mapstructure:"notify_level"`
 		StatusFilterAttributes int  `json:"status_filter_attributes" mapstructure:"status_filter_attributes"`
