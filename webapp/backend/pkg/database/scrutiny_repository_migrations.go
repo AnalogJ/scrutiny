@@ -332,7 +332,6 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						SettingDataType:       "string",
 						SettingValueString:    "smooth",
 					},
-
 					{
 						SettingKeyName:        "metrics.notify_level",
 						SettingKeyDescription: "Determines which device status will cause a notification (fail or warn)",
@@ -385,6 +384,21 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				return tx.Create(&defaultSettings).Error
 			},
 		},
+		{
+			ID: "m20240722082740", // add powered_on_hours_unit setting.
+			Migrate: func(tx *gorm.DB) error {
+				//add powered_on_hours_unit setting default.
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "powered_on_hours_unit",
+						SettingKeyDescription: "Presentation format for device powered on time ('humanize' | 'device_hours')",
+						SettingDataType:       "string",
+						SettingValueString:    "humanize",
+					},
+				}
+				return tx.Create(&defaultSettings).Error
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
@@ -421,8 +435,8 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 
 // helpers
 
-//When adding data to influxdb, an error may be returned if the data point is outside the range of the retention policy.
-//This function will ignore retention policy errors, and allow the migration to continue.
+// When adding data to influxdb, an error may be returned if the data point is outside the range of the retention policy.
+// This function will ignore retention policy errors, and allow the migration to continue.
 func ignorePastRetentionPolicyError(err error) error {
 	var influxDbWriteError *http.Error
 	if errors.As(err, &influxDbWriteError) {
