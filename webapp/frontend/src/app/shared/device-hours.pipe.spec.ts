@@ -31,19 +31,17 @@ describe("DeviceHoursPipe", () => {
       {
         input: null,
         configuration: "device_hours",
-        result: "null hours",
+        result: "Unknown",
       },
       {
         input: null,
         configuration: "humanize",
-        result: "0 seconds",
+        result: "Unknown",
       },
     ];
 
     testCases.forEach((test, index) => {
-      it(`should format input ${test.input} with configuration '${
-        test.configuration
-      }' (testcase: ${index + 1})`, () => {
+      it(`format input '${test.input}' with configuration '${test.configuration}', should be '${test.result}' (testcase: ${index + 1})`, () => {
         // test
         const pipe = new DeviceHoursPipe();
         const formatted = pipe.transform(test.input, test.configuration);
