@@ -400,7 +400,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 			},
 		},
 		{
-			ID: "m20240719190500", // add retrieve_sct_history setting.
+			ID: "m20240804113900", // add retrieve_sct_history setting.
 			Migrate: func(tx *gorm.DB) error {
 				//add retrieve_sct_history setting default.
 				var defaultSettings = []m20220716214900.Setting{
