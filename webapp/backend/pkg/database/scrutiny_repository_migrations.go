@@ -332,7 +332,6 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						SettingDataType:       "string",
 						SettingValueString:    "smooth",
 					},
-
 					{
 						SettingKeyName:        "metrics.notify_level",
 						SettingKeyDescription: "Determines which device status will cause a notification (fail or warn)",
@@ -380,6 +379,21 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						SettingKeyDescription: "Whether to repeat all notifications or just when values change (true | false)",
 						SettingDataType:       "bool",
 						SettingValueBool:      true,
+					},
+				}
+				return tx.Create(&defaultSettings).Error
+			},
+		},
+		{
+			ID: "m20240722082740", // add powered_on_hours_unit setting.
+			Migrate: func(tx *gorm.DB) error {
+				//add powered_on_hours_unit setting default.
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "powered_on_hours_unit",
+						SettingKeyDescription: "Presentation format for device powered on time ('humanize' | 'device_hours')",
+						SettingDataType:       "string",
+						SettingValueString:    "humanize",
 					},
 				}
 				return tx.Create(&defaultSettings).Error

@@ -12,6 +12,8 @@ export type TemperatureUnit = 'celsius' | 'fahrenheit'
 
 export type LineStroke = 'smooth' | 'straight' | 'stepline'
 
+export type DevicePoweredOnUnit = 'humanize' | 'device_hours'
+
 
 export enum MetricsNotifyLevel {
     Warn = 1,
@@ -47,6 +49,8 @@ export interface AppConfig {
 
     file_size_si_units?: boolean;
 
+    powered_on_hours_unit?: DevicePoweredOnUnit;
+
     line_stroke?: LineStroke;
 
     // Settings from Scrutiny API
@@ -81,6 +85,7 @@ export const appConfig: AppConfig = {
 
     temperature_unit: 'celsius',
     file_size_si_units: false,
+    powered_on_hours_unit: 'humanize',
 
     line_stroke: 'smooth',
     

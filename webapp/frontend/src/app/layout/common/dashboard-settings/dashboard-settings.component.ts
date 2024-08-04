@@ -7,7 +7,8 @@ import {
     MetricsStatusThreshold,
     TemperatureUnit,
     LineStroke,
-    Theme
+    Theme,
+    DevicePoweredOnUnit
 } from 'app/core/config/app.config';
 import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
 import {Subject} from 'rxjs';
@@ -24,6 +25,7 @@ export class DashboardSettingsComponent implements OnInit {
     dashboardSort: string;
     temperatureUnit: string;
     fileSizeSIUnits: boolean;
+    poweredOnHoursUnit: string;
     lineStroke: string;
     theme: string;
     retrieveSCTTemperatureHistory: boolean;
@@ -52,6 +54,7 @@ export class DashboardSettingsComponent implements OnInit {
                 this.dashboardSort = config.dashboard_sort;
                 this.temperatureUnit = config.temperature_unit;
                 this.fileSizeSIUnits = config.file_size_si_units;
+                this.poweredOnHoursUnit = config.powered_on_hours_unit;
                 this.lineStroke = config.line_stroke;
                 this.theme = config.theme;
 
@@ -71,6 +74,7 @@ export class DashboardSettingsComponent implements OnInit {
             dashboard_sort: this.dashboardSort as DashboardSort,
             temperature_unit: this.temperatureUnit as TemperatureUnit,
             file_size_si_units: this.fileSizeSIUnits,
+            powered_on_hours_unit: this.poweredOnHoursUnit as DevicePoweredOnUnit,
             line_stroke: this.lineStroke as LineStroke,
             theme: this.theme as Theme,
             collector: {
