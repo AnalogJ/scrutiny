@@ -1,13 +1,14 @@
 package config
 
 import (
+	"testing"
+
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func Test_MergeConfigMap(t *testing.T) {
-	//setup
+	// setup
 	testConfig := configuration{
 		Viper: viper.New(),
 	}
@@ -20,15 +21,14 @@ func Test_MergeConfigMap(t *testing.T) {
 			"layout":            "layout",
 		},
 	}
-	//test
+	// test
 	err := testConfig.MergeConfigMap(mergeSettings)
 
-	//verify
+	// verify
 	require.NoError(t, err)
 
 	// if using Set, the MergeConfigMap functionality will not override
 	// if using SetDefault, the MergeConfigMap will override correctly
 	require.Equal(t, "hello", testConfig.GetString("user.dashboard_display"))
 	require.Equal(t, "layout", testConfig.GetString("user.layout"))
-
 }

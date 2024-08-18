@@ -19,7 +19,7 @@ import (
 
 func TestShouldNotify_MustSkipPassingDevices(t *testing.T) {
 	t.Parallel()
-	//setup
+	// setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusPassed,
 	}
@@ -30,13 +30,13 @@ func TestShouldNotify_MustSkipPassingDevices(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
-	//assert
+	// assert
 	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
 }
 
 func TestShouldNotify_MetricsStatusThresholdBoth_FailingSmartDevice(t *testing.T) {
 	t.Parallel()
-	//setupD
+	// setupD
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedSmart,
 	}
@@ -46,13 +46,13 @@ func TestShouldNotify_MetricsStatusThresholdBoth_FailingSmartDevice(t *testing.T
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
-	//assert
+	// assert
 	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
 }
 
 func TestShouldNotify_MetricsStatusThresholdSmart_FailingSmartDevice(t *testing.T) {
 	t.Parallel()
-	//setup
+	// setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedSmart,
 	}
@@ -62,13 +62,13 @@ func TestShouldNotify_MetricsStatusThresholdSmart_FailingSmartDevice(t *testing.
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
-	//assert
+	// assert
 	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
 }
 
 func TestShouldNotify_MetricsStatusThresholdScrutiny_FailingSmartDevice(t *testing.T) {
 	t.Parallel()
-	//setup
+	// setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedSmart,
 	}
@@ -78,13 +78,13 @@ func TestShouldNotify_MetricsStatusThresholdScrutiny_FailingSmartDevice(t *testi
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
-	//assert
+	// assert
 	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
 }
 
 func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithCriticalAttrs(t *testing.T) {
 	t.Parallel()
-	//setup
+	// setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedSmart,
 	}
@@ -99,13 +99,13 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithCriticalAttrs(t 
 	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 
-	//assert
+	// assert
 	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
 }
 
 func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithMultipleCriticalAttrs(t *testing.T) {
 	t.Parallel()
-	//setup
+	// setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedSmart,
 	}
@@ -123,13 +123,13 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithMultipleCritical
 	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 
-	//assert
+	// assert
 	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
 }
 
 func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithNoCriticalAttrs(t *testing.T) {
 	t.Parallel()
-	//setup
+	// setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedSmart,
 	}
@@ -144,13 +144,13 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithNoCriticalAttrs(
 	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 
-	//assert
+	// assert
 	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
 }
 
 func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithNoFailingCriticalAttrs(t *testing.T) {
 	t.Parallel()
-	//setup
+	// setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedSmart,
 	}
@@ -165,13 +165,13 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithNoFailingCritica
 	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 
-	//assert
+	// assert
 	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
 }
 
 func TestShouldNotify_MetricsStatusFilterAttributesCritical_MetricsStatusThresholdSmart_WithCriticalAttrsFailingScrutiny(t *testing.T) {
 	t.Parallel()
-	//setup
+	// setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedSmart,
 	}
@@ -189,12 +189,13 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_MetricsStatusThresho
 	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 
-	//assert
+	// assert
 	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
 }
+
 func TestShouldNotify_NoRepeat_DatabaseFailure(t *testing.T) {
 	t.Parallel()
-	//setup
+	// setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedScrutiny,
 	}
@@ -210,13 +211,13 @@ func TestShouldNotify_NoRepeat_DatabaseFailure(t *testing.T) {
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, "", database.DURATION_KEY_FOREVER, 1, 1, []string{"5"}).Return([]measurements.Smart{}, errors.New("")).Times(1)
 
-	//assert
+	// assert
 	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, false, &gin.Context{}, fakeDatabase))
 }
 
 func TestShouldNotify_NoRepeat_NoDatabaseData(t *testing.T) {
 	t.Parallel()
-	//setup
+	// setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedScrutiny,
 	}
@@ -232,12 +233,13 @@ func TestShouldNotify_NoRepeat_NoDatabaseData(t *testing.T) {
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, "", database.DURATION_KEY_FOREVER, 1, 1, []string{"5"}).Return([]measurements.Smart{}, nil).Times(1)
 
-	//assert
+	// assert
 	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, false, &gin.Context{}, fakeDatabase))
 }
+
 func TestShouldNotify_NoRepeat(t *testing.T) {
 	t.Parallel()
-	//setup
+	// setup
 	device := models.Device{
 		DeviceStatus: pkg.DeviceStatusFailedScrutiny,
 	}
@@ -254,14 +256,14 @@ func TestShouldNotify_NoRepeat(t *testing.T) {
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, "", database.DURATION_KEY_FOREVER, 1, 1, []string{"5"}).Return([]measurements.Smart{smartAttrs}, nil).Times(1)
 
-	//assert
+	// assert
 	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, false, &gin.Context{}, fakeDatabase))
 }
 
 func TestNewPayload(t *testing.T) {
 	t.Parallel()
 
-	//setup
+	// setup
 	device := models.Device{
 		SerialNumber: "FAKEWDDJ324KSO",
 		DeviceType:   pkg.DeviceProtocolAta,
@@ -269,11 +271,11 @@ func TestNewPayload(t *testing.T) {
 		DeviceStatus: pkg.DeviceStatusFailedScrutiny,
 	}
 	currentTime := time.Now()
-	//test
+	// test
 
 	payload := NewPayload(device, false, currentTime)
 
-	//assert
+	// assert
 	require.Equal(t, "Scrutiny SMART error (ScrutinyFailure) detected on device: /dev/sda", payload.Subject)
 	require.Equal(t, fmt.Sprintf(`Scrutiny SMART error notification for device: /dev/sda
 Failure Type: ScrutinyFailure
@@ -287,7 +289,7 @@ Date: %s`, currentTime.Format(time.RFC3339)), payload.Message)
 func TestNewPayload_TestMode(t *testing.T) {
 	t.Parallel()
 
-	//setup
+	// setup
 	device := models.Device{
 		SerialNumber: "FAKEWDDJ324KSO",
 		DeviceType:   pkg.DeviceProtocolAta,
@@ -295,11 +297,11 @@ func TestNewPayload_TestMode(t *testing.T) {
 		DeviceStatus: pkg.DeviceStatusFailedScrutiny,
 	}
 	currentTime := time.Now()
-	//test
+	// test
 
 	payload := NewPayload(device, true, currentTime)
 
-	//assert
+	// assert
 	require.Equal(t, "Scrutiny SMART error (EmailTest) detected on device: /dev/sda", payload.Subject)
 	require.Equal(t, fmt.Sprintf(`TEST NOTIFICATION:
 Scrutiny SMART error notification for device: /dev/sda
@@ -314,7 +316,7 @@ Date: %s`, currentTime.Format(time.RFC3339)), payload.Message)
 func TestNewPayload_WithHostId(t *testing.T) {
 	t.Parallel()
 
-	//setup
+	// setup
 	device := models.Device{
 		SerialNumber: "FAKEWDDJ324KSO",
 		DeviceType:   pkg.DeviceProtocolAta,
@@ -323,11 +325,11 @@ func TestNewPayload_WithHostId(t *testing.T) {
 		HostId:       "custom-host",
 	}
 	currentTime := time.Now()
-	//test
+	// test
 
 	payload := NewPayload(device, false, currentTime)
 
-	//assert
+	// assert
 	require.Equal(t, "Scrutiny SMART error (ScrutinyFailure) detected on [host]device: [custom-host]/dev/sda", payload.Subject)
 	require.Equal(t, fmt.Sprintf(`Scrutiny SMART error notification for device: /dev/sda
 Host Id: custom-host

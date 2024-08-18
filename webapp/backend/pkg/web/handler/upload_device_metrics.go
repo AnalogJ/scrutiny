@@ -14,13 +14,13 @@ import (
 )
 
 func UploadDeviceMetrics(c *gin.Context) {
-	//db := c.MustGet("DB").(*gorm.DB)
+	// db := c.MustGet("DB").(*gorm.DB)
 	logger := c.MustGet("LOGGER").(*logrus.Entry)
 	appConfig := c.MustGet("CONFIG").(config.Interface)
-	//influxWriteDb := c.MustGet("INFLUXDB_WRITE").(*api.WriteAPIBlocking)
+	// influxWriteDb := c.MustGet("INFLUXDB_WRITE").(*api.WriteAPIBlocking)
 	deviceRepo := c.MustGet("DEVICE_REPOSITORY").(database.DeviceRepo)
 
-	//appConfig := c.MustGet("CONFIG").(config.Interface)
+	// appConfig := c.MustGet("CONFIG").(config.Interface)
 
 	if c.Param("wwn") == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false})
@@ -34,7 +34,7 @@ func UploadDeviceMetrics(c *gin.Context) {
 		return
 	}
 
-	//update the device information if necessary
+	// update the device information if necessary
 	updatedDevice, err := deviceRepo.UpdateDevice(c, c.Param("wwn"), collectorSmartData)
 	if err != nil {
 		logger.Errorln("An error occurred while updating device data from smartctl metrics:", err)
@@ -51,7 +51,7 @@ func UploadDeviceMetrics(c *gin.Context) {
 	}
 
 	if smartData.Status != pkg.DeviceStatusPassed {
-		//there is a failure detected by Scrutiny, update the device status on the homepage.
+		// there is a failure detected by Scrutiny, update the device status on the homepage.
 		updatedDevice, err = deviceRepo.UpdateDeviceStatus(c, c.Param("wwn"), smartData.Status)
 		if err != nil {
 			logger.Errorln("An error occurred while updating device status", err)
@@ -68,7 +68,7 @@ func UploadDeviceMetrics(c *gin.Context) {
 		return
 	}
 
-	//check for error
+	// check for error
 	if notify.ShouldNotify(
 		logger,
 		updatedDevice,
@@ -79,7 +79,7 @@ func UploadDeviceMetrics(c *gin.Context) {
 		c,
 		deviceRepo,
 	) {
-		//send notifications
+		// send notifications
 
 		liveNotify := notify.New(
 			logger,
@@ -87,7 +87,7 @@ func UploadDeviceMetrics(c *gin.Context) {
 			updatedDevice,
 			false,
 		)
-		_ = liveNotify.Send() //we ignore error message when sending notifications.
+		_ = liveNotify.Send() // we ignore error message when sending notifications.
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true})

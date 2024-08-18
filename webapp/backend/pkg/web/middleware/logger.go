@@ -3,8 +3,6 @@ package middleware
 import (
 	"bytes"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"math"
@@ -12,6 +10,9 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 // Middleware based on https://github.com/toorop/gin-logrus/blob/master/logger.go
@@ -29,20 +30,18 @@ var timeFormat = "02/Jan/2006:15:04:05 -0700"
 
 // Logger is the logrus logger handler
 func LoggerMiddleware(logger *logrus.Entry) gin.HandlerFunc {
-
 	hostname, err := os.Hostname()
 	if err != nil {
 		hostname = "unknown"
 	}
 
 	return func(c *gin.Context) {
-
-		//clone the request body reader.
+		// clone the request body reader.
 		var reqBody string
 		if c.Request.Body != nil {
 			buf, _ := ioutil.ReadAll(c.Request.Body)
 			reqBodyReader1 := ioutil.NopCloser(bytes.NewBuffer(buf))
-			reqBodyReader2 := ioutil.NopCloser(bytes.NewBuffer(buf)) //We have to create a new Buffer, because reqBodyReader1 will be read.
+			reqBodyReader2 := ioutil.NopCloser(bytes.NewBuffer(buf)) // We have to create a new Buffer, because reqBodyReader1 will be read.
 			c.Request.Body = reqBodyReader2
 			reqBody = readBody(reqBodyReader1)
 		}
@@ -90,7 +89,7 @@ func LoggerMiddleware(logger *logrus.Entry) gin.HandlerFunc {
 			}
 		}
 		if strings.Contains(path, "/api/") {
-			//only debug log request/response from api endpoint.
+			// only debug log request/response from api endpoint.
 			if len(reqBody) > 0 {
 				entry.WithField("bodyType", "request").Debugln(reqBody) // Print request body
 			}

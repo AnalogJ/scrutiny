@@ -2,15 +2,16 @@ package config
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"sort"
+	"strings"
+
 	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/collector/pkg/errors"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
-	"log"
-	"os"
-	"sort"
-	"strings"
 )
 
 // When initializing this class the following methods must be called:
@@ -23,7 +24,7 @@ type configuration struct {
 	deviceOverrides []models.ScanOverride
 }
 
-//Viper uses the following precedence order. Each item takes precedence over the item below it:
+// Viper uses the following precedence order. Each item takes precedence over the item below it:
 // explicit call to Set
 // flag
 // env
@@ -33,7 +34,7 @@ type configuration struct {
 
 func (c *configuration) Init() error {
 	c.Viper = viper.New()
-	//set defaults
+	// set defaults
 	c.SetDefault("host.id", "")
 
 	c.SetDefault("devices", []string{})
@@ -48,14 +49,14 @@ func (c *configuration) Init() error {
 	c.SetDefault("commands.metrics_info_args", "--info --json")
 	c.SetDefault("commands.metrics_smart_args", "--xall --json")
 
-	//c.SetDefault("collect.short.command", "-a -o on -S on")
+	// c.SetDefault("collect.short.command", "-a -o on -S on")
 
-	//if you want to load a non-standard location system config file (~/drawbridge.yml), use ReadConfig
+	// if you want to load a non-standard location system config file (~/drawbridge.yml), use ReadConfig
 	c.SetConfigType("yaml")
-	//c.SetConfigName("drawbridge")
-	//c.AddConfigPath("$HOME/")
+	// c.SetConfigName("drawbridge")
+	// c.AddConfigPath("$HOME/")
 
-	//CLI options will be added via the `Set()` function
+	// CLI options will be added via the `Set()` function
 	return nil
 }
 
@@ -95,8 +96,7 @@ func (c *configuration) ReadConfig(configFilePath string) error {
 
 // This function ensures that the merged config works correctly.
 func (c *configuration) ValidateConfig() error {
-
-	//TODO:
+	// TODO:
 	// check that device prefix matches OS
 	// check that schema of config file is valid
 
@@ -110,7 +110,7 @@ func (c *configuration) ValidateConfig() error {
 	errorStrings := []string{}
 	for configKey, commandArgString := range commandArgStrings {
 		args := strings.Split(commandArgString, " ")
-		//ensure that the args string contains `--json` or `-j` flag
+		// ensure that the args string contains `--json` or `-j` flag
 		containsJsonFlag := false
 		containsDeviceFlag := false
 		for _, flag := range args {
@@ -130,7 +130,7 @@ func (c *configuration) ValidateConfig() error {
 			errorStrings = append(errorStrings, fmt.Sprintf("configuration key '%s' must not contain '--device' or '-d' flag", configKey))
 		}
 	}
-	//sort(errorStrings)
+	// sort(errorStrings)
 	sort.Strings(errorStrings)
 
 	if len(errorStrings) == 0 {
@@ -160,7 +160,7 @@ func (c *configuration) GetCommandMetricsInfoArgs(deviceName string) string {
 
 	for _, deviceOverrides := range overrides {
 		if strings.ToLower(deviceName) == strings.ToLower(deviceOverrides.Device) {
-			//found matching device
+			// found matching device
 			if len(deviceOverrides.Commands.MetricsInfoArgs) > 0 {
 				return deviceOverrides.Commands.MetricsInfoArgs
 			} else {
@@ -176,7 +176,7 @@ func (c *configuration) GetCommandMetricsSmartArgs(deviceName string) string {
 
 	for _, deviceOverrides := range overrides {
 		if strings.ToLower(deviceName) == strings.ToLower(deviceOverrides.Device) {
-			//found matching device
+			// found matching device
 			if len(deviceOverrides.Commands.MetricsSmartArgs) > 0 {
 				return deviceOverrides.Commands.MetricsSmartArgs
 			} else {

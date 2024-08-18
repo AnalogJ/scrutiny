@@ -55,7 +55,7 @@ func helperReadSmartDataFileFixTimestamp(t *testing.T, smartDataFilepath string)
 	metricsFileData, err := ioutil.ReadAll(metricsfile)
 	require.NoError(t, err)
 
-	//unmarshal because we need to change the timestamp
+	// unmarshal because we need to change the timestamp
 	var smartData collector.SmartInfo
 	err = json.Unmarshal(metricsFileData, &smartData)
 	require.NoError(t, err)
@@ -86,7 +86,7 @@ func TestServerTestSuite_WithCustomBasePath(t *testing.T) {
 }
 
 func (suite *ServerTestSuite) TestHealthRoute() {
-	//setup
+	// setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
@@ -119,18 +119,18 @@ func (suite *ServerTestSuite) TestHealthRoute() {
 
 	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 
-	//test
+	// test
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", suite.Basepath+"/api/health", nil)
 	router.ServeHTTP(w, req)
 
-	//assert
+	// assert
 	require.Equal(suite.T(), 200, w.Code)
 	require.Equal(suite.T(), "{\"success\":true}", w.Body.String())
 }
 
 func (suite *ServerTestSuite) TestRegisterDevicesRoute() {
-	//setup
+	// setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
@@ -163,17 +163,17 @@ func (suite *ServerTestSuite) TestRegisterDevicesRoute() {
 	file, err := os.Open("testdata/register-devices-req.json")
 	require.NoError(suite.T(), err)
 
-	//test
+	// test
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", suite.Basepath+"/api/devices/register", file)
 	router.ServeHTTP(w, req)
 
-	//assert
+	// assert
 	require.Equal(suite.T(), 200, w.Code)
 }
 
 func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
-	//setup
+	// setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
@@ -212,7 +212,7 @@ func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 
 	metricsfile := helperReadSmartDataFileFixTimestamp(suite.T(), "testdata/upload-device-metrics-req.json")
 
-	//test
+	// test
 	wr := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", suite.Basepath+"/api/devices/register", devicesfile)
 	router.ServeHTTP(wr, req)
@@ -223,11 +223,11 @@ func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 	router.ServeHTTP(mr, req)
 	require.Equal(suite.T(), 200, mr.Code)
 
-	//assert
+	// assert
 }
 
 func (suite *ServerTestSuite) TestPopulateMultiple() {
-	//setup
+	// setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
@@ -235,7 +235,7 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
-	//fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return("testdata/scrutiny_test.db")
+	// fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return("testdata/scrutiny_test.db")
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").Return([]string{}).AnyTimes()
 	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.notify_level", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
 	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.status_filter_attributes", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
@@ -272,7 +272,7 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 	scsifile := helperReadSmartDataFileFixTimestamp(suite.T(), "../models/testdata/smart-scsi.json")
 	scsi2file := helperReadSmartDataFileFixTimestamp(suite.T(), "../models/testdata/smart-scsi2.json")
 
-	//test
+	// test
 	wr := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", suite.Basepath+"/api/devices/register", devicesfile)
 	router.ServeHTTP(wr, req)
@@ -303,7 +303,7 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 	router.ServeHTTP(s2r, req)
 	require.Equal(suite.T(), 200, s2r.Code)
 
-	//assert
+	// assert
 }
 
 //TODO: this test should use a recorded request/response playback.
@@ -332,7 +332,7 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 //}
 
 func (suite *ServerTestSuite) TestSendTestNotificationRoute_WebhookFailure() {
-	//setup
+	// setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
@@ -368,17 +368,17 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_WebhookFailure() {
 	}
 	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 
-	//test
+	// test
 	wr := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", suite.Basepath+"/api/health/notify", strings.NewReader("{}"))
 	router.ServeHTTP(wr, req)
 
-	//assert
+	// assert
 	require.Equal(suite.T(), 500, wr.Code)
 }
 
 func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptFailure() {
-	//setup
+	// setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
@@ -414,17 +414,17 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptFailure() {
 	}
 	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 
-	//test
+	// test
 	wr := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", suite.Basepath+"/api/health/notify", strings.NewReader("{}"))
 	router.ServeHTTP(wr, req)
 
-	//assert
+	// assert
 	require.Equal(suite.T(), 500, wr.Code)
 }
 
 func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptSuccess() {
-	//setup
+	// setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
@@ -460,17 +460,17 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptSuccess() {
 	}
 	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 
-	//test
+	// test
 	wr := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", suite.Basepath+"/api/health/notify", strings.NewReader("{}"))
 	router.ServeHTTP(wr, req)
 
-	//assert
+	// assert
 	require.Equal(suite.T(), 200, wr.Code)
 }
 
 func (suite *ServerTestSuite) TestSendTestNotificationRoute_ShoutrrrFailure() {
-	//setup
+	// setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
@@ -505,17 +505,17 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ShoutrrrFailure() {
 	}
 	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 
-	//test
+	// test
 	wr := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", suite.Basepath+"/api/health/notify", strings.NewReader("{}"))
 	router.ServeHTTP(wr, req)
 
-	//assert
+	// assert
 	require.Equal(suite.T(), 500, wr.Code)
 }
 
 func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
-	//setup
+	// setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
@@ -556,7 +556,7 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 
 	metricsfile := helperReadSmartDataFileFixTimestamp(suite.T(), "../models/testdata/smart-nvme2.json")
 
-	//test
+	// test
 	wr := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", suite.Basepath+"/api/devices/register", devicesfile)
 	router.ServeHTTP(wr, req)
@@ -575,7 +575,7 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	err = json.Unmarshal(sr.Body.Bytes(), &deviceSummary)
 	require.NoError(suite.T(), err)
 
-	//assert
+	// assert
 	require.Equal(suite.T(), "a4c8e8ed-11a0-4c97-9bba-306440f1b944", deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.WWN)
 	require.Equal(suite.T(), pkg.DeviceStatusPassed, deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.DeviceStatus)
 }
