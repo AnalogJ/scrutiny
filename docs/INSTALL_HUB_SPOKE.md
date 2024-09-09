@@ -49,18 +49,16 @@ contains the connection and notification details but I always find it easier to 
 docker-compose.
 
 ```yaml
-version: "3.4"
-
 networks:
   monitoring: # A common network for all monitoring services to communicate into
-    external: true
+    external: true # Not needed if only running locally
   notifications: # To Gotify or another Notification service
-    external: true
+    external: true # Not needed if only running locally
 
 services:
   influxdb:
     container_name: influxdb
-    image: influxdb:2.1-alpine
+    image: influxdb:2.7-alpine
     ports:
       - 8086:8086
     volumes:
@@ -72,10 +70,16 @@ services:
       - DOCKER_INFLUXDB_INIT_PASSWORD=${PASSWORD}
       - DOCKER_INFLUXDB_INIT_ORG=homelab
       - DOCKER_INFLUXDB_INIT_BUCKET=scrutiny
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=your-very-secret-token
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=SUPERSECRETPASSWORD
+      - TZ=Europe/Stockholm
     restart: unless-stopped
     networks:
       - monitoring
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
 
   scrutiny:
     container_name: scrutiny
@@ -83,21 +87,30 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - ${DIR_CONFIG}/scrutiny/config:/opt/scrutiny/config
+      - ${DIR_CONFIG}/config:/opt/scrutiny/config
     environment:
       - SCRUTINY_WEB_INFLUXDB_HOST=influxdb
       - SCRUTINY_WEB_INFLUXDB_PORT=8086
-      - SCRUTINY_WEB_INFLUXDB_TOKEN=your-very-secret-token
+      - SCRUTINY_WEB_INFLUXDB_TOKEN=SUPERSECRETPASSWORD
       - SCRUTINY_WEB_INFLUXDB_ORG=homelab
       - SCRUTINY_WEB_INFLUXDB_BUCKET=scrutiny
       # Optional but highly recommended to notify you in case of a problem
-      - SCRUTINY_NOTIFY_URLS=["http://gotify:80/message?token=a-gotify-token"]
+      - SCRUTINY_NOTIFY_URLS=[SEE EXAMPLES HERE: https://github.com/AnalogJ/scrutiny/blob/master/docs/TROUBLESHOOTING_NOTIFICATIONS.md ]
+      - TZ=Europe/Stockholm
     depends_on:
-      - influxdb
+      influxdb:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - notifications
       - monitoring
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 10s
+
 ```
 
 A freshly initialized Scrutiny instance can be accessed on port 8080, eg. `192.168.0.100:8080`. The interface will be
@@ -163,8 +176,6 @@ Also all drives that you wish to monitor need to be presented to the container u
 The image handles the periodic scanning of the drives.
 
 ```yaml
-version: "3.4"
-
 services:
 
   collector:
