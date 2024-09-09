@@ -51,9 +51,7 @@ docker-compose.
 ```yaml
 networks:
   monitoring: # A common network for all monitoring services to communicate into
-    external: true # Not needed if only running locally
   notifications: # To Gotify or another Notification service
-    external: true # Not needed if only running locally
 
 services:
   influxdb:
@@ -71,7 +69,7 @@ services:
       - DOCKER_INFLUXDB_INIT_PASSWORD=${PASSWORD}
       - DOCKER_INFLUXDB_INIT_ORG=homelab
       - DOCKER_INFLUXDB_INIT_BUCKET=scrutiny
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=SUPERSECRETPASSWORD
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=SUPER-SECRET-TOKEN
       - TZ=Europe/Stockholm
     networks:
       - monitoring
@@ -93,7 +91,7 @@ services:
     environment:
       - SCRUTINY_WEB_INFLUXDB_HOST=influxdb
       - SCRUTINY_WEB_INFLUXDB_PORT=8086
-      - SCRUTINY_WEB_INFLUXDB_TOKEN=SUPERSECRETPASSWORD
+      - SCRUTINY_WEB_INFLUXDB_TOKEN=SUPER-SECRET-TOKEN
       - SCRUTINY_WEB_INFLUXDB_ORG=homelab
       - SCRUTINY_WEB_INFLUXDB_BUCKET=scrutiny
       # Optional but highly recommended to notify you in case of a problem; space-separated list of shoutrrr uri's
