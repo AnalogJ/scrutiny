@@ -144,3 +144,29 @@ func TestConfiguration_OverrideDeviceCommands_MetricsInfoArgs(t *testing.T) {
 	require.Equal(t, "--info --json", testConfig.GetCommandMetricsInfoArgs("/dev/sdb"))
 	//require.Equal(t, []models.ScanOverride{{Device: "/dev/sda", DeviceType: nil, Commands: {MetricsInfoArgs: "--info --json -T "}}}, scanOverrides)
 }
+
+func TestConfiguration_DeviceAllowList(t *testing.T) {
+	t.Parallel()
+
+	t.Run("present", func(t *testing.T) {
+		testConfig, err := config.Create()
+		require.NoError(t, err)
+
+		require.NoError(t, testConfig.ReadConfig(path.Join("testdata", "allow_listed_devices_present.yaml")))
+
+		require.True(t, testConfig.IsAllowlistedDevice("/dev/sda"), "/dev/sda should be allow listed")
+		require.False(t, testConfig.IsAllowlistedDevice("/dev/sdc"), "/dev/sda should not be allow listed")
+	})
+
+	t.Run("missing", func(t *testing.T) {
+		testConfig, err := config.Create()
+		require.NoError(t, err)
+
+		// Really just any other config where the key is full missing
+		require.NoError(t, testConfig.ReadConfig(path.Join("testdata", "override_device_commands.yaml")))
+
+		// Anything should be allow listed if the key isnt there
+		require.True(t, testConfig.IsAllowlistedDevice("/dev/sda"), "/dev/sda should be allow listed")
+		require.True(t, testConfig.IsAllowlistedDevice("/dev/sdc"), "/dev/sda should be allow listed")
+	})
+}

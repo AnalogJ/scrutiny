@@ -175,6 +175,20 @@ func (mr *MockInterfaceMockRecorder) Init() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Init", reflect.TypeOf((*MockInterface)(nil).Init))
 }
 
+// IsAllowlistedDevice mocks base method.
+func (m *MockInterface) IsAllowlistedDevice(deviceName string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsAllowlistedDevice", deviceName)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsAllowlistedDevice indicates an expected call of IsAllowlistedDevice.
+func (mr *MockInterfaceMockRecorder) IsAllowlistedDevice(deviceName interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAllowlistedDevice", reflect.TypeOf((*MockInterface)(nil).IsAllowlistedDevice), deviceName)
+}
+
 // IsSet mocks base method.
 func (m *MockInterface) IsSet(key string) bool {
 	m.ctrl.T.Helper()

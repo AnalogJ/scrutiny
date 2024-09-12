@@ -124,6 +124,11 @@ func (d *Detect) TransformDetectedDevices(detectedDeviceConns models.Scan) []mod
 
 		deviceFile := strings.ToLower(scannedDevice.Name)
 
+		// If the user has defined a device allow list, and this device isnt there, then ignore it
+		if !d.Config.IsAllowlistedDevice(deviceFile) {
+			continue
+		}
+
 		detectedDevice := models.Device{
 			HostId:     d.Config.GetString("host.id"),
 			DeviceType: scannedDevice.Type,

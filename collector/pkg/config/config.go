@@ -20,7 +20,7 @@ import (
 type configuration struct {
 	*viper.Viper
 
-	deviceOverrides []models.ScanOverride
+	deviceOverrides    []models.ScanOverride
 }
 
 //Viper uses the following precedence order. Each item takes precedence over the item below it:
@@ -49,6 +49,8 @@ func (c *configuration) Init() error {
 	c.SetDefault("commands.metrics_smart_args", "--xall --json")
 
 	//c.SetDefault("collect.short.command", "-a -o on -S on")
+
+	c.SetDefault("allow_listed_devices", []string{})
 
 	//if you want to load a non-standard location system config file (~/drawbridge.yml), use ReadConfig
 	c.SetConfigType("yaml")
@@ -185,4 +187,19 @@ func (c *configuration) GetCommandMetricsSmartArgs(deviceName string) string {
 		}
 	}
 	return c.GetString("commands.metrics_smart_args")
+}
+
+func (c *configuration) IsAllowlistedDevice(deviceName string) bool {
+	allowList := c.GetStringSlice("allow_listed_devices")
+	if len(allowList) == 0 {
+		return true
+	}
+
+	for _, item := range allowList {
+		if item == deviceName {
+			return true
+		}
+	}
+
+	return false
 }
