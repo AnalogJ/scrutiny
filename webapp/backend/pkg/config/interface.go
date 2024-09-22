@@ -25,5 +25,6 @@ type Interface interface {
 	GetInt64(key string) int64
 	GetString(key string) string
 	GetStringSlice(key string) []string
+	GetIntSlice(key string) []int
 	UnmarshalKey(key string, rawVal interface{}, decoderOpts ...viper.DecoderConfigOption) error
 }

@@ -2,14 +2,17 @@ package measurements_test
 
 import (
 	"encoding/json"
-	"github.com/analogj/scrutiny/webapp/backend/pkg"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
-	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	mock_config "github.com/analogj/scrutiny/webapp/backend/pkg/config/mock"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSmart_Flatten(t *testing.T) {
@@ -306,6 +309,11 @@ func TestNewSmartFromInfluxDB_SCSI(t *testing.T) {
 
 func TestFromCollectorSmartInfo(t *testing.T) {
 	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{195}).AnyTimes()
+
 	smartDataFile, err := os.Open("../testdata/smart-ata.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -319,7 +327,7 @@ func TestFromCollectorSmartInfo(t *testing.T) {
 
 	//test
 	smartMdl := measurements.Smart{}
-	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
+	err = smartMdl.FromCollectorSmartInfo(fakeConfig, "WWN-test", smartJson)
 
 	//assert
 	require.NoError(t, err)
@@ -338,6 +346,11 @@ func TestFromCollectorSmartInfo(t *testing.T) {
 
 func TestFromCollectorSmartInfo_Fail_Smart(t *testing.T) {
 	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{195}).AnyTimes()
+
 	smartDataFile, err := os.Open("../testdata/smart-fail.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -351,7 +364,7 @@ func TestFromCollectorSmartInfo_Fail_Smart(t *testing.T) {
 
 	//test
 	smartMdl := measurements.Smart{}
-	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
+	err = smartMdl.FromCollectorSmartInfo(fakeConfig, "WWN-test", smartJson)
 
 	//assert
 	require.NoError(t, err)
@@ -362,6 +375,11 @@ func TestFromCollectorSmartInfo_Fail_Smart(t *testing.T) {
 
 func TestFromCollectorSmartInfo_Fail_ScrutinySmart(t *testing.T) {
 	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{195}).AnyTimes()
+
 	smartDataFile, err := os.Open("../testdata/smart-fail2.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -375,7 +393,7 @@ func TestFromCollectorSmartInfo_Fail_ScrutinySmart(t *testing.T) {
 
 	//test
 	smartMdl := measurements.Smart{}
-	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
+	err = smartMdl.FromCollectorSmartInfo(fakeConfig, "WWN-test", smartJson)
 
 	//assert
 	require.NoError(t, err)
@@ -386,6 +404,11 @@ func TestFromCollectorSmartInfo_Fail_ScrutinySmart(t *testing.T) {
 
 func TestFromCollectorSmartInfo_Fail_ScrutinyNonCriticalFailed(t *testing.T) {
 	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{195}).AnyTimes()
+
 	smartDataFile, err := os.Open("../testdata/smart-ata-failed-scrutiny.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -399,7 +422,7 @@ func TestFromCollectorSmartInfo_Fail_ScrutinyNonCriticalFailed(t *testing.T) {
 
 	//test
 	smartMdl := measurements.Smart{}
-	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
+	err = smartMdl.FromCollectorSmartInfo(fakeConfig, "WWN-test", smartJson)
 
 	//assert
 	require.NoError(t, err)
@@ -419,6 +442,11 @@ func TestFromCollectorSmartInfo_Fail_ScrutinyNonCriticalFailed(t *testing.T) {
 
 func TestFromCollectorSmartInfo_NVMe_Fail_Scrutiny(t *testing.T) {
 	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{195}).AnyTimes()
+
 	smartDataFile, err := os.Open("../testdata/smart-nvme-failed.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -432,7 +460,7 @@ func TestFromCollectorSmartInfo_NVMe_Fail_Scrutiny(t *testing.T) {
 
 	//test
 	smartMdl := measurements.Smart{}
-	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
+	err = smartMdl.FromCollectorSmartInfo(fakeConfig, "WWN-test", smartJson)
 
 	//assert
 	require.NoError(t, err)
@@ -450,6 +478,11 @@ func TestFromCollectorSmartInfo_NVMe_Fail_Scrutiny(t *testing.T) {
 
 func TestFromCollectorSmartInfo_Nvme(t *testing.T) {
 	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{195}).AnyTimes()
+
 	smartDataFile, err := os.Open("../testdata/smart-nvme.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -463,7 +496,7 @@ func TestFromCollectorSmartInfo_Nvme(t *testing.T) {
 
 	//test
 	smartMdl := measurements.Smart{}
-	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
+	err = smartMdl.FromCollectorSmartInfo(fakeConfig, "WWN-test", smartJson)
 
 	//assert
 	require.NoError(t, err)
@@ -477,6 +510,11 @@ func TestFromCollectorSmartInfo_Nvme(t *testing.T) {
 
 func TestFromCollectorSmartInfo_Scsi(t *testing.T) {
 	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{195}).AnyTimes()
+
 	smartDataFile, err := os.Open("../testdata/smart-scsi.json")
 	require.NoError(t, err)
 	defer smartDataFile.Close()
@@ -490,7 +528,7 @@ func TestFromCollectorSmartInfo_Scsi(t *testing.T) {
 
 	//test
 	smartMdl := measurements.Smart{}
-	err = smartMdl.FromCollectorSmartInfo("WWN-test", smartJson)
+	err = smartMdl.FromCollectorSmartInfo(fakeConfig, "WWN-test", smartJson)
 
 	//assert
 	require.NoError(t, err)
