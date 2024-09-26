@@ -399,6 +399,21 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				return tx.Create(&defaultSettings).Error
 			},
 		},
+		{
+			ID: "m20240804113900", // add retrieve_sct_history setting.
+			Migrate: func(tx *gorm.DB) error {
+				//add retrieve_sct_history setting default.
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "collector.retrieve_sct_temperature_history",
+						SettingKeyDescription: "Whether to retrieve SCT Temperature history (true | false)",
+						SettingDataType:       "bool",
+						SettingValueBool:      true,
+					},
+				}
+				return tx.Create(&defaultSettings).Error
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
