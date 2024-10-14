@@ -48,15 +48,10 @@ func (c *configuration) Init() error {
 	c.SetDefault("commands.metrics_info_args", "--info --json")
 	c.SetDefault("commands.metrics_smart_args", "--xall --json")
 
-	// Bind environment variables with COLLECTOR_ prefix
-	c.BindEnv("host.id", "COLLECTOR_HOST_ID")
-	c.BindEnv("log.level", "COLLECTOR_LOG_LEVEL")
-	c.BindEnv("log.file", "COLLECTOR_LOG_FILE")
-	c.BindEnv("api.endpoint", "COLLECTOR_API_ENDPOINT")
-	c.BindEnv("commands.metrics_smartctl_bin", "COLLECTOR_COMMANDS_METRICS_SMARTCTL_BIN")
-	c.BindEnv("commands.metrics_scan_args", "COLLECTOR_COMMANDS_METRICS_SCAN_ARGS")
-	c.BindEnv("commands.metrics_info_args", "COLLECTOR_COMMANDS_METRICS_INFO_ARGS") 
-	c.BindEnv("commands.metrics_smart_args", "COLLECTOR_COMMANDS_METRICS_SMART_ARGS")
+	//configure env variable parsing.
+	c.SetEnvPrefix("COLLECTOR")
+	c.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
+	c.AutomaticEnv()
 	
 	//c.SetDefault("collect.short.command", "-a -o on -S on")
 
