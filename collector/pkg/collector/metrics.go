@@ -91,7 +91,9 @@ func (mc *MetricsCollector) Run() error {
 			//go mc.Collect(&wg, device.WWN, device.DeviceName, device.DeviceType)
 			mc.Collect(device.WWN, device.DeviceName, device.DeviceType)
 
-			time.Sleep(time.Duration(mc.config.GetInt("commands.metrics_smartctl_wait")) * time.Millisecond)
+			if mc.config.GetInt("commands.metrics_smartctl_wait") > 0 {
+				time.Sleep(time.Duration(mc.config.GetInt("commands.metrics_smartctl_wait")) * time.Millisecond)
+			}
 		}
 
 		//mc.logger.Infoln("Main: Waiting for workers to finish")
