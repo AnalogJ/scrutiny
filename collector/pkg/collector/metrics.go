@@ -93,7 +93,7 @@ func (mc *MetricsCollector) Run() error {
 			mc.Collect(device.WWN, device.DeviceName, device.DeviceType)
 
 			if mc.config.GetInt("commands.metrics_smartctl_wait") > 0 {
-				time.Sleep(time.Duration(mc.config.GetInt("commands.metrics_smartctl_wait")) * 1000 * time.Millisecond)
+				time.Sleep(time.Duration(mc.config.GetInt("commands.metrics_smartctl_wait")) * time.Second)
 			}
 		}
 
