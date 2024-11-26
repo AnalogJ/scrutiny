@@ -4,6 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/url"
+	"os"
+	"os/exec"
+	"strings"
+	"time"
+
 	"github.com/analogj/scrutiny/collector/pkg/common/shell"
 	"github.com/analogj/scrutiny/collector/pkg/config"
 	"github.com/analogj/scrutiny/collector/pkg/detect"
@@ -11,11 +17,6 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
-	"net/url"
-	"os"
-	"os/exec"
-	"strings"
-	"time"
 )
 
 type MetricsCollector struct {
@@ -92,7 +93,7 @@ func (mc *MetricsCollector) Run() error {
 			mc.Collect(device.WWN, device.DeviceName, device.DeviceType)
 
 			if mc.config.GetInt("commands.metrics_smartctl_wait") > 0 {
-				time.Sleep(time.Duration(mc.config.GetInt("commands.metrics_smartctl_wait")) * time.Millisecond)
+				time.Sleep(time.Duration(mc.config.GetInt("commands.metrics_smartctl_wait")) * time.Second)
 			}
 		}
 
@@ -115,7 +116,7 @@ func (mc *MetricsCollector) Validate() error {
 	return nil
 }
 
-//func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
+// func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
 func (mc *MetricsCollector) Collect(deviceWWN string, deviceName string, deviceType string) {
 	//defer wg.Done()
 	if len(deviceWWN) == 0 {
