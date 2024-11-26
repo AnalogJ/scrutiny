@@ -48,7 +48,7 @@ func (c *configuration) Init() error {
 	c.SetDefault("commands.metrics_info_args", "--info --json")
 	c.SetDefault("commands.metrics_smart_args", "--xall --json")
 	c.SetDefault("commands.metrics_smartctl_wait", 0)
-
+	c.SetDefault("commands.allow_custom", "no")
 	//c.SetDefault("collect.short.command", "-a -o on -S on")
 
 	c.SetDefault("allow_listed_devices", []string{})
@@ -98,11 +98,13 @@ func (c *configuration) ReadConfig(configFilePath string) error {
 
 // This function ensures that the merged config works correctly.
 func (c *configuration) ValidateConfig() error {
-
+		
 	//TODO:
 	// check that device prefix matches OS
 	// check that schema of config file is valid
-
+	if(c.GetString("commands.allow_custom")=="yes"){
+		return nil
+	}
 	// check that the collector commands are valid
 	commandArgStrings := map[string]string{
 		"commands.metrics_scan_args":  c.GetString("commands.metrics_scan_args"),
