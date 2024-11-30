@@ -1,0 +1,21 @@
+influxdb2:
+  service:
+    port: 8086
+  fullnameOverride: scrutiny-influxdb2
+  adminUser:
+    organization: scrutiny
+    bucket: metrics
+    user: admin
+    token: CHANGE_ME # Change this and set the same one below.
+  persistence:
+    enabled: false
+#    enabled: true
+#    useExisting: true
+#    name: scrutiny
+#    storageClass: scrutiny-manual
+#    # The scrutiny chart can generate a hostPath for you if you define this:
+#    hostPath:
+#      path: /some/host/path
+
+web:
+  influxdbToken: CHANGE_ME
