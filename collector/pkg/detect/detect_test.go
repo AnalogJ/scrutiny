@@ -24,6 +24,7 @@ func TestDetect_SmartctlScan(t *testing.T) {
 	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{})
 	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
 	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+	fakeConfig.EXPECT().IsAllowlistedDevice(gomock.Any()).AnyTimes().Return(true)
 
 	fakeShell := mock_shell.NewMockInterface(mockCtrl)
 	testScanResults, err := os.ReadFile("testdata/smartctl_scan_simple.json")
@@ -53,6 +54,7 @@ func TestDetect_SmartctlScan_Megaraid(t *testing.T) {
 	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{})
 	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
 	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+	fakeConfig.EXPECT().IsAllowlistedDevice(gomock.Any()).AnyTimes().Return(true)
 
 	fakeShell := mock_shell.NewMockInterface(mockCtrl)
 	testScanResults, err := os.ReadFile("testdata/smartctl_scan_megaraid.json")
@@ -85,6 +87,7 @@ func TestDetect_SmartctlScan_Nvme(t *testing.T) {
 	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{})
 	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
 	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+	fakeConfig.EXPECT().IsAllowlistedDevice(gomock.Any()).AnyTimes().Return(true)
 
 	fakeShell := mock_shell.NewMockInterface(mockCtrl)
 	testScanResults, err := os.ReadFile("testdata/smartctl_scan_nvme.json")
@@ -116,6 +119,7 @@ func TestDetect_TransformDetectedDevices_Empty(t *testing.T) {
 	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{})
 	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
 	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+	fakeConfig.EXPECT().IsAllowlistedDevice(gomock.Any()).AnyTimes().Return(true)
 
 	detectedDevices := models.Scan{
 		Devices: []models.ScanDevice{
@@ -149,6 +153,7 @@ func TestDetect_TransformDetectedDevices_Ignore(t *testing.T) {
 	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{{Device: "/dev/sda", DeviceType: nil, Ignore: true}})
 	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
 	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+	fakeConfig.EXPECT().IsAllowlistedDevice(gomock.Any()).AnyTimes().Return(true)
 
 	detectedDevices := models.Scan{
 		Devices: []models.ScanDevice{
@@ -180,6 +185,7 @@ func TestDetect_TransformDetectedDevices_Raid(t *testing.T) {
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
 	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
 	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+	fakeConfig.EXPECT().IsAllowlistedDevice(gomock.Any()).AnyTimes().Return(true)
 	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{
 		{
 			Device:     "/dev/bus/0",
@@ -223,6 +229,7 @@ func TestDetect_TransformDetectedDevices_Simple(t *testing.T) {
 	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
 	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
 	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{{Device: "/dev/sda", DeviceType: []string{"sat+megaraid"}}})
+	fakeConfig.EXPECT().IsAllowlistedDevice(gomock.Any()).AnyTimes().Return(true)
 	detectedDevices := models.Scan{
 		Devices: []models.ScanDevice{
 			{
@@ -256,6 +263,7 @@ func TestDetect_TransformDetectedDevices_WithoutDeviceTypeOverride(t *testing.T)
 	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
 	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
 	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{{Device: "/dev/sda"}})
+	fakeConfig.EXPECT().IsAllowlistedDevice(gomock.Any()).AnyTimes().Return(true)
 	detectedDevices := models.Scan{
 		Devices: []models.ScanDevice{
 			{
@@ -300,6 +308,46 @@ func TestDetect_TransformDetectedDevices_WhenDeviceNotDetected(t *testing.T) {
 	// assert
 	require.Equal(t, 1, len(transformedDevices))
 	require.Equal(t, "ata", transformedDevices[0].DeviceType)
+}
+
+func TestDetect_TransformDetectedDevices_AllowListFilters(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
+	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
+	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{{Device: "/dev/sda", DeviceType: []string{"sat+megaraid"}}})
+	fakeConfig.EXPECT().IsAllowlistedDevice("/dev/sda").Return(true)
+	fakeConfig.EXPECT().IsAllowlistedDevice("/dev/sdb").Return(false)
+	detectedDevices := models.Scan{
+		Devices: []models.ScanDevice{
+			{
+				Name:     "/dev/sda",
+				InfoName: "/dev/sda",
+				Protocol: "ata",
+				Type:     "ata",
+			},
+			{
+				Name:     "/dev/sdb",
+				InfoName: "/dev/sdb",
+				Protocol: "ata",
+				Type:     "ata",
+			},
+		},
+	}
+
+	d := detect.Detect{
+		Config: fakeConfig,
+	}
+
+	// test
+	transformedDevices := d.TransformDetectedDevices(detectedDevices)
+
+	// assert
+	require.Equal(t, 1, len(transformedDevices))
+	require.Equal(t, "sda", transformedDevices[0].DeviceName)
 }
 
 func TestDetect_SmartCtlInfo(t *testing.T) {

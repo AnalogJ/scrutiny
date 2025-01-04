@@ -61,7 +61,7 @@ jobs:
         with:
           version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
       - name: Upload workspace
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: workspace
           path: ${{ github.workspace }}/**/*
@@ -91,7 +91,7 @@ jobs:
           - { on: windows-latest, goos: windows,    goarch: arm64 }
     steps:
       - name: Download workspace
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: workspace
       - uses: actions/setup-go@v3
@@ -101,7 +101,7 @@ jobs:
         run: |
           make binary-clean binary-all
       - name: Archive
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: binaries.zip
           path: |
@@ -114,11 +114,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download workspace
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: workspace
       - name: Download binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: binaries.zip
       - name: List
