@@ -47,6 +47,7 @@ func (c *configuration) Init() error {
 	c.SetDefault("commands.metrics_scan_args", "--scan --json")
 	c.SetDefault("commands.metrics_info_args", "--info --json")
 	c.SetDefault("commands.metrics_smart_args", "--xall --json")
+	c.SetDefault("commands.metrics_smartctl_wait", 0)
 
 	//configure env variable parsing.
 	c.SetEnvPrefix("COLLECTOR")
