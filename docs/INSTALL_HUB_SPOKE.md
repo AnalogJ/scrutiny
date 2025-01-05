@@ -73,11 +73,6 @@ services:
       - TZ=Europe/Stockholm
     networks:
       - monitoring
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
-      interval: 5s
-      timeout: 10s
-      retries: 20
 
   scrutiny:
     restart: unless-stopped
@@ -94,9 +89,9 @@ services:
       - SCRUTINY_WEB_INFLUXDB_TOKEN=SUPER-SECRET-TOKEN
       - SCRUTINY_WEB_INFLUXDB_ORG=homelab
       - SCRUTINY_WEB_INFLUXDB_BUCKET=scrutiny
-      # Optional but highly recommended to notify you in case of a problem; space-separated list of shoutrrr uri's
+      # Optional but highly recommended to notify you in case of a problem
       # https://github.com/AnalogJ/scrutiny/blob/master/docs/TROUBLESHOOTING_NOTIFICATIONS.md
-      - SCRUTINY_NOTIFY_URLS=http://gotify:80/message?token=a-gotify-token ntfy://username:password@host:port/topic
+      - SCRUTINY_NOTIFY_URLS=[ smtp://myname%40example%2Ecom:124%4034%241@ms.my.domain.com:587 ]
       - TZ=Europe/Stockholm
     depends_on:
       influxdb:
@@ -104,13 +99,6 @@ services:
     networks:
       - notifications
       - monitoring
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
-      interval: 5s
-      timeout: 10s
-      retries: 20
-      start_period: 10s
-
 ```
 
 A freshly initialized Scrutiny instance can be accessed on port 8080, eg. `192.168.0.100:8080`. The interface will be
