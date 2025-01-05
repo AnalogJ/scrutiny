@@ -4,6 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/url"
+	"os"
+	"os/exec"
+	"strings"
+	"time"
+
 	"github.com/analogj/scrutiny/collector/pkg/common/shell"
 	"github.com/analogj/scrutiny/collector/pkg/config"
 	"github.com/analogj/scrutiny/collector/pkg/detect"
@@ -11,10 +17,6 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
-	"net/url"
-	"os"
-	"os/exec"
-	"strings"
 )
 
 type MetricsCollector struct {
@@ -90,8 +92,9 @@ func (mc *MetricsCollector) Run() error {
 			//go mc.Collect(&wg, device.WWN, device.DeviceName, device.DeviceType)
 			mc.Collect(device.WWN, device.DeviceName, device.DeviceType)
 
-			// TODO: we may need to sleep for between each call to smartctl -a
-			//time.Sleep(30 * time.Millisecond)
+			if mc.config.GetInt("commands.metrics_smartctl_wait") > 0 {
+				time.Sleep(time.Duration(mc.config.GetInt("commands.metrics_smartctl_wait")) * time.Second)
+			}
 		}
 
 		//mc.logger.Infoln("Main: Waiting for workers to finish")
@@ -113,7 +116,7 @@ func (mc *MetricsCollector) Validate() error {
 	return nil
 }
 
-//func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
+// func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
 func (mc *MetricsCollector) Collect(deviceWWN string, deviceName string, deviceType string) {
 	//defer wg.Done()
 	if len(deviceWWN) == 0 {

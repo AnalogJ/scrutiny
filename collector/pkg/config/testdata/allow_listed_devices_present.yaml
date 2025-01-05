@@ -1,0 +1,3 @@
+allow_listed_devices:
+- /dev/sda
+- /dev/sdb

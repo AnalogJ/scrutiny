@@ -8,7 +8,7 @@ Thankfully the following users have been gracious enough to test/validate Scruti
 
 | Architecture Name | Binaries | Docker |
 | --- | --- | --- |
-| linux-amd64 | -- | @feroxy @rshxyz |
+| linux-amd64 | @TizzAmmazz | @feroxy @rshxyz |
 | linux-arm-5 | -- |  |
 | linux-arm-6 | -- |  |
 | linux-arm-7 | @Zorlin | @martini1992  |
