@@ -73,11 +73,6 @@ services:
     restart: unless-stopped
     networks:
       - monitoring
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
-      interval: 5s
-      timeout: 10s
-      retries: 20
 
   scrutiny:
     container_name: scrutiny
@@ -103,13 +98,6 @@ services:
     networks:
       - notifications
       - monitoring
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
-      interval: 5s
-      timeout: 10s
-      retries: 20
-      start_period: 10s
-
 ```
 
 A freshly initialized Scrutiny instance can be accessed on port 8080, eg. `192.168.0.100:8080`. The interface will be
