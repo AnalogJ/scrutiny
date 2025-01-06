@@ -250,8 +250,9 @@ UPDATE devices SET device_status = null;
 
 ### Seagate Drives Failing
 
-As thoroughly discussed in [#255](https://github.com/AnalogJ/scrutiny/issues/255), Seagate (Ironwolf & others) drives are almost always marked as failed by Scrutiny. 
+As thoroughly discussed in [#255](https://github.com/AnalogJ/scrutiny/issues/255) and [#522](https://github.com/AnalogJ/scrutiny/issues/522), Seagate (Ironwolf & others) drives are almost always marked as failed by Scrutiny. 
 
+#### Seek Error Rate & Read Error Rate (#255)
 > The `Seek Error Rate` & `Read Error Rate` attribute raw values are typically very high, and the 
 > normalised values (Current / Worst / Threshold) are usually quite low. Despite this, the numbers in most cases are perfectly OK
 > 
@@ -285,6 +286,15 @@ other drives, please read the following:
 
 - http://www.users.on.net/~fzabkar/HDD/Seagate_SER_RRER_HEC.html
 - https://www.truenas.com/community/threads/seagate-ironwolf-smart-test-raw_read_error_rate-seek_error_rate.68634/
+
+#### Seagate Raw Values are incorrect (#522)
+Basically Seagate drives are known to use a custom data format for a number of their SMART attributes. This causes issues with Scrutiny's threshold analysis. 
+
+- The workaround is to customize the smartctl command that Scrutiny uses for your drive by [creating a collector.yaml file](https://github.com/AnalogJ/scrutiny/issues/522#issuecomment-1766727988) and "fixing" each attribute
+- The **real "fix"** is to make sure your Seagate drive is correctly supported by smartmontools. See this [PR](https://github.com/smartmontools/smartmontools/pull/247)
+
+Sorry for the bad news, but this is a known issue and there's just not much we can do on the Scrutiny side. 
+
 
 ## Hub & Spoke model, with multiple Hosts.
 
