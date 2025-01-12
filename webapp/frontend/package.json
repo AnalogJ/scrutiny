@@ -38,7 +38,7 @@
         "lodash": "4.17.21",
         "moment": "^2.29.4",
         "ng-apexcharts": "^1.7.4",
-        "ngx-markdown": "^13.1.0",
+        "ngx-markdown": "^17.1.1",
         "perfect-scrollbar": "^1.5.5",
         "quill": "^1.3.7",
         "rrule": "^2.7.1",
