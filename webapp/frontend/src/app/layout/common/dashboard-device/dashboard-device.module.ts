@@ -7,6 +7,7 @@ import {DashboardDeviceComponent} from 'app/layout/common/dashboard-device/dashb
 import {dashboardRoutes} from '../../../modules/dashboard/dashboard.routing';
 import {MatMenuModule} from '@angular/material/menu';
 import {DashboardDeviceDeleteDialogModule} from 'app/layout/common/dashboard-device-delete-dialog/dashboard-device-delete-dialog.module';
+import {DashboardDeviceArchiveDialogModule} from '../dashboard-device-archive-dialog/dashboard-device-archive-dialog.module';
 
 @NgModule({
     declarations: [
@@ -19,7 +20,8 @@ import {DashboardDeviceDeleteDialogModule} from 'app/layout/common/dashboard-dev
         MatIconModule,
         MatMenuModule,
         SharedModule,
-        DashboardDeviceDeleteDialogModule
+        DashboardDeviceDeleteDialogModule,
+        DashboardDeviceArchiveDialogModule
     ],
     exports: [
         DashboardDeviceComponent,
