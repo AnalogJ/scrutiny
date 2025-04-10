@@ -2,6 +2,7 @@
 // SQLite Table(s)
 
 Table Device  {
+    Archived bool
 	//GORM attributes, see: http://gorm.io/docs/conventions.html
 	CreatedAt time
 	UpdatedAt time

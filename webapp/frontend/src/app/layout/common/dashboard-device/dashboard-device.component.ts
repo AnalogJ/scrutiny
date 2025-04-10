@@ -9,6 +9,8 @@ import {DashboardDeviceDeleteDialogComponent} from 'app/layout/common/dashboard-
 import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
 import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
 import {DeviceStatusPipe} from 'app/shared/device-status.pipe';
+import {DashboardDeviceArchiveDialogComponent} from '../dashboard-device-archive-dialog/dashboard-device-archive-dialog.component';
+import {DashboardDeviceArchiveDialogService} from '../dashboard-device-archive-dialog/dashboard-device-archive-dialog.service';
 
 @Component({
     selector: 'app-dashboard-device',
@@ -19,6 +21,7 @@ export class DashboardDeviceComponent implements OnInit {
 
     constructor(
         private _configService: ScrutinyConfigService,
+        private _archiveService: DashboardDeviceArchiveDialogService,
         public dialog: MatDialog,
     ) {
         // Set the private defaults
@@ -26,7 +29,8 @@ export class DashboardDeviceComponent implements OnInit {
     }
 
     @Input() deviceSummary: DeviceSummaryModel;
-    @Input() deviceWWN: string;
+    @Output() deviceArchived = new EventEmitter<string>();
+    @Output() deviceUnarchived = new EventEmitter<string>();
     @Output() deviceDeleted = new EventEmitter<string>();
 
     config: AppConfig;
@@ -69,11 +73,33 @@ export class DashboardDeviceComponent implements OnInit {
         }
     }
 
+    openArchiveDialog(): void {
+        if(this.deviceSummary.device.archived){
+            this._archiveService.unarchiveDevice(this.deviceSummary.device.wwn).subscribe((result) => {
+                if(result) {
+                    this.deviceUnarchived.emit(this.deviceSummary.device.wwn)
+                }
+            })
+            return;
+        }
+        const dialogRef = this.dialog.open(DashboardDeviceArchiveDialogComponent, {
+            data: {
+                wwn: this.deviceSummary.device.wwn,
+                title: DeviceTitlePipe.deviceTitleWithFallback(this.deviceSummary.device, this.config.dashboard_display)
+            }
+        });
+        dialogRef.afterClosed().subscribe(result => {
+            if(result) {
+                this.deviceArchived.emit(this.deviceSummary.device.wwn);
+            }
+        })
+    }
+
     openDeleteDialog(): void {
         const dialogRef = this.dialog.open(DashboardDeviceDeleteDialogComponent, {
             // width: '250px',
             data: {
-                wwn: this.deviceWWN,
+                wwn: this.deviceSummary.device.wwn,
                 title: DeviceTitlePipe.deviceTitleWithFallback(this.deviceSummary.device, this.config.dashboard_display)
             }
         });
@@ -81,7 +107,7 @@ export class DashboardDeviceComponent implements OnInit {
         dialogRef.afterClosed().subscribe(result => {
             console.log('The dialog was closed', result);
             if (result.success) {
-                this.deviceDeleted.emit(this.deviceWWN)
+                this.deviceDeleted.emit(this.deviceSummary.device.wwn)
             }
         });
     }

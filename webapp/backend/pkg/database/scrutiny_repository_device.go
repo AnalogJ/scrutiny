@@ -14,7 +14,7 @@ import (
 // Device
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//insert device into DB (and update specified columns if device is already registered)
+// insert device into DB (and update specified columns if device is already registered)
 // update device fields that may change: (DeviceType, HostID)
 func (sr *scrutinyRepository) RegisterDevice(ctx context.Context, dev models.Device) error {
 	if err := sr.gormClient.WithContext(ctx).Clauses(clause.OnConflict{
@@ -51,7 +51,7 @@ func (sr *scrutinyRepository) UpdateDevice(ctx context.Context, wwn string, coll
 	return device, sr.gormClient.Model(&device).Updates(device).Error
 }
 
-//Update Device Status
+// Update Device Status
 func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, wwn string, status pkg.DeviceStatus) (models.Device, error) {
 	var device models.Device
 	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
@@ -72,6 +72,16 @@ func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, wwn string) 
 	}
 
 	return device, nil
+}
+
+// Update Device Archived State
+func (sr *scrutinyRepository) UpdateDeviceArchived(ctx context.Context, wwn string, archived bool) error {
+	var device models.Device
+	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
+		return fmt.Errorf("Could not get device from DB: %v", err)
+	}
+
+	return sr.gormClient.Model(&device).Where("wwn = ?", wwn).Update("archived", archived).Error
 }
 
 func (sr *scrutinyRepository) DeleteDevice(ctx context.Context, wwn string) error {

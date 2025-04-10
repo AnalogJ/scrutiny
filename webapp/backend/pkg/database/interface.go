@@ -20,6 +20,7 @@ type DeviceRepo interface {
 	UpdateDevice(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (models.Device, error)
 	UpdateDeviceStatus(ctx context.Context, wwn string, status pkg.DeviceStatus) (models.Device, error)
 	GetDeviceDetails(ctx context.Context, wwn string) (models.Device, error)
+	UpdateDeviceArchived(ctx context.Context, wwn string, archived bool) error
 	DeleteDevice(ctx context.Context, wwn string) error
 
 	SaveSmartAttributes(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (measurements.Smart, error)

@@ -1,12 +1,12 @@
-package m20220509170100
+package m20250221084400
 
 import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"time"
 )
 
-// Deprecated: m20220509170100.Device is deprecated, only used by db migrations
 type Device struct {
+	Archived bool `json:"archived"`
 	//GORM attributes, see: http://gorm.io/docs/conventions.html
 	CreatedAt time.Time
 	UpdatedAt time.Time

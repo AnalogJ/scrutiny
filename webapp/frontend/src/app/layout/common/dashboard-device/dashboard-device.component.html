@@ -1,5 +1,7 @@
-<div [ngClass]="{ 'border-green': deviceStatusForModelWithThreshold(deviceSummary.device, !!deviceSummary.smart, config.metrics.status_threshold) == 'passed',
-                                'border-red': deviceStatusForModelWithThreshold(deviceSummary.device, !!deviceSummary.smart, config.metrics.status_threshold) == 'failed' }"
+<div
+        [ngClass]="{ 'border-green': deviceStatusForModelWithThreshold(deviceSummary.device, !!deviceSummary.smart, config.metrics.status_threshold) == 'passed',
+                                'border-red': deviceStatusForModelWithThreshold(deviceSummary.device, !!deviceSummary.smart, config.metrics.status_threshold) == 'failed',
+                                 'text-disabled': deviceSummary.device.archived }"
      class="relative flex flex-col flex-auto p-6 pr-3 pb-3 bg-card rounded border-l-4 shadow-md overflow-hidden">
     <div class="absolute bottom-0 right-0 w-24 h-24 -m-6">
         <mat-icon class="icon-size-96 opacity-12 text-green"
@@ -21,6 +23,8 @@
             </div>
         </div>
         <div class="ml-auto" *ngIf="deviceSummary.device">
+            <mat-icon *ngIf="deviceSummary.device.archived"
+                      [svgIcon]="'archive'"></mat-icon>
             <button mat-icon-button
                     [matMenuTriggerFor]="previousStatementMenu">
                 <mat-icon [svgIcon]="'more_vert'"></mat-icon>
@@ -31,6 +35,14 @@
                                     <mat-icon class="icon-size-20 mr-3"
                                               [svgIcon]="'assessment'"></mat-icon>
                                     <span>View Details</span>
+                                </span>
+                </a>
+                <a mat-menu-item
+                   (click)="openArchiveDialog()">
+                                <span class="flex items-center">
+                                    <mat-icon class="icon-size-20 mr-3"
+                                              [svgIcon]="deviceSummary.device.archived ? 'unarchive':'archive'"></mat-icon>
+                                    <span>{{deviceSummary.device.archived ? "Unarchive" : "Archive"}} Device</span>
                                 </span>
                 </a>
                 <a mat-menu-item (click)="openDeleteDialog()">
