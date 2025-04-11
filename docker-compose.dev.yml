@@ -1,0 +1,31 @@
+version: '3.5'
+
+services:
+  scrutiny-dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: scrutiny-dev
+    cap_add:
+      - SYS_RAWIO
+      - SYS_ADMIN  # Required for NVMe drives
+    privileged: true  # Gives access to all devices on the host
+    ports:
+      - "8080:8080"  # Web UI
+      - "8086:8086"  # InfluxDB admin (if needed)
+    volumes:
+      - scrutiny-config:/opt/scrutiny/config
+      - scrutiny-influxdb:/opt/scrutiny/influxdb
+      - go-cache:/go  # Cache Go modules
+      - node-cache:/root/.npm  # Cache npm packages
+    # Uncomment to enable debug mode
+    # environment:
+    #   - DEBUG=true
+    #   - SCRUTINY_LOG_FILE=/tmp/web.log
+    #   - COLLECTOR_LOG_FILE=/tmp/collector.log
+
+volumes:
+  scrutiny-config:
+  scrutiny-influxdb:
+  go-cache:  # Persistent cache for Go modules
+  node-cache:  # Persistent cache for npm packages 

@@ -204,9 +204,18 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    getAttributeValue(attributeData: SmartAttributeModel): number {
+    getAttributeValue(attributeData: SmartAttributeModel): number | string {
+        // Get attribute metadata for any device type
+        const attributeMetadata = this.metadata[attributeData.attribute_id]
+        
+        // Check for transformed_with_unit display type first (for any device type)
+        if (attributeMetadata?.display_type === 'transformed_with_unit' && 
+            attributeData.transformed_value && attributeData.value_unit) {
+            return `${attributeData.transformed_value} ${attributeData.value_unit}`
+        }
+        
+        // Then handle device-specific logic
         if (this.isAta()) {
-            const attributeMetadata = this.metadata[attributeData.attribute_id]
             if (!attributeMetadata) {
                 return attributeData.value
             } else if (attributeMetadata.display_type === 'raw') {

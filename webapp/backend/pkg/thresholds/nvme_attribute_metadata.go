@@ -52,7 +52,7 @@ var NmveMetadata = map[string]NvmeAttributeMetadata{
 	"data_units_read": {
 		ID:          "data_units_read",
 		DisplayName: "Data Units Read",
-		DisplayType: "",
+		DisplayType: "transformed_with_unit",
 		Ideal:       "",
 		Critical:    false,
 		Description: "Contains the number of 512 byte data units the host has read from the controller; this value does not include metadata. This value is reported in thousands (i.e., a value of 1 corresponds to 1000 units of 512 bytes read) and is rounded up. When the LBA size is a value other than 512 bytes, the controller shall convert the amount of data read to 512 byte units.",
@@ -60,7 +60,7 @@ var NmveMetadata = map[string]NvmeAttributeMetadata{
 	"data_units_written": {
 		ID:          "data_units_written",
 		DisplayName: "Data Units Written",
-		DisplayType: "",
+		DisplayType: "transformed_with_unit",
 		Ideal:       "",
 		Critical:    false,
 		Description: "Contains the number of 512 byte data units the host has written to the controller; this value does not include metadata. This value is reported in thousands (i.e., a value of 1 corresponds to 1000 units of 512 bytes written) and is rounded up. When the LBA size is a value other than 512 bytes, the controller shall convert the amount of data written to 512 byte units.",

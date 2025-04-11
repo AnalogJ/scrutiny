@@ -11,6 +11,7 @@ export interface SmartAttributeModel {
     when_failed?: string
 
     transformed_value: number
+    value_unit?: string
     status: number
     status_reason?: string
     failure_rate?: number

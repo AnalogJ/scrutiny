@@ -14,6 +14,7 @@ type SmartNvmeAttribute struct {
 	Threshold   int64  `json:"thresh"`
 
 	TransformedValue int64               `json:"transformed_value"`
+	ValueUnit        string              `json:"value_unit,omitempty"` // Unit type (MB/GB/TB/PB)
 	Status           pkg.AttributeStatus `json:"status"`
 	StatusReason     string              `json:"status_reason,omitempty"`
 	FailureRate      float64             `json:"failure_rate,omitempty"`
@@ -35,6 +36,7 @@ func (sa *SmartNvmeAttribute) Flatten() map[string]interface{} {
 
 		//Generated Data
 		fmt.Sprintf("attr.%s.transformed_value", sa.AttributeId): sa.TransformedValue,
+		fmt.Sprintf("attr.%s.value_unit", sa.AttributeId):        sa.ValueUnit,
 		fmt.Sprintf("attr.%s.status", sa.AttributeId):            int64(sa.Status),
 		fmt.Sprintf("attr.%s.status_reason", sa.AttributeId):     sa.StatusReason,
 		fmt.Sprintf("attr.%s.failure_rate", sa.AttributeId):      sa.FailureRate,
@@ -58,6 +60,8 @@ func (sa *SmartNvmeAttribute) Inflate(key string, val interface{}) {
 	//generated
 	case "transformed_value":
 		sa.TransformedValue = val.(int64)
+	case "value_unit":
+		sa.ValueUnit = val.(string)
 	case "status":
 		sa.Status = pkg.AttributeStatus(val.(int64))
 	case "status_reason":
