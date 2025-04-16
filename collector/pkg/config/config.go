@@ -49,6 +49,11 @@ func (c *configuration) Init() error {
 	c.SetDefault("commands.metrics_smart_args", "--xall --json")
 	c.SetDefault("commands.metrics_smartctl_wait", 0)
 	c.SetDefault("commands.allow_custom", "no")
+  
+	//configure env variable parsing.
+	c.SetEnvPrefix("COLLECTOR")
+	c.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
+	c.AutomaticEnv()
 	//c.SetDefault("collect.short.command", "-a -o on -S on")
 
 	c.SetDefault("allow_listed_devices", []string{})

@@ -11,6 +11,32 @@ dependency. It's a dedicated timeseries database, as opposed to the general purp
 a bunch of testing and analysis before I made the change. With InfluxDB the memory footprint for Scrutiny (at idle) is ~
 100mb, which is still fairly reasonable.
 
+### Data Size
+
+It's surprisingly easy to reach extremely large database sizes, if you don't use downsampling, or you downsample incorrectly. 
+The growth rate is pretty unintuitive -- see https://github.com/AnalogJ/scrutiny/issues/650#issuecomment-2365174940 
+
+> Fasten stores the SMART metrics in a timeseries database (InfluxDB), and automatically downsamples the data on a schedule.
+>
+> The expectation was that cron would run daily, and there would be:
+>
+>    - 7 daily data points
+>    - 3 weekly data points
+>    - 11 monthly data points
+>    - and infinite yearly data points.
+>
+> These data points would be for each SMART metric, for each device.
+> eg. in one year, (7+3+11)*80ish SMART attributes = 1680 datapoints for one device
+>
+> If you're running cron every 15 minutes, your browser will instead be attempting to display:
+>
+>    - 96*7 daily data points
+>    - 3 weekly
+>    - 11 monthly
+>
+> so (96*7 + 3 + 11)*80 = 54,880 datapoints for each device 😭
+
+
 ## Installation
 
 InfluxDB is a required dependency for Scrutiny v0.4.0+.

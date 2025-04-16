@@ -17,3 +17,11 @@ So changing from `master-omnibus -> latest` will be the same thing for all inten
 > NOTE: Previously, there was a `automated cron build` that ran on the `master` and `beta` branches. 
 They used to trigger a `nightly` build, even if nothing has changed on the branch. This has a couple of benefits, but one is to 
 ensure that there's no broken external dependencies in our (unchanged) code. This `nightly` build no longer updates the `master-omnibus` tag. 
+
+# Running Docker `rootless`
+
+To avoid that the container(s) restart when you installed Docker as `rootless` you need to isssue the following commands to allow the session to stay alive even after you close your (SSH) sesssion:
+
+`sudo loginctl enable-linger $(whoami)`
+
+`systemctl --user enable docker`
