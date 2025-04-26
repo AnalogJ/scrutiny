@@ -159,9 +159,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
             for(const tempHistory of deviceSummary.temp_history){
                 const newDate = new Date(tempHistory.date);
+                let temperature;
+                switch (this.config.temperature_unit) {
+                    case 'celsius':
+                        temperature = tempHistory.temp;
+                        break
+                    case 'fahrenheit':
+                        temperature = TemperaturePipe.celsiusToFahrenheit(tempHistory.temp)
+                        break
+                }
                 deviceSeriesMetadata.data.push({
                     x: newDate,
-                    y: TemperaturePipe.formatTemperature(tempHistory.temp, this.config.temperature_unit, false)
+                    y: temperature
                 })
             }
             deviceTemperatureSeries.push(deviceSeriesMetadata)
