@@ -1,6 +1,6 @@
 // maps to webapp/backend/pkg/models/device.go
 export interface DeviceModel {
-    archived: boolean;
+    archived?: boolean;
     wwn: string;
     device_name?: string;
     device_uuid?: string;
