@@ -34,6 +34,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     temperatureOptions: ApexOptions;
     tempDurationKey = 'forever'
     config: AppConfig;
+    showArchived: boolean;
 
     // Private
     private _unsubscribeAll: Subject<void>;
@@ -255,6 +256,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
     onDeviceDeleted(wwn: string): void {
         delete this.summaryData[wwn] // remove the device from the summary list.
+    }
+
+    onDeviceArchived(wwn: string): void {
+        this.summaryData[wwn].device.archived = true;
+    }
+
+    onDeviceUnarchived(wwn: string): void {
+        this.summaryData[wwn].device.archived = false;
     }
 
     /*
