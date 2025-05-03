@@ -171,6 +171,11 @@ ghcr.io/analogj/scrutiny:master-omnibus
 /opt/scrutiny/bin/scrutiny-collector-metrics run
 ```
 
+or use the development docker compose file
+
+```bash
+docker-compose -f docker-compose.dev.yml up --build
+```
 
 # Running Tests
 
