@@ -2,6 +2,7 @@ version: '3.5'
 
 services:
   scrutiny:
+    restart: unless-stopped
     container_name: scrutiny
     image: ghcr.io/analogj/scrutiny:master-omnibus
     cap_add:
