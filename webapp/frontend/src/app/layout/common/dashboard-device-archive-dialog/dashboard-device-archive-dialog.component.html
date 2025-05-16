@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>Archive {{data.title}}?</h2>
+<mat-dialog-content>This will remove the device from Scrutiny dashboard, unless you toggle show archived. <strong>Any data about the device
+    itself will remain untouched.</strong></mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button class="yellow-600" mat-button (click)="onArchiveClick()">
+        <mat-icon class="icon-size-20 mr-3"
+                  [svgIcon]="'archive'"></mat-icon>
+        Archive
+    </button>
+</mat-dialog-actions>

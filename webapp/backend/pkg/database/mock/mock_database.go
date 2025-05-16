@@ -52,6 +52,20 @@ func (mr *MockDeviceRepoMockRecorder) Close() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockDeviceRepo)(nil).Close))
 }
 
+// UpdateDeviceArchived mocks base method.
+func (m *MockDeviceRepo) UpdateDeviceArchived(ctx context.Context, wwn string, archived bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateDeviceArchived", ctx, wwn)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateDeviceArchived indicates an expected call of UpdateDeviceArchived.
+func (mr *MockDeviceRepoMockRecorder) UpdateDeviceArchived(ctx, wwn, archived interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceArchived", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDeviceArchived), ctx, wwn, archived)
+}
+
 // DeleteDevice mocks base method.
 func (m *MockDeviceRepo) DeleteDevice(ctx context.Context, wwn string) error {
 	m.ctrl.T.Helper()

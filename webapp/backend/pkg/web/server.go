@@ -42,8 +42,10 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 			api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory) //used by Dashboard (Temperature history dropdown)
 			api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics)    //used by Collector to upload data
 			api.POST("/device/:wwn/selftest", handler.UploadDeviceSelfTests)
-			api.GET("/device/:wwn/details", handler.GetDeviceDetails) //used by Details
-			api.DELETE("/device/:wwn", handler.DeleteDevice)          //used by UI to delete device
+			api.GET("/device/:wwn/details", handler.GetDeviceDetails)   //used by Details
+			api.POST("/device/:wwn/archive", handler.ArchiveDevice)     //used by UI to archive device
+			api.POST("/device/:wwn/unarchive", handler.UnarchiveDevice) //used by UI to unarchive device
+			api.DELETE("/device/:wwn", handler.DeleteDevice)            //used by UI to delete device
 
 			api.GET("/settings", handler.GetSettings)   //used to get settings
 			api.POST("/settings", handler.SaveSettings) //used to save settings
