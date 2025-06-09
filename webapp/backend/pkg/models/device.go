@@ -14,6 +14,7 @@ type DeviceWrapper struct {
 
 type Device struct {
 	//GORM attributes, see: http://gorm.io/docs/conventions.html
+	Archived  bool `json:"archived"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt *time.Time

@@ -12,6 +12,7 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220503120000"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220509170100"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220716214900"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20250221084400"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
@@ -400,7 +401,16 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 			},
 		},
 		{
-			ID: "m20240804113900", // add retrieve_sct_history setting.
+			ID: "m20250221084400", // add archived to device data
+			Migrate: func(tx *gorm.DB) error {
+
+				//migrate the device database.
+				// adding column (archived)
+				return tx.AutoMigrate(m20250221084400.Device{})
+			},
+		},
+		{
+			ID: "m20250609210800", // add retrieve_sct_history setting.
 			Migrate: func(tx *gorm.DB) error {
 				//add retrieve_sct_history setting default.
 				var defaultSettings = []m20220716214900.Setting{
