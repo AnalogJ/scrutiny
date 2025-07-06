@@ -194,6 +194,9 @@ func (sr *scrutinyRepository) generateSmartAttributesSubquery(wwn string, durati
 		`|> filter(fn: (r) => r["_measurement"] == "smart" )`,
 		fmt.Sprintf(`|> filter(fn: (r) => r["device_wwn"] == "%s" )`, wwn),
 	}
+
+	partialQueryStr = append(partialQueryStr, `|> aggregateWindow(every: 1d, fn: last, createEmpty: false)`)
+	
 	if selectEntries > 0 {
 		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> tail(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))
 	}
