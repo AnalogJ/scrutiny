@@ -82,6 +82,12 @@ devices:
 #  metrics_info_args: '--info --json' # used to determine device unique ID & register device with Scrutiny
 #  metrics_smart_args: '--xall --json' # used to retrieve smart data for each device.
 #  metrics_smartctl_wait: 0 # time to wait in seconds between each disk's check
+#  zpool_bin: 'zpool' # change to provide custom `zpool` binary path
+
+# ZFS pool monitoring configuration
+#zfs:
+#  enabled: true # enable/disable ZFS pool monitoring
+#  collection_schedule: "*/5 * * * *" # cron schedule for ZFS collection (default: every 5 minutes)
 
 
 ########################################################################################################################

@@ -49,6 +49,14 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 
 			api.GET("/settings", handler.GetSettings)   //used to get settings
 			api.POST("/settings", handler.SaveSettings) //used to save settings
+
+			// ZFS pool endpoints
+			zfs := api.Group("/zfs")
+			{
+				zfs.POST("/pools/register", handler.RegisterZfsPools) //used by Collector to register ZFS pools
+				zfs.GET("/pools", handler.GetZfsPools)                //used by Dashboard to get ZFS pools
+				zfs.GET("/pool/:poolGuid", handler.GetZfsPoolDetails) //used by Details to get specific pool
+			}
 		}
 	}
 

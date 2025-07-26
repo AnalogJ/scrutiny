@@ -1,0 +1,135 @@
+<div
+        [ngClass]="{ 
+            'border-green': pool.state === 'ONLINE',
+            'border-yellow': pool.state === 'DEGRADED',
+            'border-red': pool.state === 'FAULTED' || pool.state === 'OFFLINE' || pool.state === 'UNAVAIL'
+        }"
+        class="relative flex flex-col flex-auto p-6 pr-3 pb-3 bg-card rounded border-l-4 shadow-md overflow-hidden">
+    
+    <!-- Background icon -->
+    <div class="absolute bottom-0 right-0 w-24 h-24 -m-6">
+        <mat-icon class="icon-size-96 opacity-12"
+                  [ngClass]="zfsService.getPoolStatusClass(pool.state)"
+                  [svgIcon]="zfsService.getPoolStatusIcon(pool.state)"></mat-icon>
+    </div>
+    
+    <!-- Pool header -->
+    <div class="flex items-center">
+        <div class="flex flex-col">
+            <a (click)="viewPoolDetails()" 
+               class="font-bold text-md text-secondary uppercase tracking-wider cursor-pointer hover:underline">
+                {{ pool.name }}
+            </a>
+            <div class="font-medium text-sm" 
+                 [ngClass]="getTimestampColorClass()" 
+                 *ngIf="pool.updated_at">
+                Last Updated on {{ pool.updated_at | date:'MMMM dd, yyyy - HH:mm' }}
+            </div>
+        </div>
+        
+        <div class="ml-auto">
+            <button mat-icon-button [matMenuTriggerFor]="poolMenu">
+                <mat-icon [svgIcon]="'more_vert'"></mat-icon>
+            </button>
+            <mat-menu #poolMenu="matMenu">
+                <a mat-menu-item (click)="viewPoolDetails()">
+                    <span class="flex items-center">
+                        <mat-icon class="icon-size-20 mr-3" [svgIcon]="'assessment'"></mat-icon>
+                        <span>View Details</span>
+                    </span>
+                </a>
+            </mat-menu>
+        </div>
+    </div>
+    
+    <!-- 4-Field Layout matching disk component -->
+    <div class="flex flex-row flex-wrap mt-4 -mx-6">
+        <!-- State Field -->
+        <div class="flex flex-col mx-6 my-3 xs:w-full">
+            <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">State</div>
+            <div class="mt-2 font-medium text-3xl leading-none" 
+                 [ngClass]="zfsService.getPoolStatusClass(pool.state)">
+                {{ pool.state | titlecase }}
+            </div>
+        </div>
+        
+        <!-- Last Scan Field -->
+        <div class="flex flex-col mx-6 my-3 xs:w-full">
+            <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Last Scan</div>
+            <div class="mt-2 font-medium text-3xl leading-none" 
+                 [ngClass]="getScanStatusClass()">
+                {{ getScanStatus() }}
+            </div>
+        </div>
+        
+        <!-- Utilization Field -->
+        <div class="flex flex-col mx-6 my-3 xs:w-full">
+            <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Utilization</div>
+            <div class="mt-2 font-medium text-3xl leading-none" 
+                 [ngClass]="getUtilizationClass()">
+                {{ getUtilizationPercentage() }}%
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- Pool status message (compact) -->
+    <div class="mt-4" *ngIf="pool.status && pool.status.trim()">
+        <div class="text-xs text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded">
+            {{ pool.status.trim() }}
+        </div>
+    </div>
+    
+    <!-- Pool action message (compact) -->
+    <div class="mt-2" *ngIf="pool.action && pool.action.trim() && !pool.action.toLowerCase().includes('no action required')">
+        <div class="text-xs text-yellow-600 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-900 p-2 rounded">
+            <strong>Action:</strong> {{ pool.action.trim() }}
+        </div>
+    </div>
+    
+    <!-- Enhanced Tree Structure -->
+    <div class="mt-4" *ngIf="pool.vdevs && pool.vdevs.length > 0">
+        <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Device Configuration:</div>
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-2">
+            <!-- Direct RAID level structure (no pool name level) -->
+            <div *ngFor="let vdev of getTopLevelVdevs(); let isLast = last" class="space-y-1">
+                <!-- RAID level at top of tree -->
+                <div class="flex items-center text-xs">
+                    <mat-icon class="icon-size-14 mr-2" 
+                              [class.text-orange-500]="vdev.vdev_type.includes('raidz')"
+                              [class.text-purple-500]="vdev.vdev_type === 'mirror'"
+                              [class.text-gray-500]="vdev.vdev_type === 'disk'"
+                              [svgIcon]="getVdevIcon(vdev.vdev_type)"></mat-icon>
+                    <span class="font-semibold text-gray-900 dark:text-gray-100 flex-1">
+                        <ng-container *ngIf="vdev.vdev_type === 'disk'; else groupName">
+                            {{ getDeviceName(vdev) }}
+                        </ng-container>
+                        <ng-template #groupName>
+                            {{ zfsService.getVdevTypeDisplayName(vdev.vdev_type) }}
+                        </ng-template>
+                    </span>
+                    <span class="px-2 py-1 rounded text-xs font-medium"
+                          [ngClass]="getStateClass(vdev.state)">{{ vdev.state }}</span>
+                </div>
+                
+                <!-- Child devices (disks under RAID groups) -->
+                <div *ngFor="let child of getChildVdevs(vdev.id); let childLast = last" 
+                     class="flex items-center ml-4 text-xs relative">
+                    <!-- Tree connector for child devices -->
+                    <div class="absolute -left-4 top-0 bottom-0 w-4 flex items-center">
+                        <div class="w-3 h-3 border-l-2 border-gray-300 dark:border-gray-600"
+                             [class.border-b-2]="!childLast"
+                             [style.height]="childLast ? '50%' : '100%'"></div>
+                    </div>
+                    
+                    <mat-icon class="icon-size-12 mr-2 text-gray-500 dark:text-gray-400" 
+                              [svgIcon]="'heroicons_outline:circle-stack'"></mat-icon>
+                    <span class="flex-1 truncate text-gray-700 dark:text-gray-300" 
+                          [title]="getDeviceName(child)">{{ getDeviceName(child) }}</span>
+                    <span class="px-1.5 py-0.5 rounded text-xs font-medium ml-1"
+                          [ngClass]="getStateClass(child.state)">{{ child.state }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

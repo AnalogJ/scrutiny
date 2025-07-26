@@ -61,8 +61,25 @@
             </div>
 
 
+            <!-- ZFS Pools -->
+            <div class="flex flex-wrap w-full" *ngIf="zfsPools && zfsPools.length > 0">
+                <h3 class="ml-4">ZFS Pools</h3>
+                <div class="flex flex-wrap w-full">
+                    <ng-container *ngFor="let pool of zfsPools">
+                        <app-dashboard-zfs-pool class="flex gt-sm:w-1/2 min-w-80 p-4"
+                                               [pool]="pool"></app-dashboard-zfs-pool>
+                    </ng-container>
+                </div>
+            </div>
+
+            <!-- Disks -->
+            <div class="flex flex-wrap w-full" *ngIf="summaryData && (summaryData | keyvalue).length > 0">
+                <h3 class="ml-4">Disks</h3>
+            </div>
+
+            <!-- Storage Devices -->
             <div class="flex flex-wrap w-full" *ngFor="let hostId of hostGroups | keyvalue">
-                <h3 class="ml-4" *ngIf="hostId.key">{{ hostId.key }}</h3>
+                <h4 class="ml-4" *ngIf="hostId.key">{{ hostId.key }}</h4>
                 <div class="flex flex-wrap w-full">
                     <ng-container *ngFor="let deviceSummary of (deviceSummariesForHostGroup(hostId.value) | deviceSort:config.dashboard_sort:config.dashboard_display )">
                         <app-dashboard-device *ngIf="showArchived || !deviceSummary.device.archived"

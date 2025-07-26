@@ -38,7 +38,8 @@ export const appRoutes: Route[] = [
 
             // Example
             {path: 'dashboard', loadChildren: () => import('app/modules/dashboard/dashboard.module').then(m => m.DashboardModule)},
-            {path: 'device/:wwn', loadChildren: () => import('app/modules/detail/detail.module').then(m => m.DetailModule)}
+            {path: 'device/:wwn', loadChildren: () => import('app/modules/detail/detail.module').then(m => m.DetailModule)},
+            {path: 'zfs-pool/:poolGuid', loadChildren: () => import('app/modules/zfs-pool-detail/zfs-pool-detail.module').then(m => m.ZfsPoolDetailModule)}
 
             // 404 & Catch all
             // {path: '404-not-found', pathMatch: 'full', loadChildren: () => import('app/modules/admin/pages/errors/error-404/error-404.module').then(m => m.Error404Module)},

@@ -1,0 +1,204 @@
+.zfs-pool-detail {
+    // Modern capacity bar
+    .capacity-bar-modern {
+        height: 12px;
+        background-color: #e5e7eb;
+        border-radius: 6px;
+        overflow: hidden;
+        position: relative;
+        
+        // Dark mode support
+        @media (prefers-color-scheme: dark) {
+            background-color: #374151;
+        }
+        
+        .dark & {
+            background-color: #374151;
+        }
+        
+        .capacity-fill-modern {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.3s ease;
+            position: relative;
+            
+            &::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%);
+                background-size: 8px 8px;
+                animation: move 1s linear infinite;
+            }
+        }
+    }
+    
+    @keyframes move {
+        0% { background-position: 0 0; }
+        100% { background-position: 8px 8px; }
+    }
+    
+    // Card enhancements
+    .pool-status-card {
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+    }
+    
+    .capacity-card {
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+    }
+    
+    .health-card {
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+    }
+    
+    // Virtual device tree styling
+    .vdev-tree-card {
+        overflow: hidden;
+        
+        .vdev-tree-container {
+            .tree-header {
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                
+                // Dark mode support
+                @media (prefers-color-scheme: dark) {
+                    background-color: #1f2937;
+                    color: #d1d5db;
+                    border-bottom-color: #374151;
+                }
+                
+                .dark & {
+                    background-color: #1f2937;
+                    color: #d1d5db;
+                    border-bottom-color: #374151;
+                }
+            }
+            
+            .tree-row {
+                transition: background-color 0.2s ease;
+                border-left: 3px solid transparent;
+                
+                &:hover {
+                    border-left-color: #3b82f6;
+                    background-color: #f8fafc !important;
+                    
+                    // Dark mode hover
+                    @media (prefers-color-scheme: dark) {
+                        background-color: #374151 !important;
+                    }
+                    
+                    .dark & {
+                        background-color: #374151 !important;
+                    }
+                }
+                
+                &.bg-blue-25 {
+                    background-color: #eff6ff;
+                    
+                    // Dark mode blue background
+                    @media (prefers-color-scheme: dark) {
+                        background-color: #1e3a8a;
+                    }
+                    
+                    .dark & {
+                        background-color: #1e3a8a;
+                    }
+                }
+                
+                // Dark mode row borders
+                @media (prefers-color-scheme: dark) {
+                    border-bottom-color: #374151;
+                }
+                
+                .dark & {
+                    border-bottom-color: #374151;
+                }
+                
+                // Device name truncation
+                .truncate {
+                    word-break: break-all;
+                    
+                    @media (max-width: 768px) {
+                        word-break: break-word;
+                        font-size: 12px;
+                    }
+                }
+                
+                // Status badges
+                .inline-block {
+                    transition: all 0.2s ease;
+                    
+                    &:hover {
+                        transform: scale(1.05);
+                    }
+                }
+            }
+        }
+    }
+    
+    // Responsive grid adjustments
+    @media (max-width: 1024px) {
+        .grid-cols-12 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            
+            .col-span-5 { flex: 2; min-width: 200px; }
+            .col-span-2 { flex: 1; min-width: 80px; }
+            .col-span-1 { flex: 0 0 60px; text-align: center; }
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .grid.grid-cols-1.lg\\:grid-cols-3 {
+            grid-template-columns: 1fr;
+        }
+        
+        .vdev-tree-container {
+            overflow-x: auto;
+            
+            .tree-header,
+            .tree-row {
+                min-width: 600px;
+            }
+        }
+    }
+    
+    // Animation for status indicators
+    .mat-icon {
+        transition: all 0.3s ease;
+        
+        &:hover {
+            transform: scale(1.1);
+        }
+    }
+    
+    // Error state highlighting
+    .text-red-600 {
+        font-weight: 600;
+        animation: pulse-red 2s infinite;
+    }
+    
+    @keyframes pulse-red {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+}

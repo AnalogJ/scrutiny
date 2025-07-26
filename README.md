@@ -158,9 +158,20 @@ Neither file is required, however if provided, it allows you to configure how Sc
 ## Cron Schedule
 Unfortunately the Cron schedule cannot be configured via the `collector.yaml` (as the collector binary needs to be trigged by a scheduler/cron).
 However, if you are using the official `ghcr.io/analogj/scrutiny:master-collector` or `ghcr.io/analogj/scrutiny:master-omnibus` docker images,
-you can use the `COLLECTOR_CRON_SCHEDULE` environmental variable to override the default cron schedule (daily @ midnight - `0 0 * * *`).
+you can use the following environmental variables to override the default cron schedules:
 
-`docker run -e COLLECTOR_CRON_SCHEDULE="0 0 * * *" ...`
+- `COLLECTOR_CRON_SCHEDULE` - SMART data collection schedule (default: daily @ midnight - `0 0 * * *`)
+- `COLLECTOR_ZFS_CRON_SCHEDULE` - ZFS pool collection schedule (default: every 5 minutes - `*/5 * * * *`)
+
+```bash
+docker run -e COLLECTOR_CRON_SCHEDULE="0 0 * * *" -e COLLECTOR_ZFS_CRON_SCHEDULE="*/5 * * * *" ...
+```
+
+### Separate Collection Frequencies
+Scrutiny now supports different collection frequencies for SMART data and ZFS pools:
+- SMART data is collected less frequently (daily by default) since it doesn't change often
+- ZFS pool data is collected more frequently (every 5 minutes by default) to provide timely status updates
+- Both schedules are fully configurable via environment variables
 
 ## Notifications
 

@@ -15,6 +15,7 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/detect"
 	"github.com/analogj/scrutiny/collector/pkg/errors"
 	"github.com/analogj/scrutiny/collector/pkg/models"
+	webModels "github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 )
@@ -102,6 +103,12 @@ func (mc *MetricsCollector) Run() error {
 		mc.logger.Infoln("Main: Completed")
 	}
 
+	// Collect ZFS pool data if enabled
+	if err := mc.CollectZfs(); err != nil {
+		mc.logger.Errorf("Error collecting ZFS data: %v", err)
+		// Don't return error here as ZFS collection is optional
+	}
+
 	return nil
 }
 
@@ -166,5 +173,62 @@ func (mc *MetricsCollector) Publish(deviceWWN string, payload []byte) error {
 	}
 	defer resp.Body.Close()
 
+	return nil
+}
+
+func (mc *MetricsCollector) CollectZfs() error {
+	mc.logger.Infoln("Collecting ZFS pool data")
+
+	zfsDetector := detect.ZfsDetect{
+		Logger: mc.logger,
+		Config: mc.config,
+		Shell:  mc.shell,
+	}
+
+	// Skip if ZFS is not available
+	if !zfsDetector.IsZfsAvailable() {
+		mc.logger.Debug("ZFS tools not available, skipping ZFS collection")
+		return nil
+	}
+
+	pools, err := zfsDetector.DetectZfsPools()
+	if err != nil {
+		return fmt.Errorf("error detecting ZFS pools: %v", err)
+	}
+
+	if len(pools) == 0 {
+		mc.logger.Debug("No ZFS pools detected")
+		return nil
+	}
+
+	mc.logger.Infof("Detected %d ZFS pools, publishing to API", len(pools))
+
+	// Publish ZFS pool data to the API
+	return mc.PublishZfsPools(pools)
+}
+
+func (mc *MetricsCollector) PublishZfsPools(pools []webModels.ZfsPool) error {
+	mc.logger.Infoln("Publishing ZFS pool data")
+
+	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
+	apiEndpoint, _ = apiEndpoint.Parse("api/zfs/pools/register")
+
+	poolWrapper := webModels.ZfsPoolWrapper{
+		Data: pools,
+	}
+
+	var respWrapper webModels.ZfsPoolWrapper
+	err := mc.postJson(apiEndpoint.String(), poolWrapper, &respWrapper)
+	if err != nil {
+		mc.logger.Errorf("An error occurred while publishing ZFS pool data: %v", err)
+		return err
+	}
+
+	if !respWrapper.Success {
+		mc.logger.Errorln("API server rejected ZFS pool data")
+		return fmt.Errorf("API server rejected ZFS pool data")
+	}
+
+	mc.logger.Infof("Successfully published %d ZFS pools", len(pools))
 	return nil
 }

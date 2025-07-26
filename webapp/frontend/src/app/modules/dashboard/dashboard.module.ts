@@ -14,6 +14,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { DashboardSettingsModule } from 'app/layout/common/dashboard-settings/dashboard-settings.module';
 import { DashboardDeviceModule } from 'app/layout/common/dashboard-device/dashboard-device.module';
+import { DashboardZfsPoolModule } from 'app/layout/common/dashboard-zfs-pool/dashboard-zfs-pool.module';
 
 @NgModule({
     declarations: [
@@ -32,7 +33,8 @@ import { DashboardDeviceModule } from 'app/layout/common/dashboard-device/dashbo
         NgApexchartsModule,
         SharedModule,
         DashboardSettingsModule,
-        DashboardDeviceModule
+        DashboardDeviceModule,
+        DashboardZfsPoolModule
     ]
 })
 export class DashboardModule

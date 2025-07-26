@@ -1,6 +1,7 @@
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     OnDestroy,
     OnInit,
@@ -19,6 +20,8 @@ import {Router} from '@angular/router';
 import {TemperaturePipe} from 'app/shared/temperature.pipe';
 import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
 import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
+import {ZfsPoolModel} from 'app/core/models/zfs-pool-model';
+import {ZfsService} from './zfs.service';
 
 @Component({
     selector       : 'example',
@@ -30,6 +33,7 @@ import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 {
     summaryData: { [key: string]: DeviceSummaryModel };
+    zfsPools: ZfsPoolModel[] = [];
     hostGroups: { [hostId: string]: string[] } = {}
     temperatureOptions: ApexOptions;
     tempDurationKey = 'forever'
@@ -51,8 +55,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     constructor(
         private _dashboardService: DashboardService,
         private _configService: ScrutinyConfigService,
+        private _zfsService: ZfsService,
         public dialog: MatDialog,
         private router: Router,
+        private _changeDetectorRef: ChangeDetectorRef,
     )
     {
         // Set the private defaults
@@ -110,6 +116,29 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
                 // Prepare the chart data
                 this._prepareChartData();
+            });
+
+        // Load ZFS pools
+        this._zfsService.getZfsPools()
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe({
+                next: (response) => {
+                    if (response.success) {
+                        this.zfsPools = response.data || [];
+                        console.log('ZFS pools loaded:', this.zfsPools);
+                    } else {
+                        console.log('ZFS API returned success=false:', response);
+                        this.zfsPools = [];
+                    }
+                    // Trigger change detection
+                    this._changeDetectorRef.markForCheck();
+                },
+                error: (error) => {
+                    console.error('Error loading ZFS pools:', error);
+                    this.zfsPools = [];
+                    // Trigger change detection
+                    this._changeDetectorRef.markForCheck();
+                }
             });
     }
 

@@ -33,4 +33,11 @@ type DeviceRepo interface {
 
 	LoadSettings(ctx context.Context) (*models.Settings, error)
 	SaveSettings(ctx context.Context, settings models.Settings) error
+
+	// ZFS Pool methods
+	RegisterZfsPools(ctx context.Context, pools []models.ZfsPool) error
+	GetZfsPools(ctx context.Context) ([]models.ZfsPool, error)
+	GetZfsPoolByGuid(ctx context.Context, poolGuid string) (models.ZfsPool, error)
+	GetZfsPoolsByHost(ctx context.Context, hostId string) ([]models.ZfsPool, error)
+	DeleteZfsPool(ctx context.Context, poolGuid string) error
 }

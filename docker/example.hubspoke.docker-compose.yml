@@ -6,20 +6,19 @@ services:
     ports:
       - '8086:8086'
     volumes:
-      - './influxdb:/var/lib/influxdb2'
+      - ./influxdb:/var/lib/influxdb2
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
       interval: 5s
       timeout: 10s
       retries: 20
 
-
   web:
     image: 'ghcr.io/analogj/scrutiny:master-web'
     ports:
       - '8080:8080'
     volumes:
-      - './config:/opt/scrutiny/config'
+      - ./config:/opt/scrutiny/config
     environment:
       SCRUTINY_WEB_INFLUXDB_HOST: 'influxdb'
     depends_on:
@@ -37,16 +36,21 @@ services:
     cap_add:
       - SYS_RAWIO
     volumes:
-      - '/run/udev:/run/udev:ro'
+      - /run/udev:/run/udev:ro
+      - /etc/hostid:/etc/hostid:ro
     environment:
       COLLECTOR_API_ENDPOINT: 'http://web:8080'
       COLLECTOR_HOST_ID: 'scrutiny-collector-hostname'
       # If true forces the collector to run on startup (cron will be started after the collector completes)
       # see: https://github.com/AnalogJ/scrutiny/blob/master/docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md#collector-trigger-on-startup
       COLLECTOR_RUN_STARTUP: false
+      # SMART data collection schedule (default: daily at midnight)
+      # COLLECTOR_CRON_SCHEDULE: '0 0 * * *'
+      # ZFS pool collection schedule (default: every 5 minutes)
+      # COLLECTOR_ZFS_CRON_SCHEDULE: '*/5 * * * *'
     depends_on:
       web:
         condition: service_healthy
     devices:
-      - "/dev/sda"
-      - "/dev/sdb"
+      - /dev/sda
+      - /dev/sdb

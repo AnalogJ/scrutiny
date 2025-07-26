@@ -1,0 +1,34 @@
+/* Component-specific styles for ZFS pool dashboard card */
+.dashboard-zfs-pool {
+    /* Custom styles if needed */
+}
+
+/* Status color classes */
+.text-green {
+    color: #10b981;
+}
+
+.text-yellow {
+    color: #f59e0b;
+}
+
+.text-red {
+    color: #ef4444;
+}
+
+.text-gray {
+    color: #6b7280;
+}
+
+/* Border color classes */
+.border-green {
+    border-left-color: #10b981;
+}
+
+.border-yellow {
+    border-left-color: #f59e0b;
+}
+
+.border-red {
+    border-left-color: #ef4444;
+}

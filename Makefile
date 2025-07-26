@@ -8,6 +8,7 @@
 GO_WORKSPACE ?= /go/src/github.com/analogj/scrutiny
 
 COLLECTOR_BINARY_NAME = scrutiny-collector-metrics
+ZFS_COLLECTOR_BINARY_NAME = scrutiny-collector-zfs
 WEB_BINARY_NAME = scrutiny-web
 LD_FLAGS =
 
@@ -26,20 +27,24 @@ STATIC_TAGS := $(STATIC_TAGS) -tags "static netgo"
 endif
 ifdef GOOS
 COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME)-$(GOOS)
+ZFS_COLLECTOR_BINARY_NAME := $(ZFS_COLLECTOR_BINARY_NAME)-$(GOOS)
 WEB_BINARY_NAME := $(WEB_BINARY_NAME)-$(GOOS)
 LD_FLAGS := $(LD_FLAGS) -X main.goos=$(GOOS)
 endif
 ifdef GOARCH
 COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME)-$(GOARCH)
+ZFS_COLLECTOR_BINARY_NAME := $(ZFS_COLLECTOR_BINARY_NAME)-$(GOARCH)
 WEB_BINARY_NAME := $(WEB_BINARY_NAME)-$(GOARCH)
 LD_FLAGS := $(LD_FLAGS) -X main.goarch=$(GOARCH)
 endif
 ifdef GOARM
 COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME)-$(GOARM)
+ZFS_COLLECTOR_BINARY_NAME := $(ZFS_COLLECTOR_BINARY_NAME)-$(GOARM)
 WEB_BINARY_NAME := $(WEB_BINARY_NAME)-$(GOARM)
 endif
 ifeq ($(OS),Windows_NT)
 COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME).exe
+ZFS_COLLECTOR_BINARY_NAME := $(ZFS_COLLECTOR_BINARY_NAME).exe
 WEB_BINARY_NAME := $(WEB_BINARY_NAME).exe
 endif
 
@@ -50,8 +55,8 @@ endif
 all: binary-all
 
 .PHONY: binary-all
-binary-all: binary-collector binary-web
-	@echo "built binary-collector and binary-web targets"
+binary-all: binary-collector binary-zfs-collector binary-web
+	@echo "built binary-collector, binary-zfs-collector and binary-web targets"
 
 
 .PHONY: binary-clean
@@ -78,6 +83,16 @@ ifneq ($(OS),Windows_NT)
 	file $(COLLECTOR_BINARY_NAME) || true
 	ldd $(COLLECTOR_BINARY_NAME) || true
 	./$(COLLECTOR_BINARY_NAME) || true
+endif
+
+.PHONY: binary-zfs-collector
+binary-zfs-collector: binary-dep
+	go build -ldflags "$(LD_FLAGS)" -o $(ZFS_COLLECTOR_BINARY_NAME) $(STATIC_TAGS) ./collector/cmd/collector-zfs/
+ifneq ($(OS),Windows_NT)
+	chmod +x $(ZFS_COLLECTOR_BINARY_NAME)
+	file $(ZFS_COLLECTOR_BINARY_NAME) || true
+	ldd $(ZFS_COLLECTOR_BINARY_NAME) || true
+	./$(ZFS_COLLECTOR_BINARY_NAME) || true
 endif
 
 .PHONY: binary-web

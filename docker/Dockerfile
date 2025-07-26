@@ -35,7 +35,20 @@ ENV INFLUXVER="2.2.0"
 ENV S6_SERVICES_READYTIME=1000
 SHELL ["/usr/bin/sh", "-c"]
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
+RUN ( \
+      . /etc/os-release && \
+      ARCH="$(dpkg --print-architecture)" && \
+      # Add GPG key for zrepl repository
+      mkdir -p /etc/apt/keyrings && \
+      # Add Backports
+      echo "deb http://deb.debian.org/debian $VERSION_CODENAME-backports main contrib" >> /etc/apt/sources.list.d/backports.list && \
+      echo "deb-src http://deb.debian.org/debian $VERSION_CODENAME-backports main contrib" >> /etc/apt/sources.list.d/backports.list && \
+      # Pin ZFS Backports
+      echo "Package: src:zfs-linux" >> /etc/apt/preferences.d/90_zfs && \
+      echo "Pin: release n=$VERSION_CODENAME-backports" >> /etc/apt/preferences.d/90_zfs && \
+      echo "Pin-Priority: 990" >> /etc/apt/preferences.d/90_zfs \
+    ) && \
+    apt-get update && DEBIAN_FRONTEND=noninteractive \
     apt-get install -y --no-install-recommends \
     ca-certificates \
     cron \
@@ -44,6 +57,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
     tzdata \
     procps \
     xz-utils \
+    gnupg \
+    zfsutils-linux \
     && rm -rf /var/lib/apt/lists/* \
     && update-ca-certificates \
     && case ${TARGETARCH} in \
@@ -64,6 +79,7 @@ COPY /rootfs /
 
 COPY --link --from=backendbuild --chmod=755 /go/src/github.com/analogj/scrutiny/scrutiny /opt/scrutiny/bin/
 COPY --link --from=backendbuild --chmod=755 /go/src/github.com/analogj/scrutiny/scrutiny-collector-metrics /opt/scrutiny/bin/
+COPY --link --from=backendbuild --chmod=755 /go/src/github.com/analogj/scrutiny/scrutiny-collector-zfs /opt/scrutiny/bin/
 COPY --link --from=frontendbuild --chmod=644 /go/src/github.com/analogj/scrutiny/dist /opt/scrutiny/web
 RUN chmod 0644 /etc/cron.d/scrutiny && \
     rm -f /etc/cron.daily/* && \
