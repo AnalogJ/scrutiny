@@ -13,6 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { TreoCardModule } from '@treo/components/card';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 @NgModule({
     declarations: [
@@ -29,6 +30,7 @@ import { TreoCardModule } from '@treo/components/card';
         MatTableModule,
         MatTabsModule,
         MatTooltipModule,
+        NgApexchartsModule,
         TreoCardModule,
         SharedModule
     ]

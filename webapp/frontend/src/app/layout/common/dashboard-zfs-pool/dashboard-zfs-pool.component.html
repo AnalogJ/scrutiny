@@ -122,7 +122,7 @@
                 
                 <!-- State Badge -->
                 <span class="px-2 py-1 rounded text-xs font-medium ml-2"
-                      [ngClass]="getStateClass(vdev.state)">
+                      [ngClass]="zfsService.getStateBackgroundClass(vdev.state)">
                     {{ vdev.state }}
                 </span>
             </div>

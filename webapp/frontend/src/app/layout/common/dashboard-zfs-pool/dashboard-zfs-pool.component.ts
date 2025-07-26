@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ZfsPoolModel, ZfsVdevModel } from '../../../core/models/zfs-pool-model';
+import { ZfsPoolModel } from '../../../core/models/zfs-pool-model';
 import { ZfsService } from '../../../modules/dashboard/zfs.service';
 
 @Component({
@@ -84,7 +84,7 @@ export class DashboardZfsPoolComponent implements OnInit {
                     treeNodes.push({
                         ...disk,
                         indent: 3,
-                        displayName: this.getVdevDisplayName(disk),
+                        displayName: this.zfsService.getVdevDisplayName(disk),
                         isGroup: false
                     });
                 });
@@ -108,7 +108,7 @@ export class DashboardZfsPoolComponent implements OnInit {
                 treeNodes.push({
                     ...disk,
                     indent: 2,
-                    displayName: this.getVdevDisplayName(disk),
+                    displayName: this.zfsService.getVdevDisplayName(disk),
                     isGroup: false
                 });
             });
@@ -124,7 +124,7 @@ export class DashboardZfsPoolComponent implements OnInit {
                 treeNodes.push({
                     ...disk,
                     indent: 1,
-                    displayName: this.getVdevDisplayName(disk),
+                    displayName: this.zfsService.getVdevDisplayName(disk),
                     isGroup: false
                 });
             });
@@ -133,77 +133,10 @@ export class DashboardZfsPoolComponent implements OnInit {
         return treeNodes;
     }
 
-    /**
-     * Get vdev display name (use path if available, otherwise name)
-     */
-    private getVdevDisplayName(vdev: ZfsVdevModel): string {
-        if (vdev.path && vdev.path.trim()) {
-            return vdev.path;
-        }
-        return vdev.name || vdev.guid;
-    }
 
-    /**
-     * Get single disk vdevs (for pools without raidz/mirror)
-     */
-    getSingleDiskVdevs(): ZfsVdevModel[] {
-        if (!this.pool.vdevs) return [];
-        
-        // Find root vdev first
-        const rootVdev = this.pool.vdevs.find(vdev => vdev.vdev_type === 'root');
-        
-        if (rootVdev) {
-            // Return direct disk children of root
-            return this.pool.vdevs.filter(vdev => 
-                vdev.vdev_type === 'disk' && vdev.parent_id === rootVdev.id
-            );
-        } else {
-            // Fallback: return top-level disks
-            return this.pool.vdevs.filter(vdev => 
-                vdev.vdev_type === 'disk' && 
-                (!vdev.parent_id || vdev.parent_id === null || vdev.parent_id === 0)
-            );
-        }
-    }
 
-    /**
-     * Get child vdevs for a given parent
-     */
-    getChildVdevs(parentId: number): ZfsVdevModel[] {
-        if (!this.pool.vdevs) return [];
-        
-        return this.pool.vdevs.filter(vdev => vdev.parent_id === parentId);
-    }
 
-    /**
-     * Get device name with fallback
-     */
-    getDeviceName(vdev: ZfsVdevModel): string {
-        if (vdev.path && vdev.path.trim()) {
-            // Extract just the device name from the path
-            const parts = vdev.path.split('/');
-            return parts[parts.length - 1];
-        }
-        return vdev.name || vdev.guid;
-    }
 
-    /**
-     * Get state class for compact display (dark mode compatible)
-     */
-    getStateClass(state: string): string {
-        switch (state?.toUpperCase()) {
-            case 'ONLINE':
-                return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-            case 'DEGRADED':
-                return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
-            case 'FAULTED':
-            case 'OFFLINE':
-            case 'UNAVAIL':
-                return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
-            default:
-                return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
-        }
-    }
 
 
     /**
@@ -248,46 +181,29 @@ export class DashboardZfsPoolComponent implements OnInit {
      * Get formatted data age string
      */
     getDataAge(): string {
-        if (!this.pool?.updated_at) return 'Unknown';
-        
-        const updatedTime = new Date(this.pool.updated_at);
-        const now = new Date();
-        const diffMs = now.getTime() - updatedTime.getTime();
-        
-        const minutes = Math.floor(diffMs / (1000 * 60));
-        const hours = Math.floor(diffMs / (1000 * 60 * 60));
-        const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-        
-        if (minutes < 1) return 'just now';
-        if (minutes < 60) return `${minutes}m ago`;
-        if (hours < 24) return `${hours}h ago`;
-        return `${days}d ago`;
+        return this.zfsService.getDataAge(this.pool?.updated_at || '');
     }
     
     /**
-     * Get timestamp color class based on data freshness (matching disk component style)
+     * Get timestamp color class based on data freshness
      */
     getTimestampColorClass(): string {
-        if (!this.pool?.updated_at) return 'text-gray-600 dark:text-gray-400';
-        
-        const updatedTime = new Date(this.pool.updated_at);
-        const now = new Date();
-        const diffMs = now.getTime() - updatedTime.getTime();
-        const minutes = Math.floor(diffMs / (1000 * 60));
-        
-        // Match the styling logic from the disk component
-        if (minutes < 10) return 'text-gray-600 dark:text-gray-400'; // Fresh data
-        if (minutes < 30) return 'text-yellow-600 dark:text-yellow-400'; // Moderately stale
-        return 'text-red-600 dark:text-red-400'; // Stale data
+        return this.zfsService.getDataAgeColorClass(this.pool?.updated_at || '');
     }
 
     /**
-     * Get utilization percentage
+     * Get utilization percentage from zpool list capacity
      */
     getUtilizationPercentage(): number {
-        if (!this.pool.total_space || parseInt(this.pool.total_space) === 0) return 0;
-        return Math.round((parseInt(this.pool.alloc_space) / parseInt(this.pool.total_space)) * 100);
+        if (this.pool?.capacity_percent) {
+            const match = this.pool.capacity_percent.match(/^(\d+)%?$/);
+            if (match) {
+                return parseInt(match[1], 10);
+            }
+        }
+        return 0;
     }
+
 
     /**
      * Get utilization color class based on percentage

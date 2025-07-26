@@ -134,4 +134,94 @@ export class ZfsService {
         if (hostId) params.host_id = hostId;
         return this._httpClient.get<ZfsDatasetResponseWrapper>(url, { params });
     }
+
+    /**
+     * Parse bytes from string format (e.g., "12.8T", "65.5G")
+     */
+    parseBytes(bytesStr: string): number {
+        if (!bytesStr || bytesStr === "0" || bytesStr === "") return 0;
+
+        const match = bytesStr.match(/^(\d+\.?\d*)\s*([KMGTPE]?)B?$/i);
+        if (!match) return 0;
+
+        const value = parseFloat(match[1]);
+        const unit = match[2].toUpperCase();
+
+        const multipliers: { [key: string]: number } = {
+            "": 1,
+            K: 1024,
+            M: 1024 ** 2,
+            G: 1024 ** 3,
+            T: 1024 ** 4,
+            P: 1024 ** 5,
+            E: 1024 ** 6,
+        };
+
+        return value * (multipliers[unit] || 1);
+    }
+
+    /**
+     * Get vdev display name (use path if available, otherwise name)
+     */
+    getVdevDisplayName(vdev: any): string {
+        if (vdev.path && vdev.path.trim()) {
+            return vdev.path;
+        }
+        return vdev.name || vdev.guid;
+    }
+
+    /**
+     * Get state background class for badges (dark mode compatible)
+     */
+    getStateBackgroundClass(state: string): string {
+        switch (state?.toUpperCase()) {
+            case "ONLINE":
+                return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+            case "DEGRADED":
+                return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+            case "FAULTED":
+            case "OFFLINE":
+            case "UNAVAIL":
+                return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+            default:
+                return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+        }
+    }
+
+    /**
+     * Get formatted data age string
+     */
+    getDataAge(updatedAt: string): string {
+        if (!updatedAt) return "Unknown";
+
+        const updatedTime = new Date(updatedAt);
+        const now = new Date();
+        const diffMs = now.getTime() - updatedTime.getTime();
+
+        const minutes = Math.floor(diffMs / (1000 * 60));
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        if (minutes < 1) return "Just now";
+        if (minutes < 60)
+            return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+        if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+        return `${days} day${days !== 1 ? "s" : ""} ago`;
+    }
+
+    /**
+     * Get data age color class based on staleness
+     */
+    getDataAgeColorClass(updatedAt: string): string {
+        if (!updatedAt) return "text-gray-500";
+
+        const updatedTime = new Date(updatedAt);
+        const now = new Date();
+        const diffMs = now.getTime() - updatedTime.getTime();
+        const minutes = Math.floor(diffMs / (1000 * 60));
+
+        if (minutes < 10) return "text-green-600 dark:text-green-400";
+        if (minutes < 30) return "text-yellow-600 dark:text-yellow-400";
+        return "text-red-600 dark:text-red-400";
+    }
 }

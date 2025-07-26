@@ -57,13 +57,14 @@
         <!-- Left Stats Panel -->
         <div class="flex flex-auto w-1/4 p-4 lt-md:w-full">
             <treo-card class="flex flex-auto p-4 flex-col filter-list">
+                <div class="text-xl font-semibold mb-4">Pool Information</div>
                 <div class="flex flex-col space-y-6">
                     
                     <!-- Pool Status -->
                     <div class="my-2">
                         <div class="flex items-start mb-2">
                             <span class="inline-flex items-center font-bold text-xs px-2 py-1 rounded-full tracking-wide uppercase"
-                                  [ngClass]="getStateBackgroundClass(pool?.state)">
+                                  [ngClass]="zfsService.getStateBackgroundClass(pool?.state)">
                                 <span class="w-2 h-2 rounded-full mr-2"
                                       [ngClass]="{'bg-red': pool?.state !== 'ONLINE', 'bg-green': pool?.state === 'ONLINE'}"></span>
                                 <span class="leading-relaxed whitespace-nowrap">{{ pool?.state }}</span>
@@ -109,21 +110,21 @@
                     <!-- Error Statistics -->
                     <div class="my-2">
                         <div class="font-medium" [class.text-red-600]="pool?.read_errors !== '0'">
-                            {{ pool?.read_errors || '0' }}
+                            {{ pool?.read_errors }}
                         </div>
                         <div class="text-secondary text-md">Read Errors</div>
                     </div>
 
                     <div class="my-2">
                         <div class="font-medium" [class.text-red-600]="pool?.write_errors !== '0'">
-                            {{ pool?.write_errors || '0' }}
+                            {{ pool?.write_errors }}
                         </div>
                         <div class="text-secondary text-md">Write Errors</div>
                     </div>
 
                     <div class="my-2">
                         <div class="font-medium" [class.text-red-600]="pool?.checksum_errors !== '0'">
-                            {{ pool?.checksum_errors || '0' }}
+                            {{ pool?.checksum_errors }}
                         </div>
                         <div class="text-secondary text-md">Checksum Errors</div>
                     </div>
@@ -181,7 +182,7 @@
                         
                         <div class="col-span-1 text-center">
                             <span class="inline-block px-2 py-1 rounded text-xs font-medium"
-                                  [ngClass]="getStateBackgroundClass(vdev.state)">
+                                  [ngClass]="zfsService.getStateBackgroundClass(vdev.state)">
                                 {{ vdev.state }}
                             </span>
                         </div>
@@ -202,10 +203,7 @@
                         </div>
                         
                         <div class="col-span-1 text-center text-sm">
-                            <span *ngIf="vdev.total_space && vdev.alloc_space; else noCapacity">
-                                {{ getVdevCapacityPercentage(vdev) }}%
-                            </span>
-                            <ng-template #noCapacity>-</ng-template>
+                            {{ getVdevCapacityPercentage(vdev) }}
                         </div>
                     </div>
                 </div>
@@ -215,7 +213,7 @@
         <!-- Pool Storage Statistics and Dataset Storage Side by Side -->
         <div class="flex flex-wrap w-full">
             <!-- Pool Storage Statistics Panel (Left) -->
-            <div class="flex flex-auto w-1/3 p-4 lt-md:w-full" *ngIf="pool">
+            <div class="flex flex-auto w-1/4 p-4 lt-md:w-full" *ngIf="pool">
                 <treo-card class="flex flex-auto p-4 flex-col">
                     <div class="text-xl font-semibold mb-4">Pool Storage Statistics</div>
                     <div class="text-secondary text-sm mb-6">Overall pool capacity and space usage</div>
@@ -225,13 +223,16 @@
                         <div class="flex flex-col">
                             <div class="space-y-3">
                                 <div class="flex justify-between items-center">
-                                    <span class="text-2xl font-bold">{{ getCapacityPercentage() }}%</span>
+                                    <span class="text-2xl font-bold">{{ getFormattedCapacityPercentage() }}</span>
                                     <span class="text-sm text-gray-500 dark:text-gray-400">used</span>
                                 </div>
-                                <div class="capacity-bar-modern">
+                                <div class="capacity-bar-modern" *ngIf="getCapacityPercentage() !== null">
                                     <div class="capacity-fill-modern"
                                          [ngClass]="getCapacityColorClass()"
                                          [style.width.%]="getCapacityPercentage()"></div>
+                                </div>
+                                <div class="capacity-bar-modern bg-gray-200 dark:bg-gray-600" *ngIf="getCapacityPercentage() === null">
+                                    <div class="capacity-fill-modern bg-gray-400" style="width: 0%"></div>
                                 </div>
                             </div>
                             <div class="text-secondary text-md mt-2">Storage Utilization</div>
@@ -254,12 +255,25 @@
                             <div class="text-2xl font-bold">{{ getTotalSpaceFromPool() }}</div>
                             <div class="text-secondary text-md mt-2">Total Space</div>
                         </div>
+
+                        <!-- Fragmentation -->
+                        <div class="flex flex-col">
+                            <div class="text-2xl font-bold">{{ getFormattedFragmentation() }}</div>
+                            <div class="text-secondary text-md mt-2">Fragmentation</div>
+                        </div>
+
+
+                        <!-- Deduplication -->
+                        <div class="flex flex-col">
+                            <div class="text-2xl font-bold">{{ getFormattedDedupratio() }}</div>
+                            <div class="text-secondary text-md mt-2">Deduplication</div>
+                        </div>
                     </div>
                 </treo-card>
             </div>
 
             <!-- ZFS Datasets Panel (Right) -->
-            <div class="flex flex-auto w-2/3 p-4 lt-md:w-full" *ngIf="datasets && datasets.length > 0">
+            <div class="flex flex-auto w-3/4 p-4 lt-md:w-full" *ngIf="datasets && datasets.length > 0">
                 <treo-card class="flex flex-auto p-4 flex-col">
                     <div class="text-xl font-semibold mb-4">Dataset Storage Utilization</div>
                     <div class="text-secondary text-sm mb-6">ZFS datasets and their space usage within this pool</div>
@@ -300,6 +314,7 @@
                 </treo-card>
             </div>
         </div>
+
 
     </div>
 </div>
