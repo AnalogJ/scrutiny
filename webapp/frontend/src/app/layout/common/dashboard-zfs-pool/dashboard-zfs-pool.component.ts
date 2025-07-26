@@ -30,26 +30,117 @@ export class DashboardZfsPoolComponent implements OnInit {
     }
 
     /**
-     * Get top-level vdevs (RAID groups and individual disks)
+     * Get hierarchical vdev tree for dashboard display
      */
-    getTopLevelVdevs(): ZfsVdevModel[] {
+    getVdevTree(): any[] {
         if (!this.pool.vdevs) return [];
         
-        // Find root vdev first
-        const rootVdev = this.pool.vdevs.find(vdev => vdev.vdev_type === 'root');
+        const treeNodes: any[] = [];
         
-        if (rootVdev) {
-            // Return direct children of root
-            return this.pool.vdevs.filter(vdev => 
-                vdev.parent_id === rootVdev.id && vdev.vdev_type !== 'root'
+        // Find RAID groups (raidz, mirror) - these are the top level containers
+        const raidGroups = this.pool.vdevs.filter(vdev => 
+            vdev.vdev_type.includes('raidz') || vdev.vdev_type === 'mirror'
+        );
+        
+        // Sort by name to ensure consistent ordering
+        raidGroups.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        
+        // Process each RAID group
+        raidGroups.forEach(group => {
+            // Add the RAID group
+            treeNodes.push({
+                ...group,
+                indent: 1,
+                displayName: group.name || group.vdev_type,
+                isGroup: true
+            });
+            
+            // Find replacing vdevs (these are special containers for disk replacement)
+            const replacingVdevs = this.pool.vdevs.filter(vdev => vdev.vdev_type === 'replacing');
+            
+            // Find regular disks (not in replacing operations)
+            const regularDisks = this.pool.vdevs.filter(vdev => 
+                vdev.vdev_type === 'disk' || vdev.vdev_type === 'file'
             );
-        } else {
-            // Fallback: return vdevs without parent_id (top-level)
-            return this.pool.vdevs.filter(vdev => 
-                vdev.vdev_type !== 'root' && 
-                (!vdev.parent_id || vdev.parent_id === null || vdev.parent_id === 0)
+            
+            // Add replacing vdevs under the RAID group
+            replacingVdevs.forEach(replacing => {
+                treeNodes.push({
+                    ...replacing,
+                    indent: 2,
+                    displayName: replacing.name || 'replacing',
+                    isGroup: true
+                });
+                
+                // Add disks that are part of the replacing operation
+                // In your data, these would be the file and disk that are being replaced
+                const replacingDisks = regularDisks.filter(disk => {
+                    // The offline file and the online disk that's replacing it
+                    return disk.state === 'OFFLINE' || 
+                           (disk.state === 'ONLINE' && disk.scan_processed);
+                });
+                
+                replacingDisks.forEach(disk => {
+                    treeNodes.push({
+                        ...disk,
+                        indent: 3,
+                        displayName: this.getVdevDisplayName(disk),
+                        isGroup: false
+                    });
+                });
+            });
+            
+            // Add regular disks that are not part of replacing operations
+            // Only exclude disks if there's actually a replacing operation happening
+            const hasReplacing = replacingVdevs.length > 0;
+            const nonReplacingDisks = regularDisks.filter(disk => {
+                if (!hasReplacing) {
+                    // No replacing operations, show all regular disks
+                    return true;
+                }
+                // If there are replacing operations, exclude offline disks and actively replacing disks
+                return disk.state !== 'OFFLINE' && 
+                       !(disk.state === 'ONLINE' && disk.scan_processed && 
+                         replacingVdevs.some(r => r.scan_processed));
+            });
+            
+            nonReplacingDisks.forEach(disk => {
+                treeNodes.push({
+                    ...disk,
+                    indent: 2,
+                    displayName: this.getVdevDisplayName(disk),
+                    isGroup: false
+                });
+            });
+        });
+        
+        // Handle pools without RAID groups (simple disk pools)
+        if (raidGroups.length === 0) {
+            const standaloneDisks = this.pool.vdevs.filter(vdev => 
+                vdev.vdev_type === 'disk' || vdev.vdev_type === 'file'
             );
+            
+            standaloneDisks.forEach(disk => {
+                treeNodes.push({
+                    ...disk,
+                    indent: 1,
+                    displayName: this.getVdevDisplayName(disk),
+                    isGroup: false
+                });
+            });
         }
+        
+        return treeNodes;
+    }
+
+    /**
+     * Get vdev display name (use path if available, otherwise name)
+     */
+    private getVdevDisplayName(vdev: ZfsVdevModel): string {
+        if (vdev.path && vdev.path.trim()) {
+            return vdev.path;
+        }
+        return vdev.name || vdev.guid;
     }
 
     /**
@@ -125,8 +216,12 @@ export class DashboardZfsPoolComponent implements OnInit {
                 return 'heroicons_outline:server-stack';
             case 'mirror':
                 return 'heroicons_outline:rectangle-stack';
+            case 'replacing':
+                return 'heroicons_outline:arrow-path';
             case 'disk':
                 return 'heroicons_outline:circle-stack';
+            case 'file':
+                return 'heroicons_outline:document';
             default:
                 return 'heroicons_outline:server';
         }

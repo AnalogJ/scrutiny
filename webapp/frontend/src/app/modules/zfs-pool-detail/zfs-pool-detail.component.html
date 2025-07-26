@@ -62,9 +62,6 @@
                     <!-- Pool Status -->
                     <div class="my-2">
                         <div class="flex items-start mb-2">
-                            <mat-icon class="icon-size-24 mr-3 mt-1" 
-                                      [ngClass]="zfsService.getPoolStatusClass(pool?.state)"
-                                      [svgIcon]="zfsService.getPoolStatusIcon(pool?.state)"></mat-icon>
                             <span class="inline-flex items-center font-bold text-xs px-2 py-1 rounded-full tracking-wide uppercase"
                                   [ngClass]="getStateBackgroundClass(pool?.state)">
                                 <span class="w-2 h-2 rounded-full mr-2"
@@ -81,9 +78,9 @@
                             <mat-icon class="icon-size-20 mr-3" 
                                       [class.text-red-600]="isDataStale()"
                                       [class.text-green-600]="!isDataStale()"
-                                      [svgIcon]="isDataStale() ? 'heroicons_outline:exclamation-triangle' : 'heroicons_outline:clock'"></mat-icon>
+                                      [svgIcon]="isDataStale() ? 'heroicons_outline:exclamation-circle' : 'heroicons_outline:clock'"></mat-icon>
                             <span class="text-sm font-medium" [ngClass]="getDataAgeColorClass()">
-                                Last Updated on {{ pool?.updated_at | date:'MMMM dd, yyyy - HH:mm' }}
+                                {{ pool?.updated_at | date:'MMMM dd, yyyy - HH:mm' }}
                             </span>
                         </div>
                         <div class="text-secondary text-md">Last Updated</div>
@@ -102,7 +99,7 @@
                     </div>
 
                     <div class="my-2" *ngIf="pool?.action && pool?.action.trim()">
-                        <div class="text-sm text-orange-600 dark:text-orange-300 bg-orange-50 dark:bg-orange-900 p-2 rounded border border-orange-200 dark:border-orange-700">
+                        <div class="text-sm p-2 rounded border" [class]="getActionMessageClass()">
                             {{ pool?.action.trim() }}
                         </div>
                         <div class="text-secondary text-md mt-1">Required Action</div>

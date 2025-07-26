@@ -55,7 +55,7 @@ export class ZfsService {
             case 'ONLINE':
                 return 'heroicons_outline:check-circle';
             case 'DEGRADED':
-                return 'heroicons_outline:exclamation-triangle';
+                return 'heroicons_outline:exclamation-circle';
             case 'FAULTED':
             case 'OFFLINE':
             case 'UNAVAIL':

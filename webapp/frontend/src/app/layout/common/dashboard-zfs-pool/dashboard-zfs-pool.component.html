@@ -41,6 +41,20 @@
             </mat-menu>
         </div>
     </div>
+
+    <!-- Pool status message (compact) -->
+    <div class="mt-4" *ngIf="pool.status && pool.status.trim()">
+        <div class="text-xs text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded">
+            {{ pool.status.trim() }}
+        </div>
+    </div>
+    
+    <!-- Pool action message (compact) -->
+    <div class="mt-2" *ngIf="pool.action && pool.action.trim() && !pool.action.toLowerCase().includes('no action required')">
+        <div class="text-xs text-yellow-600 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-900 p-2 rounded">
+            <strong>Action:</strong> {{ pool.action.trim() }}
+        </div>
+    </div>
     
     <!-- 4-Field Layout matching disk component -->
     <div class="flex flex-row flex-wrap mt-4 -mx-6">
@@ -73,62 +87,44 @@
         
     </div>
     
-    <!-- Pool status message (compact) -->
-    <div class="mt-4" *ngIf="pool.status && pool.status.trim()">
-        <div class="text-xs text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded">
-            {{ pool.status.trim() }}
-        </div>
-    </div>
-    
-    <!-- Pool action message (compact) -->
-    <div class="mt-2" *ngIf="pool.action && pool.action.trim() && !pool.action.toLowerCase().includes('no action required')">
-        <div class="text-xs text-yellow-600 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-900 p-2 rounded">
-            <strong>Action:</strong> {{ pool.action.trim() }}
-        </div>
-    </div>
-    
     <!-- Enhanced Tree Structure -->
     <div class="mt-4" *ngIf="pool.vdevs && pool.vdevs.length > 0">
         <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Device Configuration:</div>
-        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-2">
-            <!-- Direct RAID level structure (no pool name level) -->
-            <div *ngFor="let vdev of getTopLevelVdevs(); let isLast = last" class="space-y-1">
-                <!-- RAID level at top of tree -->
-                <div class="flex items-center text-xs">
-                    <mat-icon class="icon-size-14 mr-2" 
-                              [class.text-orange-500]="vdev.vdev_type.includes('raidz')"
-                              [class.text-purple-500]="vdev.vdev_type === 'mirror'"
-                              [class.text-gray-500]="vdev.vdev_type === 'disk'"
-                              [svgIcon]="getVdevIcon(vdev.vdev_type)"></mat-icon>
-                    <span class="font-semibold text-gray-900 dark:text-gray-100 flex-1">
-                        <ng-container *ngIf="vdev.vdev_type === 'disk'; else groupName">
-                            {{ getDeviceName(vdev) }}
-                        </ng-container>
-                        <ng-template #groupName>
-                            {{ zfsService.getVdevTypeDisplayName(vdev.vdev_type) }}
-                        </ng-template>
-                    </span>
-                    <span class="px-2 py-1 rounded text-xs font-medium"
-                          [ngClass]="getStateClass(vdev.state)">{{ vdev.state }}</span>
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-1">
+            <!-- Hierarchical vdev tree structure -->
+            <div *ngFor="let vdev of getVdevTree(); let i = index" class="flex items-center text-xs relative"
+                 [style.padding-left.rem]="(vdev.indent - 1) * 1.5">
+                
+                <!-- Tree connector lines -->
+                <div class="flex items-center mr-2" *ngIf="vdev.indent > 1">
+                    <div class="w-3 h-3 border-l-2 border-b-2 border-gray-300 dark:border-gray-600"></div>
                 </div>
                 
-                <!-- Child devices (disks under RAID groups) -->
-                <div *ngFor="let child of getChildVdevs(vdev.id); let childLast = last" 
-                     class="flex items-center ml-4 text-xs relative">
-                    <!-- Tree connector for child devices -->
-                    <div class="absolute -left-4 top-0 bottom-0 w-4 flex items-center">
-                        <div class="w-3 h-3 border-l-2 border-gray-300 dark:border-gray-600"
-                             [class.border-b-2]="!childLast"
-                             [style.height]="childLast ? '50%' : '100%'"></div>
-                    </div>
-                    
-                    <mat-icon class="icon-size-12 mr-2 text-gray-500 dark:text-gray-400" 
-                              [svgIcon]="'heroicons_outline:circle-stack'"></mat-icon>
-                    <span class="flex-1 truncate text-gray-700 dark:text-gray-300" 
-                          [title]="getDeviceName(child)">{{ getDeviceName(child) }}</span>
-                    <span class="px-1.5 py-0.5 rounded text-xs font-medium ml-1"
-                          [ngClass]="getStateClass(child.state)">{{ child.state }}</span>
-                </div>
+                <!-- Device Icon -->
+                <mat-icon class="icon-size-14 mr-2" 
+                          [class.text-orange-500]="vdev.vdev_type.includes('raidz')"
+                          [class.text-purple-500]="vdev.vdev_type === 'mirror'"
+                          [class.text-blue-500]="vdev.vdev_type === 'replacing'"
+                          [class.text-gray-500]="vdev.vdev_type === 'disk'"
+                          [class.text-red-500]="vdev.vdev_type === 'file'"
+                          [svgIcon]="getVdevIcon(vdev.vdev_type)"></mat-icon>
+                
+                <!-- Device Info -->
+                <span class="flex-1 truncate" 
+                      [class.font-semibold]="vdev.isGroup"
+                      [class.text-gray-900]="vdev.isGroup"
+                      [class.dark:text-gray-100]="vdev.isGroup"
+                      [class.text-gray-700]="!vdev.isGroup"
+                      [class.dark:text-gray-300]="!vdev.isGroup"
+                      [title]="vdev.displayName">
+                    {{ vdev.displayName }}
+                </span>
+                
+                <!-- State Badge -->
+                <span class="px-2 py-1 rounded text-xs font-medium ml-2"
+                      [ngClass]="getStateClass(vdev.state)">
+                    {{ vdev.state }}
+                </span>
             </div>
         </div>
     </div>

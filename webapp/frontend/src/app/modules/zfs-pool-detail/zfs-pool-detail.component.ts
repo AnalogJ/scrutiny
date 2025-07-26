@@ -226,6 +226,8 @@ export class ZfsPoolDetailComponent implements OnInit, OnDestroy {
                 return 'heroicons_outline:arrow-path';
             case 'disk':
                 return 'heroicons_outline:circle-stack';
+            case 'file':
+                return 'heroicons_outline:document';
             default:
                 return 'heroicons_outline:server';
         }
@@ -303,95 +305,93 @@ export class ZfsPoolDetailComponent implements OnInit, OnDestroy {
         
         const treeNodes: VdevTreeNode[] = [];
         
-        // Create a map for easier lookup
-        const vdevMap = new Map<string, ZfsVdevModel>();
-        this.pool.vdevs.forEach(vdev => {
-            vdevMap.set(vdev.guid, vdev);
-        });
-        
-        // Find top-level vdevs (raidz, mirror, or standalone disks)
-        const topLevelVdevs = this.pool.vdevs.filter(vdev => 
-            vdev.vdev_type !== 'root' && 
-            (vdev.vdev_type.includes('raidz') || vdev.vdev_type === 'mirror' || 
-             vdev.vdev_type === 'disk')
-        );
-        
-        // Sort by name to ensure consistent ordering
-        topLevelVdevs.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-        
-        // Group vdevs: find the main group vdevs first
-        const mainGroups = topLevelVdevs.filter(vdev => 
+        // Find RAID groups (raidz, mirror) - these are the top level containers
+        const raidGroups = this.pool.vdevs.filter(vdev => 
             vdev.vdev_type.includes('raidz') || vdev.vdev_type === 'mirror'
         );
         
-        const standaloneDisks = topLevelVdevs.filter(vdev => 
-            vdev.vdev_type === 'disk' && 
-            !vdev.parent_id // Top-level disks have no parent
-        );
+        // Sort by name to ensure consistent ordering
+        raidGroups.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
         
-        // Process main groups (raidz, mirror)
-        mainGroups.forEach(group => {
-            // Add the main group
+        // Process each RAID group
+        raidGroups.forEach(group => {
+            // Add the RAID group
             treeNodes.push({
                 ...group,
                 indent: 1,
-                displayName: group.name || `${group.vdev_type}`
+                displayName: group.name || group.vdev_type
             });
             
-            // Find all disks and special vdevs that belong to this group (by parent_id)
-            const groupMembers = this.pool.vdevs.filter(vdev => 
-                vdev.parent_id === group.id && (
-                    vdev.vdev_type === 'disk' || 
-                    vdev.vdev_type === 'replacing' || 
-                    vdev.vdev_type === 'spare'
-                )
+            // Find replacing vdevs (these are special containers for disk replacement)
+            const replacingVdevs = this.pool.vdevs.filter(vdev => vdev.vdev_type === 'replacing');
+            
+            // Find regular disks (not in replacing operations)
+            const regularDisks = this.pool.vdevs.filter(vdev => 
+                vdev.vdev_type === 'disk' || vdev.vdev_type === 'file'
             );
             
-            // Sort group members by name
-            groupMembers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            // Add replacing vdevs under the RAID group
+            replacingVdevs.forEach(replacing => {
+                treeNodes.push({
+                    ...replacing,
+                    indent: 2,
+                    displayName: replacing.name || 'replacing'
+                });
+                
+                // Add disks that are part of the replacing operation
+                // In your data, these would be the file and disk that are being replaced
+                const replacingDisks = regularDisks.filter(disk => {
+                    // The offline file and the online disk that's replacing it
+                    return disk.state === 'OFFLINE' || 
+                           (disk.state === 'ONLINE' && disk.scan_processed);
+                });
+                
+                replacingDisks.forEach(disk => {
+                    treeNodes.push({
+                        ...disk,
+                        indent: 3,
+                        displayName: this.getVdevDisplayName(disk)
+                    });
+                });
+            });
             
-            groupMembers.forEach(member => {
-                if (member.vdev_type === 'replacing') {
-                    // Add replacing vdev
-                    treeNodes.push({
-                        ...member,
-                        indent: 2,
-                        displayName: member.name || 'replacing'
-                    });
-                    
-                    // Find disks that belong to this replacing vdev (by parent_id)
-                    const replacingDisks = this.pool.vdevs.filter(vdev => 
-                        vdev.parent_id === member.id && vdev.vdev_type === 'disk'
-                    );
-                    
-                    // Show disks under this replacing vdev
-                    replacingDisks.forEach(disk => {
-                        treeNodes.push({
-                            ...disk,
-                            indent: 3,
-                            displayName: this.getVdevDisplayName(disk)
-                        });
-                    });
-                    
-                } else if (member.vdev_type === 'disk') {
-                    // Regular disk member of the group
-                    treeNodes.push({
-                        ...member,
-                        indent: 2,
-                        displayName: this.getVdevDisplayName(member)
-                    });
+            // Add regular disks that are not part of replacing operations
+            // Only exclude disks if there's actually a replacing operation happening
+            const hasReplacing = replacingVdevs.length > 0;
+            const nonReplacingDisks = regularDisks.filter(disk => {
+                if (!hasReplacing) {
+                    // No replacing operations, show all regular disks
+                    return true;
                 }
+                // If there are replacing operations, exclude offline disks and actively replacing disks
+                return disk.state !== 'OFFLINE' && 
+                       !(disk.state === 'ONLINE' && disk.scan_processed && 
+                         replacingVdevs.some(r => r.scan_processed));
+            });
+            
+            nonReplacingDisks.forEach(disk => {
+                treeNodes.push({
+                    ...disk,
+                    indent: 2,
+                    displayName: this.getVdevDisplayName(disk)
+                });
             });
         });
         
-        // Add standalone disks (for simple pools without raidz/mirror)
-        standaloneDisks.forEach(disk => {
-            treeNodes.push({
-                ...disk,
-                indent: 1,
-                displayName: this.getVdevDisplayName(disk)
+        // Handle pools without RAID groups (simple disk pools)
+        if (raidGroups.length === 0) {
+            const standaloneDisks = this.pool.vdevs.filter(vdev => 
+                vdev.vdev_type === 'disk' || vdev.vdev_type === 'file'
+            );
+            
+            standaloneDisks.forEach(disk => {
+                treeNodes.push({
+                    ...disk,
+                    indent: 1,
+                    displayName: this.getVdevDisplayName(disk)
+                });
             });
-        });
+        }
         
         return treeNodes;
     }
@@ -496,5 +496,18 @@ export class ZfsPoolDetailComponent implements OnInit, OnDestroy {
         }
         
         return errors.length > 0 ? errors.join(', ') : 'No known data errors';
+    }
+
+    /**
+     * Get CSS classes for the required action message
+     */
+    getActionMessageClass(): string {
+        const isNoAction = this.pool?.action?.toLowerCase().includes('no action required');
+        
+        if (isNoAction) {
+            return 'text-green-600 dark:text-green-300 bg-green-50 dark:bg-green-900 border-green-200 dark:border-green-700';
+        } else {
+            return 'text-orange-600 dark:text-orange-300 bg-orange-50 dark:bg-orange-900 border-orange-200 dark:border-orange-700';
+        }
     }
 }

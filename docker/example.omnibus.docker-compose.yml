@@ -11,6 +11,7 @@ services:
       - "8086:8086" # influxDB admin
     volumes:
       - /run/udev:/run/udev:ro
+      - /etc/hostid:/etc/hostid:ro
       - ./config:/opt/scrutiny/config
       - ./influxdb:/opt/scrutiny/influxdb
     devices:
