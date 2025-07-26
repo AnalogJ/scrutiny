@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ZfsPoolResponseWrapper, ZfsPoolDetailResponseWrapper, ZfsPoolModel } from '../../core/models/zfs-pool-model';
+import { ZfsPoolResponseWrapper, ZfsPoolDetailResponseWrapper, ZfsPoolModel, ZfsDatasetResponseWrapper, ZfsDatasetModel } from '../../core/models/zfs-pool-model';
 import { getBasePath } from '../../app.routing';
 
 @Injectable({
@@ -110,5 +110,28 @@ export class ZfsService {
             default:
                 return vdevType || 'Unknown';
         }
+    }
+
+    /**
+     * Get vdev icon based on type
+     */
+    getVdevIcon(vdevType: string): string {
+        switch (vdevType?.toLowerCase()) {
+            case 'replacing':
+                return 'heroicons_outline:exclamation-circle';
+            default:
+                return 'heroicons_outline:check-circle';
+        }
+    }
+
+    /**
+     * Get ZFS datasets for a pool
+     */
+    getZfsDatasets(poolName?: string, hostId?: string): Observable<ZfsDatasetResponseWrapper> {
+        const url = `${getBasePath()}/api/zfs/datasets`;
+        const params: any = {};
+        if (poolName) params.pool = poolName;
+        if (hostId) params.host_id = hostId;
+        return this._httpClient.get<ZfsDatasetResponseWrapper>(url, { params });
     }
 }

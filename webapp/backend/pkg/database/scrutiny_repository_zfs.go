@@ -23,7 +23,8 @@ func (sr *scrutinyRepository) RegisterZfsPools(ctx context.Context, pools []mode
 				"status", "action", "error_count", "alloc_space", "total_space", "def_space",
 				"read_errors", "write_errors", "checksum_errors", "scan_function", "scan_state",
 				"scan_start_time", "scan_end_time", "scan_to_examine", "scan_examined",
-				"scan_processed", "scan_errors", "scan_issued", "updated_at",
+				"scan_processed", "scan_errors", "scan_issued", "size", "allocated", "free",
+				"fragmentation", "capacity_percent", "dedupratio", "updated_at",
 			}),
 		}).Create(&pool).Error; err != nil {
 			return fmt.Errorf("failed to register ZFS pool %s: %v", pool.Name, err)
@@ -109,4 +110,50 @@ func (sr *scrutinyRepository) DeleteZfsPool(ctx context.Context, poolGuid string
 	}
 
 	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ZFS Dataset
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// RegisterZfsDatasets inserts or updates ZFS datasets in the database
+func (sr *scrutinyRepository) RegisterZfsDatasets(ctx context.Context, datasets []models.ZfsDataset) error {
+	for _, dataset := range datasets {
+		if err := sr.gormClient.WithContext(ctx).Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "name"}, {Name: "host_id"}},
+			DoUpdates: clause.AssignmentColumns([]string{
+				"type", "pool", "create_txg", "used", "available", "referenced", "mountpoint", "updated_at",
+			}),
+		}).Create(&dataset).Error; err != nil {
+			return fmt.Errorf("failed to register ZFS dataset %s: %v", dataset.Name, err)
+		}
+	}
+	return nil
+}
+
+// GetZfsDatasets retrieves all ZFS datasets
+func (sr *scrutinyRepository) GetZfsDatasets(ctx context.Context) ([]models.ZfsDataset, error) {
+	var datasets []models.ZfsDataset
+	if err := sr.gormClient.WithContext(ctx).Order("name ASC").Find(&datasets).Error; err != nil {
+		return nil, fmt.Errorf("could not get ZFS datasets from DB: %v", err)
+	}
+	return datasets, nil
+}
+
+// GetZfsDatasetsByPool retrieves ZFS datasets for a specific pool
+func (sr *scrutinyRepository) GetZfsDatasetsByPool(ctx context.Context, poolName string) ([]models.ZfsDataset, error) {
+	var datasets []models.ZfsDataset
+	if err := sr.gormClient.WithContext(ctx).Where("pool = ?", poolName).Order("name ASC").Find(&datasets).Error; err != nil {
+		return nil, fmt.Errorf("could not get ZFS datasets for pool %s from DB: %v", poolName, err)
+	}
+	return datasets, nil
+}
+
+// GetZfsDatasetsByHost retrieves ZFS datasets for a specific host
+func (sr *scrutinyRepository) GetZfsDatasetsByHost(ctx context.Context, hostId string) ([]models.ZfsDataset, error) {
+	var datasets []models.ZfsDataset
+	if err := sr.gormClient.WithContext(ctx).Where("host_id = ?", hostId).Order("name ASC").Find(&datasets).Error; err != nil {
+		return nil, fmt.Errorf("could not get ZFS datasets for host %s from DB: %v", hostId, err)
+	}
+	return datasets, nil
 }

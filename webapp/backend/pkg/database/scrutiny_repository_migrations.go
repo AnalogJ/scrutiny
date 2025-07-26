@@ -411,7 +411,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 			},
 		},
 		{
-			ID: "m20250725000000", // add ZFS pool and vdev tables
+			ID: "m20250725000000", // add ZFS tables (pools, vdevs, datasets)
 			Migrate: func(tx *gorm.DB) error {
 				return m20250725000000.Up20250725000000(tx)
 			},

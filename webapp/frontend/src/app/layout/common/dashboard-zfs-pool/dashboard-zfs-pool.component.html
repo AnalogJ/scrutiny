@@ -107,7 +107,7 @@
                           [class.text-blue-500]="vdev.vdev_type === 'replacing'"
                           [class.text-gray-500]="vdev.vdev_type === 'disk'"
                           [class.text-red-500]="vdev.vdev_type === 'file'"
-                          [svgIcon]="getVdevIcon(vdev.vdev_type)"></mat-icon>
+                          [svgIcon]="zfsService.getVdevIcon(vdev.vdev_type)"></mat-icon>
                 
                 <!-- Device Info -->
                 <span class="flex-1 truncate" 

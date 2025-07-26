@@ -14,10 +14,18 @@ export interface ZfsPoolModel {
     created_at?: string;
     updated_at?: string;
     
-    // Space information
+    // Space information (from zpool status)
     alloc_space: string;
     total_space: string;
     def_space: string;
+    
+    // Pool properties (from zpool list)
+    size?: string;
+    allocated?: string;
+    free?: string;
+    fragmentation?: string;
+    capacity_percent?: string;
+    dedupratio?: string;
     
     // Error counters
     read_errors: string;
@@ -86,4 +94,29 @@ export interface ZfsPoolDetailResponseWrapper {
     success: boolean;
     errors?: string[];
     data: ZfsPoolModel;
+}
+
+export interface ZfsDatasetModel {
+    id: number;
+    name: string;
+    host_id: string;
+    type: string; // FILESYSTEM, VOLUME, SNAPSHOT
+    pool: string;
+    createtxg: string;
+    
+    // Timestamps
+    created_at?: string;
+    updated_at?: string;
+    
+    // Space information
+    used: string;
+    available: string;
+    referenced: string;
+    mountpoint: string;
+}
+
+export interface ZfsDatasetResponseWrapper {
+    success: boolean;
+    errors?: string[];
+    data: ZfsDatasetModel[];
 }

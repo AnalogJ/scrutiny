@@ -24,10 +24,18 @@ type ZfsPool struct {
 	Action      string `json:"action"`       // Recommended action
 	ErrorCount  string `json:"error_count"` // Total error count
 
-	// Space information
+	// Space information (from zpool status)
 	AllocSpace string `json:"alloc_space"` // Allocated space
 	TotalSpace string `json:"total_space"` // Total space
 	DefSpace   string `json:"def_space"`   // Deferred space
+
+	// Pool properties (from zpool list)
+	Size            string `json:"size,omitempty"`             // Pool size
+	Allocated       string `json:"allocated,omitempty"`        // Allocated space
+	Free            string `json:"free,omitempty"`             // Free space
+	Fragmentation   string `json:"fragmentation,omitempty"`    // Fragmentation percentage
+	CapacityPercent string `json:"capacity_percent,omitempty"` // Capacity percentage
+	Dedupratio      string `json:"dedupratio,omitempty"`       // Deduplication ratio
 
 	// Error counters
 	ReadErrors     string `json:"read_errors"`
@@ -85,6 +93,28 @@ type ZfsVdev struct {
 	ScanProcessed string `json:"scan_processed,omitempty"` // Bytes processed during scan
 }
 
+type ZfsDataset struct {
+	//GORM attributes
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
+
+	ID       uint   `json:"id" gorm:"primary_key;autoIncrement"`
+	Name     string `json:"name" gorm:"uniqueIndex:idx_dataset_host"`
+	HostId   string `json:"host_id" gorm:"uniqueIndex:idx_dataset_host"`
+
+	// Dataset information
+	Type      string `json:"type"`       // FILESYSTEM, VOLUME, SNAPSHOT
+	Pool      string `json:"pool"`       // Parent pool name
+	CreateTxg string `json:"createtxg"`  // Creation transaction group
+
+	// Space information
+	Used       string `json:"used"`       // Space used by dataset
+	Available  string `json:"available"`  // Space available
+	Referenced string `json:"referenced"` // Space referenced by dataset
+	Mountpoint string `json:"mountpoint"` // Mount point path
+}
+
 func (ZfsPool) TableName() string {
 	return "zfs_pools"
 }
@@ -93,10 +123,14 @@ func (ZfsVdev) TableName() string {
 	return "zfs_vdevs"
 }
 
+func (ZfsDataset) TableName() string {
+	return "zfs_datasets"
+}
+
 func Up20250725000000(gormClient *gorm.DB) error {
-	return gormClient.AutoMigrate(&ZfsPool{}, &ZfsVdev{})
+	return gormClient.AutoMigrate(&ZfsPool{}, &ZfsVdev{}, &ZfsDataset{})
 }
 
 func Down20250725000000(gormClient *gorm.DB) error {
-	return gormClient.Migrator().DropTable(&ZfsPool{}, &ZfsVdev{})
+	return gormClient.Migrator().DropTable(&ZfsPool{}, &ZfsVdev{}, &ZfsDataset{})
 }

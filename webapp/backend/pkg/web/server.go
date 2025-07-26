@@ -56,6 +56,10 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 				zfs.POST("/pools/register", handler.RegisterZfsPools) //used by Collector to register ZFS pools
 				zfs.GET("/pools", handler.GetZfsPools)                //used by Dashboard to get ZFS pools
 				zfs.GET("/pool/:poolGuid", handler.GetZfsPoolDetails) //used by Details to get specific pool
+				
+				// ZFS dataset endpoints
+				zfs.POST("/datasets/register", handler.RegisterZfsDatasets) //used by Collector to register ZFS datasets
+				zfs.GET("/datasets", handler.GetZfsDatasets)                 //used by Details to get ZFS datasets
 			}
 		}
 	}

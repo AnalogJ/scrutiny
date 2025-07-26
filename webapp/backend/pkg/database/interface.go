@@ -40,4 +40,10 @@ type DeviceRepo interface {
 	GetZfsPoolByGuid(ctx context.Context, poolGuid string) (models.ZfsPool, error)
 	GetZfsPoolsByHost(ctx context.Context, hostId string) ([]models.ZfsPool, error)
 	DeleteZfsPool(ctx context.Context, poolGuid string) error
+
+	// ZFS Dataset methods
+	RegisterZfsDatasets(ctx context.Context, datasets []models.ZfsDataset) error
+	GetZfsDatasets(ctx context.Context) ([]models.ZfsDataset, error)
+	GetZfsDatasetsByPool(ctx context.Context, poolName string) ([]models.ZfsDataset, error)
+	GetZfsDatasetsByHost(ctx context.Context, hostId string) ([]models.ZfsDataset, error)
 }

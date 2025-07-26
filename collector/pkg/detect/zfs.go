@@ -58,6 +58,40 @@ type ZfsPoolStatus struct {
 	Vdevs map[string]ZfsVdevStatus `json:"vdevs"`
 }
 
+// ZfsListOutput represents the JSON structure returned by `zpool list --json`
+type ZfsListOutput struct {
+	OutputVersion struct {
+		Command   string `json:"command"`
+		VersMajor int    `json:"vers_major"`
+		VersMinor int    `json:"vers_minor"`
+	} `json:"output_version"`
+	Pools map[string]ZfsPoolList `json:"pools"`
+}
+
+type ZfsPoolList struct {
+	Name       string `json:"name"`
+	Type       string `json:"type"`
+	State      string `json:"state"`
+	PoolGuid   string `json:"pool_guid"`
+	Txg        string `json:"txg"`
+	SpaVersion string `json:"spa_version"`
+	ZplVersion string `json:"zpl_version"`
+	Properties ZfsPoolProperties `json:"properties"`
+}
+
+type ZfsPoolProperties struct {
+	Size         ZfsProperty `json:"size"`
+	Allocated    ZfsProperty `json:"allocated"`
+	Free         ZfsProperty `json:"free"`
+	Checkpoint   ZfsProperty `json:"checkpoint"`
+	Expandsize   ZfsProperty `json:"expandsize"`
+	Fragmentation ZfsProperty `json:"fragmentation"`
+	Capacity     ZfsProperty `json:"capacity"`
+	Dedupratio   ZfsProperty `json:"dedupratio"`
+	Health       ZfsProperty `json:"health"`
+	Altroot      ZfsProperty `json:"altroot"`
+}
+
 type ZfsVdevStatus struct {
 	Name           string                    `json:"name"`
 	VdevType       string                    `json:"vdev_type"`
@@ -157,6 +191,13 @@ func (z *ZfsDetect) DetectZfsPools() ([]models.ZfsPool, error) {
 
 	z.Logger.Debugf("Successfully parsed %d ZFS pools from JSON", len(zfsStatus.Pools))
 
+	// Fetch pool list data for additional properties
+	zpoolListData, err := z.fetchZpoolListData()
+	if err != nil {
+		z.Logger.Warnf("Failed to fetch zpool list data: %v. Continuing without pool properties", err)
+		zpoolListData = make(map[string]ZfsPoolList)
+	}
+
 	var pools []models.ZfsPool
 	hostId := z.Config.GetString("host.id")
 
@@ -202,6 +243,19 @@ func (z *ZfsDetect) DetectZfsPools() ([]models.ZfsPool, error) {
 			pool.ScanIssued = poolStatus.ScanStats.Issued
 		} else {
 			z.Logger.Debugf("No scan stats available for pool '%s'", poolName)
+		}
+
+		// Add pool properties from zpool list if available
+		if listData, exists := zpoolListData[poolName]; exists {
+			z.Logger.Debugf("Found pool list data for pool '%s'", poolName)
+			pool.Size = listData.Properties.Size.Value
+			pool.Allocated = listData.Properties.Allocated.Value
+			pool.Free = listData.Properties.Free.Value
+			pool.Fragmentation = listData.Properties.Fragmentation.Value
+			pool.CapacityPercent = listData.Properties.Capacity.Value
+			pool.Dedupratio = listData.Properties.Dedupratio.Value
+		} else {
+			z.Logger.Debugf("No pool list data found for pool '%s'", poolName)
 		}
 
 		// Process vdevs (typically there's a root vdev with the pool name)
@@ -333,4 +387,144 @@ func (z *ZfsDetect) IsZfsAvailable() bool {
 
 	_, err := z.Shell.Command(z.Logger, "which", []string{zpoolBin}, "", os.Environ())
 	return err == nil
+}
+
+// ZfsDatasetList represents the JSON structure returned by `zfs list --json`
+type ZfsDatasetList struct {
+	OutputVersion struct {
+		Command   string `json:"command"`
+		VersMajor int    `json:"vers_major"`
+		VersMinor int    `json:"vers_minor"`
+	} `json:"output_version"`
+	Datasets map[string]ZfsDatasetInfo `json:"datasets"`
+}
+
+type ZfsDatasetInfo struct {
+	Name       string                      `json:"name"`
+	Type       string                      `json:"type"`
+	Pool       string                      `json:"pool"`
+	CreateTxg  string                      `json:"createtxg"`
+	Properties ZfsDatasetProperties        `json:"properties"`
+}
+
+type ZfsDatasetProperties struct {
+	Used       ZfsProperty `json:"used"`
+	Available  ZfsProperty `json:"available"`
+	Referenced ZfsProperty `json:"referenced"`
+	Mountpoint ZfsProperty `json:"mountpoint"`
+}
+
+type ZfsProperty struct {
+	Value  string `json:"value"`
+	Source struct {
+		Type string `json:"type"`
+		Data string `json:"data"`
+	} `json:"source"`
+}
+
+// fetchZpoolListData fetches pool properties using `zpool list --json`
+func (z *ZfsDetect) fetchZpoolListData() (map[string]ZfsPoolList, error) {
+	zpoolBin := z.Config.GetString("commands.zpool_bin")
+	if zpoolBin == "" {
+		zpoolBin = "zpool"
+	}
+
+	args := strings.Split("list --json", " ")
+	zpoolOutput, err := z.Shell.Command(z.Logger, zpoolBin, args, "", os.Environ())
+	if err != nil {
+		z.Logger.Debugf("Error running zpool list: %v", err)
+		return nil, err
+	}
+
+	// Log raw JSON output for debugging
+	z.Logger.Debugf("Raw zpool list output: %s", zpoolOutput)
+
+	// Basic JSON validation
+	if !json.Valid([]byte(zpoolOutput)) {
+		z.Logger.Errorf("Invalid JSON received from zpool list command")
+		return nil, fmt.Errorf("invalid JSON from zpool list")
+	}
+
+	var zpoolList ZfsListOutput
+	err = json.Unmarshal([]byte(zpoolOutput), &zpoolList)
+	if err != nil {
+		z.Logger.Errorf("Error parsing zpool list JSON: %v", err)
+		z.Logger.Errorf("Raw JSON that failed to parse: %s", zpoolOutput)
+		return nil, err
+	}
+
+	return zpoolList.Pools, nil
+}
+
+// DetectZfsDatasets scans for ZFS datasets using `zfs list --json`
+func (z *ZfsDetect) DetectZfsDatasets() ([]models.ZfsDataset, error) {
+	// Check if ZFS is available and enabled in config
+	if !z.Config.GetBool("zfs.enabled") {
+		z.Logger.Debug("ZFS monitoring is disabled in configuration")
+		return []models.ZfsDataset{}, nil
+	}
+
+	// Try to execute zfs list --json
+	zfsBin := z.Config.GetString("commands.zfs_bin")
+	if zfsBin == "" {
+		zfsBin = "zfs"
+	}
+
+	args := strings.Split("list --json", " ")
+	zfsOutput, err := z.Shell.Command(z.Logger, zfsBin, args, "", os.Environ())
+	if err != nil {
+		z.Logger.Debugf("Error running zfs list: %v", err)
+		return []models.ZfsDataset{}, nil // Return empty slice for errors
+	}
+
+	// Log raw JSON output for debugging
+	z.Logger.Debugf("Raw zfs list output: %s", zfsOutput)
+
+	// Basic JSON validation
+	if !json.Valid([]byte(zfsOutput)) {
+		z.Logger.Errorf("Invalid JSON received from zfs list command")
+		return nil, fmt.Errorf("invalid JSON from zfs list")
+	}
+
+	var zfsDatasetList ZfsDatasetList
+	err = json.Unmarshal([]byte(zfsOutput), &zfsDatasetList)
+	if err != nil {
+		z.Logger.Errorf("Error parsing zfs list JSON: %v", err)
+		z.Logger.Errorf("Raw JSON that failed to parse: %s", zfsOutput)
+		return nil, err
+	}
+
+	// Validate required fields are present
+	if zfsDatasetList.Datasets == nil {
+		z.Logger.Errorf("No 'datasets' field found in zfs list JSON output")
+		return nil, fmt.Errorf("missing datasets field in zfs list output")
+	}
+
+	z.Logger.Debugf("Successfully parsed %d ZFS datasets from JSON", len(zfsDatasetList.Datasets))
+
+	var datasets []models.ZfsDataset
+	hostId := z.Config.GetString("host.id")
+
+	for _, datasetInfo := range zfsDatasetList.Datasets {
+		z.Logger.Debugf("Processing dataset '%s': type=%s, pool=%s", 
+			datasetInfo.Name, datasetInfo.Type, datasetInfo.Pool)
+
+		dataset := models.ZfsDataset{
+			Name:       datasetInfo.Name,
+			Type:       datasetInfo.Type,
+			Pool:       datasetInfo.Pool,
+			HostId:     hostId,
+			CreateTxg:  datasetInfo.CreateTxg,
+			Used:       datasetInfo.Properties.Used.Value,
+			Available:  datasetInfo.Properties.Available.Value,
+			Referenced: datasetInfo.Properties.Referenced.Value,
+			Mountpoint: datasetInfo.Properties.Mountpoint.Value,
+		}
+
+		datasets = append(datasets, dataset)
+		z.Logger.Debugf("Detected ZFS dataset: %s (%s) - used: %s", 
+			dataset.Name, dataset.Type, dataset.Used)
+	}
+
+	return datasets, nil
 }

@@ -89,8 +89,27 @@ func (zc *ZfsCollector) CollectZfs() error {
 
 	zc.logger.Infof("Detected %d ZFS pools, publishing to API", len(pools))
 
+	// Collect ZFS datasets
+	datasets, err := zfsDetector.DetectZfsDatasets()
+	if err != nil {
+		zc.logger.Errorf("Error detecting ZFS datasets: %v", err)
+		// Don't fail the entire collection if datasets fail
+	} else {
+		zc.logger.Infof("Detected %d ZFS datasets", len(datasets))
+	}
+
 	// Publish ZFS pool data to the API
-	return zc.PublishZfsPools(pools)
+	err = zc.PublishZfsPools(pools)
+	if err != nil {
+		return err
+	}
+
+	// Publish ZFS dataset data to the API if we have any
+	if len(datasets) > 0 {
+		return zc.PublishZfsDatasets(datasets)
+	}
+
+	return nil
 }
 
 func (zc *ZfsCollector) PublishZfsPools(pools []webModels.ZfsPool) error {
@@ -116,5 +135,31 @@ func (zc *ZfsCollector) PublishZfsPools(pools []webModels.ZfsPool) error {
 	}
 
 	zc.logger.Infof("Successfully published %d ZFS pools", len(pools))
+	return nil
+}
+
+func (zc *ZfsCollector) PublishZfsDatasets(datasets []webModels.ZfsDataset) error {
+	zc.logger.Infoln("Publishing ZFS dataset data")
+
+	apiEndpoint, _ := url.Parse(zc.apiEndpoint.String())
+	apiEndpoint, _ = apiEndpoint.Parse("api/zfs/datasets/register")
+
+	datasetWrapper := webModels.ZfsDatasetWrapper{
+		Data: datasets,
+	}
+
+	var respWrapper webModels.ZfsDatasetWrapper
+	err := zc.postJson(apiEndpoint.String(), datasetWrapper, &respWrapper)
+	if err != nil {
+		zc.logger.Errorf("An error occurred while publishing ZFS dataset data: %v", err)
+		return err
+	}
+
+	if !respWrapper.Success {
+		zc.logger.Errorln("API server rejected ZFS dataset data")
+		return fmt.Errorf("API server rejected ZFS dataset data")
+	}
+
+	zc.logger.Infof("Successfully published %d ZFS datasets", len(datasets))
 	return nil
 }

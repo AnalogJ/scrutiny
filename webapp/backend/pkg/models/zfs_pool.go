@@ -29,10 +29,18 @@ type ZfsPool struct {
 	Action      string `json:"action"`       // Recommended action
 	ErrorCount  string `json:"error_count"` // Total error count
 
-	// Space information
+	// Space information (from zpool status)
 	AllocSpace string `json:"alloc_space"` // Allocated space
 	TotalSpace string `json:"total_space"` // Total space
 	DefSpace   string `json:"def_space"`   // Deferred space
+
+	// Pool properties (from zpool list)
+	Size            string `json:"size,omitempty"`             // Pool size
+	Allocated       string `json:"allocated,omitempty"`        // Allocated space
+	Free            string `json:"free,omitempty"`             // Free space
+	Fragmentation   string `json:"fragmentation,omitempty"`    // Fragmentation percentage
+	CapacityPercent string `json:"capacity_percent,omitempty"` // Capacity percentage
+	Dedupratio      string `json:"dedupratio,omitempty"`       // Deduplication ratio
 
 	// Error counters
 	ReadErrors     string `json:"read_errors"`

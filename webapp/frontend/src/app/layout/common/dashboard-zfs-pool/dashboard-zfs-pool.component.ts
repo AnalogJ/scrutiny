@@ -205,27 +205,6 @@ export class DashboardZfsPoolComponent implements OnInit {
         }
     }
 
-    /**
-     * Get vdev icon based on type
-     */
-    getVdevIcon(vdevType: string): string {
-        switch (vdevType?.toLowerCase()) {
-            case 'raidz':
-            case 'raidz2':
-            case 'raidz3':
-                return 'heroicons_outline:server-stack';
-            case 'mirror':
-                return 'heroicons_outline:rectangle-stack';
-            case 'replacing':
-                return 'heroicons_outline:arrow-path';
-            case 'disk':
-                return 'heroicons_outline:circle-stack';
-            case 'file':
-                return 'heroicons_outline:document';
-            default:
-                return 'heroicons_outline:server';
-        }
-    }
 
     /**
      * Get formatted scan status

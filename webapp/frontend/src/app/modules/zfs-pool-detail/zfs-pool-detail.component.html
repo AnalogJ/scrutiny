@@ -105,37 +105,6 @@
                         <div class="text-secondary text-md mt-1">Required Action</div>
                     </div>
 
-                    <!-- Capacity Information -->
-                    <div class="my-2">
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-2xl font-bold">{{ getCapacityPercentage() }}%</span>
-                                <span class="text-sm text-gray-500 dark:text-gray-400">used</span>
-                            </div>
-                            <div class="capacity-bar-modern">
-                                <div class="capacity-fill-modern"
-                                     [ngClass]="getCapacityColorClass()"
-                                     [style.width.%]="getCapacityPercentage()"></div>
-                            </div>
-                        </div>
-                        <div class="text-secondary text-md mt-2">Storage Utilization</div>
-                    </div>
-
-                    <!-- Space Breakdown -->
-                    <div class="my-2">
-                        <div>{{ zfsService.formatBytes(pool?.alloc_space) }}</div>
-                        <div class="text-secondary text-md">Space Used</div>
-                    </div>
-
-                    <div class="my-2">
-                        <div>{{ zfsService.formatBytes(pool?.def_space) }}</div>
-                        <div class="text-secondary text-md">Space Available</div>
-                    </div>
-
-                    <div class="my-2">
-                        <div>{{ zfsService.formatBytes(pool?.total_space) }}</div>
-                        <div class="text-secondary text-md">Total Space</div>
-                    </div>
 
                     <!-- Error Statistics -->
                     <div class="my-2">
@@ -187,22 +156,19 @@
                          class="tree-row grid grid-cols-10 gap-4 py-3 px-4 border-b hover:bg-gray-50 dark:hover:bg-gray-700"
                          [class.bg-blue-25]="vdev.indent === 1">
                         <div class="col-span-5 flex items-center" [style.padding-left.rem]="(vdev.indent - 1) * 2">
-                            <!-- Indent lines -->
+                            <!-- Tree connector lines -->
                             <div class="flex items-center mr-3" *ngIf="vdev.indent > 1">
-                                <div *ngFor="let line of getIndentLines(vdev.indent - 1)" 
-                                     class="w-4 h-4 flex items-center justify-center">
-                                    <div *ngIf="line === 'line'" class="w-px h-full bg-gray-300 dark:bg-gray-600"></div>
-                                    <div *ngIf="line === 'corner'" class="w-2 h-2 border-l border-b border-gray-300 dark:border-gray-600"></div>
-                                    <div *ngIf="line === 'tee'" class="w-2 h-4 border-l border-b border-gray-300 dark:border-gray-600"></div>
-                                </div>
+                                <div class="w-3 h-3 border-l-2 border-b-2 border-gray-300 dark:border-gray-600"></div>
                             </div>
                             
                             <!-- Device Icon -->
                             <mat-icon class="icon-size-18 mr-2" 
-                                      [class.text-orange-600]="vdev.vdev_type.includes('raidz')"
-                                      [class.text-purple-600]="vdev.vdev_type === 'mirror'"
-                                      [class.text-gray-600]="vdev.vdev_type === 'disk'"
-                                      [svgIcon]="getVdevIcon(vdev.vdev_type)"></mat-icon>
+                                      [class.text-orange-500]="vdev.vdev_type.includes('raidz')"
+                                      [class.text-purple-500]="vdev.vdev_type === 'mirror'"
+                                      [class.text-blue-500]="vdev.vdev_type === 'replacing'"
+                                      [class.text-gray-500]="vdev.vdev_type === 'disk'"
+                                      [class.text-red-500]="vdev.vdev_type === 'file'"
+                                      [svgIcon]="zfsService.getVdevIcon(vdev.vdev_type)"></mat-icon>
                             
                             <!-- Device Info -->
                             <div class="min-w-0 flex-1">
@@ -244,6 +210,95 @@
                     </div>
                 </div>
             </treo-card>
+        </div>
+
+        <!-- Pool Storage Statistics and Dataset Storage Side by Side -->
+        <div class="flex flex-wrap w-full">
+            <!-- Pool Storage Statistics Panel (Left) -->
+            <div class="flex flex-auto w-1/3 p-4 lt-md:w-full" *ngIf="pool">
+                <treo-card class="flex flex-auto p-4 flex-col">
+                    <div class="text-xl font-semibold mb-4">Pool Storage Statistics</div>
+                    <div class="text-secondary text-sm mb-6">Overall pool capacity and space usage</div>
+                    
+                    <div class="space-y-6">
+                        <!-- Storage Utilization -->
+                        <div class="flex flex-col">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-2xl font-bold">{{ getCapacityPercentage() }}%</span>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">used</span>
+                                </div>
+                                <div class="capacity-bar-modern">
+                                    <div class="capacity-fill-modern"
+                                         [ngClass]="getCapacityColorClass()"
+                                         [style.width.%]="getCapacityPercentage()"></div>
+                                </div>
+                            </div>
+                            <div class="text-secondary text-md mt-2">Storage Utilization</div>
+                        </div>
+
+                        <!-- Space Used -->
+                        <div class="flex flex-col">
+                            <div class="text-2xl font-bold">{{ getUsedSpaceFromPool() }}</div>
+                            <div class="text-secondary text-md mt-2">Space Used</div>
+                        </div>
+
+                        <!-- Space Available -->
+                        <div class="flex flex-col">
+                            <div class="text-2xl font-bold">{{ getAvailableSpaceFromPool() }}</div>
+                            <div class="text-secondary text-md mt-2">Space Available</div>
+                        </div>
+
+                        <!-- Total Space -->
+                        <div class="flex flex-col">
+                            <div class="text-2xl font-bold">{{ getTotalSpaceFromPool() }}</div>
+                            <div class="text-secondary text-md mt-2">Total Space</div>
+                        </div>
+                    </div>
+                </treo-card>
+            </div>
+
+            <!-- ZFS Datasets Panel (Right) -->
+            <div class="flex flex-auto w-2/3 p-4 lt-md:w-full" *ngIf="datasets && datasets.length > 0">
+                <treo-card class="flex flex-auto p-4 flex-col">
+                    <div class="text-xl font-semibold mb-4">Dataset Storage Utilization</div>
+                    <div class="text-secondary text-sm mb-6">ZFS datasets and their space usage within this pool</div>
+                    
+                    <div class="dataset-table-container">
+                        <!-- Table Header -->
+                        <div class="dataset-header grid grid-cols-4 gap-4 py-3 px-4 border-b bg-gray-50 dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <div class="col-span-1">NAME</div>
+                            <div class="col-span-1 text-right">USED</div>
+                            <div class="col-span-1 text-right">AVAIL</div>
+                            <div class="col-span-1 text-right">REFER</div>
+                        </div>
+
+                        <!-- Dataset Rows -->
+                        <div *ngFor="let dataset of datasets; let i = index" 
+                             class="dataset-row grid grid-cols-4 gap-4 py-2 px-4 border-b hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                            <div class="col-span-1 flex items-center font-mono">
+                                <!-- Dataset Name (full name, no icons or hierarchy styling) -->
+                                <div class="text-gray-900 dark:text-gray-100 truncate" 
+                                     [title]="dataset.name">
+                                    {{ dataset.name }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-span-1 text-right font-mono text-gray-900 dark:text-gray-100">
+                                {{ zfsService.formatBytes(dataset.used) }}
+                            </div>
+                            
+                            <div class="col-span-1 text-right font-mono text-gray-900 dark:text-gray-100">
+                                {{ zfsService.formatBytes(dataset.available) }}
+                            </div>
+                            
+                            <div class="col-span-1 text-right font-mono text-gray-900 dark:text-gray-100">
+                                {{ zfsService.formatBytes(dataset.referenced) }}
+                            </div>
+                        </div>
+                    </div>
+                </treo-card>
+            </div>
         </div>
 
     </div>
