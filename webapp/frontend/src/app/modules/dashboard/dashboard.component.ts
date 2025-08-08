@@ -216,6 +216,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
             },
             tooltip: {
                 theme: 'dark',
+                shared: true,
+                intersect: false,
                 x    : {
                     format: 'MMM dd, yyyy HH:mm:ss'
                 },
