@@ -163,8 +163,26 @@ func (sm *Smart) ProcessNvmeSmartInfo(nvmeSmartHealthInformationLog collector.Nv
 		"temperature":          (&SmartNvmeAttribute{AttributeId: "temperature", Value: nvmeSmartHealthInformationLog.Temperature, Threshold: -1}).PopulateAttributeStatus(),
 		"available_spare":      (&SmartNvmeAttribute{AttributeId: "available_spare", Value: nvmeSmartHealthInformationLog.AvailableSpare, Threshold: nvmeSmartHealthInformationLog.AvailableSpareThreshold}).PopulateAttributeStatus(),
 		"percentage_used":      (&SmartNvmeAttribute{AttributeId: "percentage_used", Value: nvmeSmartHealthInformationLog.PercentageUsed, Threshold: 100}).PopulateAttributeStatus(),
-		"data_units_read":      (&SmartNvmeAttribute{AttributeId: "data_units_read", Value: nvmeSmartHealthInformationLog.DataUnitsRead, Threshold: -1}).PopulateAttributeStatus(),
-		"data_units_written":   (&SmartNvmeAttribute{AttributeId: "data_units_written", Value: nvmeSmartHealthInformationLog.DataUnitsWritten, Threshold: -1}).PopulateAttributeStatus(),
+		"data_units_read": func() SmartAttribute {
+			transformedValue, valueUnit := TransformDataUnits(nvmeSmartHealthInformationLog.DataUnitsRead)
+			return (&SmartNvmeAttribute{
+				AttributeId:      "data_units_read",
+				Value:            nvmeSmartHealthInformationLog.DataUnitsRead,
+				Threshold:        -1,
+				TransformedValue: transformedValue,
+				ValueUnit:        valueUnit,
+			}).PopulateAttributeStatus()
+		}(),
+		"data_units_written": func() SmartAttribute {
+			transformedValue, valueUnit := TransformDataUnits(nvmeSmartHealthInformationLog.DataUnitsWritten)
+			return (&SmartNvmeAttribute{
+				AttributeId:      "data_units_written",
+				Value:            nvmeSmartHealthInformationLog.DataUnitsWritten,
+				Threshold:        -1,
+				TransformedValue: transformedValue,
+				ValueUnit:        valueUnit,
+			}).PopulateAttributeStatus()
+		}(),
 		"host_reads":           (&SmartNvmeAttribute{AttributeId: "host_reads", Value: nvmeSmartHealthInformationLog.HostReads, Threshold: -1}).PopulateAttributeStatus(),
 		"host_writes":          (&SmartNvmeAttribute{AttributeId: "host_writes", Value: nvmeSmartHealthInformationLog.HostWrites, Threshold: -1}).PopulateAttributeStatus(),
 		"controller_busy_time": (&SmartNvmeAttribute{AttributeId: "controller_busy_time", Value: nvmeSmartHealthInformationLog.ControllerBusyTime, Threshold: -1}).PopulateAttributeStatus(),
