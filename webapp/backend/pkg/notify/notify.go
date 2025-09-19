@@ -424,6 +424,13 @@ func (n *Notify) GenShoutrrrNotificationParams(shoutrrrUrl string) (string, *sho
 	case "telegram":
 		(*params)["title"] = subject
 	case "zulip":
+		if len(subject) > 60 {
+			subject = subject[:60]
+		}
+		urlTopic := serviceURL.Query()["force_topic"]
+		if urlTopic != "" {
+			subject = urlTopic
+		}
 		(*params)["topic"] = subject
 	}
 
