@@ -2,6 +2,7 @@ version: '2.4'
 
 services:
   influxdb:
+    restart: unless-stopped
     image: influxdb:2.2
     ports:
       - '8086:8086'
@@ -15,6 +16,7 @@ services:
 
 
   web:
+    restart: unless-stopped
     image: 'ghcr.io/analogj/scrutiny:master-web'
     ports:
       - '8080:8080'
@@ -33,6 +35,7 @@ services:
       start_period: 10s
 
   collector:
+    restart: unless-stopped
     image: 'ghcr.io/analogj/scrutiny:master-collector'
     cap_add:
       - SYS_RAWIO
