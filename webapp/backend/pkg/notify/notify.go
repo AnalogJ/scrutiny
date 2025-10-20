@@ -428,8 +428,8 @@ func (n *Notify) GenShoutrrrNotificationParams(shoutrrrUrl string) (string, *sho
 			subject = subject[:60]
 		}
 		urlTopic := serviceURL.Query()["force_topic"]
-		if urlTopic != "" {
-			subject = urlTopic
+		if len(urlTopic) > 0 && urlTopic[len(urlTopic)-1] != "" {
+			subject = urlTopic[len(urlTopic)-1]
 		}
 		(*params)["topic"] = subject
 	}
