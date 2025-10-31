@@ -127,7 +127,7 @@ docker run --restart unless-stopped \
 
 The previous examples show how each host device can be shared with the container individually.
 An alternative strategy is to use cgroup Device Whitelists to give the container access.
-This allows the container access to all storage devices on the host without listing each individually.
+This allows the container access to all storage devices on the host without listing each individually, if that fits with the security considerations of the deployment.
 Refer to the [Linux kernel](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/devices.html) and [docker](https://docs.docker.com/reference/compose-file/services/#device_cgroup_rules) documentation for more on this functionality.
 
 The following shows the changes that can be made to the previous Hub/Spoke
