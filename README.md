@@ -134,7 +134,6 @@ The following shows the changes that can be made to the previous Hub/Spoke
 compse stack to leverage Device Whitelists.
 
 ```diff
-
   collector:
     restart: unless-stopped
     image: 'ghcr.io/analogj/scrutiny:master-collector'
