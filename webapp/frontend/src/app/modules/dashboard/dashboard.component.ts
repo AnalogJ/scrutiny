@@ -269,11 +269,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     /*
-
+    DURATION_KEY_DAY    = "day"
     DURATION_KEY_WEEK    = "week"
-	DURATION_KEY_MONTH   = "month"
-	DURATION_KEY_YEAR    = "year"
-	DURATION_KEY_FOREVER = "forever"
+    DURATION_KEY_MONTH   = "month"
+    DURATION_KEY_YEAR    = "year"
+    DURATION_KEY_FOREVER = "forever"
      */
 
     changeSummaryTempDuration(durationKey: string): void {
