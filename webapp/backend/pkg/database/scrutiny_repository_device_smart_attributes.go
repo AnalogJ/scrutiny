@@ -149,12 +149,17 @@ func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, duration
 
 	if len(nestedDurationKeys) == 1 {
 		//there's only one bucket being queried, no need to union, just aggregate the dataset and return
-		partialQueryStr = append(partialQueryStr, []string{
-			sr.generateSmartAttributesSubquery(wwn, nestedDurationKeys[0], selectEntries, selectEntriesOffset, attributes),
+		subqueryParts := []string{
+			sr.generateSmartAttributesSubquery(wwn, nestedDurationKeys[0], 0, 0, attributes),
 			fmt.Sprintf(`%sData`, nestedDurationKeys[0]),
 			`|> sort(columns: ["_time"], desc: true)`,
-			`|> yield()`,
-		}...)
+		}
+		if selectEntries > 0 {
+			// Use limit() instead of tail() after desc sort to get the newest entries
+			subqueryParts = append(subqueryParts, fmt.Sprintf(`|> limit(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))
+		}
+		subqueryParts = append(subqueryParts, `|> yield()`)
+		partialQueryStr = append(partialQueryStr, subqueryParts...)
 		return strings.Join(partialQueryStr, "\n")
 	}
 
@@ -177,7 +182,9 @@ func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, duration
 		`|> sort(columns: ["_time"], desc: true)`,
 	}...)
 	if selectEntries > 0 {
-		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> tail(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))
+		// Use limit() instead of tail() after desc sort to get the newest entries
+		// tail() would get the oldest entries from the end, but we want the newest from the beginning
+		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> limit(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))
 	}
 	partialQueryStr = append(partialQueryStr, `|> yield(name: "last")`)
 
@@ -196,7 +203,7 @@ func (sr *scrutinyRepository) generateSmartAttributesSubquery(wwn string, durati
 	}
 
 	partialQueryStr = append(partialQueryStr, `|> aggregateWindow(every: 1d, fn: last, createEmpty: false)`)
-	
+
 	if selectEntries > 0 {
 		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> tail(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))
 	}
