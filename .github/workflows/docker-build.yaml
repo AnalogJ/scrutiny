@@ -169,3 +169,52 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 #          cache-from: type=gha
 #          cache-to: type=gha,mode=max
+
+  omnibus:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: 'arm64,arm'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          flavor: |
+            latest=true
+          tags: |
+            type=ref,enable=true,event=branch,suffix=-omnibus
+            type=semver,pattern=v{{major}}.{{minor}}.{{patch}},suffix=-omnibus
+            type=semver,pattern=v{{major}}.{{minor}},suffix=-omnibus
+            type=semver,pattern=v{{major}},suffix=-omnibus
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+          context: .
+          file: Dockerfile.custom
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            SCRUTINY_WEB_PORT=8092
