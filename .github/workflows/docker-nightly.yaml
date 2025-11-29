@@ -1,14 +1,16 @@
 name: Docker - Nightly
+
 on:
   schedule:
-    - cron: '36 12 * * *'
+    - cron: '0 4 * * *'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  omnibus:
+  nightly:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -16,44 +18,65 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: "Populate frontend version information"
-        run: "cd webapp/frontend && ./git.version.sh"
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Populate frontend version information
+        run: cd webapp/frontend && ./git.version.sh
+
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: 'arm64,arm'
+
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      # Login against a Docker registry except on PR
-      # https://github.com/docker/login-action
+        uses: docker/setup-buildx-action@v3
+
       - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          tags: |
-            type=ref,enable=true,event=branch,suffix=-omnibus-nightly
-            type=ref,enable=true,event=tag,suffix=-omnibus-nightly
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      # Build and push Docker image with Buildx (don't push on PR)
-      # https://github.com/docker/build-push-action
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+
+      - name: Build and push nightly omnibus
+        uses: docker/build-push-action@v5
         with:
           platforms: linux/amd64,linux/arm64
           context: .
           file: docker/Dockerfile
-          push: false
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-#          cache-from: type=gha
-#          cache-to: type=gha,mode=max
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:nightly
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:nightly-${{ steps.date.outputs.date }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push nightly web
+        uses: docker/build-push-action@v5
+        with:
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          context: .
+          file: docker/Dockerfile.web
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:nightly-web
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push nightly collector
+        uses: docker/build-push-action@v5
+        with:
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          context: .
+          file: docker/Dockerfile.collector
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:nightly-collector
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

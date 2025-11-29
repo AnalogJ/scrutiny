@@ -4,7 +4,7 @@ services:
   scrutiny:
     restart: unless-stopped
     container_name: scrutiny
-    image: ghcr.io/Starosdev/scrutiny:master-omnibus
+    image: ghcr.io/starosdev/scrutiny:latest-omnibus
     cap_add:
       - SYS_RAWIO
     ports:

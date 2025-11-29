@@ -1,23 +1,59 @@
 name: Release
-# This workflow is triggered manually
+
 on:
-  workflow_dispatch:
-    inputs:
-      version_bump_type:
-        description: 'Version Bump Type (major, minor, patch)'
-        required: true
-        default: 'patch'
-      version_metadata_path:
-        description: 'Path to file containing Version string'
-        required: true
-        default: 'webapp/backend/pkg/version/version.go'
+  push:
+    branches:
+      - master
+      - beta
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
   release:
-    name: Create Release Commit
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    outputs:
+      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
+      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          npm install -g \
+            semantic-release \
+            @semantic-release/commit-analyzer \
+            @semantic-release/release-notes-generator \
+            @semantic-release/changelog \
+            @semantic-release/exec \
+            @semantic-release/git \
+            @semantic-release/github \
+            conventional-changelog-conventionalcommits
+
+      - name: Semantic Release
+        id: semantic
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        run: npx semantic-release
+
+  build:
+    name: Build Binaries
+    needs: release
+    if: needs.release.outputs.new_release_published == 'true'
     runs-on: ubuntu-latest
     container: ghcr.io/packagrio/packagr:latest-golang
-    # Service containers to run with `build` (Required for end-to-end testing)
     services:
       influxdb:
         image: influxdb:2.2
@@ -32,125 +68,63 @@ jobs:
           - 8086:8086
     env:
       STATIC: true
-    steps:
-      - name: Git
-        run: |
-          apt-get update && apt-get install -y software-properties-common
-          add-apt-repository ppa:git-core/ppa && apt-get update && apt-get install -y git
-          git --version
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Bump version
-        id: bump_version
-        uses: packagrio/action-bumpr-go@master
-        with:
-          version_bump_type: ${{ github.event.inputs.version_bump_type }}
-          version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
-      - name: Test
-        run: |
-          make binary-clean binary-test-coverage
-      - name: Commit Changes Locally
-        id: commit
-        uses: packagrio/action-releasr-go@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
-        with:
-          version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
-      - name: Upload workspace
-        uses: actions/upload-artifact@v4
-        with:
-          name: workspace
-          path: ${{ github.workspace }}/**/*
-          retention-days: 1
-
-  build:
-    name: Build ${{ matrix.cfg.goos }}/${{ matrix.cfg.goarch }}${{ matrix.cfg.goarm }}
-    needs: release
-    runs-on: ${{ matrix.cfg.on }}
-    env:
-      GOOS: ${{ matrix.cfg.goos }}
-      GOARCH: ${{ matrix.cfg.goarch }}
-      GOARM: ${{ matrix.cfg.goarm }}
-      STATIC: true
     strategy:
       matrix:
         cfg:
-          - { on: ubuntu-latest,  goos: linux,      goarch: amd64 }
-          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 5 }
-          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 6 }
-          - { on: ubuntu-latest,  goos: linux,      goarch: arm,    goarm: 7 }
-          - { on: ubuntu-latest,  goos: linux,      goarch: arm64 }
-          - { on: macos-latest,   goos: darwin,     goarch: amd64 }
-          - { on: macos-latest,   goos: darwin,     goarch: arm64 }
-          - { on: macos-latest,   goos: freebsd,    goarch: amd64 }
-          - { on: windows-latest, goos: windows,    goarch: amd64 }
-          - { on: windows-latest, goos: windows,    goarch: arm64 }
+          - { goos: linux, goarch: amd64 }
+          - { goos: linux, goarch: arm, goarm: 5 }
+          - { goos: linux, goarch: arm, goarm: 6 }
+          - { goos: linux, goarch: arm, goarm: 7 }
+          - { goos: linux, goarch: arm64 }
+          - { goos: darwin, goarch: amd64 }
+          - { goos: darwin, goarch: arm64 }
+          - { goos: freebsd, goarch: amd64 }
+          - { goos: windows, goarch: amd64 }
+          - { goos: windows, goarch: arm64 }
     steps:
-      - name: Download workspace
-        uses: actions/download-artifact@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          name: workspace
-      - uses: actions/setup-go@v3
-        with:
-          go-version: '1.20.1' # The Go version to download (if necessary) and use.
+          ref: v${{ needs.release.outputs.new_release_version }}
+
       - name: Build Binaries
-        run: |
-          make binary-clean binary-all
-      - name: Archive
+        env:
+          GOOS: ${{ matrix.cfg.goos }}
+          GOARCH: ${{ matrix.cfg.goarch }}
+          GOARM: ${{ matrix.cfg.goarm }}
+        run: make binary-clean binary-all
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: binaries.zip
+          name: binaries-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ matrix.cfg.goarm }}
           path: |
             scrutiny-web-*
             scrutiny-collector-metrics-*
 
-  release-publish:
-    name: Publish Release
-    needs: build
+  upload-assets:
+    name: Upload Release Assets
+    needs: [release, build]
+    if: needs.release.outputs.new_release_published == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Download workspace
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: workspace
-      - name: Download binaries
-        uses: actions/download-artifact@v4
-        with:
-          name: binaries.zip
-      - name: List
-        shell: bash
-        run: |
-          ls -alt
-      - name: Publish Release & Assets
-        id: publish
-        uses: packagrio/action-publishr-go@master
+          pattern: binaries-*
+          merge-multiple: true
+
+      - name: List files
+        run: ls -la
+
+      - name: Upload to release
         env:
-          # This is necessary in order to push a commit to the repo
-          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
-        with:
-          version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
-          upload_assets:
-            scrutiny-collector-metrics-darwin-amd64
-            scrutiny-collector-metrics-darwin-arm64
-            scrutiny-collector-metrics-freebsd-amd64
-            scrutiny-collector-metrics-linux-amd64
-            scrutiny-collector-metrics-linux-arm-5
-            scrutiny-collector-metrics-linux-arm-6
-            scrutiny-collector-metrics-linux-arm-7
-            scrutiny-collector-metrics-linux-arm64
-            scrutiny-collector-metrics-windows-amd64.exe
-            scrutiny-collector-metrics-windows-arm64.exe
-            scrutiny-web-darwin-amd64
-            scrutiny-web-darwin-arm64
-            scrutiny-web-freebsd-amd64
-            scrutiny-web-linux-amd64
-            scrutiny-web-linux-arm-5
-            scrutiny-web-linux-arm-6
-            scrutiny-web-linux-arm-7
-            scrutiny-web-linux-arm64
-            scrutiny-web-windows-amd64.exe
-            scrutiny-web-windows-arm64.exe
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        run: |
+          VERSION="v${{ needs.release.outputs.new_release_version }}"
+          for file in scrutiny-*; do
+            if [ -f "$file" ]; then
+              echo "Uploading $file..."
+              gh release upload "$VERSION" "$file" --repo ${{ github.repository }} --clobber
+            fi
+          done

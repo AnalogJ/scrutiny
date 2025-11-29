@@ -194,13 +194,13 @@ docker cp scrutiny:/tmp/web.log web.log
 # Docker Development
 
 ```
-docker build -f docker/Dockerfile . -t ghcr.io/Starosdev/scrutiny:master-omnibus
+docker build -f docker/Dockerfile . -t ghcr.io/starosdev/scrutiny:local
 docker run -it --rm -p 8080:8080 \
 -v /run/udev:/run/udev:ro \
 --cap-add SYS_RAWIO \
 --device=/dev/sda \
 --device=/dev/sdb \
-ghcr.io/Starosdev/scrutiny:master-omnibus
+ghcr.io/starosdev/scrutiny:local
 /opt/scrutiny/bin/scrutiny-collector-metrics run
 ```
 
