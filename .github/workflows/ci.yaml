@@ -8,14 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Test Frontend
         run: |
           make binary-frontend-test-coverage
       - name: Upload coverage
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-frontend
           path: ${{ github.workspace }}/webapp/frontend/coverage/lcov.info
           retention-days: 1
   test-backend:
@@ -44,14 +44,14 @@ jobs:
           add-apt-repository ppa:git-core/ppa && apt-get update && apt-get install -y git
           git --version
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Test Backend
         run: |
           make binary-clean binary-test-coverage
       - name: Upload coverage
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-backend
           path: ${{ github.workspace }}/coverage.txt
           retention-days: 1
   test-coverage:
@@ -62,13 +62,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Download coverage reports
+        uses: actions/checkout@v4
+      - name: Download backend coverage
         uses: actions/download-artifact@v4
         with:
-          name: coverage
+          name: coverage-backend
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-frontend
       - name: Upload coverage reports
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v5
         with:
           files: ${{ github.workspace }}/coverage.txt,${{ github.workspace }}/lcov.info
           flags: unittests
@@ -98,17 +102,18 @@ jobs:
           - { on: windows-latest, goos: windows,    goarch: arm64 }
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - uses: actions/setup-go@v3
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
-          go-version: '^1.20.1'
+          go-version: '1.20'
       - name: Build Binaries
         run: |
           make binary-clean binary-all
       - name: Archive
         uses: actions/upload-artifact@v4
         with:
-          name: binaries-${{ matrix.cfg.on }}-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}-${{ matrix.cfg.goarm || 'na' }}.zip
+          name: binaries-${{ matrix.cfg.on }}-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}-${{ matrix.cfg.goarm || 'na' }}
           path: |
             scrutiny-web-*
             scrutiny-collector-metrics-*
