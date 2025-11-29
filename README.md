@@ -265,7 +265,13 @@ We use SemVer for versioning. For the versions available, see the tags on this r
 
 Jason Kulatunga - Initial Development - [@AnalogJ](https://github.com/AnalogJ)
 
+# About This Fork
+
 This fork is maintained by [@Starosdev](https://github.com/Starosdev).
+
+I'm not the original developer of Scrutiny, just someone who really loves this project and wanted to help keep it alive. I'm learning as I go and I use Claude (AI) to help me understand the codebase, fix bugs, and implement new features. I believe in being transparent about my workflow and I hope this fork can be useful to others who depend on Scrutiny for their hard drive monitoring needs.
+
+If you'd like to contribute or have questions, feel free to open an issue or PR!
 
 # Licenses
 
