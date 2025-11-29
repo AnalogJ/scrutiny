@@ -58,7 +58,7 @@ jobs:
             # Manual trigger
             type=raw,value=${{ inputs.tag_suffix }}-collector,enable=${{ github.event_name == 'workflow_dispatch' }}
             # Branch builds
-            type=raw,value=latest-collector,enable=${{ github.ref == 'refs/heads/master' && github.event_name != 'workflow_dispatch' }}
+            type=raw,value=latest-collector,enable=${{ (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')) && github.event_name != 'workflow_dispatch' }}
             type=raw,value=develop-collector,enable=${{ github.ref == 'refs/heads/develop' && github.event_name != 'workflow_dispatch' }}
             # Version tags
             type=semver,pattern={{version}}-collector
@@ -117,7 +117,7 @@ jobs:
             # Manual trigger
             type=raw,value=${{ inputs.tag_suffix }}-web,enable=${{ github.event_name == 'workflow_dispatch' }}
             # Branch builds
-            type=raw,value=latest-web,enable=${{ github.ref == 'refs/heads/master' && github.event_name != 'workflow_dispatch' }}
+            type=raw,value=latest-web,enable=${{ (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')) && github.event_name != 'workflow_dispatch' }}
             type=raw,value=develop-web,enable=${{ github.ref == 'refs/heads/develop' && github.event_name != 'workflow_dispatch' }}
             # Version tags
             type=semver,pattern={{version}}-web
@@ -177,14 +177,14 @@ jobs:
             type=raw,value=${{ inputs.tag_suffix }}-omnibus,enable=${{ github.event_name == 'workflow_dispatch' }}
             type=raw,value=${{ inputs.tag_suffix }},enable=${{ github.event_name == 'workflow_dispatch' && inputs.tag_suffix == 'latest' }}
             # Branch builds
-            type=raw,value=latest-omnibus,enable=${{ github.ref == 'refs/heads/master' && github.event_name != 'workflow_dispatch' }}
+            type=raw,value=latest-omnibus,enable=${{ (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')) && github.event_name != 'workflow_dispatch' }}
             type=raw,value=develop-omnibus,enable=${{ github.ref == 'refs/heads/develop' && github.event_name != 'workflow_dispatch' }}
             # Version tags
             type=semver,pattern={{version}}-omnibus
             type=semver,pattern={{major}}.{{minor}}-omnibus
             type=semver,pattern={{major}}-omnibus,enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
             # Default latest tag (omnibus is the default)
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' && github.event_name != 'workflow_dispatch' }}
+            type=raw,value=latest,enable=${{ (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')) && github.event_name != 'workflow_dispatch' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
