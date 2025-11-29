@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/AnalogJ/scrutiny">
+  <a href="https://github.com/Starosdev/scrutiny">
   <img width="300" alt="scrutiny_view" src="webapp/frontend/src/assets/images/logo/scrutiny-logo-dark.png">
   </a>
 </p>
@@ -7,12 +7,10 @@
 
 # scrutiny
 
-[![CI](https://github.com/AnalogJ/scrutiny/workflows/CI/badge.svg?branch=master)](https://github.com/AnalogJ/scrutiny/actions?query=workflow%3ACI)
-[![codecov](https://codecov.io/gh/AnalogJ/scrutiny/branch/master/graph/badge.svg)](https://codecov.io/gh/AnalogJ/scrutiny)
-[![GitHub license](https://img.shields.io/github/license/AnalogJ/scrutiny.svg?style=flat-square)](https://github.com/AnalogJ/scrutiny/blob/master/LICENSE)
-[![Godoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/analogj/scrutiny)
-[![Go Report Card](https://goreportcard.com/badge/github.com/AnalogJ/scrutiny?style=flat-square)](https://goreportcard.com/report/github.com/AnalogJ/scrutiny)
-[![GitHub release](http://img.shields.io/github/release/AnalogJ/scrutiny.svg?style=flat-square)](https://github.com/AnalogJ/scrutiny/releases)
+[![CI](https://github.com/Starosdev/scrutiny/workflows/CI/badge.svg?branch=master)](https://github.com/Starosdev/scrutiny/actions?query=workflow%3ACI)
+[![GitHub license](https://img.shields.io/github/license/Starosdev/scrutiny.svg?style=flat-square)](https://github.com/Starosdev/scrutiny/blob/master/LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Starosdev/scrutiny?style=flat-square)](https://goreportcard.com/report/github.com/Starosdev/scrutiny)
+[![GitHub release](http://img.shields.io/github/release/Starosdev/scrutiny.svg?style=flat-square)](https://github.com/Starosdev/scrutiny/releases)
 
 WebUI for smartd S.M.A.R.T monitoring
 
@@ -265,20 +263,11 @@ We use SemVer for versioning. For the versions available, see the tags on this r
 
 # Authors
 
-Jason Kulatunga - Initial Development - @AnalogJ
+Jason Kulatunga - Initial Development - [@AnalogJ](https://github.com/AnalogJ)
+
+This fork is maintained by [@Starosdev](https://github.com/Starosdev).
 
 # Licenses
 
 - MIT
 - Logo: [Glasses by matias porta lezcano](https://thenounproject.com/term/glasses/775232)
-
-# Sponsors
-
-Scrutiny is only possible with the help of my [Github Sponsors](https://github.com/sponsors/AnalogJ/).
-
-[![](docs/sponsors.png)](https://github.com/sponsors/AnalogJ/)
-
-They read a simple [reddit announcement post](https://github.com/sponsors/AnalogJ/) and decided to trust & finance
- a developer they've never met. It's an exciting and incredibly humbling experience.
-
-If you found Scrutiny valuable, please consider [supporting my work](https://github.com/sponsors/AnalogJ/)

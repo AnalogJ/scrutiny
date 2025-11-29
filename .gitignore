@@ -68,3 +68,5 @@ coverage.txt
 /influxdb
 .angular
 web.log
+CLAUDE.md
+PLANNING.md

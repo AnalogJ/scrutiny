@@ -19,7 +19,7 @@ To install, simply click 'Install'; the configuration parameters should not need
 
 As a docker image can be created using various OS bases, the image choice is entirely the users choice. Recommendations of a specific image from a specific maintainer is beyond the scope of this guide. However, to provide some context given the number of questions posed regarding the various versions available:
 
-- **ghcr.io/analogj/scrutiny:master-omnibus**
+- **ghcr.io/Starosdev/scrutiny:master-omnibus**
     - `Image maintained directly by the application author`
     - `Debian based docker image`
 - **linuxserver/scrutiny**

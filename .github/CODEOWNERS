@@ -1,0 +1,23 @@
+# CODEOWNERS - Defines code ownership for automatic PR review requests
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything in the repo
+* @Starosdev
+
+# Frontend (Angular)
+/webapp/frontend/ @Starosdev
+
+# Backend (Go)
+/webapp/backend/ @Starosdev
+
+# Collector
+/collector/ @Starosdev
+
+# Docker and CI/CD
+/docker/ @Starosdev
+/.github/ @Starosdev
+Makefile @Starosdev
+
+# Documentation
+*.md @Starosdev
+/docs/ @Starosdev

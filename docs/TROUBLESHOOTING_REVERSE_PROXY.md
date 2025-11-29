@@ -80,7 +80,7 @@ You may also configure these values using the following environmental variables 
     services:
       scrutiny:
         container_name: scrutiny
-        image: ghcr.io/analogj/scrutiny:master-omnibus
+        image: ghcr.io/Starosdev/scrutiny:master-omnibus
         cap_add:
           - SYS_RAWIO
         ports:
@@ -114,7 +114,7 @@ version: '3.5'
 services:
   scrutiny:
     container_name: scrutiny
-    image: ghcr.io/analogj/scrutiny:master-omnibus
+    image: ghcr.io/Starosdev/scrutiny:master-omnibus
     cap_add:
       - SYS_RAWIO
       - SYS_ADMIN

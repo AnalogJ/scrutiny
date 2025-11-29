@@ -62,7 +62,7 @@ docker run -it --rm \
   --cap-add SYS_RAWIO \
   --device=/dev/sda \
   --device=/dev/sdb \
-  ghcr.io/analogj/scrutiny:master-collector smartctl --scan
+  ghcr.io/Starosdev/scrutiny:master-collector smartctl --scan
 ```
 
 If the output is the same, your devices will be processed by Scrutiny.
@@ -202,7 +202,7 @@ docker run -it --rm -p 8080:8080 -p 8086:8086 \
   --privileged \
   -v /dev:/dev \
   --name scrutiny \
-  ghcr.io/analogj/scrutiny:master-omnibus
+  ghcr.io/Starosdev/scrutiny:master-omnibus
 ```
 
 ## Scrutiny detects Failure but SMART Passed?

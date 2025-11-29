@@ -1,5 +1,38 @@
 # Contributing
 
+Thank you for your interest in contributing to Scrutiny! This is an actively maintained fork of the original [AnalogJ/scrutiny](https://github.com/AnalogJ/scrutiny) project.
+
+## Before You Start
+
+- Check the [Linear board](https://linear.app/scrutiny) for existing issues and planned work
+- For bug reports or feature requests, please open a GitHub issue first
+- For large changes, please discuss your approach in an issue before starting work
+
+## Branch Workflow
+
+We use a Gitflow-style workflow:
+
+- `main` - Production-ready code (protected)
+- `develop` - Integration branch for features
+- `feature/SCR-{id}-description` - New features
+- `fix/SCR-{id}-description` - Bug fixes
+- `hotfix/SCR-{id}-description` - Urgent production fixes
+
+### Creating a PR
+
+1. Fork the repository and create your branch from `develop`
+2. Follow the commit convention: `type(scope): description`
+3. Ensure all tests pass
+4. Submit a PR to `develop` (or `main` for hotfixes)
+
+## Code Style
+
+- No emojis in code, commits, comments, or documentation
+- Follow existing code patterns and formatting
+- Run linting before submitting: `npm run lint` (frontend)
+
+## Project Structure
+
 The Scrutiny repository is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) containing source code for:
 - Scrutiny Backend Server (API)
 - Scrutiny Frontend Angular SPA
@@ -11,7 +44,7 @@ Depending on the functionality you are adding, you may need to setup a developme
 
 1. install the [Go runtime](https://go.dev/doc/install) (v1.20+)
 2. download the `scrutiny-web-frontend.tar.gz` for
-   the [latest release](https://github.com/AnalogJ/scrutiny/releases/latest). Extract to a folder named `dist`
+   the [latest release](https://github.com/Starosdev/scrutiny/releases/latest). Extract to a folder named `dist`
 3. create a `scrutiny.yaml` config file
     ```yaml
     # config file for local development. store as scrutiny.yaml
@@ -161,13 +194,13 @@ docker cp scrutiny:/tmp/web.log web.log
 # Docker Development
 
 ```
-docker build -f docker/Dockerfile . -t chcr.io/analogj/scrutiny:master-omnibus
+docker build -f docker/Dockerfile . -t ghcr.io/Starosdev/scrutiny:master-omnibus
 docker run -it --rm -p 8080:8080 \
 -v /run/udev:/run/udev:ro \
 --cap-add SYS_RAWIO \
 --device=/dev/sda \
 --device=/dev/sdb \
-ghcr.io/analogj/scrutiny:master-omnibus
+ghcr.io/Starosdev/scrutiny:master-omnibus
 /opt/scrutiny/bin/scrutiny-collector-metrics run
 ```
 
