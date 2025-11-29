@@ -1,0 +1,42 @@
+name: Build & Publish Scrutiny Omnibus Image
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'docker/**'
+      - 'webapp/**'
+      - 'collector/**'
+      - 'go.mod'
+      - 'go.sum'
+      - 'example.scrutiny.yaml'
+      - 'example.collector.yaml'
+  workflow_dispatch:
+
+jobs:
+  build-and-push-omnibus:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push omnibus image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/omnibus/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/scrutiny:omnibus
+            ghcr.io/${{ github.repository_owner }}/scrutiny:latest
