@@ -1,4 +1,4 @@
-name: Build & Publish Scrutiny Omnibus Image
+name: Build & Publish Scrutiny NX Omnibus Image
 
 on:
   push:
@@ -38,5 +38,5 @@ jobs:
           file: docker/omnibus/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/scrutiny:omnibus
-            ghcr.io/${{ github.repository_owner }}/scrutiny:latest
+            ghcr.io/${{ github.repository_owner }}/scrutiny-nx:omnibus
+            ghcr.io/${{ github.repository_owner }}/scrutiny-nx:latest
