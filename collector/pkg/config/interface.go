@@ -20,6 +20,7 @@ type Interface interface {
 	GetInt(key string) int
 	GetString(key string) string
 	GetStringSlice(key string) []string
+	GetIntSlice(key string) []int
 	UnmarshalKey(key string, rawVal interface{}, decoderOpts ...viper.DecoderConfigOption) error
 
 	GetDeviceOverrides() []models.ScanOverride

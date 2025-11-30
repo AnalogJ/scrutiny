@@ -529,7 +529,7 @@ func m20201107210306_FromPreInfluxDBSmartResultsCreatePostInfluxDBSmartResults(d
 			})
 		}
 
-		postDeviceSmartData.ProcessAtaSmartInfo(preAtaSmartAttributesTable)
+		postDeviceSmartData.ProcessAtaSmartInfo(nil, preAtaSmartAttributesTable)
 
 	} else if preDevice.IsNvme() {
 		//info collector.SmartInfo
