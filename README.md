@@ -55,8 +55,8 @@ Scrutiny uses `smartctl --scan` to detect devices/drives.
 
 - All RAID controllers supported by `smartctl` are automatically supported by Scrutiny.
     - While some RAID controllers support passing through the underlying SMART data to `smartctl` others do not.
-    - In some cases `--scan` does not correctly detect the device type, returning [incomplete SMART data](https://github.com/AnalogJ/scrutiny/issues/45).
-    Scrutiny supports overriding detected device type via the config file: see [example.collector.yaml](https://github.com/AnalogJ/scrutiny/blob/master/example.collector.yaml)
+    - In some cases `--scan` does not correctly detect the device type, returning incomplete SMART data.
+    Scrutiny supports overriding detected device type via the config file: see [example.collector.yaml](example.collector.yaml)
 - If you use docker, you **must** pass though the RAID virtual disk to the container using `--device` (see below)
     - This device may be in `/dev/*` or `/dev/bus/*`.
     - If you're unsure, run `smartctl --scan` on your host, and pass all listed devices to the container.
@@ -67,7 +67,7 @@ See [docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md](./docs/TROUBLESHOOTING_DEVICE_COL
 
 If you're using Docker, getting started is as simple as running the following command:
 
-> See [docker/example.omnibus.docker-compose.yml](https://github.com/AnalogJ/scrutiny/blob/master/docker/example.omnibus.docker-compose.yml) for a docker-compose file.
+> See [docker/example.omnibus.docker-compose.yml](docker/example.omnibus.docker-compose.yml) for a docker-compose file.
 
 ```bash
 docker run -p 8080:8080 -p 8086:8086 --restart unless-stopped \
@@ -78,27 +78,27 @@ docker run -p 8080:8080 -p 8086:8086 --restart unless-stopped \
   --device=/dev/sda \
   --device=/dev/sdb \
   --name scrutiny \
-  ghcr.io/analogj/scrutiny:master-omnibus
+  ghcr.io/starosdev/scrutiny:latest-omnibus
 ```
 
 - `/run/udev` is necessary to provide the Scrutiny collector with access to your device metadata
 - `--cap-add SYS_RAWIO` is necessary to allow `smartctl` permission to query your device SMART data
-    - NOTE: If you have **NVMe** drives, you must add `--cap-add SYS_ADMIN` as well. See issue [#26](https://github.com/AnalogJ/scrutiny/issues/26#issuecomment-696817130)
+    - NOTE: If you have **NVMe** drives, you must add `--cap-add SYS_ADMIN` as well.
 - `--device` entries are required to ensure that your hard disk devices are accessible within the container.
-- `ghcr.io/analogj/scrutiny:master-omnibus` is a omnibus image, containing both the webapp server (frontend & api) as well as the S.M.A.R.T metric collector. (see below)
+- `ghcr.io/starosdev/scrutiny:latest-omnibus` is an omnibus image, containing both the webapp server (frontend & api) as well as the S.M.A.R.T metric collector. (see below)
 
 ### Hub/Spoke Deployment
 
 In addition to the Omnibus image (available under the `latest` tag) you can deploy in Hub/Spoke mode, which requires 3
 other Docker images:
 
-- `ghcr.io/analogj/scrutiny:master-collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like
+- `ghcr.io/starosdev/scrutiny:latest-collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like
   scheduler. You can run one collector on each server.
-- `ghcr.io/analogj/scrutiny:master-web` - Contains the Web UI and API. Only one container necessary
-- `influxdb:2.2` - InfluxDB image, used by the Web container to persist SMART data. Only one container necessary
+- `ghcr.io/starosdev/scrutiny:latest-web` - Contains the Web UI and API. Only one container necessary
+- `influxdb:2.2` - InfluxDB image, used by the Web container to persist SMART data. Only one container necessary.
   See [docs/TROUBLESHOOTING_INFLUXDB.md](./docs/TROUBLESHOOTING_INFLUXDB.md)
 
-> See [docker/example.hubspoke.docker-compose.yml](https://github.com/AnalogJ/scrutiny/blob/master/docker/example.hubspoke.docker-compose.yml) for a docker-compose file.
+> See [docker/example.hubspoke.docker-compose.yml](docker/example.hubspoke.docker-compose.yml) for a docker-compose file.
 
 ```bash
 docker run -p 8086:8086 --restart unless-stopped \
@@ -109,7 +109,7 @@ docker run -p 8086:8086 --restart unless-stopped \
 docker run -p 8080:8080 --restart unless-stopped \
   -v `pwd`/scrutiny:/opt/scrutiny/config \
   --name scrutiny-web \
-  ghcr.io/analogj/scrutiny:master-web
+  ghcr.io/starosdev/scrutiny:latest-web
 
 docker run --restart unless-stopped \
   -v /run/udev:/run/udev:ro \
@@ -118,12 +118,12 @@ docker run --restart unless-stopped \
   --device=/dev/sdb \
   -e COLLECTOR_API_ENDPOINT=http://SCRUTINY_WEB_IPADDRESS:8080 \
   --name scrutiny-collector \
-  ghcr.io/analogj/scrutiny:master-collector
+  ghcr.io/starosdev/scrutiny:latest-collector
 ```
 
 ## Manual Installation (without-Docker)
 
-While the easiest way to get started with [Scrutiny is using Docker](https://github.com/AnalogJ/scrutiny#docker),
+While the easiest way to get started with Scrutiny is using Docker (see above),
 it is possible to run it manually without much work. You can even mix and match, using Docker for one component and
 a manual installation for the other.
 
@@ -154,8 +154,8 @@ There are two configuration files available:
 Neither file is required, however if provided, it allows you to configure how Scrutiny functions.
 
 ## Cron Schedule
-Unfortunately the Cron schedule cannot be configured via the `collector.yaml` (as the collector binary needs to be trigged by a scheduler/cron).
-However, if you are using the official `ghcr.io/analogj/scrutiny:master-collector` or `ghcr.io/analogj/scrutiny:master-omnibus` docker images,
+Unfortunately the Cron schedule cannot be configured via the `collector.yaml` (as the collector binary needs to be triggered by a scheduler/cron).
+However, if you are using the official `ghcr.io/starosdev/scrutiny:latest-collector` or `ghcr.io/starosdev/scrutiny:latest-omnibus` docker images,
 you can use the `COLLECTOR_CRON_SCHEDULE` environmental variable to override the default cron schedule (daily @ midnight - `0 0 * * *`).
 
 `docker run -e COLLECTOR_CRON_SCHEDULE="0 0 * * *" ...`
@@ -240,12 +240,12 @@ scrutiny-collector-metrics run --debug --log-file /tmp/collector.log
 | linux-amd64 | :white_check_mark: | :white_check_mark: |
 | linux-arm-5 | :white_check_mark: |  |
 | linux-arm-6 | :white_check_mark: |  |
-| linux-arm-7 | :white_check_mark: | web/collector only. see [#236](https://github.com/AnalogJ/scrutiny/issues/236)  |
+| linux-arm-7 | :white_check_mark: | web/collector only |
 | linux-arm64 | :white_check_mark: | :white_check_mark: |
 | freebsd-amd64 | :white_check_mark: |  |
 | macos-amd64 | :white_check_mark: | :white_check_mark: |
 | macos-arm64 | :white_check_mark: | :white_check_mark: |
-| windows-amd64 | :white_check_mark: | WIP, see [#15](https://github.com/AnalogJ/scrutiny/issues/15) |
+| windows-amd64 | :white_check_mark: | WIP |
 | windows-arm64 | :white_check_mark: |  |
 
 
