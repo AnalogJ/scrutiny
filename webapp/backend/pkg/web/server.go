@@ -1,22 +1,27 @@
 package web
 
 import (
+	"context"
 	"fmt"
+	"net/http"
+	"path/filepath"
+	"strings"
+
 	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/metrics"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/handler"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
-	"path/filepath"
-	"strings"
 )
 
 type AppEngine struct {
-	Config config.Interface
-	Logger *logrus.Entry
+	Config           config.Interface
+	Logger           *logrus.Entry
+	MetricsCollector *metrics.Collector
 }
 
 func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
@@ -25,6 +30,17 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 	r.Use(middleware.LoggerMiddleware(logger))
 	r.Use(middleware.RepositoryMiddleware(ae.Config, logger))
 	r.Use(middleware.ConfigMiddleware(ae.Config))
+
+	// Initialize metrics collector if enabled
+	if ae.Config.GetBool("web.metrics.enabled") {
+		if ae.MetricsCollector == nil {
+			ae.MetricsCollector = metrics.NewCollector(logger)
+		}
+		r.Use(middleware.MetricsMiddleware(ae.MetricsCollector))
+		logger.Info("Prometheus metrics endpoint enabled")
+	} else {
+		logger.Info("Prometheus metrics endpoint disabled")
+	}
 	r.Use(gin.Recovery())
 
 	basePath := ae.Config.GetString("web.listen.basepath")
@@ -40,7 +56,13 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 			api.POST("/devices/register", handler.RegisterDevices)         //used by Collector to register new devices and retrieve filtered list
 			api.GET("/summary", handler.GetDevicesSummary)                 //used by Dashboard
 			api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory) //used by Dashboard (Temperature history dropdown)
-			api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics)    //used by Collector to upload data
+
+			// Prometheus metrics endpoint (only registered if enabled)
+			if ae.Config.GetBool("web.metrics.enabled") {
+				api.GET("/metrics", handler.GetMetrics)
+			}
+
+			api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics) //used by Collector to upload data
 			api.POST("/device/:wwn/selftest", handler.UploadDeviceSelfTests)
 			api.GET("/device/:wwn/details", handler.GetDeviceDetails)   //used by Details
 			api.POST("/device/:wwn/archive", handler.ArchiveDevice)     //used by UI to archive device
@@ -84,6 +106,22 @@ func (ae *AppEngine) Start() error {
 	}
 
 	r := ae.Setup(ae.Logger)
+
+	// Load initial metrics data asynchronously at startup (if metrics enabled)
+	if ae.Config.GetBool("web.metrics.enabled") && ae.MetricsCollector != nil {
+		go func() {
+			deviceRepo, err := database.NewScrutinyRepository(ae.Config, ae.Logger)
+			if err != nil {
+				ae.Logger.Errorln("Failed to create repository for loading metrics:", err)
+				return
+			}
+			defer deviceRepo.Close()
+
+			if err := ae.MetricsCollector.LoadInitialData(deviceRepo, context.Background()); err != nil {
+				ae.Logger.Errorln("Failed to load initial metrics data:", err)
+			}
+		}()
+	}
 
 	return r.Run(fmt.Sprintf("%s:%s", ae.Config.GetString("web.listen.host"), ae.Config.GetString("web.listen.port")))
 }

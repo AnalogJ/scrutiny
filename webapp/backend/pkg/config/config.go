@@ -55,6 +55,9 @@ func (c *configuration) Init() error {
 
 	c.SetDefault("failures.transient.ata", []int{195})
 
+	// Metrics settings
+	c.SetDefault("web.metrics.enabled", true)
+
 	//c.SetDefault("disks.include", []string{})
 	//c.SetDefault("disks.exclude", []string{})
 
