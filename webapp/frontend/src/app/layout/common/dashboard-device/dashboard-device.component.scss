@@ -1,3 +1,21 @@
 .text-disabled{
     opacity: 0.8;
 }
+
+.mat-icon.muted-icon {
+    /* Treo is messing with the selector a little bit, so we have to assert !importance here */
+    display: inline-block !important;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+
+    // This gives a slightly better alignment on default zoom.
+    // Need to figure out a better way. See comment in app/modules/detail/detail.component.scss
+    vertical-align: middle;
+}
+
+.mat-icon.muted-icon {
+    width: 16px;
+    height: 16px;
+}

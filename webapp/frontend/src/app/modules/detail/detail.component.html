@@ -4,20 +4,25 @@
 
         <div class="flex items-center justify-between w-full my-4 px-4 xs:pr-0">
             <div class="mr-6">
-                <h2 class="m-0">Drive Details - {{device | deviceTitle:config.dashboard_display}} </h2>
+                <h2 class="m-0">Drive Details - {{device | deviceTitle:config.dashboard_display}} <mat-icon
+                    [svgIcon]="'notifications_off'"
+                    *ngIf="device && device.muted"
+                    class="muted-icon"
+                ></mat-icon></h2>
                 <div class="text-secondary tracking-tight">Dive into S.M.A.R.T data</div>
             </div>
             <!-- Action buttons -->
             <div class="flex items-center">
-                <button class="xs:hidden"
+                <button class="ml-2 xs:hidden"
                         matTooltip="not yet implemented"
                         mat-stroked-button>
                     <mat-icon class="icon-size-20"
                               [svgIcon]="'save'"></mat-icon>
                     <span class="ml-2">Export</span>
                 </button>
+
                 <button class="ml-2 xs:hidden"
-                        matTooltip="not yet implemented"
+                        (click)="openSettingsDialog()"
                         mat-stroked-button>
                     <mat-icon class="icon-size-20 rotate-90 mirror"
                               [svgIcon]="'tune'"></mat-icon>
@@ -38,7 +43,7 @@
                             <span class="ml-2">Export</span>
                         </button>
                         <button mat-menu-item
-                                (click)="openDialog()">
+                                (click)="openSettingsDialog()">
                             <mat-icon class="icon-size-20 rotate-90 mirror"
                                       [svgIcon]="'tune'"></mat-icon>
                             <span class="ml-2">Settings</span>

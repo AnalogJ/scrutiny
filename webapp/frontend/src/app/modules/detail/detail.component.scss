@@ -51,3 +51,10 @@ tr.attribute-row:not(.attribute-expanded-row):active {
     overflow: hidden;
     display: flex;
 }
+
+.muted-icon {
+    // Giving vertical-align does not solve alignment for all optical font sizes.
+    // Actually aligning by baseline shows a more decent alignment on default zoom on Firefox w/ Inter
+    // Commenting this out for now. Need to figure out a better way.
+    // vertical-align: middle;
+}

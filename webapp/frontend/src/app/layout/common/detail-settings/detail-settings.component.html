@@ -15,9 +15,9 @@
         <div class="flex flex-col gt-xs:flex-row">
             <mat-form-field class="flex-auto gt-xs:pr-3">
                 <mat-label>Notifications</mat-label>
-                <mat-select [value]="'enable'">
-                    <mat-option  value="enable">Enabled</mat-option>
-                    <mat-option value="disable" disabled>Disabled</mat-option>
+                <mat-select [(value)]="muted">
+                    <mat-option [value]="false">Enabled</mat-option>
+                    <mat-option [value]="true">Disabled</mat-option>
                 </mat-select>
             </mat-form-field>
         </div>
@@ -26,5 +26,5 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Cancel</button>
-    <button mat-button matTooltip="not yet implemented" [mat-dialog-close]="true" cdkFocusInitial>Save</button>
+    <button mat-button [mat-dialog-close]="{ muted }" cdkFocusInitial>Save</button>
 </mat-dialog-actions>

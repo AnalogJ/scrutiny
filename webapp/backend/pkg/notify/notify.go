@@ -38,6 +38,11 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 		return false
 	}
 
+	// If the device is muted, skip notification regardless of status
+	if device.Muted {
+		return false
+	}
+
 	//TODO: cannot check for warning notifyLevel yet.
 
 	// setup constants for comparison
