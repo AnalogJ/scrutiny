@@ -12,7 +12,7 @@ Thank you for your interest in contributing to Scrutiny! This is an actively mai
 
 We use a Gitflow-style workflow:
 
-- `main` - Production-ready code (protected)
+- `master` - Production-ready code (protected)
 - `develop` - Integration branch for features
 - `feature/SCR-{id}-description` - New features
 - `fix/SCR-{id}-description` - Bug fixes
@@ -23,7 +23,7 @@ We use a Gitflow-style workflow:
 1. Fork the repository and create your branch from `develop`
 2. Follow the commit convention: `type(scope): description`
 3. Ensure all tests pass
-4. Submit a PR to `develop` (or `main` for hotfixes)
+4. Submit a PR to `develop` (or `master` for hotfixes)
 
 ## Code Style
 
@@ -207,6 +207,10 @@ ghcr.io/starosdev/scrutiny:local
 
 # Running Tests
 
+## Backend Tests
+
+Backend tests require a running InfluxDB container:
+
 ```bash
 docker run -p 8086:8086 -d --rm \
 -e DOCKER_INFLUXDB_INIT_MODE=setup \
@@ -216,6 +220,36 @@ docker run -p 8086:8086 -d --rm \
 -e DOCKER_INFLUXDB_INIT_BUCKET=metrics \
 -e DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token \
 influxdb:2.2
-go test ./...
 
+go test ./...                                    # Run all tests
+go test -v ./webapp/backend/pkg/web/...          # Run tests in specific package
+go test -v -run TestFunctionName ./path/to/pkg/  # Run specific test by name
+go test -coverprofile=coverage.txt ./...         # Run with coverage
 ```
+
+## Frontend Tests
+
+```bash
+cd webapp/frontend
+npm test                                              # Run tests with watch mode
+npm test -- --watch=false                             # Run tests once
+npm test -- --watch=false --browsers=ChromeHeadless   # Headless CI mode
+npx ng test --watch=false --code-coverage             # Run with coverage
+```
+
+# API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/health` | GET | Health check |
+| `/api/health/notify` | POST | Test notifications |
+| `/api/summary` | GET | Dashboard summary of all devices |
+| `/api/summary/temp` | GET | Temperature history for dashboard |
+| `/api/devices/register` | POST | Register new devices (used by collector) |
+| `/api/device/:wwn/details` | GET | Get device with S.M.A.R.T history |
+| `/api/device/:wwn/smart` | POST | Upload S.M.A.R.T metrics (used by collector) |
+| `/api/device/:wwn/selftest` | POST | Upload self-test results |
+| `/api/device/:wwn/archive` | POST | Archive a device |
+| `/api/device/:wwn/unarchive` | POST | Unarchive a device |
+| `/api/device/:wwn` | DELETE | Delete a device |
+| `/api/settings` | GET/POST | Application settings |
