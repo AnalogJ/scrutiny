@@ -2,6 +2,29 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.1.0](https://github.com/Starosdev/scrutiny/compare/v1.0.0...v1.1.0) (2025-11-30)
+
+### Features
+
+* Add "day" as resolution for temperature graph ([2670af2](https://github.com/Starosdev/scrutiny/commit/2670af216d491c478b36f8ef20497c5cb6002801))
+* add day resolution for temperature graph (upstream PR [#823](https://github.com/Starosdev/scrutiny/issues/823)) ([2d6ffa7](https://github.com/Starosdev/scrutiny/commit/2d6ffa732cda4583c0f867540bed87a331fbb6d4))
+* add setting to enable/disable SCT temperature history (upstream PR [#557](https://github.com/Starosdev/scrutiny/issues/557)) ([c3692ac](https://github.com/Starosdev/scrutiny/commit/c3692acd17e310e1c5d1470404566ae13e67d9a5))
+* Implement device-wise notification mute/unmute ([925e86d](https://github.com/Starosdev/scrutiny/commit/925e86d461fc2bfe4f318851d790a08d99eb6bde))
+* implement device-wise notification mute/unmute (upstream PR [#822](https://github.com/Starosdev/scrutiny/issues/822)) ([ea7102e](https://github.com/Starosdev/scrutiny/commit/ea7102e9297aeb011a808f1133fbf03114176900))
+* implement Prometheus metrics support (upstream PR [#830](https://github.com/Starosdev/scrutiny/issues/830)) ([7384f7d](https://github.com/Starosdev/scrutiny/commit/7384f7de6ebf8f6c3936fb52d19ffe3b805bae0c))
+* support SAS temperature (upstream PR [#816](https://github.com/Starosdev/scrutiny/issues/816)) ([f954cc8](https://github.com/Starosdev/scrutiny/commit/f954cc815f756bef8842f026a5a0e554bfd5ba80))
+
+### Bug Fixes
+
+* better handling of ata_sct_temperature_history (upstream PR [#825](https://github.com/Starosdev/scrutiny/issues/825)) ([d134ad7](https://github.com/Starosdev/scrutiny/commit/d134ad7160b754ad25d10d600a6fc8e56c0d5914))
+* **database:** add missing temperature parameter in SCSI migration ([df7da88](https://github.com/Starosdev/scrutiny/commit/df7da8824c3cd3745f66ae426bcec1db7844e840))
+* support transient SMART failures (upstream PR [#375](https://github.com/Starosdev/scrutiny/issues/375)) ([601775e](https://github.com/Starosdev/scrutiny/commit/601775e462f6cd56d442386071c6499dfba3cc39))
+* **ui:** fix temperature conversion in temperature.pipe.ts (upstream PR [#815](https://github.com/Starosdev/scrutiny/issues/815)) ([e0f2781](https://github.com/Starosdev/scrutiny/commit/e0f27819facc20c6f04c8903f2ebb85035475b47))
+
+### Refactoring
+
+* use limit() instead of tail() for fetching smart attributes (upstream PR [#829](https://github.com/Starosdev/scrutiny/issues/829)) ([2849531](https://github.com/Starosdev/scrutiny/commit/2849531d3893028861cec68f862d4ed32bedbb0c))
+
 ## 1.0.0 (2025-11-29)
 
 ### Features
