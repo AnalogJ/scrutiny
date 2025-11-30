@@ -49,4 +49,13 @@ export class DetailService {
             })
         );
     }
+
+    /**
+     * Mute / Unmute certain device
+     */
+    setMuted(wwn, muted): Observable<any> {
+        console.log('Set muted', muted);
+        const action = muted ? 'mute' : 'unmute';
+        return this._httpClient.post(getBasePath() + `/api/device/${wwn}/${action}`, {});
+    }
 }

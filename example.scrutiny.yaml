@@ -47,6 +47,11 @@ web:
 #    org: 'my-org'
 #    bucket: 'bucket'
     retention_policy: true
+
+  # Prometheus metrics endpoint configuration
+  metrics:
+    # Enable or disable Prometheus metrics endpoint (/api/metrics)
+    enabled: true
     # if you wish to disable TLS certificate verification,
     # when using self-signed certificates for example,
     # then uncomment the lines below and set `insecure_skip_verify: true`
@@ -57,6 +62,10 @@ log:
   file: '' #absolute or relative paths allowed, eg. web.log
   level: INFO
 
+failures:
+  transient:
+    ata:
+      - 195 # Hardware_ECC_Recovered, see https://superuser.com/a/1511916/169872
 
 # Notification "urls" look like the following. For more information about service specific configuration see
 # Shoutrrr's documentation: https://containrrr.dev/shoutrrr/services/overview/

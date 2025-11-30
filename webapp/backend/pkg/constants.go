@@ -4,8 +4,9 @@ const DeviceProtocolAta = "ATA"
 const DeviceProtocolScsi = "SCSI"
 const DeviceProtocolNvme = "NVMe"
 
-//go:generate stringer -type=AttributeStatus
 // AttributeStatus bitwise flag, 1,2,4,8,16,32,etc
+//
+//go:generate stringer -type=AttributeStatus
 type AttributeStatus uint8
 
 const (
@@ -23,8 +24,9 @@ func AttributeStatusClear(b, flag AttributeStatus) AttributeStatus  { return b &
 func AttributeStatusToggle(b, flag AttributeStatus) AttributeStatus { return b ^ flag }
 func AttributeStatusHas(b, flag AttributeStatus) bool               { return b&flag != 0 }
 
-//go:generate stringer -type=DeviceStatus
 // DeviceStatus bitwise flag, 1,2,4,8,16,32,etc
+//
+//go:generate stringer -type=DeviceStatus
 type DeviceStatus uint8
 
 const (

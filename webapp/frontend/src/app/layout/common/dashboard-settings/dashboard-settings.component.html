@@ -102,6 +102,16 @@
                 </mat-select>
             </mat-form-field>
         </div>
+
+        <div class="flex flex-col mt-5 gt-md:flex-row">
+            <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
+                <mat-label>Retrieve SCT Temperature History</mat-label>
+                <mat-select [(ngModel)]=retrieveSCTTemperatureHistory>
+                    <mat-option [value]=true>Enabled</mat-option>
+                    <mat-option [value]=false>Disabled</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
     </div>
 
 </mat-dialog-content>

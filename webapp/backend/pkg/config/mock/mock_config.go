@@ -119,6 +119,20 @@ func (mr *MockInterfaceMockRecorder) GetInt64(key interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInt64", reflect.TypeOf((*MockInterface)(nil).GetInt64), key)
 }
 
+// GetIntSlice mocks base method.
+func (m *MockInterface) GetIntSlice(key string) []int {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetIntSlice", key)
+	ret0, _ := ret[0].([]int)
+	return ret0
+}
+
+// GetIntSlice indicates an expected call of GetIntSlice.
+func (mr *MockInterfaceMockRecorder) GetIntSlice(key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIntSlice", reflect.TypeOf((*MockInterface)(nil).GetIntSlice), key)
+}
+
 // GetString mocks base method.
 func (m *MockInterface) GetString(key string) string {
 	m.ctrl.T.Helper()

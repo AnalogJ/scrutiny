@@ -2,13 +2,15 @@ package measurements
 
 import (
 	"fmt"
-	"github.com/analogj/scrutiny/webapp/backend/pkg"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"log"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 )
 
 type Smart struct {
@@ -100,8 +102,8 @@ func NewSmartFromInfluxDB(attrs map[string]interface{}) (*Smart, error) {
 	return &sm, nil
 }
 
-//Parse Collector SMART data results and create Smart object (and associated SmartAtaAttribute entries)
-func (sm *Smart) FromCollectorSmartInfo(wwn string, info collector.SmartInfo) error {
+// Parse Collector SMART data results and create Smart object (and associated SmartAtaAttribute entries)
+func (sm *Smart) FromCollectorSmartInfo(cfg config.Interface, wwn string, info collector.SmartInfo) error {
 	sm.DeviceWWN = wwn
 	sm.Date = time.Unix(info.LocalTime.TimeT, 0)
 
@@ -117,18 +119,18 @@ func (sm *Smart) FromCollectorSmartInfo(wwn string, info collector.SmartInfo) er
 	// process ATA/NVME/SCSI protocol data
 	sm.Attributes = map[string]SmartAttribute{}
 	if sm.DeviceProtocol == pkg.DeviceProtocolAta {
-		sm.ProcessAtaSmartInfo(info.AtaSmartAttributes.Table)
+		sm.ProcessAtaSmartInfo(cfg, info.AtaSmartAttributes.Table)
 	} else if sm.DeviceProtocol == pkg.DeviceProtocolNvme {
 		sm.ProcessNvmeSmartInfo(info.NvmeSmartHealthInformationLog)
 	} else if sm.DeviceProtocol == pkg.DeviceProtocolScsi {
-		sm.ProcessScsiSmartInfo(info.ScsiGrownDefectList, info.ScsiErrorCounterLog)
+		sm.ProcessScsiSmartInfo(info.ScsiGrownDefectList, info.ScsiErrorCounterLog, info.ScsiEnvironmentalReports)
 	}
 
 	return nil
 }
 
-//generate SmartAtaAttribute entries from Scrutiny Collector Smart data.
-func (sm *Smart) ProcessAtaSmartInfo(tableItems []collector.AtaSmartAttributesTableItem) {
+// generate SmartAtaAttribute entries from Scrutiny Collector Smart data.
+func (sm *Smart) ProcessAtaSmartInfo(cfg config.Interface, tableItems []collector.AtaSmartAttributesTableItem) {
 	for _, collectorAttr := range tableItems {
 		attrModel := SmartAtaAttribute{
 			AttributeId: collectorAttr.ID,
@@ -149,13 +151,25 @@ func (sm *Smart) ProcessAtaSmartInfo(tableItems []collector.AtaSmartAttributesTa
 		attrModel.PopulateAttributeStatus()
 		sm.Attributes[strconv.Itoa(collectorAttr.ID)] = &attrModel
 
-		if pkg.AttributeStatusHas(attrModel.Status, pkg.AttributeStatusFailedScrutiny) {
+		var transient bool
+
+		if cfg != nil {
+			transients := cfg.GetIntSlice("failures.transient.ata")
+			for i := range transients {
+				if collectorAttr.ID == transients[i] {
+					transient = true
+					break
+				}
+			}
+		}
+
+		if pkg.AttributeStatusHas(attrModel.Status, pkg.AttributeStatusFailedScrutiny) && !transient {
 			sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
 		}
 	}
 }
 
-//generate SmartNvmeAttribute entries from Scrutiny Collector Smart data.
+// generate SmartNvmeAttribute entries from Scrutiny Collector Smart data.
 func (sm *Smart) ProcessNvmeSmartInfo(nvmeSmartHealthInformationLog collector.NvmeSmartHealthInformationLog) {
 
 	sm.Attributes = map[string]SmartAttribute{
@@ -185,9 +199,11 @@ func (sm *Smart) ProcessNvmeSmartInfo(nvmeSmartHealthInformationLog collector.Nv
 	}
 }
 
-//generate SmartScsiAttribute entries from Scrutiny Collector Smart data.
-func (sm *Smart) ProcessScsiSmartInfo(defectGrownList int64, scsiErrorCounterLog collector.ScsiErrorCounterLog) {
+// generate SmartScsiAttribute entries from Scrutiny Collector Smart data.
+func (sm *Smart) ProcessScsiSmartInfo(defectGrownList int64, scsiErrorCounterLog collector.ScsiErrorCounterLog, temperature map[string]collector.ScsiTemperatureData) {
 	sm.Attributes = map[string]SmartAttribute{
+		"temperature": (&SmartNvmeAttribute{AttributeId: "temperature", Value: getScsiTemperature(temperature), Threshold: -1}).PopulateAttributeStatus(),
+
 		"scsi_grown_defect_list":                     (&SmartScsiAttribute{AttributeId: "scsi_grown_defect_list", Value: defectGrownList, Threshold: 0}).PopulateAttributeStatus(),
 		"read_errors_corrected_by_eccfast":           (&SmartScsiAttribute{AttributeId: "read_errors_corrected_by_eccfast", Value: scsiErrorCounterLog.Read.ErrorsCorrectedByEccfast, Threshold: -1}).PopulateAttributeStatus(),
 		"read_errors_corrected_by_eccdelayed":        (&SmartScsiAttribute{AttributeId: "read_errors_corrected_by_eccdelayed", Value: scsiErrorCounterLog.Read.ErrorsCorrectedByEccdelayed, Threshold: -1}).PopulateAttributeStatus(),
@@ -209,4 +225,13 @@ func (sm *Smart) ProcessScsiSmartInfo(defectGrownList int64, scsiErrorCounterLog
 			sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
 		}
 	}
+}
+
+func getScsiTemperature(s map[string]collector.ScsiTemperatureData) int64 {
+	temp, ok := s["temperature_1"]
+	if !ok {
+		return 0
+	}
+
+	return temp.Current
 }

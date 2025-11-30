@@ -7,6 +7,7 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/metrics"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/notify"
 	"github.com/gin-gonic/gin"
@@ -61,7 +62,7 @@ func UploadDeviceMetrics(c *gin.Context) {
 	}
 
 	// save smart temperature data (ignore failures)
-	err = deviceRepo.SaveSmartTemperature(c, c.Param("wwn"), updatedDevice.DeviceProtocol, collectorSmartData)
+	err = deviceRepo.SaveSmartTemperature(c, c.Param("wwn"), updatedDevice.DeviceProtocol, collectorSmartData, appConfig.GetBool(fmt.Sprintf("%s.collector.retrieve_sct_temperature_history", config.DB_USER_SETTINGS_SUBKEY)))
 	if err != nil {
 		logger.Errorln("An error occurred while saving smartctl temp data", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
@@ -88,6 +89,13 @@ func UploadDeviceMetrics(c *gin.Context) {
 			false,
 		)
 		_ = liveNotify.Send() //we ignore error message when sending notifications.
+	}
+
+	// Update Prometheus metrics (if enabled)
+	if collectorVal, exists := c.Get("METRICS_COLLECTOR"); exists {
+		if collector, ok := collectorVal.(*metrics.Collector); ok && collector != nil {
+			collector.UpdateDeviceMetrics(c.Param("wwn"), updatedDevice, smartData)
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
