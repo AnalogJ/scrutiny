@@ -54,6 +54,10 @@ export interface AppConfig {
     line_stroke?: LineStroke;
 
     // Settings from Scrutiny API
+    
+    collector?: {
+        retrieve_sct_temperature_history?: boolean
+    }
 
     metrics?: {
         notify_level?: MetricsNotifyLevel
@@ -84,6 +88,10 @@ export const appConfig: AppConfig = {
     powered_on_hours_unit: 'humanize',
 
     line_stroke: 'smooth',
+    
+    collector: {
+        retrieve_sct_temperature_history : true,
+    },
 
     metrics: {
         notify_level: MetricsNotifyLevel.Fail,

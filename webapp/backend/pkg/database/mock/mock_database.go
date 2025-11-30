@@ -228,17 +228,17 @@ func (mr *MockDeviceRepoMockRecorder) SaveSmartAttributes(ctx, wwn, collectorSma
 }
 
 // SaveSmartTemperature mocks base method.
-func (m *MockDeviceRepo) SaveSmartTemperature(ctx context.Context, wwn, deviceProtocol string, collectorSmartData collector.SmartInfo) error {
+func (m *MockDeviceRepo) SaveSmartTemperature(ctx context.Context, wwn, deviceProtocol string, collectorSmartData collector.SmartInfo, retrieveSCTTemperatureHistory bool) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveSmartTemperature", ctx, wwn, deviceProtocol, collectorSmartData)
+	ret := m.ctrl.Call(m, "SaveSmartTemperature", ctx, wwn, deviceProtocol, collectorSmartData, retrieveSCTTemperatureHistory)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SaveSmartTemperature indicates an expected call of SaveSmartTemperature.
-func (mr *MockDeviceRepoMockRecorder) SaveSmartTemperature(ctx, wwn, deviceProtocol, collectorSmartData interface{}) *gomock.Call {
+func (mr *MockDeviceRepoMockRecorder) SaveSmartTemperature(ctx, wwn, deviceProtocol, collectorSmartData, retrieveSCTTemperatureHistory interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveSmartTemperature", reflect.TypeOf((*MockDeviceRepo)(nil).SaveSmartTemperature), ctx, wwn, deviceProtocol, collectorSmartData)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveSmartTemperature", reflect.TypeOf((*MockDeviceRepo)(nil).SaveSmartTemperature), ctx, wwn, deviceProtocol, collectorSmartData, retrieveSCTTemperatureHistory)
 }
 
 // UpdateDevice mocks base method.
