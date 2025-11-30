@@ -123,7 +123,7 @@ func (sm *Smart) FromCollectorSmartInfo(cfg config.Interface, wwn string, info c
 	} else if sm.DeviceProtocol == pkg.DeviceProtocolNvme {
 		sm.ProcessNvmeSmartInfo(info.NvmeSmartHealthInformationLog)
 	} else if sm.DeviceProtocol == pkg.DeviceProtocolScsi {
-		sm.ProcessScsiSmartInfo(info.ScsiGrownDefectList, info.ScsiErrorCounterLog)
+		sm.ProcessScsiSmartInfo(info.ScsiGrownDefectList, info.ScsiErrorCounterLog, info.ScsiEnvironmentalReports)
 	}
 
 	return nil
@@ -200,8 +200,10 @@ func (sm *Smart) ProcessNvmeSmartInfo(nvmeSmartHealthInformationLog collector.Nv
 }
 
 // generate SmartScsiAttribute entries from Scrutiny Collector Smart data.
-func (sm *Smart) ProcessScsiSmartInfo(defectGrownList int64, scsiErrorCounterLog collector.ScsiErrorCounterLog) {
+func (sm *Smart) ProcessScsiSmartInfo(defectGrownList int64, scsiErrorCounterLog collector.ScsiErrorCounterLog, temperature map[string]collector.ScsiTemperatureData) {
 	sm.Attributes = map[string]SmartAttribute{
+		"temperature": (&SmartNvmeAttribute{AttributeId: "temperature", Value: getScsiTemperature(temperature), Threshold: -1}).PopulateAttributeStatus(),
+
 		"scsi_grown_defect_list":                     (&SmartScsiAttribute{AttributeId: "scsi_grown_defect_list", Value: defectGrownList, Threshold: 0}).PopulateAttributeStatus(),
 		"read_errors_corrected_by_eccfast":           (&SmartScsiAttribute{AttributeId: "read_errors_corrected_by_eccfast", Value: scsiErrorCounterLog.Read.ErrorsCorrectedByEccfast, Threshold: -1}).PopulateAttributeStatus(),
 		"read_errors_corrected_by_eccdelayed":        (&SmartScsiAttribute{AttributeId: "read_errors_corrected_by_eccdelayed", Value: scsiErrorCounterLog.Read.ErrorsCorrectedByEccdelayed, Threshold: -1}).PopulateAttributeStatus(),
@@ -223,4 +225,13 @@ func (sm *Smart) ProcessScsiSmartInfo(defectGrownList int64, scsiErrorCounterLog
 			sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
 		}
 	}
+}
+
+func getScsiTemperature(s map[string]collector.ScsiTemperatureData) int64 {
+	temp, ok := s["temperature_1"]
+	if !ok {
+		return 0
+	}
+
+	return temp.Current
 }
