@@ -234,6 +234,13 @@ func (n *Notify) Send() error {
 
 	//retrieve list of notification endpoints from config file
 	configUrls := n.Config.GetStringSlice("notify.urls")
+	configString := n.Config.GetString("notify.urls")
+	var jsonConfig []string
+	err := json.Unmarshal([]byte(configString), &jsonConfig)
+	if err == nil {
+		configUrls = jsonConfig
+	}
+
 	n.Logger.Debugf("Configured notification services: %v", configUrls)
 
 	if len(configUrls) == 0 {
