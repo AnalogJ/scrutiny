@@ -52,6 +52,9 @@ func (c *configuration) Init() error {
 	c.SetDefault("web.influxdb.tls.insecure_skip_verify", false)
 	c.SetDefault("web.influxdb.retention_policy", true)
 
+	// SMART handling overrides
+	c.SetDefault("smart.attribute_overrides", []map[string]interface{}{})
+
 	//c.SetDefault("disks.include", []string{})
 	//c.SetDefault("disks.exclude", []string{})
 
