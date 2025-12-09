@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/analogj/scrutiny/collector/pkg/models"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -9,7 +10,7 @@ import (
 // mockgen -source=collector/pkg/config/interface.go -destination=collector/pkg/config/mock/mock_config.go
 type Interface interface {
 	Init() error
-	ReadConfig(configFilePath string) error
+	ReadConfig(configFilePath string, logger *logrus.Entry) error
 	Set(key string, value interface{})
 	SetDefault(key string, value interface{})
 

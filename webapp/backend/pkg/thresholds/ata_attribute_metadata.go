@@ -424,11 +424,11 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 	},
 	177: {
 		ID:          177,
-		DisplayName: "Wear Range Delta",
+		DisplayName: "Wear Leveling Count",
 		DisplayType: AtaSmartAttributeDisplayTypeNormalized,
-		Ideal:       "",
-		Critical:    false,
-		Description: "Delta between most-worn and least-worn Flash blocks. It describes how good/bad the wearleveling of the SSD works on a more technical way. ",
+		Ideal:       "high",
+		Critical:    true,
+		Description: "Indicates the number of media program and erase operations (wear indicator) on SSD flash memory. Higher normalized values are better (100 = new, decreasing = more wear). Used by Samsung, Crucial, and other SSD manufacturers.",
 	},
 	179: {
 		ID:          179,
@@ -692,6 +692,12 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 			return rawValue
 		},
 		ObservedThresholds: []ObservedThreshold{
+			{
+				Low:               0,
+				High:              0,
+				AnnualFailureRate: 0.024893587674442153,
+				ErrorInterval:     []float64{0.020857343769186413, 0.0294830350167543},
+			},
 			{
 				Low: 0,
 				// This is set arbitrarily to avoid notifications caused by low

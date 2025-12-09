@@ -9,6 +9,7 @@ import (
 
 	config "github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	gomock "github.com/golang/mock/gomock"
+	logrus "github.com/sirupsen/logrus"
 	viper "github.com/spf13/viper"
 )
 
@@ -204,17 +205,17 @@ func (mr *MockInterfaceMockRecorder) MergeConfigMap(cfg interface{}) *gomock.Cal
 }
 
 // ReadConfig mocks base method.
-func (m *MockInterface) ReadConfig(configFilePath string) error {
+func (m *MockInterface) ReadConfig(configFilePath string, logger *logrus.Entry) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReadConfig", configFilePath)
+	ret := m.ctrl.Call(m, "ReadConfig", configFilePath, logger)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ReadConfig indicates an expected call of ReadConfig.
-func (mr *MockInterfaceMockRecorder) ReadConfig(configFilePath interface{}) *gomock.Call {
+func (mr *MockInterfaceMockRecorder) ReadConfig(configFilePath, logger interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadConfig", reflect.TypeOf((*MockInterface)(nil).ReadConfig), configFilePath)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadConfig", reflect.TypeOf((*MockInterface)(nil).ReadConfig), configFilePath, logger)
 }
 
 // Set mocks base method.

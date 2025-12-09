@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -8,7 +9,7 @@ import (
 // mockgen -source=webapp/backend/pkg/config/interface.go -destination=webapp/backend/pkg/config/mock/mock_config.go
 type Interface interface {
 	Init() error
-	ReadConfig(configFilePath string) error
+	ReadConfig(configFilePath string, logger *logrus.Entry) error
 	WriteConfig() error
 	Set(key string, value interface{})
 	SetDefault(key string, value interface{})
