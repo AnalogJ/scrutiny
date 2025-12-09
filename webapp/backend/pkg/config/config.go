@@ -1,12 +1,12 @@
 package config
 
 import (
-	"log"
 	"os"
 	"strings"
 
 	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -86,7 +86,7 @@ func (c *configuration) Sub(key string) Interface {
 	return &config
 }
 
-func (c *configuration) ReadConfig(configFilePath string) error {
+func (c *configuration) ReadConfig(configFilePath string, logger *logrus.Entry) error {
 	//make sure that we specify that this is the correct config path (for eventual WriteConfig() calls)
 	c.SetConfigFile(configFilePath)
 
@@ -96,22 +96,22 @@ func (c *configuration) ReadConfig(configFilePath string) error {
 	}
 
 	if !utils.FileExists(configFilePath) {
-		log.Printf("No configuration file found at %v. Using Defaults.", configFilePath)
+		logger.Infof("No configuration file found at %v. Using Defaults.", configFilePath)
 		return errors.ConfigFileMissingError("The configuration file could not be found.")
 	}
 
 	//validate config file contents
 	//err = c.ValidateConfigFile(configFilePath)
 	//if err != nil {
-	//	log.Printf("Config file at `%v` is invalid: %s", configFilePath, err)
+	//	logger.Errorf("Config file at `%v` is invalid: %s", configFilePath, err)
 	//	return err
 	//}
 
-	log.Printf("Loading configuration file: %s", configFilePath)
+	logger.Infof("Loading configuration file: %s", configFilePath)
 
 	config_data, err := os.Open(configFilePath)
 	if err != nil {
-		log.Printf("Error reading configuration file: %s", err)
+		logger.Errorf("Error reading configuration file: %s", err)
 		return err
 	}
 

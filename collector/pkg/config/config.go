@@ -2,15 +2,16 @@ package config
 
 import (
 	"fmt"
+	"os"
+	"sort"
+	"strings"
+
 	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/collector/pkg/errors"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/mitchellh/mapstructure"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"log"
-	"os"
-	"sort"
-	"strings"
 )
 
 // When initializing this class the following methods must be called:
@@ -67,29 +68,29 @@ func (c *configuration) Init() error {
 	return nil
 }
 
-func (c *configuration) ReadConfig(configFilePath string) error {
+func (c *configuration) ReadConfig(configFilePath string, logger *logrus.Entry) error {
 	configFilePath, err := utils.ExpandPath(configFilePath)
 	if err != nil {
 		return err
 	}
 
 	if !utils.FileExists(configFilePath) {
-		log.Printf("No configuration file found at %v. Using Defaults.", configFilePath)
+		logger.Infof("No configuration file found at %v. Using Defaults.", configFilePath)
 		return errors.ConfigFileMissingError("The configuration file could not be found.")
 	}
 
 	//validate config file contents
 	//err = c.ValidateConfigFile(configFilePath)
 	//if err != nil {
-	//	log.Printf("Config file at `%v` is invalid: %s", configFilePath, err)
+	//	logger.Errorf("Config file at `%v` is invalid: %s", configFilePath, err)
 	//	return err
 	//}
 
-	log.Printf("Loading configuration file: %s", configFilePath)
+	logger.Infof("Loading configuration file: %s", configFilePath)
 
 	config_data, err := os.Open(configFilePath)
 	if err != nil {
-		log.Printf("Error reading configuration file: %s", err)
+		logger.Errorf("Error reading configuration file: %s", err)
 		return err
 	}
 

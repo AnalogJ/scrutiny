@@ -3,11 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/analogj/scrutiny/collector/pkg/collector"
-	"github.com/analogj/scrutiny/collector/pkg/config"
-	"github.com/analogj/scrutiny/collector/pkg/errors"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
-	"github.com/sirupsen/logrus"
 	"io"
 	"log"
 	"os"
@@ -15,7 +10,12 @@ import (
 	"time"
 
 	utils "github.com/analogj/go-util/utils"
+	"github.com/analogj/scrutiny/collector/pkg/collector"
+	"github.com/analogj/scrutiny/collector/pkg/config"
+	"github.com/analogj/scrutiny/collector/pkg/errors"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
 	"github.com/fatih/color"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
 
@@ -36,9 +36,13 @@ func main() {
 		configFilePath = configFilePathAlternative
 	}
 
+	// Create a bootstrap logger for config loading (before config-based logger is available)
+	bootstrapLogger := logrus.WithFields(logrus.Fields{"type": "metrics"})
+	bootstrapLogger.Logger.SetLevel(logrus.InfoLevel)
+
 	//we're going to load the config file manually, since we need to validate it.
-	err = config.ReadConfig(configFilePath) // Find and read the config file
-	if _, ok := err.(errors.ConfigFileMissingError); ok {          // Handle errors reading the config file
+	err = config.ReadConfig(configFilePath, bootstrapLogger) // Find and read the config file
+	if _, ok := err.(errors.ConfigFileMissingError); ok {    // Handle errors reading the config file
 		//ignore "could not find config file"
 	} else if err != nil {
 		os.Exit(1)
@@ -100,8 +104,8 @@ OPTIONS:
 				Usage: "Run the scrutiny smartctl metrics collector",
 				Action: func(c *cli.Context) error {
 					if c.IsSet("config") {
-						err = config.ReadConfig(c.String("config")) // Find and read the config file
-						if err != nil {                             // Handle errors reading the config file
+						err = config.ReadConfig(c.String("config"), bootstrapLogger) // Find and read the config file
+						if err != nil {                                              // Handle errors reading the config file
 							//ignore "could not find config file"
 							fmt.Printf("Could not find config file at specified path: %s", c.String("config"))
 							return err

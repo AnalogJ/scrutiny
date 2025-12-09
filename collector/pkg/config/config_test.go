@@ -1,12 +1,18 @@
 package config_test
 
 import (
-	"github.com/analogj/scrutiny/collector/pkg/config"
-	"github.com/analogj/scrutiny/collector/pkg/models"
-	"github.com/stretchr/testify/require"
 	"path"
 	"testing"
+
+	"github.com/analogj/scrutiny/collector/pkg/config"
+	"github.com/analogj/scrutiny/collector/pkg/models"
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/require"
 )
+
+func testLogger() *logrus.Entry {
+	return logrus.WithFields(logrus.Fields{"type": "test"})
+}
 
 func TestConfiguration_InvalidConfigPath(t *testing.T) {
 	t.Parallel()
@@ -15,7 +21,7 @@ func TestConfiguration_InvalidConfigPath(t *testing.T) {
 	testConfig, _ := config.Create()
 
 	//test
-	err := testConfig.ReadConfig("does_not_exist.yaml")
+	err := testConfig.ReadConfig("does_not_exist.yaml", testLogger())
 
 	//assert
 	require.Error(t, err, "should return an error")
@@ -28,7 +34,7 @@ func TestConfiguration_GetScanOverrides_Simple(t *testing.T) {
 	testConfig, _ := config.Create()
 
 	//test
-	err := testConfig.ReadConfig(path.Join("testdata", "simple_device.yaml"))
+	err := testConfig.ReadConfig(path.Join("testdata", "simple_device.yaml"), testLogger())
 	require.NoError(t, err, "should correctly load simple device config")
 	scanOverrides := testConfig.GetDeviceOverrides()
 
@@ -44,7 +50,7 @@ func TestConfiguration_GetScanOverrides_DeviceTypeComma(t *testing.T) {
 	testConfig, _ := config.Create()
 
 	//test
-	err := testConfig.ReadConfig(path.Join("testdata", "device_type_comma.yaml"))
+	err := testConfig.ReadConfig(path.Join("testdata", "device_type_comma.yaml"), testLogger())
 	require.NoError(t, err, "should correctly load simple device config")
 	scanOverrides := testConfig.GetDeviceOverrides()
 
@@ -62,7 +68,7 @@ func TestConfiguration_GetScanOverrides_Ignore(t *testing.T) {
 	testConfig, _ := config.Create()
 
 	//test
-	err := testConfig.ReadConfig(path.Join("testdata", "ignore_device.yaml"))
+	err := testConfig.ReadConfig(path.Join("testdata", "ignore_device.yaml"), testLogger())
 	require.NoError(t, err, "should correctly load ignore device config")
 	scanOverrides := testConfig.GetDeviceOverrides()
 
@@ -77,7 +83,7 @@ func TestConfiguration_GetScanOverrides_Raid(t *testing.T) {
 	testConfig, _ := config.Create()
 
 	//test
-	err := testConfig.ReadConfig(path.Join("testdata", "raid_device.yaml"))
+	err := testConfig.ReadConfig(path.Join("testdata", "raid_device.yaml"), testLogger())
 	require.NoError(t, err, "should correctly load ignore device config")
 	scanOverrides := testConfig.GetDeviceOverrides()
 
@@ -102,7 +108,7 @@ func TestConfiguration_InvalidCommands_MissingJson(t *testing.T) {
 	testConfig, _ := config.Create()
 
 	//test
-	err := testConfig.ReadConfig(path.Join("testdata", "invalid_commands_missing_json.yaml"))
+	err := testConfig.ReadConfig(path.Join("testdata", "invalid_commands_missing_json.yaml"), testLogger())
 	require.EqualError(t, err, `ConfigValidationError: "configuration key 'commands.metrics_scan_args' is missing '--json' flag"`, "should throw an error because json flag is missing")
 }
 
@@ -113,7 +119,7 @@ func TestConfiguration_InvalidCommands_IncludesDevice(t *testing.T) {
 	testConfig, _ := config.Create()
 
 	//test
-	err := testConfig.ReadConfig(path.Join("testdata", "invalid_commands_includes_device.yaml"))
+	err := testConfig.ReadConfig(path.Join("testdata", "invalid_commands_includes_device.yaml"), testLogger())
 	require.EqualError(t, err, `ConfigValidationError: "configuration key 'commands.metrics_info_args' must not contain '--device' or '-d' flag, configuration key 'commands.metrics_smart_args' must not contain '--device' or '-d' flag"`, "should throw an error because device flags detected")
 }
 
@@ -124,7 +130,7 @@ func TestConfiguration_OverrideCommands(t *testing.T) {
 	testConfig, _ := config.Create()
 
 	//test
-	err := testConfig.ReadConfig(path.Join("testdata", "override_commands.yaml"))
+	err := testConfig.ReadConfig(path.Join("testdata", "override_commands.yaml"), testLogger())
 	require.NoError(t, err, "should not throw an error")
 	require.Equal(t, "--xall --json -T permissive", testConfig.GetString("commands.metrics_smart_args"))
 }
@@ -136,7 +142,7 @@ func TestConfiguration_OverrideDeviceCommands_MetricsInfoArgs(t *testing.T) {
 	testConfig, _ := config.Create()
 
 	//test
-	err := testConfig.ReadConfig(path.Join("testdata", "override_device_commands.yaml"))
+	err := testConfig.ReadConfig(path.Join("testdata", "override_device_commands.yaml"), testLogger())
 	require.NoError(t, err, "should correctly override device command")
 
 	//assert
@@ -152,7 +158,7 @@ func TestConfiguration_DeviceAllowList(t *testing.T) {
 		testConfig, err := config.Create()
 		require.NoError(t, err)
 
-		require.NoError(t, testConfig.ReadConfig(path.Join("testdata", "allow_listed_devices_present.yaml")))
+		require.NoError(t, testConfig.ReadConfig(path.Join("testdata", "allow_listed_devices_present.yaml"), testLogger()))
 
 		require.True(t, testConfig.IsAllowlistedDevice("/dev/sda"), "/dev/sda should be allow listed")
 		require.False(t, testConfig.IsAllowlistedDevice("/dev/sdc"), "/dev/sda should not be allow listed")
@@ -163,7 +169,7 @@ func TestConfiguration_DeviceAllowList(t *testing.T) {
 		require.NoError(t, err)
 
 		// Really just any other config where the key is full missing
-		require.NoError(t, testConfig.ReadConfig(path.Join("testdata", "override_device_commands.yaml")))
+		require.NoError(t, testConfig.ReadConfig(path.Join("testdata", "override_device_commands.yaml"), testLogger()))
 
 		// Anything should be allow listed if the key isnt there
 		require.True(t, testConfig.IsAllowlistedDevice("/dev/sda"), "/dev/sda should be allow listed")
