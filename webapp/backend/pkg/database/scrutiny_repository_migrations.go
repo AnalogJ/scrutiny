@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
@@ -436,7 +437,18 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 	})
 
 	if err := m.Migrate(); err != nil {
-		sr.logger.Errorf("Database migration failed with error. \n Please open a github issue at https://github.com/AnalogJ/scrutiny and attach a copy of your scrutiny.db file. \n %v", err)
+		if strings.Contains(err.Error(), "readonly database") ||
+			strings.Contains(err.Error(), "attempt to write") {
+			sr.logger.Errorf("Database migration failed: unable to write to database.\n\n"+
+				"This error commonly occurs in Docker containers with restricted capabilities.\n"+
+				"Solutions:\n"+
+				"1. Check file permissions on the database directory\n"+
+				"2. If using 'cap_drop: [ALL]', add necessary capabilities back\n"+
+				"3. Verify the volume mount has correct ownership\n\n"+
+				"Original error: %v", err)
+		} else {
+			sr.logger.Errorf("Database migration failed with error.\nPlease open a github issue at https://github.com/Starosdev/scrutiny and attach a copy of your scrutiny.db file.\n%v", err)
+		}
 		return err
 	}
 	sr.logger.Infoln("Database migration completed successfully")
@@ -459,7 +471,18 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 	})
 
 	if err := gm.Migrate(); err != nil {
-		sr.logger.Errorf("SQLite global configuration migrations failed with error. \n Please open a github issue at https://github.com/AnalogJ/scrutiny and attach a copy of your scrutiny.db file. \n %v", err)
+		if strings.Contains(err.Error(), "readonly database") ||
+			strings.Contains(err.Error(), "attempt to write") {
+			sr.logger.Errorf("SQLite global configuration migrations failed: unable to write to database.\n\n"+
+				"This error commonly occurs in Docker containers with restricted capabilities.\n"+
+				"Solutions:\n"+
+				"1. Check file permissions on the database directory\n"+
+				"2. If using 'cap_drop: [ALL]', add necessary capabilities back\n"+
+				"3. Verify the volume mount has correct ownership\n\n"+
+				"Original error: %v", err)
+		} else {
+			sr.logger.Errorf("SQLite global configuration migrations failed with error.\nPlease open a github issue at https://github.com/Starosdev/scrutiny and attach a copy of your scrutiny.db file.\n%v", err)
+		}
 		return err
 	}
 	sr.logger.Infoln("SQLite global configuration migrations completed successfully")

@@ -36,6 +36,7 @@ func (c *configuration) Init() error {
 	c.SetDefault("web.listen.basepath", "")
 	c.SetDefault("web.src.frontend.path", "/opt/scrutiny/web")
 	c.SetDefault("web.database.location", "/opt/scrutiny/config/scrutiny.db")
+	c.SetDefault("web.database.journal_mode", "WAL")
 
 	c.SetDefault("log.level", "INFO")
 	c.SetDefault("log.file", "")

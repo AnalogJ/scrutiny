@@ -30,6 +30,10 @@ web:
   database:
     # can also set absolute path here
     location: /opt/scrutiny/config/scrutiny.db
+    # SQLite journal mode: WAL (default), DELETE, TRUNCATE, PERSIST, MEMORY, OFF
+    # WAL mode is recommended for Docker containers with restricted capabilities (cap_drop: [ALL])
+    # If you experience database issues with WAL mode on network filesystems (NFS), try DELETE mode
+    # journal_mode: WAL
   src:
     # the location on the filesystem where scrutiny javascript + css is located
     frontend:

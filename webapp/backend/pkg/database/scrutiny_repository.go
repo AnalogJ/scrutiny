@@ -5,6 +5,12 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/glebarez/sqlite"
@@ -13,10 +19,6 @@ import (
 	"github.com/influxdata/influxdb-client-go/v2/domain"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"time"
 )
 
 const (
@@ -74,8 +76,21 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 	// https://rsqlite.r-dbi.org/reference/sqlitesetbusyhandler
 	// retrying for 30000 milliseconds, 30seconds - this would be unreasonable for a distributed multi-tenant application,
 	// but should be fine for local usage.
+	//
+	// WAL (Write-Ahead Logging) mode is used by default to reduce filesystem operations and improve
+	// compatibility with Docker containers running with restricted capabilities (cap_drop: [ALL]).
+	// fixes #772 (upstream), #25
+	// https://www.sqlite.org/wal.html
+	journalMode := appConfig.GetString("web.database.journal_mode")
+	if journalMode == "" {
+		journalMode = "WAL"
+	}
+
 	pragmaStr := sqlitePragmaString(map[string]string{
 		"busy_timeout": "30000",
+		"journal_mode": journalMode,
+		"temp_store":   "MEMORY",
+		"synchronous":  "NORMAL",
 	})
 	database, err := gorm.Open(sqlite.Open(appConfig.GetString("web.database.location")+pragmaStr), &gorm.Config{
 		//TODO: figure out how to log database queries again.
@@ -83,6 +98,15 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "readonly database") ||
+			strings.Contains(err.Error(), "attempt to write") {
+			return nil, fmt.Errorf("Database write error: %v\n\n"+
+				"This often occurs when running Docker with 'cap_drop: [ALL]'.\n"+
+				"Solutions:\n"+
+				"1. Ensure database directory has write permissions\n"+
+				"2. If using cap_drop, add: cap_add: [CHOWN, DAC_OVERRIDE, FOWNER]\n"+
+				"3. Set 'web.database.journal_mode: DELETE' in scrutiny.yaml if WAL causes issues", err)
+		}
 		return nil, fmt.Errorf("Failed to connect to database! - %v", err)
 	}
 	globalLogger.Infof("Successfully connected to scrutiny sqlite db: %s\n", appConfig.GetString("web.database.location"))
