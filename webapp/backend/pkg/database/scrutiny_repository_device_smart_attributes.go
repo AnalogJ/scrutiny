@@ -37,8 +37,6 @@ func (sr *scrutinyRepository) SaveSmartAttributes(ctx context.Context, wwn strin
 func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn string, durationKey string, selectEntries int, selectEntriesOffset int, attributes []string) ([]measurements.Smart, error) {
 	// Get SMartResults from InfluxDB
 
-	//TODO: change the filter startrange to a real number.
-
 	// Get parser flux query result
 	//appConfig.GetString("web.influxdb.bucket")
 	queryStr := sr.aggregateSmartAttributesQuery(wwn, durationKey, selectEntries, selectEntriesOffset, attributes)
@@ -202,7 +200,7 @@ func (sr *scrutinyRepository) generateSmartAttributesSubquery(wwn string, durati
 		fmt.Sprintf(`|> filter(fn: (r) => r["device_wwn"] == "%s" )`, wwn),
 	}
 
-	partialQueryStr = append(partialQueryStr, `|> aggregateWindow(every: 1d, fn: last, createEmpty: false)`)
+	partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> aggregateWindow(every: %s, fn: last, createEmpty: false)`, RESOLUTION_1_DAY))
 
 	if selectEntries > 0 {
 		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> tail(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))

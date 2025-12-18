@@ -36,6 +36,19 @@ const (
 	DURATION_KEY_MONTH   = "month"
 	DURATION_KEY_YEAR    = "year"
 	DURATION_KEY_FOREVER = "forever"
+
+	// InfluxDB time range literals
+	INFLUX_DURATION_1_DAY    = "-1d"
+	INFLUX_DURATION_1_WEEK   = "-1w"
+	INFLUX_DURATION_1_MONTH  = "-1mo"
+	INFLUX_DURATION_1_YEAR   = "-1y"
+	INFLUX_DURATION_10_YEARS = "-10y"
+	INFLUX_NOW               = "now()"
+
+	// Aggregation window resolutions
+	RESOLUTION_10_MINUTES = "10m"
+	RESOLUTION_1_HOUR     = "1h"
+	RESOLUTION_1_DAY      = "1d"
 )
 
 //// GormLogger is a custom logger for Gorm, making it use logrus.
@@ -491,31 +504,31 @@ func (sr *scrutinyRepository) lookupDuration(durationKey string) []string {
 	switch durationKey {
 	case DURATION_KEY_DAY:
 		//data stored in the last day
-		return []string{"-1d", "now()"}
+		return []string{INFLUX_DURATION_1_DAY, INFLUX_NOW}
 	case DURATION_KEY_WEEK:
 		//data stored in the last week
-		return []string{"-1w", "now()"}
+		return []string{INFLUX_DURATION_1_WEEK, INFLUX_NOW}
 	case DURATION_KEY_MONTH:
 		// data stored in the last month (after the first week)
-		return []string{"-1mo", "-1w"}
+		return []string{INFLUX_DURATION_1_MONTH, INFLUX_DURATION_1_WEEK}
 	case DURATION_KEY_YEAR:
 		// data stored in the last year (after the first month)
-		return []string{"-1y", "-1mo"}
+		return []string{INFLUX_DURATION_1_YEAR, INFLUX_DURATION_1_MONTH}
 	case DURATION_KEY_FOREVER:
 		//data stored before the last year
-		return []string{"-10y", "-1y"}
+		return []string{INFLUX_DURATION_10_YEARS, INFLUX_DURATION_1_YEAR}
 	}
-	return []string{"-1w", "now()"}
+	return []string{INFLUX_DURATION_1_WEEK, INFLUX_NOW}
 }
 
 func (sr *scrutinyRepository) lookupResolution(durationKey string) string {
 	switch durationKey {
 	case DURATION_KEY_DAY:
 		// Return data with higher resolution for daily summaries
-		return "10m"
+		return RESOLUTION_10_MINUTES
 	default:
 		// Return data with 1h resolution for other summaries
-		return "1h"
+		return RESOLUTION_1_HOUR
 	}
 }
 

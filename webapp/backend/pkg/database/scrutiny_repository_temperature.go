@@ -65,7 +65,6 @@ func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context, du
 
 	deviceTempHistory := map[string][]measurements.SmartTemperature{}
 
-	//TODO: change the query range to a variable.
 	queryStr := sr.aggregateTempQuery(durationKey)
 
 	result, err := sr.influxQueryApi.Query(ctx, queryStr)
