@@ -30,7 +30,19 @@ export class TreoMockApiInterceptor implements HttpInterceptor
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>>
     {
         // Try to get the request handler
-        const requestHandler: TreoMockApiRequestHandler = this._treoMockApiService.requestHandlers[request.method.toLowerCase()].get(request.url);
+        let urlPath = request.url;
+
+        try
+        {
+            const url = new URL(request.url);
+            urlPath = url.pathname;
+        }
+        catch (e)
+        {
+            // relative URL, leave as-is
+        }
+
+        const requestHandler: TreoMockApiRequestHandler = this._treoMockApiService.requestHandlers[request.method.toLowerCase()].get(urlPath);
 
         // If the request handler exists..
         if ( requestHandler )

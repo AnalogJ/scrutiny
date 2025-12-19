@@ -13,6 +13,7 @@ import {mockDataServices} from 'app/data/mock';
 import {LayoutModule} from 'app/layout/layout.module';
 import {AppComponent} from 'app/app.component';
 import {appRoutes, getAppBaseHref} from 'app/app.routing';
+import {environment} from '../environments/environment';
 
 const routerConfig: ExtraOptions = {
     scrollPositionRestoration: 'enabled',
@@ -25,7 +26,7 @@ let dev = [
 
 // if production clear dev imports and set to prod mode
 // @ts-ignore
-if (process.env.NODE_ENV === 'production') {
+if (environment.production) {
     dev = [];
     enableProdMode();
 }
