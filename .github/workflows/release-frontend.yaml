@@ -26,6 +26,29 @@ jobs:
           apt-get update && apt-get install -y make
           make binary-frontend
           tar -czf scrutiny-web-frontend.tar.gz dist
+
+      - name: Install GitHub CLI
+        run: |
+          apt-get install -y curl
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          apt-get update && apt-get install -y gh
+
+      - name: Update checksums with frontend
+        env:
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          # Download existing checksums file
+          gh release download "$VERSION" --pattern "SHA256SUMS.txt" --repo ${{ github.repository }} || true
+          # Generate checksum for frontend tarball and append
+          sha256sum scrutiny-web-frontend.tar.gz >> SHA256SUMS.txt
+          # Sort for consistency and re-upload
+          sort SHA256SUMS.txt -o SHA256SUMS.txt
+          echo "Updated checksums:"
+          cat SHA256SUMS.txt
+          gh release upload "$VERSION" SHA256SUMS.txt --repo ${{ github.repository }} --clobber
+
       - name: Upload Frontend Asset
         uses: softprops/action-gh-release@v2
         with:
