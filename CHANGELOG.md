@@ -2,6 +2,16 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.2.0](https://github.com/Starosdev/scrutiny/compare/v1.1.2...v1.2.0) (2025-12-19)
+
+### Features
+
+* **ci:** add SHA256 checksums to GitHub releases ([367a2dc](https://github.com/Starosdev/scrutiny/commit/367a2dc27e95cf17b95f4ea672154c0f8d871cbf)), closes [#28](https://github.com/Starosdev/scrutiny/issues/28)
+
+### Bug Fixes
+
+* Frontend Demo Mode now loads ([#57](https://github.com/Starosdev/scrutiny/issues/57)) ([462a0c3](https://github.com/Starosdev/scrutiny/commit/462a0c362ce5a7b8f5f04a81fe3076fbce4073a8))
+
 ## [1.1.2](https://github.com/Starosdev/scrutiny/compare/v1.1.1...v1.1.2) (2025-12-18)
 
 ### Refactoring
