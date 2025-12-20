@@ -94,6 +94,16 @@ func (sr *scrutinyRepository) UpdateDeviceMuted(ctx context.Context, wwn string,
 	return sr.gormClient.Model(&device).Where("wwn = ?", wwn).Update("muted", muted).Error
 }
 
+// Update Device Label (custom user-provided name)
+func (sr *scrutinyRepository) UpdateDeviceLabel(ctx context.Context, wwn string, label string) error {
+	var device models.Device
+	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
+		return fmt.Errorf("Could not get device from DB: %v", err)
+	}
+
+	return sr.gormClient.Model(&device).Where("wwn = ?", wwn).Update("label", label).Error
+}
+
 func (sr *scrutinyRepository) DeleteDevice(ctx context.Context, wwn string) error {
 	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).Delete(&models.Device{}).Error; err != nil {
 		return err

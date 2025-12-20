@@ -120,6 +120,10 @@ func (sm *Smart) FromCollectorSmartInfo(cfg config.Interface, wwn string, info c
 	sm.Attributes = map[string]SmartAttribute{}
 	if sm.DeviceProtocol == pkg.DeviceProtocolAta {
 		sm.ProcessAtaSmartInfo(cfg, info.AtaSmartAttributes.Table)
+		// Also process ATA Device Statistics (GP Log 0x04) for enterprise SSD metrics
+		if len(info.AtaDeviceStatistics.Pages) > 0 {
+			sm.ProcessAtaDeviceStatistics(info)
+		}
 	} else if sm.DeviceProtocol == pkg.DeviceProtocolNvme {
 		sm.ProcessNvmeSmartInfo(info.NvmeSmartHealthInformationLog)
 	} else if sm.DeviceProtocol == pkg.DeviceProtocolScsi {
@@ -165,6 +169,38 @@ func (sm *Smart) ProcessAtaSmartInfo(cfg config.Interface, tableItems []collecto
 
 		if pkg.AttributeStatusHas(attrModel.Status, pkg.AttributeStatusFailedScrutiny) && !transient {
 			sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
+		}
+	}
+}
+
+// ProcessAtaDeviceStatistics extracts device statistics from GP Log 0x04
+// This includes important SSD metrics like "Percentage Used Endurance Indicator" on Page 7
+func (sm *Smart) ProcessAtaDeviceStatistics(deviceStatistics collector.SmartInfo) {
+	for _, page := range deviceStatistics.AtaDeviceStatistics.Pages {
+		for _, stat := range page.Table {
+			// Skip invalid entries
+			if !stat.Flags.Valid {
+				continue
+			}
+
+			// Create a unique attribute ID based on page number and offset
+			// Format: "devstat_<page>_<offset>" e.g., "devstat_7_8" for Percentage Used
+			attrId := fmt.Sprintf("devstat_%d_%d", page.Number, stat.Offset)
+
+			// Use SmartAtaAttribute to store device statistics
+			// These use synthetic IDs (string-based) rather than numeric SMART attribute IDs
+			attrModel := SmartAtaAttribute{
+				AttributeId: 0, // Will use string-based attribute ID in map
+				Value:       stat.Value,
+				RawValue:    stat.Value,
+				RawString:   fmt.Sprintf("%d", stat.Value),
+			}
+
+			// Populate status based on known thresholds
+			attrModel.PopulateAttributeStatus()
+
+			// Add to attributes map with string key
+			sm.Attributes[attrId] = &attrModel
 		}
 	}
 }

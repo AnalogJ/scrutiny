@@ -151,6 +151,33 @@ func TestConfiguration_OverrideDeviceCommands_MetricsInfoArgs(t *testing.T) {
 	//require.Equal(t, []models.ScanOverride{{Device: "/dev/sda", DeviceType: nil, Commands: {MetricsInfoArgs: "--info --json -T "}}}, scanOverrides)
 }
 
+func TestConfiguration_GetAPITimeout_Default(t *testing.T) {
+	t.Parallel()
+
+	//setup
+	testConfig, _ := config.Create()
+
+	//test - should return default timeout of 60 seconds
+	timeout := testConfig.GetAPITimeout()
+
+	//assert
+	require.Equal(t, 60, timeout, "default API timeout should be 60 seconds")
+}
+
+func TestConfiguration_GetAPITimeout_FromConfig(t *testing.T) {
+	t.Parallel()
+
+	//setup
+	testConfig, _ := config.Create()
+	testConfig.Set("api.timeout", 120)
+
+	//test - should return configured timeout
+	timeout := testConfig.GetAPITimeout()
+
+	//assert
+	require.Equal(t, 120, timeout, "API timeout should be configurable")
+}
+
 func TestConfiguration_DeviceAllowList(t *testing.T) {
 	t.Parallel()
 

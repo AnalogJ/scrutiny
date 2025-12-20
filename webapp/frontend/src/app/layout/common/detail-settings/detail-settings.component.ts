@@ -9,11 +9,13 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 export class DetailSettingsComponent implements OnInit {
 
   muted: boolean;
+  label: string;
 
   constructor(
-      @Inject(MAT_DIALOG_DATA) public data: { curMuted: boolean }
+      @Inject(MAT_DIALOG_DATA) public data: { curMuted: boolean, curLabel: string }
   ) {
       this.muted = data.curMuted;
+      this.label = data.curLabel || '';
   }
 
   ngOnInit(): void {

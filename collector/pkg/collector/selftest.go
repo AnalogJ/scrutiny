@@ -1,8 +1,9 @@
 package collector
 
 import (
-	"github.com/sirupsen/logrus"
 	"net/url"
+
+	"github.com/sirupsen/logrus"
 )
 
 type SelfTestCollector struct {
@@ -12,6 +13,8 @@ type SelfTestCollector struct {
 	logger      *logrus.Entry
 }
 
+// CreateSelfTestCollector creates a new SelfTestCollector with a default 60-second timeout
+// TODO: accept config.Interface to use configurable timeout like MetricsCollector
 func CreateSelfTestCollector(logger *logrus.Entry, apiEndpoint string) (SelfTestCollector, error) {
 	apiEndpointUrl, err := url.Parse(apiEndpoint)
 	if err != nil {
@@ -19,6 +22,10 @@ func CreateSelfTestCollector(logger *logrus.Entry, apiEndpoint string) (SelfTest
 	}
 
 	stc := SelfTestCollector{
+		BaseCollector: BaseCollector{
+			logger:     logger,
+			httpClient: NewHTTPClient(60), // Default timeout, will use config when refactored
+		},
 		apiEndpoint: apiEndpointUrl,
 		logger:      logger,
 	}

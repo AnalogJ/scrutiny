@@ -202,6 +202,28 @@ type SmartInfo struct {
 		PowerUpScanResumeMinutes int `json:"power_up_scan_resume_minutes"`
 	} `json:"ata_smart_selective_self_test_log"`
 
+	// ATA Device Statistics (GP Log 0x04) - contains SSD endurance info
+	AtaDeviceStatistics struct {
+		Pages []struct {
+			Number   int    `json:"number"`
+			Name     string `json:"name"`
+			Revision int    `json:"revision"`
+			Table    []struct {
+				Offset int    `json:"offset"`
+				Name   string `json:"name"`
+				Size   int    `json:"size"`
+				Value  int64  `json:"value"`
+				Flags  struct {
+					Value                 int  `json:"value"`
+					Valid                 bool `json:"valid"`
+					Normalized            bool `json:"normalized"`
+					SupportsDsn           bool `json:"supports_dsn"`
+					MonitoredConditionMet bool `json:"monitored_condition_met"`
+				} `json:"flags"`
+			} `json:"table"`
+		} `json:"pages"`
+	} `json:"ata_device_statistics"`
+
 	// NVME Protocol Specific Fields
 	NvmePciVendor struct {
 		ID          int `json:"id"`

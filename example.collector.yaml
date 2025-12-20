@@ -74,6 +74,8 @@ devices:
 #  endpoint: 'http://localhost:8080/custombasepath'
 # if you need to use a custom base path (for a reverse proxy), you can add a suffix to the endpoint.
 #  See docs/TROUBLESHOOTING_REVERSE_PROXY.md for more info,
+#  timeout: 60 # HTTP timeout in seconds for API requests (default: 60)
+# Can also be set via COLLECTOR_API_TIMEOUT environment variable
 
 # example to show how to override the smartctl command args globally
 #commands:

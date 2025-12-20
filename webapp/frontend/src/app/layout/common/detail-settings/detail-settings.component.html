@@ -1,7 +1,15 @@
-<h2 mat-dialog-title>Scrutiny Settings</h2>
+<h2 mat-dialog-title>Device Settings</h2>
 <mat-dialog-content class="mat-typography">
 
     <form class="flex flex-col p-8 pb-0 ">
+        <div class="flex flex-col gt-xs:flex-row">
+            <mat-form-field class="flex-auto gt-xs:pr-3">
+                <mat-label>Custom Label</mat-label>
+                <input matInput [(ngModel)]="label" name="label" placeholder="e.g., Parity 1, Data Drive">
+                <mat-hint>A friendly name to identify this drive</mat-hint>
+            </mat-form-field>
+        </div>
+
         <div class="flex flex-col gt-xs:flex-row">
             <mat-form-field class="flex-auto gt-xs:pr-3">
                 <mat-label>Threshold Data</mat-label>
@@ -26,5 +34,5 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Cancel</button>
-    <button mat-button [mat-dialog-close]="{ muted }" cdkFocusInitial>Save</button>
+    <button mat-button [mat-dialog-close]="{ muted, label }" cdkFocusInitial>Save</button>
 </mat-dialog-actions>

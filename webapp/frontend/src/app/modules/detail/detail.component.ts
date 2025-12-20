@@ -441,16 +441,28 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     openSettingsDialog(): void {
         const dialogRef = this.dialog.open(DetailSettingsComponent, {
+            width: '600px',
             data: {
-                curMuted: this.device.muted
+                curMuted: this.device.muted,
+                curLabel: this.device.label
             },
         });
 
-        dialogRef.afterClosed().subscribe((result: undefined | null | { muted: boolean }) => {
-            console.log('Settings dialog result', result);
+        dialogRef.afterClosed().subscribe((result: undefined | null | { muted: boolean, label: string }) => {
             if (!result) return;
+
+            const promises: Promise<any>[] = [];
+
             if (result.muted !== this.device.muted) {
-                this._detailService.setMuted(this.device.wwn, result.muted).toPromise().then(() => {
+                promises.push(this._detailService.setMuted(this.device.wwn, result.muted).toPromise());
+            }
+
+            if (result.label !== this.device.label) {
+                promises.push(this._detailService.setLabel(this.device.wwn, result.label).toPromise());
+            }
+
+            if (promises.length > 0) {
+                Promise.all(promises).then(() => {
                     return this._detailService.getData(this.device.wwn).toPromise();
                 });
             }

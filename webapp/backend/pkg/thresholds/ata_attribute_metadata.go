@@ -1524,3 +1524,108 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 		Description: "Count of \"Free Fall Events\" detected.",
 	},
 }
+
+// AtaDeviceStatisticsMetadata provides metadata for ATA Device Statistics (GP Log 0x04)
+// These are string-keyed using the format "devstat_<page>_<offset>"
+// Key device statistics pages:
+// - Page 0: General Statistics (power-on hours, logical sectors written/read)
+// - Page 1: Free-fall Statistics
+// - Page 5: Temperature Statistics
+// - Page 7: SSD Statistics (Percentage Used Endurance Indicator)
+type AtaDeviceStatisticsMetadata struct {
+	DisplayName string `json:"display_name"`
+	Ideal       string `json:"ideal"`
+	Critical    bool   `json:"critical"`
+	Description string `json:"description"`
+	DisplayType string `json:"display_type"`
+}
+
+var AtaDeviceStatsMetadata = map[string]AtaDeviceStatisticsMetadata{
+	// Page 7 (Solid State Device Statistics) - most important for SSD health
+	"devstat_7_8": {
+		DisplayName: "Percentage Used Endurance Indicator",
+		Ideal:       ObservedThresholdIdealLow,
+		Critical:    true,
+		Description: "Contains a vendor specific estimate of the percentage of the device life used based on the actual device usage and the manufacturer's prediction of device life. A value of 100 indicates that the estimated endurance of the device has been consumed, but may not indicate a device failure.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	// Page 0 (General Statistics)
+	"devstat_0_8": {
+		DisplayName: "Lifetime Power-On Resets",
+		Ideal:       ObservedThresholdIdealLow,
+		Critical:    false,
+		Description: "Number of power-on reset events since device manufacture.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	"devstat_0_16": {
+		DisplayName: "Power-on Hours (Device Stats)",
+		Ideal:       "",
+		Critical:    false,
+		Description: "Total accumulated power-on time in hours from Device Statistics.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	"devstat_0_24": {
+		DisplayName: "Logical Sectors Written",
+		Ideal:       "",
+		Critical:    false,
+		Description: "Total logical sectors written to the device.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	"devstat_0_32": {
+		DisplayName: "Number of Write Commands",
+		Ideal:       "",
+		Critical:    false,
+		Description: "Total number of write commands processed.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	"devstat_0_40": {
+		DisplayName: "Logical Sectors Read",
+		Ideal:       "",
+		Critical:    false,
+		Description: "Total logical sectors read from the device.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	"devstat_0_48": {
+		DisplayName: "Number of Read Commands",
+		Ideal:       "",
+		Critical:    false,
+		Description: "Total number of read commands processed.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	// Page 5 (Temperature Statistics)
+	"devstat_5_8": {
+		DisplayName: "Current Temperature (Device Stats)",
+		Ideal:       "",
+		Critical:    false,
+		Description: "Current device temperature from Device Statistics.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	"devstat_5_16": {
+		DisplayName: "Average Short-term Temperature",
+		Ideal:       "",
+		Critical:    false,
+		Description: "Average temperature over a short-term period.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	"devstat_5_24": {
+		DisplayName: "Average Long-term Temperature",
+		Ideal:       "",
+		Critical:    false,
+		Description: "Average temperature over a long-term period.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	"devstat_5_32": {
+		DisplayName: "Highest Temperature",
+		Ideal:       "",
+		Critical:    false,
+		Description: "Highest temperature reached since manufacture.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	"devstat_5_40": {
+		DisplayName: "Lowest Temperature",
+		Ideal:       "",
+		Critical:    false,
+		Description: "Lowest temperature reached since manufacture.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+}
