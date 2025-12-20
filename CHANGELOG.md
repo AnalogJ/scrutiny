@@ -2,6 +2,12 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.3.0](https://github.com/Starosdev/scrutiny/compare/v1.2.0...v1.3.0) (2025-12-20)
+
+### Features
+
+* add device label editing and API timeout configuration ([75050d5](https://github.com/Starosdev/scrutiny/commit/75050d57fa28fe59e833c417671667f43effc472))
+
 ## [1.2.0](https://github.com/Starosdev/scrutiny/compare/v1.1.2...v1.2.0) (2025-12-19)
 
 ### Features
