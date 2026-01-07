@@ -4,7 +4,7 @@ Thank you for your interest in contributing to Scrutiny! This is an actively mai
 
 ## Before You Start
 
-- Check the [Linear board](https://linear.app/scrutiny) for existing issues and planned work
+- Check [GitHub Issues](https://github.com/Starosdev/scrutiny/issues) for existing issues and planned work
 - For bug reports or feature requests, please open a GitHub issue first
 - For large changes, please discuss your approach in an issue before starting work
 
