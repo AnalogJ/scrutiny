@@ -689,6 +689,18 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 					return int64(int_pieces[2])
 				}
 			}
+			// Seagate drives use a packed 48-bit format with three 16-bit fields:
+			// Bytes [1-0]: Total command timeout count
+			// Bytes [3-2]: Commands with >5s completion time
+			// Bytes [5-4]: Commands with >7.5s completion time
+			// Reference: https://superuser.com/questions/1747844/interpreting-seagate-smart-value-188-command-timeout-data-format
+			// Reference 2: https://t1.daumcdn.net/brunch/service/user/axm/file/zRYOdwPu3OMoKYmBOby1fEEQEbU.pdf
+			if rawValue > 0xFFFF {
+				// Extract total timeout count from lower 16 bits (bytes 0-1)
+				// This represents all command timeouts regardless of duration
+				total_timeouts := rawValue & 0xFFFF
+				return total_timeouts
+			}
 			return rawValue
 		},
 		ObservedThresholds: []ObservedThreshold{
