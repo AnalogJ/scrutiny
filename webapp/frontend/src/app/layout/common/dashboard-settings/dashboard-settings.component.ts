@@ -87,7 +87,6 @@ export class DashboardSettingsComponent implements OnInit {
             }
         }
         this._configService.config = newSettings
-        console.log(`Saved Settings: ${JSON.stringify(newSettings)}`)
     }
 
     formatLabel(value: number): number {

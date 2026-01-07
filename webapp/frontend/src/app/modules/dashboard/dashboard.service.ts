@@ -49,7 +49,6 @@ export class DashboardService {
     getSummaryData(): Observable<{ [key: string]: DeviceSummaryModel }> {
         return this._httpClient.get(getBasePath() + '/api/summary').pipe(
             map((response: DeviceSummaryResponseWrapper) => {
-                // console.log("FILTERING=----", response.data.summary)
                 return response.data.summary
             }),
             tap((response: { [key: string]: DeviceSummaryModel }) => {
