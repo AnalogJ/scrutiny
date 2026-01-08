@@ -25,7 +25,7 @@ jobs:
         run: |
           apt-get update && apt-get install -y make
           make binary-frontend
-          tar -czf scrutiny-web-frontend.tar.gz dist
+          tar -czf scrutiny-web-frontend.tar.gz -C webapp/frontend/dist treo
 
       - name: Install GitHub CLI
         run: |
