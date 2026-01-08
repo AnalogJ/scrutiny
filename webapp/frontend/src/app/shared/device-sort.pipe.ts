@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
 
 @Pipe({
-  name: 'deviceSort'
+    name: 'deviceSort',
+    standalone: false
 })
 export class DeviceSortPipe implements PipeTransform {
 

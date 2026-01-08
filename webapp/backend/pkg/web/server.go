@@ -70,6 +70,7 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 			api.POST("/device/:wwn/unarchive", handler.UnarchiveDevice) //used by UI to unarchive device
 			api.POST("/device/:wwn/mute", handler.MuteDevice)           //used by UI to mute device
 			api.POST("/device/:wwn/unmute", handler.UnmuteDevice)       //used by UI to unmute device
+			api.POST("/device/:wwn/label", handler.UpdateDeviceLabel)   //used by UI to set device label
 			api.DELETE("/device/:wwn", handler.DeleteDevice)            //used by UI to delete device
 
 			api.GET("/settings", handler.GetSettings)   //used to get settings

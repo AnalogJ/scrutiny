@@ -2,12 +2,13 @@ import { Component, ElementRef, Input, Renderer2, ViewEncapsulation } from '@ang
 import { TreoAnimations } from '@treo/animations';
 
 @Component({
-    selector     : 'treo-card',
-    templateUrl  : './card.component.html',
-    styleUrls    : ['./card.component.scss'],
+    selector: 'treo-card',
+    templateUrl: './card.component.html',
+    styleUrls: ['./card.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    animations   : TreoAnimations,
-    exportAs     : 'treoCard'
+    animations: TreoAnimations,
+    exportAs: 'treoCard',
+    standalone: false
 })
 export class TreoCardComponent
 {

@@ -1,0 +1,14 @@
+services:
+  scrutiny:
+    container_name: scrutiny-prod
+    image: ghcr.io/starosdev/scrutiny:latest
+    cap_add:
+      - SYS_RAWIO
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config/prod:/opt/scrutiny/config
+      - ./influxdb/prod:/opt/scrutiny/influxdb
+    privileged: true
+    environment:
+      - TZ=America/Los_Angeles

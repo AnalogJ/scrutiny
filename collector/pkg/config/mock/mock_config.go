@@ -64,6 +64,20 @@ func (mr *MockInterfaceMockRecorder) Get(key interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockInterface)(nil).Get), key)
 }
 
+// GetAPITimeout mocks base method.
+func (m *MockInterface) GetAPITimeout() int {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAPITimeout")
+	ret0, _ := ret[0].(int)
+	return ret0
+}
+
+// GetAPITimeout indicates an expected call of GetAPITimeout.
+func (mr *MockInterfaceMockRecorder) GetAPITimeout() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAPITimeout", reflect.TypeOf((*MockInterface)(nil).GetAPITimeout))
+}
+
 // GetBool mocks base method.
 func (m *MockInterface) GetBool(key string) bool {
 	m.ctrl.T.Helper()

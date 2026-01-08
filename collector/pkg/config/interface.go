@@ -27,6 +27,7 @@ type Interface interface {
 	GetDeviceOverrides() []models.ScanOverride
 	GetCommandMetricsInfoArgs(deviceName string) string
 	GetCommandMetricsSmartArgs(deviceName string) string
+	GetAPITimeout() int
 
 	IsAllowlistedDevice(deviceName string) bool
 }

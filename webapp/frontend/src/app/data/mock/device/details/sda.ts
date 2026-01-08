@@ -21,7 +21,8 @@ export const sda = {
             'label': '',
             'host_id': '',
             'device_status': 0,
-            'archived': false
+            'archived': false,
+            'muted': false
         },
         'smart_results': [{
             'date': '2021-10-24T23:20:44Z',

@@ -1,4 +1,4 @@
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {DashboardService} from './dashboard.service';
 import {of} from 'rxjs';
 import {summary} from 'app/data/mock/summary/data'

@@ -2,10 +2,11 @@ import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { Subject } from 'rxjs';
 
 @Component({
-    selector     : 'empty-layout',
-    templateUrl  : './empty.component.html',
-    styleUrls    : ['./empty.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    selector: 'empty-layout',
+    templateUrl: './empty.component.html',
+    styleUrls: ['./empty.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class EmptyLayoutComponent implements OnInit, OnDestroy
 {

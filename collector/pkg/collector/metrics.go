@@ -36,7 +36,8 @@ func CreateMetricsCollector(appConfig config.Interface, logger *logrus.Entry, ap
 		config:      appConfig,
 		apiEndpoint: apiEndpointUrl,
 		BaseCollector: BaseCollector{
-			logger: logger,
+			logger:     logger,
+			httpClient: NewHTTPClient(appConfig.GetAPITimeout()),
 		},
 		shell: shell.Create(),
 	}
@@ -159,7 +160,7 @@ func (mc *MetricsCollector) Publish(deviceWWN string, payload []byte) error {
 	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
 	apiEndpoint, _ = apiEndpoint.Parse(fmt.Sprintf("api/device/%s/smart", strings.ToLower(deviceWWN)))
 
-	resp, err := httpClient.Post(apiEndpoint.String(), "application/json", bytes.NewBuffer(payload))
+	resp, err := mc.httpClient.Post(apiEndpoint.String(), "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		mc.logger.Errorf("An error occurred while publishing SMART data for device (%s): %v", deviceWWN, err)
 		return err

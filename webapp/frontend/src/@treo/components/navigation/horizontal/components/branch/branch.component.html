@@ -1,93 +1,97 @@
-<div *ngIf="!child"
-     [ngClass]="{'treo-horizontal-navigation-menu-active': trigger.menuOpen}"
-     [matMenuTriggerFor]="matMenu"
-     (onMenuOpen)="triggerChangeDetection()"
-     (onMenuClose)="triggerChangeDetection()"
-     #trigger="matMenuTrigger">
+@if (!child) {
+  <div
+    [ngClass]="{'treo-horizontal-navigation-menu-active': trigger.menuOpen}"
+    [matMenuTriggerFor]="matMenu"
+    (onMenuOpen)="triggerChangeDetection()"
+    (onMenuClose)="triggerChangeDetection()"
+    #trigger="matMenuTrigger">
     <ng-container *ngTemplateOutlet="itemTemplate; context: {$implicit: item}"></ng-container>
-</div>
+  </div>
+}
 
 <mat-menu class="treo-horizontal-navigation-menu-panel"
-          [overlapTrigger]="false"
-          #matMenu="matMenu">
+  [overlapTrigger]="false"
+  #matMenu="matMenu">
 
-    <ng-container *ngFor="let item of item.children">
-
-        <!-- Skip the hidden items -->
-        <ng-container *ngIf="(item.hidden && !item.hidden(item)) || !item.hidden">
-
-            <!-- Basic -->
-            <div class="treo-horizontal-navigation-menu-item"
-                 *ngIf="item.type === 'basic'"
-                 mat-menu-item>
-                <treo-horizontal-navigation-basic-item [item]="item"
-                                                      [name]="name"></treo-horizontal-navigation-basic-item>
-            </div>
-
-            <!-- Branch: aside, collapsable, group -->
-            <div class="treo-horizontal-navigation-menu-item"
-                 *ngIf="item.type === 'aside' || item.type === 'collapsable' || item.type === 'group'"
-                 [matMenuTriggerFor]="branch.matMenu"
-                 mat-menu-item>
-                <ng-container *ngTemplateOutlet="itemTemplate; context: {$implicit: item}"></ng-container>
-                <treo-horizontal-navigation-branch-item [child]="true"
-                                                       [item]="item"
-                                                       [name]="name"
-                                                       #branch></treo-horizontal-navigation-branch-item>
-            </div>
-
-            <!-- Divider -->
-            <div class="treo-horizontal-navigation-menu-item"
-                 *ngIf="item.type === 'divider'"
-                 mat-menu-item>
-                <treo-horizontal-navigation-divider-item [item]="item"
-                                                        [name]="name"></treo-horizontal-navigation-divider-item>
-            </div>
-
-        </ng-container>
-
-    </ng-container>
+  @for (item of item.children; track item) {
+    <!-- Skip the hidden items -->
+    @if ((item.hidden && !item.hidden(item)) || !item.hidden) {
+      <!-- Basic -->
+      @if (item.type === 'basic') {
+        <div class="treo-horizontal-navigation-menu-item"
+          mat-menu-item>
+          <treo-horizontal-navigation-basic-item [item]="item"
+          [name]="name"></treo-horizontal-navigation-basic-item>
+        </div>
+      }
+      <!-- Branch: aside, collapsable, group -->
+      @if (item.type === 'aside' || item.type === 'collapsable' || item.type === 'group') {
+        <div class="treo-horizontal-navigation-menu-item"
+          [matMenuTriggerFor]="branch.matMenu"
+          mat-menu-item>
+          <ng-container *ngTemplateOutlet="itemTemplate; context: {$implicit: item}"></ng-container>
+          <treo-horizontal-navigation-branch-item [child]="true"
+            [item]="item"
+            [name]="name"
+          #branch></treo-horizontal-navigation-branch-item>
+        </div>
+      }
+      <!-- Divider -->
+      @if (item.type === 'divider') {
+        <div class="treo-horizontal-navigation-menu-item"
+          mat-menu-item>
+          <treo-horizontal-navigation-divider-item [item]="item"
+          [name]="name"></treo-horizontal-navigation-divider-item>
+        </div>
+      }
+    }
+  }
 
 </mat-menu>
 
 <!-- Item template -->
 <ng-template let-item
-             #itemTemplate>
+  #itemTemplate>
 
-    <div class="treo-horizontal-navigation-item-wrapper"
-         [class.treo-horizontal-navigation-item-has-subtitle]="!!item.subtitle"
-         [ngClass]="item.classes">
+  <div class="treo-horizontal-navigation-item-wrapper"
+    [class.treo-horizontal-navigation-item-has-subtitle]="!!item.subtitle"
+    [ngClass]="item.classes">
 
-        <div class="treo-horizontal-navigation-item"
-             [ngClass]="{'treo-horizontal-navigation-item-disabled': item.disabled}">
+    <div class="treo-horizontal-navigation-item"
+      [ngClass]="{'treo-horizontal-navigation-item-disabled': item.disabled}">
 
-            <!-- Icon -->
-            <mat-icon class="treo-horizontal-navigation-item-icon"
-                      [ngClass]="item.iconClasses"
-                      *ngIf="item.icon"
-                      [svgIcon]="item.icon"></mat-icon>
+      <!-- Icon -->
+      @if (item.icon) {
+        <mat-icon class="treo-horizontal-navigation-item-icon"
+          [ngClass]="item.iconClasses"
+        [svgIcon]="item.icon"></mat-icon>
+      }
 
-            <!-- Title & Subtitle -->
-            <div class="treo-horizontal-navigation-item-title-wrapper">
-                <div class="treo-horizontal-navigation-item-title">{{item.title}}</div>
-                <div class="treo-horizontal-navigation-item-subtitle text-hint"
-                     *ngIf="item.subtitle">
-                    {{item.subtitle}}
-                </div>
-            </div>
+      <!-- Title & Subtitle -->
+      <div class="treo-horizontal-navigation-item-title-wrapper">
+        <div class="treo-horizontal-navigation-item-title">{{item.title}}</div>
+        @if (item.subtitle) {
+          <div class="treo-horizontal-navigation-item-subtitle text-hint"
+            >
+            {{item.subtitle}}
+          </div>
+        }
+      </div>
 
-            <!-- Badge -->
-            <div class="treo-horizontal-navigation-item-badge"
-                 *ngIf="item.badge">
-                <div class="treo-horizontal-navigation-item-badge-content"
+      <!-- Badge -->
+      @if (item.badge) {
+        <div class="treo-horizontal-navigation-item-badge"
+          >
+          <div class="treo-horizontal-navigation-item-badge-content"
                      [ngClass]="[(item.badge.style != undefined ? 'treo-horizontal-navigation-item-badge-style-' + item.badge.style : ''),
                              (item.badge.background != undefined && !item.badge.background.startsWith('#') ? item.badge.background : ''),
                              (item.badge.color != undefined && !item.badge.color.startsWith('#') ? item.badge.color : '')]"
-                     [ngStyle]="{'background-color': item.badge.background, 'color': item.badge.color}">
-                    {{item.badge.title}}
-                </div>
-            </div>
+            [ngStyle]="{'background-color': item.badge.background, 'color': item.badge.color}">
+            {{item.badge.title}}
+          </div>
         </div>
+      }
     </div>
+  </div>
 
 </ng-template>

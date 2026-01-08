@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 
 /* tslint:disable:max-line-length */
 export const summary = {
@@ -29,7 +29,8 @@ export const summary = {
                     'label': '',
                     'host_id': '',
                     'device_status': 0,
-                    'archived': false
+                    'archived': false,
+                    'muted': false
                 }
             },
             '0x5000cca252c859cc': {
@@ -57,7 +58,8 @@ export const summary = {
                     'label': '',
                     'host_id': '',
                     'device_status': 0,
-                    'archived': false
+                    'archived': false,
+                    'muted': false
                 },
                 'smart': {
                     'collector_date': '2020-08-21T22:27:02Z',
@@ -94,7 +96,8 @@ export const summary = {
                     'label': '',
                     'host_id': '',
                     'device_status': 0,
-                    'archived': false
+                    'archived': false,
+                    'muted': false
                 },
                 'smart': {
                     'collector_date': '2020-06-21T00:03:30Z',
@@ -131,7 +134,8 @@ export const summary = {
                     'label': '',
                     'host_id': '',
                     'device_status': 0,
-                    'archived': false
+                    'archived': false,
+                    'muted': false
                 }
             },
             '0x5000cca264ec3183': {
@@ -159,7 +163,8 @@ export const summary = {
                     'label': '',
                     'host_id': 'custom host id',
                     'device_status': 1,
-                    'archived': false
+                    'archived': false,
+                    'muted': false
                 },
                 'smart': {
                     'collector_date': '2020-09-13T16:29:23Z',
@@ -580,7 +585,8 @@ export const summary = {
                     'label': '',
                     'host_id': '',
                     'device_status': 0,
-                    'archived': false
+                    'archived': false,
+                    'muted': false
                 }
             },
             '0x5002538e40a22954': {
@@ -608,7 +614,8 @@ export const summary = {
                     'label': '',
                     'host_id': '',
                     'device_status': 0,
-                    'archived': false
+                    'archived': false,
+                    'muted': false
                 },
                 'smart': {
                     'collector_date': '2020-06-10T12:01:02Z',

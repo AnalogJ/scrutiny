@@ -10,13 +10,14 @@ import { TreoNavigationService } from '@treo/components/navigation/navigation.se
 import { TreoScrollbarDirective } from '@treo/directives/scrollbar/scrollbar.directive';
 
 @Component({
-    selector       : 'treo-vertical-navigation',
-    templateUrl    : './vertical.component.html',
-    styleUrls      : ['./vertical.component.scss'],
-    animations     : TreoAnimations,
-    encapsulation  : ViewEncapsulation.None,
+    selector: 'treo-vertical-navigation',
+    templateUrl: './vertical.component.html',
+    styleUrls: ['./vertical.component.scss'],
+    animations: TreoAnimations,
+    encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    exportAs       : 'treoVerticalNavigation'
+    exportAs: 'treoVerticalNavigation',
+    standalone: false
 })
 export class TreoVerticalNavigationComponent implements OnInit, AfterViewInit, OnDestroy
 {
@@ -68,7 +69,7 @@ export class TreoVerticalNavigationComponent implements OnInit, AfterViewInit, O
     private _unsubscribeAll: Subject<void>;
 
     @HostBinding('class.treo-vertical-navigation-animations-enabled')
-    private _animationsEnabled: boolean;
+    protected _animationsEnabled: boolean;
 
     @ViewChild('navigationContent')
     private _navigationContentEl: ElementRef;
@@ -735,10 +736,10 @@ export class TreoVerticalNavigationComponent implements OnInit, AfterViewInit, O
     /**
      * On mouseenter
      *
-     * @private
+     * @protected
      */
     @HostListener('mouseenter')
-    private _onMouseenter(): void
+    protected _onMouseenter(): void
     {
         // Enable the animations
         this._enableAnimations();
@@ -750,10 +751,10 @@ export class TreoVerticalNavigationComponent implements OnInit, AfterViewInit, O
     /**
      * On mouseleave
      *
-     * @private
+     * @protected
      */
     @HostListener('mouseleave')
-    private _onMouseleave(): void
+    protected _onMouseleave(): void
     {
         // Enable the animations
         this._enableAnimations();

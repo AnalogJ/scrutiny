@@ -1,30 +1,27 @@
 <div class="treo-horizontal-navigation-wrapper">
 
-    <ng-container *ngFor="let item of navigation">
-
-        <!-- Skip the hidden items -->
-        <ng-container *ngIf="(item.hidden && !item.hidden(item)) || !item.hidden">
-
-            <!-- Basic -->
-            <treo-horizontal-navigation-basic-item class="treo-horizontal-navigation-menu-item"
-                                                  *ngIf="item.type === 'basic'"
-                                                  [item]="item"
-                                                  [name]="name"></treo-horizontal-navigation-basic-item>
-
-            <!-- Branch: aside, collapsable, group -->
-            <treo-horizontal-navigation-branch-item class="treo-horizontal-navigation-menu-item"
-                                                   *ngIf="item.type === 'aside' || item.type === 'collapsable' || item.type === 'group'"
-                                                   [item]="item"
-                                                   [name]="name"></treo-horizontal-navigation-branch-item>
-
-            <!-- Spacer -->
-            <treo-horizontal-navigation-spacer-item class="treo-horizontal-navigation-menu-item"
-                                                   *ngIf="item.type === 'spacer'"
-                                                   [item]="item"
-                                                   [name]="name"></treo-horizontal-navigation-spacer-item>
-
-        </ng-container>
-
-    </ng-container>
+  @for (item of navigation; track item) {
+    <!-- Skip the hidden items -->
+    @if ((item.hidden && !item.hidden(item)) || !item.hidden) {
+      <!-- Basic -->
+      @if (item.type === 'basic') {
+        <treo-horizontal-navigation-basic-item class="treo-horizontal-navigation-menu-item"
+          [item]="item"
+        [name]="name"></treo-horizontal-navigation-basic-item>
+      }
+      <!-- Branch: aside, collapsable, group -->
+      @if (item.type === 'aside' || item.type === 'collapsable' || item.type === 'group') {
+        <treo-horizontal-navigation-branch-item class="treo-horizontal-navigation-menu-item"
+          [item]="item"
+        [name]="name"></treo-horizontal-navigation-branch-item>
+      }
+      <!-- Spacer -->
+      @if (item.type === 'spacer') {
+        <treo-horizontal-navigation-spacer-item class="treo-horizontal-navigation-menu-item"
+          [item]="item"
+        [name]="name"></treo-horizontal-navigation-spacer-item>
+      }
+    }
+  }
 
 </div>

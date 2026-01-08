@@ -5,13 +5,14 @@ import { TreoNavigationItem } from '@treo/components/navigation/navigation.types
 import { TreoNavigationService } from '@treo/components/navigation/navigation.service';
 
 @Component({
-    selector       : 'treo-horizontal-navigation',
-    templateUrl    : './horizontal.component.html',
-    styleUrls      : ['./horizontal.component.scss'],
-    animations     : TreoAnimations,
-    encapsulation  : ViewEncapsulation.None,
+    selector: 'treo-horizontal-navigation',
+    templateUrl: './horizontal.component.html',
+    styleUrls: ['./horizontal.component.scss'],
+    animations: TreoAnimations,
+    encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    exportAs       : 'treoHorizontalNavigation'
+    exportAs: 'treoHorizontalNavigation',
+    standalone: false
 })
 export class TreoHorizontalNavigationComponent implements OnInit, OnDestroy
 {

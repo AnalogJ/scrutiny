@@ -25,10 +25,11 @@ export class TreoMockApiModule
         return {
             ngModule : TreoMockApiModule,
             providers: [
+                ...mockDataServices,
                 {
                     provide   : APP_INITIALIZER,
-                    deps      : mockDataServices,
-                    useFactory: () => () => null,
+                    deps      :mockDataServices,
+                    useFactory: (...services) => () => {},
                     multi     : true
                 },
             ]

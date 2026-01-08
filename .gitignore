@@ -70,3 +70,14 @@ coverage.txt
 web.log
 CLAUDE.md
 PLANNING.md
+
+# macOS
+.DS_Store
+
+# Claude Code
+.claude/
+
+# Local compiled binaries
+collector-dev
+collector-metrics
+scrutiny-dev

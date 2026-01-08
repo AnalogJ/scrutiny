@@ -4,9 +4,9 @@ import {ApexOptions} from 'ng-apexcharts';
 import {AppConfig} from 'app/core/config/app.config';
 import {DetailService} from './detail.service';
 import {DetailSettingsComponent} from 'app/layout/common/detail-settings/detail-settings.component';
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog as MatDialog} from '@angular/material/dialog';
 import {MatSort} from '@angular/material/sort';
-import {MatTableDataSource} from '@angular/material/table';
+import {MatTableDataSource as MatTableDataSource} from '@angular/material/table';
 import {Subject} from 'rxjs';
 import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
 import {animate, state, style, transition, trigger} from '@angular/animations';
@@ -31,11 +31,12 @@ const AttributeStatusFailedScrutiny = 4
     styleUrls: ['./detail.component.scss'],
     animations: [
         trigger('detailExpand', [
-            state('collapsed', style({height: '0px', minHeight: '0'})),
-            state('expanded', style({height: '*'})),
+            state('collapsed', style({ height: '0px', minHeight: '0' })),
+            state('expanded', style({ height: '*' })),
             transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
         ]),
     ],
+    standalone: false
 })
 
 export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -441,16 +442,28 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     openSettingsDialog(): void {
         const dialogRef = this.dialog.open(DetailSettingsComponent, {
+            width: '600px',
             data: {
-                curMuted: this.device.muted
+                curMuted: this.device.muted,
+                curLabel: this.device.label
             },
         });
 
-        dialogRef.afterClosed().subscribe((result: undefined | null | { muted: boolean }) => {
-            console.log('Settings dialog result', result);
+        dialogRef.afterClosed().subscribe((result: undefined | null | { muted: boolean, label: string }) => {
             if (!result) return;
+
+            const promises: Promise<any>[] = [];
+
             if (result.muted !== this.device.muted) {
-                this._detailService.setMuted(this.device.wwn, result.muted).toPromise().then(() => {
+                promises.push(this._detailService.setMuted(this.device.wwn, result.muted).toPromise());
+            }
+
+            if (result.label !== this.device.label) {
+                promises.push(this._detailService.setLabel(this.device.wwn, result.label).toPromise());
+            }
+
+            if (promises.length > 0) {
+                Promise.all(promises).then(() => {
                     return this._detailService.getData(this.device.wwn).toPromise();
                 });
             }

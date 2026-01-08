@@ -80,6 +80,20 @@ func (mr *MockDeviceRepoMockRecorder) UpdateDeviceMuted(ctx, wwn, archived inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceMuted", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDeviceMuted), ctx, wwn, archived)
 }
 
+// UpdateDeviceLabel mocks base method.
+func (m *MockDeviceRepo) UpdateDeviceLabel(ctx context.Context, wwn string, label string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateDeviceLabel", ctx, wwn, label)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateDeviceLabel indicates an expected call of UpdateDeviceLabel.
+func (mr *MockDeviceRepoMockRecorder) UpdateDeviceLabel(ctx, wwn, label interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceLabel", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDeviceLabel), ctx, wwn, label)
+}
+
 // DeleteDevice mocks base method.
 func (m *MockDeviceRepo) DeleteDevice(ctx context.Context, wwn string) error {
 	m.ctrl.T.Helper()

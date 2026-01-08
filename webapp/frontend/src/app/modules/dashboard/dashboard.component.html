@@ -1,136 +1,199 @@
-<div *ngIf="summaryData; else emptyDashboard">
+@if (summaryData) {
+  <div>
     <div class="flex flex-col flex-auto w-full p-8 xs:p-2">
+      <div class="flex flex-wrap w-full">
 
-        <div class="flex flex-wrap w-full">
+        <!-- Header -->
+        <div class="flex items-center justify-between w-full my-4 px-4 xs:pr-0">
+          <div class="mr-6">
+            <h2 class="m-0">Dashboard</h2>
+            <div class="text-secondary tracking-tight">Drive health at a glance</div>
+          </div>
 
-            <div class="flex items-center justify-between w-full my-4 px-4 xs:pr-0">
-                <div class="mr-6">
-                    <h2 class="m-0">Dashboard</h2>
-                    <div class="text-secondary tracking-tight">Drive health at a glance</div>
-                </div>
-                <!-- Action buttons -->
-                <div class="flex items-center">
-                    <button class="xs:hidden" mat-stroked-button
-                            [color]="showArchived ? 'primary' : null"
-                            (click)="showArchived=!showArchived">
-                        <mat-icon class="icon-size-20"
-                                  [color]="showArchived ? 'primary' : null"
-                                  [svgIcon]="'archive'"></mat-icon>
-                                <span class="ml-2">Archived</span>
-                    </button>
-                    <button matTooltip="not yet implemented" class="ml-2 xs:hidden" mat-stroked-button>
-                        <mat-icon class="icon-size-20"
-                                  [svgIcon]="'save'"></mat-icon>
-                        <span class="ml-2">Export</span>
-                    </button>
-                    <button class="ml-2 xs:hidden"
-                            (click)="openDialog()"
-                            mat-stroked-button>
-                        <mat-icon class="icon-size-20 rotate-90 mirror"
-                                  [svgIcon]="'tune'"></mat-icon>
-                        <span class="ml-2">Settings</span>
-                    </button>
+          <!-- Action buttons (desktop) -->
+          <div class="flex items-center">
+            <button
+              class="xs:hidden"
+              mat-stroked-button
+              [color]="showArchived ? 'primary' : null"
+              (click)="showArchived = !showArchived">
+              <mat-icon
+                class="icon-size-20"
+                [color]="showArchived ? 'primary' : null"
+                [svgIcon]="'archive'">
+              </mat-icon>
+              <span class="ml-2">Archived</span>
+            </button>
 
-                    <!-- Actions menu (visible on xs) -->
-                    <div class="hidden xs:flex">
-                        <button [matMenuTriggerFor]="actionsMenu"
-                                mat-icon-button>
-                            <mat-icon [svgIcon]="'more_vert'"></mat-icon>
-                        </button>
-                        <mat-menu #actionsMenu="matMenu">
-                            <button mat-menu-item (click)="showArchived=!showArchived">
-                                <mat-icon class="icon-size-20"
-                                          [color]="showArchived ? 'primary' : null"
-                                          [svgIcon]="'archive'"></mat-icon>
-                                <span class="ml-2">Archived</span>
-                            </button>
-                            <button mat-menu-item
-                                    matTooltip="not yet implemented">
-                                <mat-icon class="icon-size-20"
-                                          [svgIcon]="'save'"></mat-icon>
-                                <span class="ml-2">Export</span>
-                            </button>
-                            <button mat-menu-item (click)="openDialog()">
-                                <mat-icon class="icon-size-20 rotate-90 mirror"
-                                          [svgIcon]="'tune'"></mat-icon>
-                                <span class="ml-2">Settings</span>
-                            </button>
-                        </mat-menu>
-                    </div>
-                </div>
+            <button
+              matTooltip="not yet implemented"
+              class="ml-2 xs:hidden"
+              mat-stroked-button>
+              <mat-icon class="icon-size-20" [svgIcon]="'save'"></mat-icon>
+              <span class="ml-2">Export</span>
+            </button>
+
+            <button
+              class="ml-2 xs:hidden"
+              mat-stroked-button
+              (click)="openDialog()">
+              <mat-icon
+                class="icon-size-20 rotate-90 mirror"
+                [svgIcon]="'tune'">
+              </mat-icon>
+              <span class="ml-2">Settings</span>
+            </button>
+
+            <!-- Actions menu (mobile) -->
+            <div class="hidden xs:flex">
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="actionsMenu">
+                <mat-icon [svgIcon]="'more_vert'"></mat-icon>
+              </button>
+
+              <mat-menu #actionsMenu="matMenu">
+                <button mat-menu-item (click)="showArchived = !showArchived">
+                  <mat-icon
+                    class="icon-size-20"
+                    [color]="showArchived ? 'primary' : null"
+                    [svgIcon]="'archive'">
+                  </mat-icon>
+                  <span class="ml-2">Archived</span>
+                </button>
+
+                <button mat-menu-item matTooltip="not yet implemented">
+                  <mat-icon class="icon-size-20" [svgIcon]="'save'"></mat-icon>
+                  <span class="ml-2">Export</span>
+                </button>
+
+                <button mat-menu-item (click)="openDialog()">
+                  <mat-icon
+                    class="icon-size-20 rotate-90 mirror"
+                    [svgIcon]="'tune'">
+                  </mat-icon>
+                  <span class="ml-2">Settings</span>
+                </button>
+              </mat-menu>
             </div>
-
-
-            <div class="flex flex-wrap w-full" *ngFor="let hostId of hostGroups | keyvalue">
-                <h3 class="ml-4" *ngIf="hostId.key">{{ hostId.key }}</h3>
-                <div class="flex flex-wrap w-full">
-                    <ng-container *ngFor="let deviceSummary of (deviceSummariesForHostGroup(hostId.value) | deviceSort:config.dashboard_sort:config.dashboard_display )">
-                        <app-dashboard-device *ngIf="showArchived || !deviceSummary.device.archived"
-                                              (deviceArchived)="onDeviceArchived($event)"
-                                              (deviceUnarchived)="onDeviceUnarchived($event)"
-                                              (deviceDeleted)="onDeviceDeleted($event)"
-                                              class="flex gt-sm:w-1/2 min-w-80 p-4"
-                                              [deviceSummary]="deviceSummary"></app-dashboard-device>
-                    </ng-container>
-                </div>
-            </div>
-
-
-            <!-- Drive Temperatures -->
-            <div class="flex flex-auto w-full min-w-80 h-90 p-4">
-                <div class="flex flex-col flex-auto bg-card shadow-md rounded overflow-hidden">
-                    <div class="flex flex-col p-6 pr-4 pb-4">
-                        <div class="flex items-center justify-between">
-                            <div class="flex flex-col">
-                                <div class="font-bold text-md text-secondary uppercase tracking-wider mr-4">Temperature</div>
-                                <div class="text-sm text-hint font-medium">Temperature history for each device</div>
-                            </div>
-                            <div>
-                                <button class="h-8 min-h-8 px-2"
-                                        mat-button
-                                        [matMenuTriggerFor]="tempRangeMenu">
-                                    <span class="font-medium text-sm text-hint">{{ tempDurationKey }}</span>
-                                </button>
-                                <mat-menu #tempRangeMenu="matMenu">
-                                    <button (click)="changeSummaryTempDuration('forever')" mat-menu-item>forever</button>
-                                    <button (click)="changeSummaryTempDuration('year')" mat-menu-item>year</button>
-                                    <button (click)="changeSummaryTempDuration('month')" mat-menu-item>month</button>
-                                    <button (click)="changeSummaryTempDuration('week')" mat-menu-item>week</button>
-                                    <button (click)="changeSummaryTempDuration('day')" mat-menu-item>day</button>
-                                </mat-menu>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="flex flex-col flex-auto">
-                        <apx-chart #tempChart *ngIf="temperatureOptions" class="flex-auto w-full h-full"
-                                   [chart]="temperatureOptions.chart"
-                                   [colors]="temperatureOptions.colors"
-                                   [fill]="temperatureOptions.fill"
-                                   [series]="temperatureOptions.series"
-                                   [stroke]="temperatureOptions.stroke"
-                                   [tooltip]="temperatureOptions.tooltip"
-                                   [xaxis]="temperatureOptions.xaxis"></apx-chart>
-                    </div>
-                </div>
-            </div>
-
+          </div>
         </div>
 
+        <!-- Device Groups -->
+        @for (hostId of hostGroups | keyvalue; track hostId) {
+          <div class="flex flex-wrap w-full">
+            @if (hostId.key) {
+              <h3 class="ml-4">{{ hostId.key }}</h3>
+            }
+
+            <div class="flex flex-wrap w-full">
+              @for (
+                deviceSummary of (
+                  deviceSummariesForHostGroup(hostId.value)
+                  | deviceSort:config.dashboard_sort:config.dashboard_display
+                );
+                track deviceSummary
+              ) {
+                @if (showArchived || !$any(deviceSummary).device.archived) {
+                  <app-dashboard-device
+                    class="flex gt-sm:w-1/2 min-w-80 p-4"
+                    [deviceSummary]="deviceSummary"
+                    (deviceArchived)="onDeviceArchived($event)"
+                    (deviceUnarchived)="onDeviceUnarchived($event)"
+                    (deviceDeleted)="onDeviceDeleted($event)">
+                  </app-dashboard-device>
+                }
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Drive Temperatures -->
+        <div class="flex flex-auto w-full min-w-80 h-90 p-4">
+          <div class="flex flex-col flex-auto bg-card shadow-md rounded overflow-hidden">
+            <div class="flex flex-col p-6 pr-4 pb-4">
+              <div class="flex items-center justify-between">
+                <div class="flex flex-col">
+                  <div class="font-bold text-md text-secondary uppercase tracking-wider mr-4">
+                    Temperature
+                  </div>
+                  <div class="text-sm text-hint font-medium">
+                    Temperature history for each device
+                  </div>
+                </div>
+
+                <div>
+                  <button
+                    class="h-8 min-h-8 px-2"
+                    mat-button
+                    [matMenuTriggerFor]="tempRangeMenu">
+                    <span class="font-medium text-sm text-hint">
+                      {{ tempDurationKey }}
+                    </span>
+                  </button>
+
+                  <mat-menu #tempRangeMenu="matMenu">
+                    <button mat-menu-item (click)="changeSummaryTempDuration('forever')">
+                      forever
+                    </button>
+                    <button mat-menu-item (click)="changeSummaryTempDuration('year')">
+                      year
+                    </button>
+                    <button mat-menu-item (click)="changeSummaryTempDuration('month')">
+                      month
+                    </button>
+                    <button mat-menu-item (click)="changeSummaryTempDuration('week')">
+                      week
+                    </button>
+                    <button mat-menu-item (click)="changeSummaryTempDuration('day')">
+                      day
+                    </button>
+                  </mat-menu>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex flex-col flex-auto">
+              @if (temperatureOptions) {
+                <apx-chart
+                  #tempChart
+                  class="flex-auto w-full h-full"
+                  [chart]="temperatureOptions.chart"
+                  [colors]="temperatureOptions.colors"
+                  [fill]="temperatureOptions.fill"
+                  [series]="temperatureOptions.series"
+                  [stroke]="temperatureOptions.stroke"
+                  [tooltip]="temperatureOptions.tooltip"
+                  [xaxis]="temperatureOptions.xaxis">
+                </apx-chart>
+              }
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
-</div>
+  </div>
+} @else {
+  <div class="dashboard-placeholder content-layout fullwidth-basic-content-scroll">
+    <img
+      class="image"
+      src="assets/images/dashboard-placeholder.png">
 
-<ng-template #emptyDashboard>
-    <div class="dashboard-placeholder content-layout fullwidth-basic-content-scroll">
-        <img class="image"
-             src="assets/images/dashboard-placeholder.png">
+    <h1>No Devices Detected!</h1>
 
-        <h1>No Devices Detected!</h1>
-        <p style="max-width:700px;">Scrutiny includes a Collector agent that you must run on all of your systems. The Collector is responsible for detecting connected storage
-            devices and collecting S.M.A.R.T data on a configurable schedule.</p>
+    <p style="max-width:700px;">
+      Scrutiny includes a Collector agent that you must run on all of your systems.
+      The Collector is responsible for detecting connected storage devices and
+      collecting S.M.A.R.T data on a configurable schedule.
+    </p>
 
-        <p><br/>You can trigger the Collector manually by running the following command, then refreshing this page:</p>
-        <code>scrutiny-collector-metrics run</code>
+    <p>
+      <br />
+      You can trigger the Collector manually by running the following command,
+      then refreshing this page:
+    </p>
 
-    </div>
-</ng-template>
+    <code>scrutiny-collector-metrics run</code>
+  </div>
+}

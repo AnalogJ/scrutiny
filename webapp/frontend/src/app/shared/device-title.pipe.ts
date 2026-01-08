@@ -2,7 +2,8 @@ import {Pipe, PipeTransform} from '@angular/core';
 import {DeviceModel} from 'app/core/models/device-model';
 
 @Pipe({
-  name: 'deviceTitle'
+    name: 'deviceTitle',
+    standalone: false
 })
 export class DeviceTitlePipe implements PipeTransform {
 
@@ -37,7 +38,6 @@ export class DeviceTitlePipe implements PipeTransform {
     }
 
     static deviceTitleWithFallback(device: DeviceModel, titleType: string): string {
-        console.log(`Displaying Device ${device.wwn} with: ${titleType}`)
         const titleParts = []
         if (device.host_id) titleParts.push(device.host_id)
 

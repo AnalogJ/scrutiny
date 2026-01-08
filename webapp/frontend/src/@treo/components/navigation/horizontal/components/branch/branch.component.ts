@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatMenu } from '@angular/material/menu';
+import { MatMenu as MatMenu } from '@angular/material/menu';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TreoHorizontalNavigationComponent } from '@treo/components/navigation/horizontal/horizontal.component';
@@ -7,10 +7,11 @@ import { TreoNavigationService } from '@treo/components/navigation/navigation.se
 import { TreoNavigationItem } from '@treo/components/navigation/navigation.types';
 
 @Component({
-    selector       : 'treo-horizontal-navigation-branch-item',
-    templateUrl    : './branch.component.html',
-    styles         : [],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'treo-horizontal-navigation-branch-item',
+    templateUrl: './branch.component.html',
+    styles: [],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class TreoHorizontalNavigationBranchItemComponent implements OnInit, OnDestroy
 {

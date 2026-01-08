@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';
 import {getBasePath} from 'app/app.routing';
@@ -54,8 +54,14 @@ export class DetailService {
      * Mute / Unmute certain device
      */
     setMuted(wwn, muted): Observable<any> {
-        console.log('Set muted', muted);
         const action = muted ? 'mute' : 'unmute';
         return this._httpClient.post(getBasePath() + `/api/device/${wwn}/${action}`, {});
+    }
+
+    /**
+     * Set device label (custom user-provided name)
+     */
+    setLabel(wwn: string, label: string): Observable<any> {
+        return this._httpClient.post(getBasePath() + `/api/device/${wwn}/label`, { label });
     }
 }

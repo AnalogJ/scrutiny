@@ -126,13 +126,13 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 	return false
 }
 
-// TODO: include user label for device.
 type Payload struct {
-	HostId       string `json:"host_id,omitempty"` //host id (optional)
-	DeviceType   string `json:"device_type"`       //ATA/SCSI/NVMe
-	DeviceName   string `json:"device_name"`       //dev/sda
-	DeviceSerial string `json:"device_serial"`     //WDDJ324KSO
-	Test         bool   `json:"test"`              // false
+	HostId       string `json:"host_id,omitempty"`    //host id (optional)
+	DeviceType   string `json:"device_type"`          //ATA/SCSI/NVMe
+	DeviceName   string `json:"device_name"`          //dev/sda
+	DeviceSerial string `json:"device_serial"`        //WDDJ324KSO
+	DeviceLabel  string `json:"device_label,omitempty"` //user-provided label (optional)
+	Test         bool   `json:"test"`                 // false
 
 	//private, populated during init (marked as Public for JSON serialization)
 	Date        string `json:"date"`         //populated by Send function.
@@ -147,6 +147,7 @@ func NewPayload(device models.Device, test bool, currentTime ...time.Time) Paylo
 		DeviceType:   device.DeviceType,
 		DeviceName:   device.DeviceName,
 		DeviceSerial: device.SerialNumber,
+		DeviceLabel:  strings.TrimSpace(device.Label),
 		Test:         test,
 	}
 
@@ -182,10 +183,14 @@ func (p *Payload) GenerateFailureType(deviceStatus pkg.DeviceStatus) string {
 func (p *Payload) GenerateSubject() string {
 	//generate a detailed failure message
 	var subject string
+	deviceIdentifier := p.DeviceName
+	if len(p.DeviceLabel) > 0 {
+		deviceIdentifier = fmt.Sprintf("%s (%s)", p.DeviceLabel, p.DeviceName)
+	}
 	if len(p.HostId) > 0 {
-		subject = fmt.Sprintf("Scrutiny SMART error (%s) detected on [host]device: [%s]%s", p.FailureType, p.HostId, p.DeviceName)
+		subject = fmt.Sprintf("Scrutiny SMART error (%s) detected on [host]device: [%s]%s", p.FailureType, p.HostId, deviceIdentifier)
 	} else {
-		subject = fmt.Sprintf("Scrutiny SMART error (%s) detected on device: %s", p.FailureType, p.DeviceName)
+		subject = fmt.Sprintf("Scrutiny SMART error (%s) detected on device: %s", p.FailureType, deviceIdentifier)
 	}
 	return subject
 }
@@ -205,6 +210,11 @@ func (p *Payload) GenerateMessage() string {
 		fmt.Sprintf("Device Name: %s", p.DeviceName),
 		fmt.Sprintf("Device Serial: %s", p.DeviceSerial),
 		fmt.Sprintf("Device Type: %s", p.DeviceType),
+	)
+	if len(p.DeviceLabel) > 0 {
+		messageParts = append(messageParts, fmt.Sprintf("Device Label: %s", p.DeviceLabel))
+	}
+	messageParts = append(messageParts,
 		"",
 		fmt.Sprintf("Date: %s", p.Date),
 	)

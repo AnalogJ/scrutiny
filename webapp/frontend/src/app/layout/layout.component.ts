@@ -1,7 +1,7 @@
-import {Component, Inject, OnDestroy, OnInit, ViewEncapsulation} from '@angular/core';
-import {DOCUMENT} from '@angular/common';
+import {Component, Inject, OnDestroy, OnInit, ViewEncapsulation, DOCUMENT} from '@angular/core';
+
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
-import {MatSlideToggleChange} from '@angular/material/slide-toggle';
+import {MatSlideToggleChange as MatSlideToggleChange} from '@angular/material/slide-toggle';
 import {Subject} from 'rxjs';
 import {filter, takeUntil} from 'rxjs/operators';
 import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
@@ -13,7 +13,8 @@ import {AppConfig, Theme} from 'app/core/config/app.config';
     selector: 'layout',
     templateUrl: './layout.component.html',
     styleUrls: ['./layout.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class LayoutComponent implements OnInit, OnDestroy {
     config: AppConfig;

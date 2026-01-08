@@ -1,85 +1,89 @@
 <div class="treo-vertical-navigation-item-wrapper"
-     [class.treo-vertical-navigation-item-has-subtitle]="!!item.subtitle"
-     [ngClass]="item.classes">
+  [class.treo-vertical-navigation-item-has-subtitle]="!!item.subtitle"
+  [ngClass]="item.classes">
 
-    <div class="treo-vertical-navigation-item"
-         [ngClass]="{'treo-vertical-navigation-item-disabled': item.disabled}"
-         (click)="toggleCollapsable()">
+  <div class="treo-vertical-navigation-item"
+    [ngClass]="{'treo-vertical-navigation-item-disabled': item.disabled}"
+    (click)="toggleCollapsable()">
 
-        <!-- Icon -->
-        <mat-icon class="treo-vertical-navigation-item-icon"
-                  [ngClass]="item.iconClasses"
-                  *ngIf="item.icon"
-                  [svgIcon]="item.icon"></mat-icon>
+    <!-- Icon -->
+    @if (item.icon) {
+      <mat-icon class="treo-vertical-navigation-item-icon"
+        [ngClass]="item.iconClasses"
+      [svgIcon]="item.icon"></mat-icon>
+    }
 
-        <!-- Title & Subtitle -->
-        <div class="treo-vertical-navigation-item-title-wrapper">
-            <div class="treo-vertical-navigation-item-title">{{item.title}}</div>
-            <div class="treo-vertical-navigation-item-subtitle"
-                 *ngIf="item.subtitle">
-                {{item.subtitle}}
-            </div>
+    <!-- Title & Subtitle -->
+    <div class="treo-vertical-navigation-item-title-wrapper">
+      <div class="treo-vertical-navigation-item-title">{{item.title}}</div>
+      @if (item.subtitle) {
+        <div class="treo-vertical-navigation-item-subtitle"
+          >
+          {{item.subtitle}}
         </div>
+      }
+    </div>
 
-        <!-- Badge -->
-        <div class="treo-vertical-navigation-item-badge"
-             *ngIf="item.badge">
-
-            <div class="treo-vertical-navigation-item-badge-content"
+    <!-- Badge -->
+    @if (item.badge) {
+      <div class="treo-vertical-navigation-item-badge"
+        >
+        <div class="treo-vertical-navigation-item-badge-content"
                  [ngClass]="[(item.badge.style != undefined ? 'treo-vertical-navigation-item-badge-style-' + item.badge.style : ''),
                              (item.badge.background != undefined && !item.badge.background.startsWith('#') ? item.badge.background : ''),
                              (item.badge.color != undefined && !item.badge.color.startsWith('#') ? item.badge.color : '')]"
-                 [ngStyle]="{'background-color': item.badge.background, 'color': item.badge.color}">
-                {{item.badge.title}}
-            </div>
-
+          [ngStyle]="{'background-color': item.badge.background, 'color': item.badge.color}">
+          {{item.badge.title}}
         </div>
+      </div>
+    }
 
-        <!-- Arrow -->
-        <mat-icon class="treo-vertical-navigation-item-arrow icon-size-16"
-                  [svgIcon]="'heroicons_solid:cheveron-right'"></mat-icon>
+    <!-- Arrow -->
+    <mat-icon class="treo-vertical-navigation-item-arrow icon-size-16"
+    [svgIcon]="'heroicons_solid:cheveron-right'"></mat-icon>
 
-    </div>
-
-</div>
-
-<div class="treo-vertical-navigation-item-children"
-     *ngIf="!isCollapsed"
-     @expandCollapse>
-
-    <ng-container *ngFor="let item of item.children; trackBy: trackByFn">
-
-        <!-- Skip the hidden items -->
-        <ng-container *ngIf="(item.hidden && !item.hidden(item)) || !item.hidden">
-
-            <!-- Basic -->
-            <treo-vertical-navigation-basic-item *ngIf="item.type === 'basic'"
-                                                [item]="item"
-                                                [name]="name"></treo-vertical-navigation-basic-item>
-
-            <!-- Collapsable -->
-            <treo-vertical-navigation-collapsable-item *ngIf="item.type === 'collapsable'"
-                                                      [item]="item"
-                                                      [name]="name"
-                                                      [autoCollapse]="autoCollapse"></treo-vertical-navigation-collapsable-item>
-
-            <!-- Divider -->
-            <treo-vertical-navigation-divider-item *ngIf="item.type === 'divider'"
-                                                  [item]="item"
-                                                  [name]="name"></treo-vertical-navigation-divider-item>
-
-            <!-- Group -->
-            <treo-vertical-navigation-group-item *ngIf="item.type === 'group'"
-                                                [item]="item"
-                                                [name]="name"></treo-vertical-navigation-group-item>
-
-            <!-- Spacer -->
-            <treo-vertical-navigation-spacer-item *ngIf="item.type === 'spacer'"
-                                                 [item]="item"
-                                                 [name]="name"></treo-vertical-navigation-spacer-item>
-
-        </ng-container>
-
-    </ng-container>
+  </div>
 
 </div>
+
+@if (!isCollapsed) {
+  <div class="treo-vertical-navigation-item-children"
+    @expandCollapse>
+    @for (item of item.children; track trackByFn($index, item)) {
+      <!-- Skip the hidden items -->
+      @if ((item.hidden && !item.hidden(item)) || !item.hidden) {
+        <!-- Basic -->
+        @if (item.type === 'basic') {
+          <treo-vertical-navigation-basic-item
+            [item]="item"
+          [name]="name"></treo-vertical-navigation-basic-item>
+        }
+        <!-- Collapsable -->
+        @if (item.type === 'collapsable') {
+          <treo-vertical-navigation-collapsable-item
+            [item]="item"
+            [name]="name"
+          [autoCollapse]="autoCollapse"></treo-vertical-navigation-collapsable-item>
+        }
+        <!-- Divider -->
+        @if (item.type === 'divider') {
+          <treo-vertical-navigation-divider-item
+            [item]="item"
+          [name]="name"></treo-vertical-navigation-divider-item>
+        }
+        <!-- Group -->
+        @if (item.type === 'group') {
+          <treo-vertical-navigation-group-item
+            [item]="item"
+          [name]="name"></treo-vertical-navigation-group-item>
+        }
+        <!-- Spacer -->
+        @if (item.type === 'spacer') {
+          <treo-vertical-navigation-spacer-item
+            [item]="item"
+          [name]="name"></treo-vertical-navigation-spacer-item>
+        }
+      }
+    }
+  </div>
+}

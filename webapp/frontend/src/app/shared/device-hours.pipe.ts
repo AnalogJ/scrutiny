@@ -1,7 +1,10 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import humanizeDuration from 'humanize-duration';
 
-@Pipe({ name: 'deviceHours' })
+@Pipe({
+    name: 'deviceHours',
+    standalone: false
+})
 export class DeviceHoursPipe implements PipeTransform {
     static format(hoursOfRunTime: number, unit: string, humanizeConfig: object): string {
       if (hoursOfRunTime === null) {

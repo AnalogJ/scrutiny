@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {ActivatedRouteSnapshot, Resolve, RouterStateSnapshot} from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import {Observable} from 'rxjs';
 import {DashboardService} from 'app/modules/dashboard/dashboard.service';
 import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
@@ -7,7 +7,7 @@ import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
 @Injectable({
     providedIn: 'root'
 })
-export class DashboardResolver implements Resolve<any> {
+export class DashboardResolver  {
     /**
      * Constructor
      *

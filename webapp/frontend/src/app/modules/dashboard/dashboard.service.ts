@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 import {getBasePath} from 'app/app.routing';
@@ -49,7 +49,6 @@ export class DashboardService {
     getSummaryData(): Observable<{ [key: string]: DeviceSummaryModel }> {
         return this._httpClient.get(getBasePath() + '/api/summary').pipe(
             map((response: DeviceSummaryResponseWrapper) => {
-                // console.log("FILTERING=----", response.data.summary)
                 return response.data.summary
             }),
             tap((response: { [key: string]: DeviceSummaryModel }) => {

@@ -1,5 +1,5 @@
 import {Inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {TREO_APP_CONFIG} from '@treo/services/config/config.constants';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {getBasePath} from '../../app.routing';
@@ -36,27 +36,21 @@ export class ScrutinyConfigService {
         // get the current config, merge the new values, and then submit. (setTheme only sets a single key, not the whole obj)
         const mergedSettings = merge({}, this._config.getValue(), value);
 
-        console.log('saving settings...', mergedSettings)
         this._httpClient.post(getBasePath() + '/api/settings', mergedSettings).pipe(
             map((response: any) => {
-                console.log('settings resp')
                 return response.settings
             }),
             tap((settings: AppConfig) => {
                 this._config.next(settings);
                 return settings
             })
-        ).subscribe(resp => {
-            console.log('updated settings', resp)
-        })
+        ).subscribe()
     }
 
     get config$(): Observable<AppConfig> {
         if (this._config.getValue()) {
-            console.log('using cached settings:', this._config.getValue())
             return this._config.asObservable()
         } else {
-            console.log('retrieving settings')
             return this._httpClient.get(getBasePath() + '/api/settings').pipe(
                 map((response: any) => {
                     return response.settings

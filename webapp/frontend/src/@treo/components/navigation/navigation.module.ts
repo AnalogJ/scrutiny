@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
+import { MatButtonModule as MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule as MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule as MatTooltipModule } from '@angular/material/tooltip';
 import { TreoScrollbarModule } from '@treo/directives/scrollbar/public-api';
 import { TreoHorizontalNavigationBasicItemComponent } from '@treo/components/navigation/horizontal/components/basic/basic.component';
 import { TreoHorizontalNavigationBranchItemComponent } from '@treo/components/navigation/horizontal/components/branch/branch.component';

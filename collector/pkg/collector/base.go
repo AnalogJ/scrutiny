@@ -3,20 +3,25 @@ package collector
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
-var httpClient = &http.Client{Timeout: 60 * time.Second}
-
 type BaseCollector struct {
-	logger *logrus.Entry
+	logger     *logrus.Entry
+	httpClient *http.Client
+}
+
+// NewHTTPClient creates an HTTP client with the specified timeout in seconds
+func NewHTTPClient(timeoutSeconds int) *http.Client {
+	return &http.Client{Timeout: time.Duration(timeoutSeconds) * time.Second}
 }
 
 func (c *BaseCollector) getJson(url string, target interface{}) error {
 
-	r, err := httpClient.Get(url)
+	r, err := c.httpClient.Get(url)
 	if err != nil {
 		return err
 	}
@@ -31,7 +36,7 @@ func (c *BaseCollector) postJson(url string, body interface{}, target interface{
 		return err
 	}
 
-	r, err := httpClient.Post(url, "application/json", bytes.NewBuffer(requestBody))
+	r, err := c.httpClient.Post(url, "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		return err
 	}

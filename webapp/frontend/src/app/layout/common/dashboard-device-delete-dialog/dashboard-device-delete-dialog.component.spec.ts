@@ -1,9 +1,9 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {DashboardDeviceDeleteDialogComponent} from './dashboard-device-delete-dialog.component';
-import {HttpClientModule} from '@angular/common/http';
-import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
-import {MatButtonModule} from '@angular/material/button';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {MAT_DIALOG_DATA, MatDialogModule as MatDialogModule, MatDialogRef as MatDialogRef} from '@angular/material/dialog';
+import {MatButtonModule as MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {SharedModule} from '../../../shared/shared.module';
 import {DashboardDeviceDeleteDialogService} from './dashboard-device-delete-dialog.service';
@@ -17,24 +17,22 @@ describe('DashboardDeviceDeleteDialogComponent', () => {
     const matDialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['closeDialog', 'close']);
     const dashboardDeviceDeleteDialogServiceSpy = jasmine.createSpyObj('DashboardDeviceDeleteDialogService', ['deleteDevice']);
 
-    beforeEach(async(() => {
+    beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [
-                HttpClientModule,
-                MatDialogModule,
-                MatButtonModule,
-                MatIconModule,
-                SharedModule,
-            ],
-            providers: [
-                {provide: MatDialogRef, useValue: matDialogRefSpy},
-                {provide: MAT_DIALOG_DATA, useValue: {wwn: 'test-wwn', title: 'my-test-device-title'}},
-                {provide: DashboardDeviceDeleteDialogService, useValue: dashboardDeviceDeleteDialogServiceSpy}
-            ],
-            declarations: [DashboardDeviceDeleteDialogComponent]
-        })
+    declarations: [DashboardDeviceDeleteDialogComponent],
+    imports: [MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        SharedModule],
+    providers: [
+        { provide: MatDialogRef, useValue: matDialogRefSpy },
+        { provide: MAT_DIALOG_DATA, useValue: { wwn: 'test-wwn', title: 'my-test-device-title' } },
+        { provide: DashboardDeviceDeleteDialogService, useValue: dashboardDeviceDeleteDialogServiceSpy },
+        provideHttpClient(withInterceptorsFromDi())
+    ]
+})
             .compileComponents()
-    }));
+    });
 
     beforeEach(() => {
         fixture = TestBed.createComponent(DashboardDeviceDeleteDialogComponent);

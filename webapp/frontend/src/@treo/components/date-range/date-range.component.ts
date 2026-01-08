@@ -4,7 +4,7 @@ import { Overlay } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { MatCalendarCellCssClasses, MatMonthView } from '@angular/material/datepicker';
 import { Subject } from 'rxjs';
-import * as moment from 'moment';
+import moment from 'moment';
 import { Moment } from 'moment';
 
 @Component({
