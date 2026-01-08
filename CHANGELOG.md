@@ -2,6 +2,12 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.7.0](https://github.com/Starosdev/scrutiny/compare/v1.6.2...v1.7.0) (2026-01-08)
+
+### Features
+
+* **zfs:** add ZFS pool monitoring support ([6df294a](https://github.com/Starosdev/scrutiny/commit/6df294a8c208f2c2db3a8fecb49d764d47704bbf)), closes [#66](https://github.com/Starosdev/scrutiny/issues/66)
+
 ## [1.6.2](https://github.com/Starosdev/scrutiny/compare/v1.6.1...v1.6.2) (2026-01-08)
 
 ### Bug Fixes
