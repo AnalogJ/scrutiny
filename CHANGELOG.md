@@ -2,6 +2,27 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.5.0](https://github.com/Starosdev/scrutiny/compare/v1.4.1...v1.5.0) (2026-01-08)
+
+### Features
+
+* **notify:** add device label to notification payload ([#48](https://github.com/Starosdev/scrutiny/issues/48)) ([231cc4c](https://github.com/Starosdev/scrutiny/commit/231cc4c2e11d3d04df4aa1a076f9fe839ca5bc56))
+
+### Bug Fixes
+
+* batch of quick wins from GitHub issues ([5eef50e](https://github.com/Starosdev/scrutiny/commit/5eef50e13ba71f400a9846004fedff05e431afed)), closes [#47](https://github.com/Starosdev/scrutiny/issues/47) [#50](https://github.com/Starosdev/scrutiny/issues/50) [#47](https://github.com/Starosdev/scrutiny/issues/47) [#50](https://github.com/Starosdev/scrutiny/issues/50) [#8](https://github.com/Starosdev/scrutiny/issues/8) [#56](https://github.com/Starosdev/scrutiny/issues/56) [#59](https://github.com/Starosdev/scrutiny/issues/59) [#26](https://github.com/Starosdev/scrutiny/issues/26)
+* **collector:** populate DeviceType from smartctl info when not set ([6704245](https://github.com/Starosdev/scrutiny/commit/670424567ab2f9d262fc1f3b04fbbf081fc0267e))
+* **tests:** add GetString notify.urls mock for notify.Send() ([a2a9f71](https://github.com/Starosdev/scrutiny/commit/a2a9f7109cfe17dce91b036b5b5ad906ea477a55))
+* **tests:** add index.html to all web tests for health check ([e1ee2c3](https://github.com/Starosdev/scrutiny/commit/e1ee2c31c5fc341eb23225dde9733a0602c43ffe))
+* **tests:** add missing config mock expectations for GORM logging ([5a74c7c](https://github.com/Starosdev/scrutiny/commit/5a74c7c2b050661a45b5aa80779eea36ff318ea2))
+* **tests:** add missing config mocks for GORM logging ([2f312cf](https://github.com/Starosdev/scrutiny/commit/2f312cf52ab0f52b5c4f49ad52fd45eefdf53fa8))
+* **tests:** add web.metrics.enabled mock ([6418581](https://github.com/Starosdev/scrutiny/commit/6418581a96b26291788beb938f504e1026b93995))
+* **tests:** add web.metrics.enabled mock to all test blocks ([3b297c2](https://github.com/Starosdev/scrutiny/commit/3b297c27eff799aae02e8b86d90f9aa418eba8a8))
+
+### Build
+
+* disable VCS stamping in binary builds ([010d287](https://github.com/Starosdev/scrutiny/commit/010d287a108ec4a9069f5d683b33a05f91ec9e81))
+
 ## [1.4.3](https://github.com/Starosdev/scrutiny/compare/v1.4.2...v1.4.3) (2026-01-08)
 
 ### Build
