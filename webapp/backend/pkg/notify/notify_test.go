@@ -338,3 +338,33 @@ Device Type: ATA
 
 Date: %s`, currentTime.Format(time.RFC3339)), payload.Message)
 }
+
+func TestNewPayload_WithDeviceLabel(t *testing.T) {
+	t.Parallel()
+
+	//setup
+	device := models.Device{
+		SerialNumber: "FAKEWDDJ324KSO",
+		DeviceType:   pkg.DeviceProtocolAta,
+		DeviceName:   "/dev/sda",
+		DeviceStatus: pkg.DeviceStatusFailedScrutiny,
+		Label:        "Parity Drive 1",
+	}
+	currentTime := time.Now()
+	//test
+
+	payload := NewPayload(device, false, currentTime)
+
+	//assert
+	require.Equal(t, "FAKEWDDJ324KSO", payload.DeviceSerial)
+	require.Equal(t, "Parity Drive 1", payload.DeviceLabel)
+	require.Equal(t, "Scrutiny SMART error (ScrutinyFailure) detected on device: Parity Drive 1 (/dev/sda)", payload.Subject)
+	require.Equal(t, fmt.Sprintf(`Scrutiny SMART error notification for device: /dev/sda
+Failure Type: ScrutinyFailure
+Device Name: /dev/sda
+Device Serial: FAKEWDDJ324KSO
+Device Type: ATA
+Device Label: Parity Drive 1
+
+Date: %s`, currentTime.Format(time.RFC3339)), payload.Message)
+}
