@@ -2,6 +2,12 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.6.0](https://github.com/Starosdev/scrutiny/compare/v1.5.0...v1.6.0) (2026-01-08)
+
+### Features
+
+* **frontend:** Upgrade Angular 13 to Angular 21 ([d9e4b6a](https://github.com/Starosdev/scrutiny/commit/d9e4b6ad5753a9c1d343a7a44b1bd145dafb92ba)), closes [#9](https://github.com/Starosdev/scrutiny/issues/9)
+
 ## [1.5.0](https://github.com/Starosdev/scrutiny/compare/v1.4.1...v1.5.0) (2026-01-08)
 
 ### Features
