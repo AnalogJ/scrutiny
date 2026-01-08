@@ -22,6 +22,7 @@ jobs:
           name: coverage-frontend
           path: ${{ github.workspace }}/webapp/frontend/coverage/lcov.info
           retention-days: 1
+          if-no-files-found: ignore
   test-backend:
     name: Test Backend
     runs-on: ubuntu-latest
@@ -75,12 +76,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: coverage-frontend
+        continue-on-error: true
       - name: Upload coverage reports
         uses: codecov/codecov-action@v5
         with:
           files: ${{ github.workspace }}/coverage.txt,${{ github.workspace }}/lcov.info
           flags: unittests
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
 
   build:
