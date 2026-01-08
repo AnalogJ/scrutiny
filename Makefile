@@ -105,7 +105,6 @@ binary-frontend: export NG_CLI_ANALYTICS = false
 binary-frontend:
 	cd webapp/frontend
 	npm install -g @angular/cli@^21
-	mkdir -p $(CURDIR)/dist
 	npm ci
 	npm run build:prod
 
