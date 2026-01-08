@@ -46,6 +46,13 @@ influxdb:2.0
 //	os.Exit(code)
 //}
 
+// helperCreateFrontendFiles creates the index.html file required by the health check
+func helperCreateFrontendFiles(t *testing.T, parentPath string) {
+	indexPath := path.Join(parentPath, "index.html")
+	err := ioutil.WriteFile(indexPath, []byte("<html></html>"), 0644)
+	require.NoError(t, err)
+}
+
 // InfluxDB will throw an error/ignore any submitted data with a timestamp older than the
 // retention period. Lets fix this by opening test files, modifying the timestamp and returning an io.Reader
 func helperReadSmartDataFileFixTimestamp(t *testing.T, smartDataFilepath string) io.Reader {
@@ -89,11 +96,7 @@ func (suite *ServerTestSuite) TestHealthRoute() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
-
-	// Create index.html to satisfy frontend check
-	indexPath := path.Join(parentPath, "index.html")
-	err := ioutil.WriteFile(indexPath, []byte("<html></html>"), 0644)
-	require.NoError(suite.T(), err)
+	helperCreateFrontendFiles(suite.T(), parentPath)
 
 	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
@@ -190,6 +193,7 @@ func (suite *ServerTestSuite) TestRegisterDevicesRoute() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
+	helperCreateFrontendFiles(suite.T(), parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -234,6 +238,7 @@ func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
+	helperCreateFrontendFiles(suite.T(), parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -290,6 +295,7 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
+	helperCreateFrontendFiles(suite.T(), parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -397,6 +403,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_WebhookFailure() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
+	helperCreateFrontendFiles(suite.T(), parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -444,6 +451,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptFailure() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
+	helperCreateFrontendFiles(suite.T(), parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -491,6 +499,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptSuccess() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
+	helperCreateFrontendFiles(suite.T(), parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -538,6 +547,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ShoutrrrFailure() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
+	helperCreateFrontendFiles(suite.T(), parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -584,6 +594,7 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	//setup
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
+	helperCreateFrontendFiles(suite.T(), parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
