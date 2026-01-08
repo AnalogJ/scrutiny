@@ -3,7 +3,7 @@
 // -----------------------------------------------------------------------------------------------------
 
 // 1. Angular Material theming tools
-@import '~@angular/material/theming';
+@import '@angular/material/theming';
 
 // 2. Utilities
 @import '../tailwind/exported/variables';
@@ -15,4 +15,4 @@
 @import 'utilities/keyframes';
 
 // 3. Themes definition file that includes $treo-themes map
-@import 'src/styles/themes';
+@import '../../styles/themes';

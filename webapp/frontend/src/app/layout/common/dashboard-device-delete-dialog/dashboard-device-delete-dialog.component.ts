@@ -1,11 +1,12 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialogRef as MatDialogRef} from '@angular/material/dialog';
 import {DashboardDeviceDeleteDialogService} from 'app/layout/common/dashboard-device-delete-dialog/dashboard-device-delete-dialog.service';
 
 @Component({
-  selector: 'app-dashboard-device-delete-dialog',
-  templateUrl: './dashboard-device-delete-dialog.component.html',
-  styleUrls: ['./dashboard-device-delete-dialog.component.scss']
+    selector: 'app-dashboard-device-delete-dialog',
+    templateUrl: './dashboard-device-delete-dialog.component.html',
+    styleUrls: ['./dashboard-device-delete-dialog.component.scss'],
+    standalone: false
 })
 export class DashboardDeviceDeleteDialogComponent implements OnInit {
 

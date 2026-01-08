@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 
 /* tslint:disable:max-line-length */
 export const summary = {

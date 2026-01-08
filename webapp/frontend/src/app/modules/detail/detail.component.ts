@@ -4,9 +4,9 @@ import {ApexOptions} from 'ng-apexcharts';
 import {AppConfig} from 'app/core/config/app.config';
 import {DetailService} from './detail.service';
 import {DetailSettingsComponent} from 'app/layout/common/detail-settings/detail-settings.component';
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog as MatDialog} from '@angular/material/dialog';
 import {MatSort} from '@angular/material/sort';
-import {MatTableDataSource} from '@angular/material/table';
+import {MatTableDataSource as MatTableDataSource} from '@angular/material/table';
 import {Subject} from 'rxjs';
 import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
 import {animate, state, style, transition, trigger} from '@angular/animations';
@@ -31,11 +31,12 @@ const AttributeStatusFailedScrutiny = 4
     styleUrls: ['./detail.component.scss'],
     animations: [
         trigger('detailExpand', [
-            state('collapsed', style({height: '0px', minHeight: '0'})),
-            state('expanded', style({height: '*'})),
+            state('collapsed', style({ height: '0px', minHeight: '0' })),
+            state('expanded', style({ height: '*' })),
             transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
         ]),
     ],
+    standalone: false
 })
 
 export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {

@@ -1,0 +1,6 @@
+node_modules
+dist
+coverage
+src/tailwind
+*.scss
+package-lock.json

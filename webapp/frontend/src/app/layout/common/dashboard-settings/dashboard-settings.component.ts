@@ -17,7 +17,8 @@ import {takeUntil} from 'rxjs/operators';
 @Component({
     selector: 'app-dashboard-settings',
     templateUrl: './dashboard-settings.component.html',
-    styleUrls: ['./dashboard-settings.component.scss']
+    styleUrls: ['./dashboard-settings.component.scss'],
+    standalone: false
 })
 export class DashboardSettingsComponent implements OnInit {
 

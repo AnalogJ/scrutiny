@@ -11,7 +11,7 @@ import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {ApexOptions, ChartComponent} from 'ng-apexcharts';
 import {DashboardService} from 'app/modules/dashboard/dashboard.service';
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog as MatDialog} from '@angular/material/dialog';
 import {DashboardSettingsComponent} from 'app/layout/common/dashboard-settings/dashboard-settings.component';
 import {AppConfig} from 'app/core/config/app.config';
 import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
@@ -21,11 +21,12 @@ import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
 import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
 
 @Component({
-    selector       : 'example',
-    templateUrl    : './dashboard.component.html',
-    styleUrls      : ['./dashboard.component.scss'],
-    encapsulation  : ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'example',
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 {

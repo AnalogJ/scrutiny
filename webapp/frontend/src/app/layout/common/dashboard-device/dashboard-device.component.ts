@@ -1,10 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import * as moment from 'moment';
+import moment from 'moment';
 import {takeUntil} from 'rxjs/operators';
 import {AppConfig} from 'app/core/config/app.config';
 import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
 import {Subject} from 'rxjs';
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog as MatDialog} from '@angular/material/dialog';
 import {DashboardDeviceDeleteDialogComponent} from 'app/layout/common/dashboard-device-delete-dialog/dashboard-device-delete-dialog.component';
 import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
 import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
@@ -15,7 +15,8 @@ import {DashboardDeviceArchiveDialogService} from '../dashboard-device-archive-d
 @Component({
     selector: 'app-dashboard-device',
     templateUrl: './dashboard-device.component.html',
-    styleUrls: ['./dashboard-device.component.scss']
+    styleUrls: ['./dashboard-device.component.scss'],
+    standalone: false
 })
 export class DashboardDeviceComponent implements OnInit {
 

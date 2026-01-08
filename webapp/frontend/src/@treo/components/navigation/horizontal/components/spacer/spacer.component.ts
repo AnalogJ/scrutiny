@@ -6,10 +6,11 @@ import { TreoNavigationService } from '@treo/components/navigation/navigation.se
 import { TreoNavigationItem } from '@treo/components/navigation/navigation.types';
 
 @Component({
-    selector       : 'treo-horizontal-navigation-spacer-item',
-    templateUrl    : './spacer.component.html',
-    styles         : [],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'treo-horizontal-navigation-spacer-item',
+    templateUrl: './spacer.component.html',
+    styles: [],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class TreoHorizontalNavigationSpacerItemComponent implements OnInit, OnDestroy
 {

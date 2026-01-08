@@ -2,9 +2,10 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-detail-settings',
-  templateUrl: './detail-settings.component.html',
-  styleUrls: ['./detail-settings.component.scss']
+    selector: 'app-detail-settings',
+    templateUrl: './detail-settings.component.html',
+    styleUrls: ['./detail-settings.component.scss'],
+    standalone: false
 })
 export class DetailSettingsComponent implements OnInit {
 

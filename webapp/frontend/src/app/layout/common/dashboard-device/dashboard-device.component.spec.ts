@@ -1,16 +1,16 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {DashboardDeviceComponent} from './dashboard-device.component';
-import {MatDialog} from '@angular/material/dialog';
-import {MatButtonModule} from '@angular/material/button';
+import {MatDialog as MatDialog} from '@angular/material/dialog';
+import {MatButtonModule as MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {SharedModule} from 'app/shared/shared.module';
-import {MatMenuModule} from '@angular/material/menu';
+import {MatMenuModule as MatMenuModule} from '@angular/material/menu';
 import {TREO_APP_CONFIG} from '@treo/services/config/config.constants';
 import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
-import * as moment from 'moment';
-import {HttpClientTestingModule} from '@angular/common/http/testing';
-import {HttpClient} from '@angular/common/http';
+import moment from 'moment';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
 import {of} from 'rxjs';
 import {MetricsStatusThreshold} from 'app/core/config/app.config';
@@ -24,31 +24,30 @@ describe('DashboardDeviceComponent', () => {
     let configService: ScrutinyConfigService;
     let httpClientSpy: jasmine.SpyObj<HttpClient>;
 
-    beforeEach(async(() => {
+    beforeEach(() => {
 
         httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
         configService = new ScrutinyConfigService(httpClientSpy, {});
 
         TestBed.configureTestingModule({
-            imports: [
-                MatButtonModule,
-                MatIconModule,
-                MatMenuModule,
-                SharedModule,
-                HttpClientTestingModule,
-            ],
-            providers: [
-                {provide: MatDialog, useValue: matDialogSpy},
-                {provide: TREO_APP_CONFIG, useValue: {dashboard_display: 'name', metrics: {status_threshold: 3}}},
-                {provide: ScrutinyConfigService, useValue: configService}
-            ],
-            declarations: [DashboardDeviceComponent]
-        })
+    declarations: [DashboardDeviceComponent],
+    imports: [MatButtonModule,
+        MatIconModule,
+        MatMenuModule,
+        SharedModule],
+    providers: [
+        { provide: MatDialog, useValue: matDialogSpy },
+        { provide: TREO_APP_CONFIG, useValue: { dashboard_display: 'name', metrics: { status_threshold: 3 } } },
+        { provide: ScrutinyConfigService, useValue: configService },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting()
+    ]
+})
             .compileComponents();
-    }));
+    });
 
     beforeEach(() => {
-        // configServiceSpy.config$.and.returnValue(of({'success': true}));
+        // configServiceSpy.config$.and.returnValue(of({'success': true});
         fixture = TestBed.createComponent(DashboardDeviceComponent);
         component = fixture.componentInstance;
     });

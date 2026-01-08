@@ -104,10 +104,10 @@ binary-frontend: export NPM_CONFIG_LOGLEVEL = warn
 binary-frontend: export NG_CLI_ANALYTICS = false
 binary-frontend:
 	cd webapp/frontend
-	npm install -g @angular/cli@v13-lts
+	npm install -g @angular/cli@^21
 	mkdir -p $(CURDIR)/dist
 	npm ci
-	npm run build:prod -- --output-path=$(CURDIR)/dist
+	npm run build:prod
 
 .PHONY: binary-frontend-test-coverage
 # reduce logging, disable angular-cli analytics for ci environment

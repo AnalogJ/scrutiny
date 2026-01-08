@@ -87,7 +87,7 @@ The frontend is written in Angular. If you're working on the frontend and can us
 2. start the Angular Frontend Application
     ```bash
     cd webapp/frontend
-    npm install
+    npm install --legacy-peer-deps
     npm run start -- --serve-path="/web/" --port 4200
     ```
 3. open your browser and visit [http://localhost:4200/web](http://localhost:4200/web)
@@ -128,7 +128,7 @@ you'll need to follow the steps below:
 5. build the Angular Frontend Application
     ```bash
     cd webapp/frontend
-    npm install
+    npm install --legacy-peer-deps
     npm run build:prod -- --watch --output-path=../../dist
     # Note: if you do not add `--prod` flag, app will display mocked data for api calls.
     ```

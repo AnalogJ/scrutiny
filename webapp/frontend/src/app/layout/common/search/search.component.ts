@@ -1,24 +1,25 @@
 import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { MatFormField } from '@angular/material/form-field';
+import { MatFormField as MatFormField } from '@angular/material/form-field';
 import { Subject } from 'rxjs';
 import { debounceTime, filter, map, takeUntil } from 'rxjs/operators';
 import { TreoAnimations } from '@treo/animations/public-api';
 import { getBasePath } from 'app/app.routing';
 
 @Component({
-    selector     : 'search',
-    templateUrl  : './search.component.html',
-    styleUrls    : ['./search.component.scss'],
+    selector: 'search',
+    templateUrl: './search.component.html',
+    styleUrls: ['./search.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    exportAs     : 'treoSearch',
-    animations   : TreoAnimations
+    exportAs: 'treoSearch',
+    animations: TreoAnimations,
+    standalone: false
 })
 export class SearchComponent implements OnInit, OnDestroy
 {
     results: any[] | null;
-    searchControl: FormControl;
+    searchControl: UntypedFormControl;
 
     // Debounce
     @Input()
@@ -59,7 +60,7 @@ export class SearchComponent implements OnInit, OnDestroy
         this.minLength = this.minLength || 2;
         this.opened = false;
         this.results = null;
-        this.searchControl = new FormControl();
+        this.searchControl = new UntypedFormControl();
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -160,7 +161,10 @@ export class SearchComponent implements OnInit, OnDestroy
             setTimeout(() => {
 
                 // Focus to the input element
-                value._inputContainerRef.nativeElement.children[0].focus();
+                const inputElement = value._elementRef.nativeElement.querySelector('input');
+                if (inputElement) {
+                    inputElement.focus();
+                }
             });
         }
     }

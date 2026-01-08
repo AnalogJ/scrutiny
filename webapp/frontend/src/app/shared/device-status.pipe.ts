@@ -18,7 +18,8 @@ const DEVICE_STATUS_NAMES_WITH_REASON: { [key: number]: string } = {
 
 
 @Pipe({
-    name: 'deviceStatus'
+    name: 'deviceStatus',
+    standalone: false
 })
 export class DeviceStatusPipe implements PipeTransform {
 

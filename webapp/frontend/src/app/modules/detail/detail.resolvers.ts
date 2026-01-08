@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {ActivatedRouteSnapshot, Resolve, RouterStateSnapshot} from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import {Observable} from 'rxjs';
 import {DetailService} from 'app/modules/detail/detail.service';
 import {DeviceDetailsResponseWrapper} from 'app/core/models/device-details-response-wrapper';
@@ -7,7 +7,7 @@ import {DeviceDetailsResponseWrapper} from 'app/core/models/device-details-respo
 @Injectable({
     providedIn: 'root'
 })
-export class DetailResolver implements Resolve<any> {
+export class DetailResolver  {
     /**
      * Constructor
      *

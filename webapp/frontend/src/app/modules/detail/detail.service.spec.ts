@@ -1,4 +1,4 @@
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {DetailService} from './detail.service';
 import {of} from 'rxjs';
 import {sda} from 'app/data/mock/device/details/sda'

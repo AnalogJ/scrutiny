@@ -2,7 +2,8 @@ import {Pipe, PipeTransform} from '@angular/core';
 import {DeviceModel} from 'app/core/models/device-model';
 
 @Pipe({
-  name: 'deviceTitle'
+    name: 'deviceTitle',
+    standalone: false
 })
 export class DeviceTitlePipe implements PipeTransform {
 
