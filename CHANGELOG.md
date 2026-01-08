@@ -2,6 +2,12 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.4.1](https://github.com/Starosdev/scrutiny/compare/v1.4.0...v1.4.1) (2026-01-08)
+
+### Bug Fixes
+
+* batch of quick wins from GitHub issues ([#60](https://github.com/Starosdev/scrutiny/issues/60)) ([a11d619](https://github.com/Starosdev/scrutiny/commit/a11d619a893458949e67560ff96ee6881dcf13b5))
+
 ## [1.3.0](https://github.com/Starosdev/scrutiny/compare/v1.2.0...v1.3.0) (2025-12-20)
 
 ### Features
