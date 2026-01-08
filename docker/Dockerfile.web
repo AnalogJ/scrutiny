@@ -29,7 +29,7 @@ ENV PATH="/opt/scrutiny/bin:${PATH}"
 RUN apt-get update && apt-get install -y ca-certificates curl tzdata && rm -rf /var/lib/apt/lists/* && update-ca-certificates
 
 COPY --link --from=backendbuild --chmod=755 /go/src/github.com/analogj/scrutiny/scrutiny /opt/scrutiny/bin/
-COPY --link --from=frontendbuild --chmod=644 /go/src/github.com/analogj/scrutiny/dist /opt/scrutiny/web
+COPY --link --from=frontendbuild --chmod=644 /go/src/github.com/analogj/scrutiny/webapp/frontend/dist/treo/browser /opt/scrutiny/web
 RUN mkdir -p /opt/scrutiny/web && \
     mkdir -p /opt/scrutiny/config && \
     chmod -R a+rX /opt/scrutiny && \

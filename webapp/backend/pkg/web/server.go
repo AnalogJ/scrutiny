@@ -51,6 +51,7 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 		api := base.Group("/api")
 		{
 			api.GET("/health", handler.HealthCheck)
+			api.HEAD("/health", handler.HealthCheck)
 			api.POST("/health/notify", handler.SendTestNotification) //check if notifications are configured correctly
 
 			api.POST("/devices/register", handler.RegisterDevices)         //used by Collector to register new devices and retrieve filtered list
