@@ -38,7 +38,11 @@ ifdef GOARM
 COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME)-$(GOARM)
 WEB_BINARY_NAME := $(WEB_BINARY_NAME)-$(GOARM)
 endif
+# Add .exe extension when building for Windows (native or cross-compile)
 ifeq ($(OS),Windows_NT)
+COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME).exe
+WEB_BINARY_NAME := $(WEB_BINARY_NAME).exe
+else ifeq ($(GOOS),windows)
 COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME).exe
 WEB_BINARY_NAME := $(WEB_BINARY_NAME).exe
 endif

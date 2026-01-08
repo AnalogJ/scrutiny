@@ -109,6 +109,12 @@ func (sm *Smart) FromCollectorSmartInfo(cfg config.Interface, wwn string, info c
 
 	//smart metrics
 	sm.Temp = info.Temperature.Current
+	// For SCSI/SAS drives, if standard temperature field is 0, check scsi_environmental_reports
+	if sm.Temp == 0 && len(info.ScsiEnvironmentalReports) > 0 {
+		if temp, ok := info.ScsiEnvironmentalReports["temperature_1"]; ok {
+			sm.Temp = temp.Current
+		}
+	}
 	sm.PowerCycleCount = info.PowerCycleCount
 	sm.PowerOnHours = info.PowerOnTime.Hours
 	if !info.SmartStatus.Passed {

@@ -534,8 +534,43 @@ func TestFromCollectorSmartInfo_Scsi(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
 	require.Equal(t, pkg.DeviceStatusPassed, smartMdl.Status)
-	require.Equal(t, 13, len(smartMdl.Attributes))
+	require.Equal(t, 14, len(smartMdl.Attributes))
 
 	require.Equal(t, int64(56), smartMdl.Attributes["scsi_grown_defect_list"].(*measurements.SmartScsiAttribute).Value)
 	require.Equal(t, int64(300357663), smartMdl.Attributes["read_errors_corrected_by_eccfast"].(*measurements.SmartScsiAttribute).Value) //total_errors_corrected
+}
+
+// TestFromCollectorSmartInfo_Scsi_SAS_EnvironmentalReports tests that for SAS drives
+// where the standard temperature field is 0, the temperature is correctly parsed
+// from scsi_environmental_reports.temperature_1.current (fixes GitHub issue #26)
+func TestFromCollectorSmartInfo_Scsi_SAS_EnvironmentalReports(t *testing.T) {
+	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{195}).AnyTimes()
+
+	smartDataFile, err := os.Open("../testdata/smart-scsi-sas-env-temp.json")
+	require.NoError(t, err)
+	defer smartDataFile.Close()
+
+	var smartJson collector.SmartInfo
+
+	smartDataBytes, err := ioutil.ReadAll(smartDataFile)
+	require.NoError(t, err)
+	err = json.Unmarshal(smartDataBytes, &smartJson)
+	require.NoError(t, err)
+
+	//test
+	smartMdl := measurements.Smart{}
+	err = smartMdl.FromCollectorSmartInfo(fakeConfig, "WWN-test", smartJson)
+
+	//assert
+	require.NoError(t, err)
+	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
+	require.Equal(t, pkg.DeviceStatusPassed, smartMdl.Status)
+
+	// The temperature.current in the JSON is 0, but scsi_environmental_reports.temperature_1.current is 38
+	// The fix should correctly extract 38 from scsi_environmental_reports
+	require.Equal(t, int64(38), smartMdl.Temp, "Temperature should be parsed from scsi_environmental_reports when standard temperature is 0")
 }

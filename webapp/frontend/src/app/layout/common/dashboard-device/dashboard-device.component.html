@@ -2,7 +2,7 @@
         [ngClass]="{ 'border-green': deviceStatusForModelWithThreshold(deviceSummary.device, !!deviceSummary.smart, config.metrics.status_threshold) == 'passed',
                                 'border-red': deviceStatusForModelWithThreshold(deviceSummary.device, !!deviceSummary.smart, config.metrics.status_threshold) == 'failed',
                                  'text-disabled': deviceSummary.device.archived }"
-     class="relative flex flex-col flex-auto p-6 pr-3 pb-3 bg-card rounded border-l-4 shadow-md overflow-hidden">
+     class="relative flex flex-col flex-auto p-6 pr-3 pb-4 bg-card rounded border-l-4 shadow-md overflow-hidden">
     <div class="absolute bottom-0 right-0 w-24 h-24 -m-6">
         <mat-icon class="icon-size-96 opacity-12 text-green"
                   *ngIf="deviceStatusForModelWithThreshold(deviceSummary.device, !!deviceSummary.smart, config.metrics.status_threshold) == 'passed'"
@@ -59,7 +59,7 @@
             </mat-menu>
         </div>
     </div>
-    <div class="flex flex-row flex-wrap mt-4 -mx-6">
+    <div class="flex flex-row flex-wrap mt-4 -mx-6 relative z-10">
         <div class="flex flex-col mx-6 my-3 xs:w-full">
             <div class="font-semibold text-xs text-hint uppercase tracking-wider leading-none">Status</div>
             <div class="mt-2 font-medium text-3xl leading-none"
