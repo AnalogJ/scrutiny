@@ -2,6 +2,12 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.4.3](https://github.com/Starosdev/scrutiny/compare/v1.4.2...v1.4.3) (2026-01-08)
+
+### Build
+
+* disable VCS stamping in binary builds ([010d287](https://github.com/Starosdev/scrutiny/commit/010d287a108ec4a9069f5d683b33a05f91ec9e81))
+
 ## [1.4.2](https://github.com/Starosdev/scrutiny/compare/v1.4.1...v1.4.2) (2026-01-08)
 
 ### Bug Fixes
