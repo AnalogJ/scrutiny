@@ -2,6 +2,13 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.6.1](https://github.com/Starosdev/scrutiny/compare/v1.6.0...v1.6.1) (2026-01-08)
+
+### Bug Fixes
+
+* **ci:** correct frontend tarball path in release workflow ([d46b8f0](https://github.com/Starosdev/scrutiny/commit/d46b8f0696c71ac64af9fd8c3fb7890e44e9db3d)), closes [#59](https://github.com/Starosdev/scrutiny/issues/59)
+* **ci:** make frontend coverage upload optional ([5cc5ed1](https://github.com/Starosdev/scrutiny/commit/5cc5ed134044a6dc6d2d2df521e662083bb0b696))
+
 ## [1.6.0](https://github.com/Starosdev/scrutiny/compare/v1.5.0...v1.6.0) (2026-01-08)
 
 ### Features
