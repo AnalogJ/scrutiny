@@ -108,6 +108,7 @@ func (suite *ServerTestSuite) TestHealthRoute() {
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.metrics.enabled").Return(false).AnyTimes()
 
 	fakeConfig.EXPECT().GetString("web.influxdb.scheme").Return("http").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
@@ -159,6 +160,7 @@ func (suite *ServerTestSuite) TestHealthRoute_MissingFrontend() {
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.metrics.enabled").Return(false).AnyTimes()
 
 	fakeConfig.EXPECT().GetString("web.influxdb.scheme").Return("http").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
