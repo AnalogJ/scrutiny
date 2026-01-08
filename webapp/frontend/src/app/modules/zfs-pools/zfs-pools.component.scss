@@ -1,0 +1,24 @@
+:host {
+    display: flex;
+    flex: 1 1 auto;
+
+    .dashboard-placeholder {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+
+        .image {
+            max-width: 300px;
+        }
+
+        code {
+            padding: 10px 20px;
+            background: #2d2d2d;
+            color: white;
+            display: block;
+        }
+    }
+}

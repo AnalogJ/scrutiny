@@ -1,0 +1,26 @@
+# Scrutiny ZFS Collector Configuration
+# This file configures the ZFS pool collector component
+
+version: 1
+
+# Host identification
+host:
+  # Optional: Unique identifier for this host
+  # Used to group pools by host in the dashboard
+  id: ""
+
+# API settings
+api:
+  # The API endpoint for the Scrutiny web server
+  endpoint: "http://localhost:8080"
+
+  # Timeout in seconds for API requests
+  timeout: 60
+
+# Logging configuration
+log:
+  # Log level: DEBUG, INFO, WARNING, ERROR
+  level: INFO
+
+  # Optional: Path to log file (leave empty for STDOUT)
+  file: ""

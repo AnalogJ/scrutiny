@@ -1,0 +1,192 @@
+<div
+  [ngClass]="{
+    'border-green': getPoolStatus(poolSummary.pool) == 'passed',
+    'border-red': getPoolStatus(poolSummary.pool) == 'failed',
+    'border-yellow': getPoolStatus(poolSummary.pool) == 'unknown',
+    'text-disabled': poolSummary.pool.archived
+  }"
+  class="relative flex flex-col flex-auto p-6 pr-3 pb-3 bg-card rounded border-l-4 shadow-md overflow-hidden"
+>
+  <!-- Status watermark icon -->
+  <div class="absolute bottom-0 right-0 w-24 h-24 -m-6">
+    @if (getPoolStatus(poolSummary.pool) == 'passed') {
+      <mat-icon
+        class="icon-size-96 opacity-12 text-green"
+        [svgIcon]="'heroicons_outline:check-circle'"
+      ></mat-icon>
+    }
+    @if (getPoolStatus(poolSummary.pool) == 'failed') {
+      <mat-icon
+        class="icon-size-96 opacity-12 text-red"
+        [svgIcon]="'heroicons_outline:exclamation-circle'"
+      ></mat-icon>
+    }
+    @if (getPoolStatus(poolSummary.pool) == 'unknown') {
+      <mat-icon
+        class="icon-size-96 opacity-12 text-yellow"
+        [svgIcon]="'heroicons_outline:question-mark-circle'"
+      ></mat-icon>
+    }
+  </div>
+
+  <!-- Header -->
+  <div class="flex items-center">
+    <div class="flex flex-col">
+      <a
+        [routerLink]="'/zfs-pool/' + poolSummary.pool.guid"
+        class="font-bold text-md text-secondary uppercase tracking-wider"
+      >
+        {{ getPoolTitle(poolSummary.pool) }}
+        @if (poolSummary.pool.muted) {
+          <mat-icon
+            class="muted-icon ml-1"
+            [svgIcon]="'notifications_off'"
+          ></mat-icon>
+        }
+      </a>
+
+      @if (poolSummary.pool.updated_at) {
+        <div
+          [ngClass]="classPoolLastUpdatedOn(poolSummary.pool)"
+          class="font-medium text-sm"
+        >
+          Last Updated on
+          {{ poolSummary.pool.updated_at | date:'MMMM dd, yyyy - HH:mm' }}
+        </div>
+      }
+    </div>
+
+    <!-- Actions -->
+    @if (poolSummary.pool) {
+      <div class="ml-auto flex items-center">
+        @if (poolSummary.pool.archived) {
+          <mat-icon [svgIcon]="'archive'"></mat-icon>
+        }
+
+        <button
+          mat-icon-button
+          [matMenuTriggerFor]="poolActionsMenu"
+        >
+          <mat-icon [svgIcon]="'more_vert'"></mat-icon>
+        </button>
+
+        <mat-menu #poolActionsMenu="matMenu">
+          <a
+            mat-menu-item
+            [routerLink]="'/zfs-pool/' + poolSummary.pool.guid"
+          >
+            <span class="flex items-center">
+              <mat-icon
+                class="icon-size-20 mr-3"
+                [svgIcon]="'assessment'"
+              ></mat-icon>
+              <span>View Details</span>
+            </span>
+          </a>
+
+          <a
+            mat-menu-item
+            (click)="archivePool()"
+          >
+            <span class="flex items-center">
+              <mat-icon
+                class="icon-size-20 mr-3"
+                [svgIcon]="
+                  poolSummary.pool.archived
+                    ? 'unarchive'
+                    : 'archive'
+                "
+              ></mat-icon>
+              <span>
+                {{
+                  poolSummary.pool.archived
+                    ? 'Unarchive'
+                    : 'Archive'
+                }}
+                Pool
+              </span>
+            </span>
+          </a>
+
+          <a
+            mat-menu-item
+            (click)="deletePool()"
+          >
+            <span class="flex items-center">
+              <mat-icon
+                class="icon-size-20 mr-3"
+                [svgIcon]="'delete_forever'"
+              ></mat-icon>
+              <span>Delete Pool</span>
+            </span>
+          </a>
+        </mat-menu>
+      </div>
+    }
+  </div>
+
+  <!-- Metrics -->
+  <div class="flex flex-row flex-wrap mt-4 -mx-6">
+    <!-- Status -->
+    <div class="flex flex-col mx-6 my-3 xs:w-full">
+      <div class="font-semibold text-xs text-hint uppercase tracking-wider">
+        Status
+      </div>
+      <div
+        [ngClass]="getStatusColorClass(poolSummary.pool.status)"
+        class="mt-2 font-medium text-3xl leading-none"
+      >
+        {{ poolSummary.pool.status }}
+      </div>
+    </div>
+
+    <!-- Capacity -->
+    <div class="flex flex-col mx-6 my-3 xs:w-full">
+      <div class="font-semibold text-xs text-hint uppercase tracking-wider">
+        Capacity
+      </div>
+      <div class="mt-2 font-medium text-3xl leading-none">
+        {{ poolSummary.pool.capacity_percent }}%
+      </div>
+      <div class="mt-1 h-1 w-24 bg-gray-200 rounded overflow-hidden">
+        <div
+          [ngClass]="getCapacityPercentClass(poolSummary.pool.capacity_percent)"
+          class="h-full"
+          [style.width.%]="poolSummary.pool.capacity_percent"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Size -->
+    <div class="flex flex-col mx-6 my-3 xs:w-full">
+      <div class="font-semibold text-xs text-hint uppercase tracking-wider">
+        Size
+      </div>
+      <div class="mt-2 font-medium text-3xl leading-none">
+        {{ poolSummary.pool.size | fileSize:config?.file_size_si_units }}
+      </div>
+    </div>
+
+    <!-- Last Scrub -->
+    <div class="flex flex-col mx-6 my-3 xs:w-full">
+      <div class="font-semibold text-xs text-hint uppercase tracking-wider">
+        Last Scrub
+      </div>
+      <div class="mt-2 font-medium text-3xl leading-none">
+        {{ getScrubStatusText(poolSummary.pool) }}
+      </div>
+    </div>
+
+    <!-- Errors -->
+    @if (getTotalErrors(poolSummary.pool) > 0) {
+      <div class="flex flex-col mx-6 my-3 xs:w-full">
+        <div class="font-semibold text-xs text-hint uppercase tracking-wider">
+          Errors
+        </div>
+        <div class="mt-2 font-medium text-3xl leading-none text-red">
+          {{ getTotalErrors(poolSummary.pool) }}
+        </div>
+      </div>
+    }
+  </div>
+</div>

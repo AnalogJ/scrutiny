@@ -38,6 +38,14 @@
               </a>
             }
 
+            <!-- Navigation Links -->
+            @if (!isScreenSmall) {
+              <nav class="nav-links ml-8">
+                <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">S.M.A.R.T</a>
+                <a routerLink="/zfs-pools" routerLinkActive="active" class="nav-link">ZFS Pools</a>
+              </nav>
+            }
+
             <!-- Spacer -->
             <div class="spacer"></div>
             <code>{{appVersion}}</code>

@@ -1,0 +1,14 @@
+:host {
+    display: flex;
+    flex: 1 1 auto;
+
+    .vdev-tree {
+        .vdev-item {
+            border-left: 2px solid transparent;
+
+            &:hover {
+                border-left-color: var(--primary-color, #667eea);
+            }
+        }
+    }
+}

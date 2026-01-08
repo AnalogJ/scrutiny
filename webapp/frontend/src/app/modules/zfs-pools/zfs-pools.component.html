@@ -1,0 +1,99 @@
+@if (summaryData) {
+  <div>
+    <div class="flex flex-col flex-auto w-full p-8 xs:p-2">
+      <div class="flex flex-wrap w-full">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between w-full my-4 px-4 xs:pr-0">
+          <div class="mr-6">
+            <h2 class="m-0">ZFS Pools</h2>
+            <div class="text-secondary tracking-tight">ZFS pool health at a glance</div>
+          </div>
+
+          <!-- Action buttons (desktop) -->
+          <div class="flex items-center">
+            <button
+              class="xs:hidden"
+              mat-stroked-button
+              [color]="showArchived ? 'primary' : null"
+              (click)="showArchived = !showArchived">
+              <mat-icon
+                class="icon-size-20"
+                [color]="showArchived ? 'primary' : null"
+                [svgIcon]="'archive'">
+              </mat-icon>
+              <span class="ml-2">Archived</span>
+            </button>
+
+            <!-- Actions menu (mobile) -->
+            <div class="hidden xs:flex">
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="actionsMenu">
+                <mat-icon [svgIcon]="'more_vert'"></mat-icon>
+              </button>
+
+              <mat-menu #actionsMenu="matMenu">
+                <button mat-menu-item (click)="showArchived = !showArchived">
+                  <mat-icon
+                    class="icon-size-20"
+                    [color]="showArchived ? 'primary' : null"
+                    [svgIcon]="'archive'">
+                  </mat-icon>
+                  <span class="ml-2">Archived</span>
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pool Groups by Host -->
+        @for (hostId of hostGroups | keyvalue; track hostId) {
+          <div class="flex flex-wrap w-full">
+            @if (hostId.key) {
+              <h3 class="ml-4">{{ hostId.key }}</h3>
+            }
+
+            <div class="flex flex-wrap w-full">
+              @for (poolSummary of poolSummariesForHostGroup(hostId.value); track poolSummary) {
+                @if (showArchived || !poolSummary.pool.archived) {
+                  <app-zfs-pool-card
+                    class="flex gt-sm:w-1/2 min-w-80 p-4"
+                    [poolSummary]="poolSummary"
+                    [config]="config"
+                    (poolArchived)="onPoolArchived($event)"
+                    (poolUnarchived)="onPoolUnarchived($event)"
+                    (poolDeleted)="onPoolDeleted($event)">
+                  </app-zfs-pool-card>
+                }
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="dashboard-placeholder content-layout fullwidth-basic-content-scroll">
+    <img
+      class="image"
+      src="assets/images/dashboard-placeholder.png">
+
+    <h1>No ZFS Pools Detected!</h1>
+
+    <p style="max-width:700px;">
+      Scrutiny includes a ZFS Collector agent that you must run on systems with ZFS pools.
+      The ZFS Collector is responsible for detecting ZFS pools and
+      collecting health metrics on a configurable schedule.
+    </p>
+
+    <p>
+      <br />
+      You can trigger the ZFS Collector manually by running the following command,
+      then refreshing this page:
+    </p>
+
+    <code>scrutiny-collector-zfs run</code>
+  </div>
+}

@@ -99,6 +99,7 @@ jobs:
           path: |
             scrutiny-web-*
             scrutiny-collector-metrics-*
+            scrutiny-collector-zfs-*
 
   upload-assets:
     name: Upload Release Assets
