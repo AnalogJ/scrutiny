@@ -2,6 +2,12 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.6.2](https://github.com/Starosdev/scrutiny/compare/v1.6.1...v1.6.2) (2026-01-08)
+
+### Bug Fixes
+
+* **docker:** correct Angular 21 frontend build paths ([18d464b](https://github.com/Starosdev/scrutiny/commit/18d464bad430cb7e3d36f97cd55a7829a79b040f)), closes [#59](https://github.com/Starosdev/scrutiny/issues/59)
+
 ## [1.6.1](https://github.com/Starosdev/scrutiny/compare/v1.6.0...v1.6.1) (2026-01-08)
 
 ### Bug Fixes
