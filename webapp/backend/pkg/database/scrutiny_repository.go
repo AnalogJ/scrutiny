@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -19,6 +21,7 @@ import (
 	"github.com/influxdata/influxdb-client-go/v2/domain"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
 )
 
 const (
@@ -50,27 +53,6 @@ const (
 	RESOLUTION_1_HOUR     = "1h"
 	RESOLUTION_1_DAY      = "1d"
 )
-
-//// GormLogger is a custom logger for Gorm, making it use logrus.
-//type GormLogger struct{ Logger logrus.FieldLogger }
-//
-//// Print handles log events from Gorm for the custom logger.
-//func (gl *GormLogger) Print(v ...interface{}) {
-//	switch v[0] {
-//	case "sql":
-//		gl.Logger.WithFields(
-//			logrus.Fields{
-//				"module":  "gorm",
-//				"type":    "sql",
-//				"rows":    v[5],
-//				"src_ref": v[1],
-//				"values":  v[4],
-//			},
-//		).Debug(v[3])
-//	case "log":
-//		gl.Logger.WithFields(logrus.Fields{"module": "gorm", "type": "log"}).Print(v[2])
-//	}
-//}
 
 func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.FieldLogger) (DeviceRepo, error) {
 	backgroundContext := context.Background()
@@ -105,9 +87,30 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 		"temp_store":   "MEMORY",
 		"synchronous":  "NORMAL",
 	})
+
+	// Configure GORM logger based on debug mode
+	// In production (non-debug), use Silent mode for no performance impact
+	// In debug mode, log all SQL queries to help with debugging
+	var dbLogLevel gormLogger.LogLevel
+	if strings.ToLower(appConfig.GetString("log.level")) == "debug" {
+		dbLogLevel = gormLogger.Info // Log all SQL queries
+		globalLogger.Debug("GORM database query logging enabled")
+	} else {
+		dbLogLevel = gormLogger.Silent // No logging in production
+	}
+
+	gormLoggerConfig := gormLogger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		gormLogger.Config{
+			SlowThreshold:             time.Second,   // Slow SQL threshold
+			LogLevel:                  dbLogLevel,    // Log level
+			IgnoreRecordNotFoundError: true,          // Ignore ErrRecordNotFound error
+			Colorful:                  true,          // Enable color output
+		},
+	)
+
 	database, err := gorm.Open(sqlite.Open(appConfig.GetString("web.database.location")+pragmaStr), &gorm.Config{
-		//TODO: figure out how to log database queries again.
-		//Logger: logger
+		Logger:                                   gormLoggerConfig,
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
@@ -123,8 +126,6 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 		return nil, fmt.Errorf("Failed to connect to database! - %v", err)
 	}
 	globalLogger.Infof("Successfully connected to scrutiny sqlite db: %s\n", appConfig.GetString("web.database.location"))
-
-	//database.SetLogger()
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// InfluxDB setup

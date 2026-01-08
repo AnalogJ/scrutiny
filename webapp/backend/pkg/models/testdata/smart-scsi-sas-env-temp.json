@@ -1,0 +1,93 @@
+{
+  "json_format_version": [
+    0,
+    1
+  ],
+  "smartctl": {
+    "version": [
+      7,
+      4
+    ],
+    "platform_info": "x86_64-linux-6.1.0",
+    "build_info": "(local build)",
+    "argv": [
+      "smartctl",
+      "--xall",
+      "--json",
+      "/dev/sda"
+    ],
+    "exit_status": 0
+  },
+  "device": {
+    "name": "/dev/sda",
+    "info_name": "/dev/sda",
+    "type": "scsi",
+    "protocol": "SCSI"
+  },
+  "vendor": "WDC",
+  "product": "WUH721818AL5204",
+  "model_name": "WDC WUH721818AL5204",
+  "revision": "C232",
+  "scsi_version": "SPC-5",
+  "user_capacity": {
+    "blocks": 35156656128,
+    "bytes": 18000207937536
+  },
+  "logical_block_size": 512,
+  "rotation_rate": 7200,
+  "form_factor": {
+    "scsi_value": 2,
+    "name": "3.5 inches"
+  },
+  "serial_number": "2PKXXXXXXX",
+  "device_type": {
+    "scsi_value": 0,
+    "name": "disk"
+  },
+  "local_time": {
+    "time_t": 1704067200,
+    "asctime": "Mon Jan 01 00:00:00 2024 UTC"
+  },
+  "smart_status": {
+    "passed": true
+  },
+  "temperature": {
+    "current": 0,
+    "drive_trip": 0
+  },
+  "scsi_grown_defect_list": 0,
+  "power_on_time": {
+    "hours": 12345,
+    "minutes": 30
+  },
+  "scsi_error_counter_log": {
+    "read": {
+      "errors_corrected_by_eccfast": 0,
+      "errors_corrected_by_eccdelayed": 0,
+      "errors_corrected_by_rereads_rewrites": 0,
+      "total_errors_corrected": 0,
+      "correction_algorithm_invocations": 0,
+      "gigabytes_processed": "1000.000",
+      "total_uncorrected_errors": 0
+    },
+    "write": {
+      "errors_corrected_by_eccfast": 0,
+      "errors_corrected_by_eccdelayed": 0,
+      "errors_corrected_by_rereads_rewrites": 0,
+      "total_errors_corrected": 0,
+      "correction_algorithm_invocations": 0,
+      "gigabytes_processed": "500.000",
+      "total_uncorrected_errors": 0
+    }
+  },
+  "scsi_environmental_reports": {
+    "temperature_1": {
+      "parameter_code": 0,
+      "current": 38,
+      "lifetime_maximum": 42,
+      "lifetime_minimum": 19,
+      "maximum_since_power_on": 38,
+      "minimum_since_power_on": 31
+    }
+  }
+}
