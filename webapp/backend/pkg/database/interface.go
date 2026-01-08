@@ -35,4 +35,18 @@ type DeviceRepo interface {
 
 	LoadSettings(ctx context.Context) (*models.Settings, error)
 	SaveSettings(ctx context.Context, settings models.Settings) error
+
+	// ZFS Pool operations
+	RegisterZFSPool(ctx context.Context, pool models.ZFSPool) error
+	GetZFSPools(ctx context.Context) ([]models.ZFSPool, error)
+	GetZFSPoolDetails(ctx context.Context, guid string) (models.ZFSPool, error)
+	UpdateZFSPoolArchived(ctx context.Context, guid string, archived bool) error
+	UpdateZFSPoolMuted(ctx context.Context, guid string, muted bool) error
+	UpdateZFSPoolLabel(ctx context.Context, guid string, label string) error
+	DeleteZFSPool(ctx context.Context, guid string) error
+	GetZFSPoolsSummary(ctx context.Context) (map[string]*models.ZFSPool, error)
+
+	// ZFS Pool metrics
+	SaveZFSPoolMetrics(ctx context.Context, pool models.ZFSPool) error
+	GetZFSPoolMetricsHistory(ctx context.Context, guid string, durationKey string) ([]measurements.ZFSPoolMetrics, error)
 }

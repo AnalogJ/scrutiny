@@ -1,0 +1,191 @@
+@if (pool) {
+  <div class="flex flex-col flex-auto w-full p-8 xs:p-2">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center">
+        <button
+          mat-icon-button
+          (click)="goBack()"
+          class="mr-4">
+          <mat-icon [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+        </button>
+        <div>
+          <h2 class="m-0">{{ getPoolTitle() }}</h2>
+          <div class="text-secondary tracking-tight">{{ pool.name }} ({{ pool.guid }})</div>
+        </div>
+      </div>
+
+      <div class="flex items-center">
+        <button
+          mat-stroked-button
+          (click)="toggleMuted()"
+          [matTooltip]="pool.muted ? 'Unmute notifications' : 'Mute notifications'">
+          <mat-icon
+            class="icon-size-20"
+            [svgIcon]="pool.muted ? 'notifications_off' : 'notifications'">
+          </mat-icon>
+          <span class="ml-2">{{ pool.muted ? 'Unmute' : 'Mute' }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Pool Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <!-- Status Card -->
+      <treo-card class="p-6">
+        <div class="font-semibold text-xs text-hint uppercase tracking-wider mb-2">Status</div>
+        <div
+          [ngClass]="getStatusColorClass(pool.status)"
+          class="font-bold text-3xl">
+          {{ pool.status }}
+        </div>
+      </treo-card>
+
+      <!-- Capacity Card -->
+      <treo-card class="p-6">
+        <div class="font-semibold text-xs text-hint uppercase tracking-wider mb-2">Capacity</div>
+        <div class="font-bold text-3xl">{{ pool.capacity_percent }}%</div>
+        <div class="mt-2 h-2 bg-gray-200 rounded overflow-hidden">
+          <div
+            [ngClass]="{
+              'bg-green-500': pool.capacity_percent < 80,
+              'bg-yellow-500': pool.capacity_percent >= 80 && pool.capacity_percent < 90,
+              'bg-red-500': pool.capacity_percent >= 90
+            }"
+            class="h-full"
+            [style.width.%]="pool.capacity_percent">
+          </div>
+        </div>
+        <div class="text-sm text-hint mt-2">
+          {{ pool.allocated | fileSize:config?.file_size_si_units }} / {{ pool.size | fileSize:config?.file_size_si_units }}
+        </div>
+      </treo-card>
+
+      <!-- Fragmentation Card -->
+      <treo-card class="p-6">
+        <div class="font-semibold text-xs text-hint uppercase tracking-wider mb-2">Fragmentation</div>
+        <div class="font-bold text-3xl">{{ pool.fragmentation }}%</div>
+      </treo-card>
+
+      <!-- Scrub Status Card -->
+      <treo-card class="p-6">
+        <div class="font-semibold text-xs text-hint uppercase tracking-wider mb-2">Last Scrub</div>
+        @switch (pool.scrub_state) {
+          @case ('none') {
+            <div class="font-bold text-3xl text-hint">Never</div>
+          }
+          @case ('scanning') {
+            <div class="font-bold text-3xl text-yellow">In Progress</div>
+            <div class="text-sm text-hint mt-2">{{ pool.scrub_percent }}% complete</div>
+          }
+          @case ('finished') {
+            <div class="font-bold text-3xl text-green">Completed</div>
+            <div class="text-sm text-hint mt-2">{{ pool.scrub_end | date:'MMM dd, yyyy HH:mm' }}</div>
+            @if (pool.scrub_errors > 0) {
+              <div class="text-sm text-red mt-1">{{ pool.scrub_errors }} errors found</div>
+            }
+          }
+          @case ('canceled') {
+            <div class="font-bold text-3xl text-yellow">Canceled</div>
+          }
+        }
+      </treo-card>
+    </div>
+
+    <!-- Error Summary -->
+    @if (pool.total_read_errors > 0 || pool.total_write_errors > 0 || pool.total_checksum_errors > 0) {
+      <treo-card class="p-6 mb-8">
+        <div class="font-semibold text-lg text-red mb-4">Error Summary</div>
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <div class="font-semibold text-xs text-hint uppercase tracking-wider">Read Errors</div>
+            <div class="font-bold text-2xl text-red">{{ pool.total_read_errors }}</div>
+          </div>
+          <div>
+            <div class="font-semibold text-xs text-hint uppercase tracking-wider">Write Errors</div>
+            <div class="font-bold text-2xl text-red">{{ pool.total_write_errors }}</div>
+          </div>
+          <div>
+            <div class="font-semibold text-xs text-hint uppercase tracking-wider">Checksum Errors</div>
+            <div class="font-bold text-2xl text-red">{{ pool.total_checksum_errors }}</div>
+          </div>
+        </div>
+      </treo-card>
+    }
+
+    <!-- Vdev Tree -->
+    <treo-card class="p-6 mb-8">
+      <div class="font-semibold text-lg mb-4">Virtual Device Tree</div>
+      @if (pool.vdevs && pool.vdevs.length > 0) {
+        <div class="vdev-tree">
+          @for (vdev of pool.vdevs; track vdev.id) {
+            <ng-container *ngTemplateOutlet="vdevNode; context: { vdev: vdev, depth: 0 }"></ng-container>
+          }
+        </div>
+      } @else {
+        <div class="text-hint">No vdev information available</div>
+      }
+    </treo-card>
+
+    <!-- Capacity History Chart -->
+    @if (capacityOptions) {
+      <treo-card class="p-6">
+        <div class="font-semibold text-lg mb-4">Capacity History</div>
+        <div class="h-64">
+          <apx-chart
+            class="flex-auto w-full h-full"
+            [chart]="capacityOptions.chart"
+            [colors]="capacityOptions.colors"
+            [fill]="capacityOptions.fill"
+            [series]="capacityOptions.series"
+            [stroke]="capacityOptions.stroke"
+            [tooltip]="capacityOptions.tooltip"
+            [xaxis]="capacityOptions.xaxis"
+            [yaxis]="capacityOptions.yaxis">
+          </apx-chart>
+        </div>
+      </treo-card>
+    }
+  </div>
+} @else {
+  <div class="flex items-center justify-center h-full">
+    <div class="text-hint">Loading pool details...</div>
+  </div>
+}
+
+<!-- Vdev Node Template -->
+<ng-template #vdevNode let-vdev="vdev" let-depth="depth">
+  <div
+    class="vdev-item flex items-center py-2 px-4 rounded hover:bg-hover"
+    [style.padding-left.px]="depth * 24 + 16">
+    <mat-icon
+      class="icon-size-20 mr-3"
+      [svgIcon]="getVdevIcon(vdev.type)">
+    </mat-icon>
+    <div class="flex-1">
+      <div class="flex items-center">
+        <span class="font-medium">{{ vdev.name }}</span>
+        <span class="ml-2 text-xs text-hint uppercase">({{ vdev.type }})</span>
+        <span
+          [ngClass]="getVdevStatusClass(vdev.status)"
+          class="ml-2 text-sm font-medium">
+          {{ vdev.status }}
+        </span>
+      </div>
+      @if (vdev.path) {
+        <div class="text-xs text-hint">{{ vdev.path }}</div>
+      }
+      @if (hasErrors(vdev)) {
+        <div class="text-xs text-red mt-1">
+          R: {{ vdev.read_errors }} / W: {{ vdev.write_errors }} / C: {{ vdev.checksum_errors }}
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (vdev.children && vdev.children.length > 0) {
+    @for (child of vdev.children; track child.id) {
+      <ng-container *ngTemplateOutlet="vdevNode; context: { vdev: child, depth: depth + 1 }"></ng-container>
+    }
+  }
+</ng-template>

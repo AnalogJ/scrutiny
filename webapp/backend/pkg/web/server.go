@@ -75,6 +75,21 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 
 			api.GET("/settings", handler.GetSettings)   //used to get settings
 			api.POST("/settings", handler.SaveSettings) //used to save settings
+
+			// ZFS Pool API endpoints
+			zfs := api.Group("/zfs")
+			{
+				zfs.POST("/pools/register", handler.RegisterZFSPools)        //used by ZFS Collector to register pools
+				zfs.GET("/summary", handler.GetZFSPoolsSummary)              //used by ZFS Dashboard
+				zfs.POST("/pool/:guid/metrics", handler.UploadZFSPoolMetrics) //used by ZFS Collector to upload metrics
+				zfs.GET("/pool/:guid/details", handler.GetZFSPoolDetails)    //used by ZFS Pool Details view
+				zfs.POST("/pool/:guid/archive", handler.ArchiveZFSPool)      //used by UI to archive pool
+				zfs.POST("/pool/:guid/unarchive", handler.UnarchiveZFSPool)  //used by UI to unarchive pool
+				zfs.POST("/pool/:guid/mute", handler.MuteZFSPool)            //used by UI to mute pool
+				zfs.POST("/pool/:guid/unmute", handler.UnmuteZFSPool)        //used by UI to unmute pool
+				zfs.POST("/pool/:guid/label", handler.UpdateZFSPoolLabel)    //used by UI to set pool label
+				zfs.DELETE("/pool/:guid", handler.DeleteZFSPool)             //used by UI to delete pool
+			}
 		}
 	}
 

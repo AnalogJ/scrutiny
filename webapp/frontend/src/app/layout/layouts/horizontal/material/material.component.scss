@@ -99,6 +99,29 @@ material-layout {
                     }
                 }
 
+                .nav-links {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+
+                    .nav-link {
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        font-weight: 500;
+                        text-decoration: none;
+                        transition: background-color 0.2s ease;
+
+                        &:hover {
+                            background-color: rgba(0, 0, 0, 0.05);
+                        }
+
+                        &.active {
+                            background-color: rgba(102, 126, 234, 0.15);
+                            color: #4f5fd9;
+                        }
+                    }
+                }
+
                 .navigation-toggle-button {
                     margin-right: 8px;
                 }
