@@ -2,6 +2,12 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.7.1](https://github.com/Starosdev/scrutiny/compare/v1.7.0...v1.7.1) (2026-01-09)
+
+### Bug Fixes
+
+* **deps:** security audit and dependency inventory ([b42e940](https://github.com/Starosdev/scrutiny/commit/b42e94059ac19db10794517ec3bef027558d03e8)), closes [#69](https://github.com/Starosdev/scrutiny/issues/69) [#70](https://github.com/Starosdev/scrutiny/issues/70) [#36](https://github.com/Starosdev/scrutiny/issues/36)
+
 ## [1.7.0](https://github.com/Starosdev/scrutiny/compare/v1.6.2...v1.7.0) (2026-01-08)
 
 ### Features
