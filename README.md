@@ -5,18 +5,41 @@
 </p>
 
 
-# scrutiny
+# Scrutiny
 
 [![CI](https://github.com/Starosdev/scrutiny/workflows/CI/badge.svg?branch=master)](https://github.com/Starosdev/scrutiny/actions?query=workflow%3ACI)
 [![GitHub license](https://img.shields.io/github/license/Starosdev/scrutiny.svg?style=flat-square)](https://github.com/Starosdev/scrutiny/blob/master/LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Starosdev/scrutiny?style=flat-square)](https://goreportcard.com/report/github.com/Starosdev/scrutiny)
 [![GitHub release](http://img.shields.io/github/release/Starosdev/scrutiny.svg?style=flat-square)](https://github.com/Starosdev/scrutiny/releases)
+[![Docker Pulls](https://img.shields.io/badge/docker-ghcr.io%2Fstarosdev%2Fscrutiny-blue?style=flat-square&logo=docker)](https://github.com/Starosdev/scrutiny/pkgs/container/scrutiny)
 
-WebUI for smartd S.M.A.R.T monitoring
-
-> NOTE: Scrutiny is a Work-in-Progress and still has some rough edges.
+**Hard Drive Health Dashboard & Monitoring for S.M.A.R.T metrics**
 
 [![](docs/dashboard.png)](https://imgur.com/a/5k8qMzS)
+
+# Why This Fork?
+
+This is an actively maintained fork of [AnalogJ/scrutiny](https://github.com/AnalogJ/scrutiny). The original project development slowed significantly in 2024, while community contributions and feature requests continued to grow. This fork picks up where the original left off, merging pending community PRs and adding new features.
+
+| | Original | This Fork |
+|---|---|---|
+| **Latest Version** | v0.8.1 (Apr 2024) | v1.6.x (Active) |
+| **Frontend** | Angular 13 | Angular 21 |
+| **Status** | Minimal updates | Actively maintained |
+| **Community PRs** | Many pending | Merged |
+
+### What's New in This Fork
+
+- **ZFS Pool Monitoring** - Monitor ZFS pool health alongside individual drives
+- **Prometheus Metrics** - Export metrics to Prometheus for advanced monitoring
+- **Device Archiving** - Hide decommissioned drives without deleting history
+- **Per-Device Notification Control** - Mute notifications for specific devices
+- **Device Labels** - Add custom labels to drives for easier identification
+- **Day-Resolution Temperature Graphs** - More granular temperature history
+- **SAS Temperature Support** - Proper temperature readings for SAS drives
+- **SCT Temperature History Toggle** - Control SCT ERC settings per drive
+- **Enhanced Seagate Drive Support** - Better timeout handling for Seagate drives
+- **SHA256 Checksums** - Verify release binary integrity
 
 # Introduction
 
@@ -35,17 +58,35 @@ These S.M.A.R.T hard drive self-tests can help you detect and replace failing ha
 
 # Features
 
-Scrutiny is a simple but focused application, with a couple of core features:
-
+### Core Features
 - Web UI Dashboard - focused on Critical metrics
 - `smartd` integration (no re-inventing the wheel)
 - Auto-detection of all connected hard-drives
 - S.M.A.R.T metric tracking for historical trends
 - Customized thresholds using real world failure rates
-- Temperature tracking
+- Temperature tracking with configurable resolution
 - Provided as an all-in-one Docker image (but can be installed manually)
 - Configurable Alerting/Notifications via Webhooks
-- (Future) Hard Drive performance testing & tracking
+
+### Extended Features (This Fork)
+- **ZFS Pool Monitoring** - Track pool health, capacity, and status
+- **Prometheus Metrics Endpoint** - `/api/metrics` for Grafana integration
+- **Device Archiving** - Archive old drives to declutter the dashboard
+- **Per-Device Notification Muting** - Control which drives trigger alerts
+- **Custom Device Labels** - Add meaningful names to your drives
+- **Day-Resolution Graphs** - View temperature trends at daily granularity
+- **SAS Drive Support** - Full temperature support for SAS devices
+- **API Timeout Configuration** - Adjust timeouts for slow storage systems
+
+# Migration from AnalogJ/scrutiny
+
+If you're currently using the original AnalogJ/scrutiny, migrating is straightforward:
+
+1. **Update your image reference** from `ghcr.io/analogj/scrutiny` to `ghcr.io/starosdev/scrutiny`
+2. **Data is compatible** - Your existing SQLite database and InfluxDB data will work without changes
+3. **Config files are compatible** - No changes needed to `scrutiny.yaml` or `collector.yaml`
+
+That's it! The fork maintains full backwards compatibility with the original project.
 
 # Getting Started
 
@@ -160,6 +201,19 @@ you can use the `COLLECTOR_CRON_SCHEDULE` environmental variable to override the
 
 `docker run -e COLLECTOR_CRON_SCHEDULE="0 0 * * *" ...`
 
+## Prometheus Metrics
+
+Scrutiny exposes a Prometheus metrics endpoint at `/api/metrics`. You can scrape this endpoint to integrate with Grafana or other monitoring tools.
+
+Example Prometheus scrape config:
+```yaml
+scrape_configs:
+  - job_name: 'scrutiny'
+    static_configs:
+      - targets: ['scrutiny:8080']
+    metrics_path: '/api/metrics'
+```
+
 ## Notifications
 
 Scrutiny supports sending SMART device failure notifications via the following services:
@@ -183,6 +237,10 @@ Scrutiny supports sending SMART device failure notifications via the following s
 Check the `notify.urls` section of [example.scrutiny.yml](example.scrutiny.yaml) for examples.
 
 For more information and troubleshooting, see the [TROUBLESHOOTING_NOTIFICATIONS.md](./docs/TROUBLESHOOTING_NOTIFICATIONS.md) file
+
+### Per-Device Notification Control
+
+You can mute notifications for specific devices through the web UI. This is useful for drives that are known to have issues but are being monitored before replacement.
 
 ### Testing Notifications
 
@@ -261,19 +319,15 @@ If you find the documentation lacking, help us out and update this README.md. If
 
 We use SemVer for versioning. For the versions available, see the tags on this repository.
 
-# Authors
+# Credits
 
-Jason Kulatunga - Initial Development - [@AnalogJ](https://github.com/AnalogJ)
+**Original Author:** Jason Kulatunga ([@AnalogJ](https://github.com/AnalogJ)) - Created Scrutiny and built the foundation this fork builds upon.
 
-# About This Fork
+**Fork Maintainer:** [@Starosdev](https://github.com/Starosdev) - Maintaining this fork with continued development and community contributions.
 
-This fork is maintained by [@Starosdev](https://github.com/Starosdev).
+This fork exists to keep Scrutiny alive and growing. Full credit for the original vision and architecture goes to AnalogJ. We're just carrying the torch forward.
 
-I'm not the original developer of Scrutiny, just someone who really loves this project and wanted to help keep it alive. I'm learning as I go and I use Claude (AI) to help me understand the codebase, fix bugs, and implement new features. I believe in being transparent about my workflow and I hope this fork can be useful to others who depend on Scrutiny for their hard drive monitoring needs.
-
-If you'd like to contribute or have questions, feel free to open an issue or PR!
-
-# Licenses
+# License
 
 - MIT
 - Logo: [Glasses by matias porta lezcano](https://thenounproject.com/term/glasses/775232)
