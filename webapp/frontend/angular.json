@@ -76,7 +76,8 @@
                 "serve": {
                     "builder": "@angular/build:dev-server",
                     "options": {
-                      "buildTarget": "treo:build"
+                      "buildTarget": "treo:build",
+                      "servePath": "/web/"
                     },
                     "configurations": {
                         "production": {
