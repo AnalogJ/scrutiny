@@ -82,7 +82,12 @@ func NewSmartFromInfluxDB(attrs map[string]interface{}) (*Smart, error) {
 			if _, ok := sm.Attributes[attributeId]; !ok {
 				// init the attribute group
 				if sm.DeviceProtocol == pkg.DeviceProtocolAta {
-					sm.Attributes[attributeId] = &SmartAtaAttribute{}
+					// Device statistics use string-based IDs like "devstat_7_8"
+					if strings.HasPrefix(attributeId, "devstat_") {
+						sm.Attributes[attributeId] = &SmartAtaDeviceStatAttribute{}
+					} else {
+						sm.Attributes[attributeId] = &SmartAtaAttribute{}
+					}
 				} else if sm.DeviceProtocol == pkg.DeviceProtocolNvme {
 					sm.Attributes[attributeId] = &SmartNvmeAttribute{}
 				} else if sm.DeviceProtocol == pkg.DeviceProtocolScsi {
@@ -193,13 +198,11 @@ func (sm *Smart) ProcessAtaDeviceStatistics(deviceStatistics collector.SmartInfo
 			// Format: "devstat_<page>_<offset>" e.g., "devstat_7_8" for Percentage Used
 			attrId := fmt.Sprintf("devstat_%d_%d", page.Number, stat.Offset)
 
-			// Use SmartAtaAttribute to store device statistics
-			// These use synthetic IDs (string-based) rather than numeric SMART attribute IDs
-			attrModel := SmartAtaAttribute{
-				AttributeId: 0, // Will use string-based attribute ID in map
+			// Use SmartAtaDeviceStatAttribute for device statistics
+			// These use string-based IDs rather than numeric SMART attribute IDs
+			attrModel := SmartAtaDeviceStatAttribute{
+				AttributeId: attrId,
 				Value:       stat.Value,
-				RawValue:    stat.Value,
-				RawString:   fmt.Sprintf("%d", stat.Value),
 			}
 
 			// Populate status based on known thresholds

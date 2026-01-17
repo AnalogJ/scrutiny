@@ -211,7 +211,8 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
             if (!attributeMetadata) {
                 return attributeData.value
             } else if (attributeMetadata.display_type === 'raw') {
-                return attributeData.raw_value
+                // Device statistics (devstat_*) don't have raw_value, use value instead
+                return attributeData.raw_value !== undefined ? attributeData.raw_value : attributeData.value
             } else if (attributeMetadata.display_type === 'transformed' && attributeData.transformed_value) {
                 return attributeData.transformed_value
             } else {
@@ -432,7 +433,23 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // -----------------------------------------------------------------------------------------------------
 
     toHex(decimalNumb: number | string): string {
-        return '0x' + Number(decimalNumb).toString(16).padStart(2, '0').toUpperCase()
+        // Device statistics use string-based IDs like "devstat_7_8"
+        // Only convert numeric values to hex
+        const num = Number(decimalNumb);
+        if (isNaN(num)) {
+            return '';
+        }
+        return '0x' + num.toString(16).padStart(2, '0').toUpperCase()
+    }
+
+    formatAttributeId(attributeId: number | string): string {
+        // For string-based IDs (device statistics), just return the ID
+        if (typeof attributeId === 'string' && isNaN(Number(attributeId))) {
+            return attributeId;
+        }
+        // For numeric IDs, show both decimal and hex
+        const hex = this.toHex(attributeId);
+        return hex ? `${attributeId} (${hex})` : `${attributeId}`;
     }
 
     toggleOnlyCritical(): void {
