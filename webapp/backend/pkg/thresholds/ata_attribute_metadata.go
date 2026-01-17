@@ -375,6 +375,22 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 		Critical:    false,
 		Description: "Specific to He8 drives from HGST. This value measures the helium inside of the drive specific to this manufacturer. It is a pre-fail attribute that trips once the drive detects that the internal environment is out of specification.",
 	},
+	23: {
+		ID:          23,
+		DisplayName: "Helium Condition Lower",
+		DisplayType: AtaSmartAttributeDisplayTypeNormalized,
+		Ideal:       ObservedThresholdIdealHigh,
+		Critical:    false,
+		Description: "Indicates the helium condition of a helium-filled drive. Used by HGST/WD helium drives.",
+	},
+	24: {
+		ID:          24,
+		DisplayName: "Helium Condition Upper",
+		DisplayType: AtaSmartAttributeDisplayTypeNormalized,
+		Ideal:       ObservedThresholdIdealHigh,
+		Critical:    false,
+		Description: "Indicates the helium condition of a helium-filled drive. Used by HGST/WD helium drives.",
+	},
 	170: {
 		ID:          170,
 		DisplayName: "Available Reserved Space",
@@ -1503,6 +1519,30 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 		Critical:    false,
 		Description: "The upper 5 bytes of the 12-byte total number of LBAs read from the device. The lower 7 byte value is located at attribute 0xF2.",
 	},
+	246: {
+		ID:          246,
+		DisplayName: "Total Host Sector Writes",
+		DisplayType: AtaSmartAttributeDisplayTypeNormalized,
+		Ideal:       "",
+		Critical:    false,
+		Description: "Total number of sectors written by the host system. Used by Crucial/Micron SSDs.",
+	},
+	247: {
+		ID:          247,
+		DisplayName: "Host Program Page Count",
+		DisplayType: AtaSmartAttributeDisplayTypeNormalized,
+		Ideal:       "",
+		Critical:    false,
+		Description: "Total number of pages programmed by host write commands. Used by Crucial/Micron SSDs.",
+	},
+	248: {
+		ID:          248,
+		DisplayName: "FTL Program Page Count",
+		DisplayType: AtaSmartAttributeDisplayTypeNormalized,
+		Ideal:       "",
+		Critical:    false,
+		Description: "Total number of pages programmed by the FTL (Flash Translation Layer). Used by Crucial/Micron SSDs for background operations like garbage collection.",
+	},
 	249: {
 		ID:          249,
 		DisplayName: "NAND Writes (1GiB)",
@@ -1703,6 +1743,14 @@ var AtaDeviceStatsMetadata = map[string]AtaDeviceStatisticsMetadata{
 		Ideal:       ObservedThresholdIdealLow,
 		Critical:    false,
 		Description: "Number of emergency head unloads due to shock or error conditions.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	// Page 2 (Free-Fall Statistics)
+	"devstat_2_16": {
+		DisplayName: "Number of Free-Fall Events Detected",
+		Ideal:       ObservedThresholdIdealLow,
+		Critical:    false,
+		Description: "Number of free-fall events detected by the accelerometer. Used by drives with free-fall protection.",
 		DisplayType: AtaSmartAttributeDisplayTypeRaw,
 	},
 	// Page 4 (General Errors Statistics)
