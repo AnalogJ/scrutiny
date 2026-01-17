@@ -41,29 +41,65 @@ export class DeviceSortPipe implements PipeTransform {
     }
 
     ageCompareFn(a: any, b: any): number {
-        const left = a.smart?.power_on_hours
-        const right = b.smart?.power_on_hours
+        const left = a.smart?.power_on_hours ?? 0;
+        const right = b.smart?.power_on_hours ?? 0;
+
+        return left - right;
+    }
+
+    capacityCompareFn(a: any, b: any): number {
+        const left = a.device?.capacity || 0;
+        const right = b.device?.capacity || 0;
+
+        return left - right;
+    }
+
+    temperatureCompareFn(a: any, b: any): number {
+        const left = a.smart?.temp ?? Number.MAX_SAFE_INTEGER;
+        const right = b.smart?.temp ?? Number.MAX_SAFE_INTEGER;
 
         return left - right;
     }
 
 
   transform(deviceSummaries: Array<unknown>, sortBy = 'status', dashboardDisplay = 'name'): Array<unknown> {
-    let compareFn: any
-    switch (sortBy) {
+    // Map legacy values to new format for backward compatibility
+    const legacyMap: Record<string, string> = {
+        'status': 'status_desc',
+        'title': 'title_asc',
+        'age': 'age_asc'
+    };
+    const normalizedSort = legacyMap[sortBy] || sortBy;
+
+    // Parse sort field and direction
+    const isDesc = normalizedSort.endsWith('_desc');
+    const sortField = normalizedSort.replace(/_(?:asc|desc)$/, '');
+    const direction = isDesc ? -1 : 1;
+
+    // Get compare function
+    let compareFn: (a: any, b: any) => number;
+    switch (sortField) {
         case 'status':
-            compareFn = this.statusCompareFn
+            compareFn = this.statusCompareFn;
             break;
         case 'title':
-            compareFn = this.titleCompareFn(dashboardDisplay)
+            compareFn = this.titleCompareFn(dashboardDisplay);
             break;
         case 'age':
-            compareFn = this.ageCompareFn
+            compareFn = this.ageCompareFn;
             break;
+        case 'capacity':
+            compareFn = this.capacityCompareFn;
+            break;
+        case 'temperature':
+            compareFn = this.temperatureCompareFn;
+            break;
+        default:
+            compareFn = this.statusCompareFn;
     }
 
-      // failed, unknown/empty, passed
-      deviceSummaries.sort(compareFn);
+    // Apply sort with direction
+    deviceSummaries.sort((a, b) => direction * compareFn(a, b));
 
     return deviceSummaries;
   }

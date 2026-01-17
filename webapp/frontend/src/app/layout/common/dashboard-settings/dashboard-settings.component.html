@@ -28,9 +28,16 @@
             <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pl-3">
                 <mat-label>Sort By</mat-label>
                 <mat-select [(ngModel)]="dashboardSort">
-                    <mat-option value="status">Status</mat-option>
-                    <mat-option value="title">Title</mat-option>
-                    <mat-option value="age">Age</mat-option>
+                    <mat-option value="status_desc">Status (Failed First)</mat-option>
+                    <mat-option value="status_asc">Status (Passed First)</mat-option>
+                    <mat-option value="title_asc">Title (A-Z)</mat-option>
+                    <mat-option value="title_desc">Title (Z-A)</mat-option>
+                    <mat-option value="age_desc">Age (Oldest First)</mat-option>
+                    <mat-option value="age_asc">Age (Newest First)</mat-option>
+                    <mat-option value="capacity_desc">Capacity (Largest First)</mat-option>
+                    <mat-option value="capacity_asc">Capacity (Smallest First)</mat-option>
+                    <mat-option value="temperature_desc">Temperature (Hottest First)</mat-option>
+                    <mat-option value="temperature_asc">Temperature (Coolest First)</mat-option>
                 </mat-select>
             </mat-form-field>
         </div>
