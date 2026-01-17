@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
@@ -34,7 +35,17 @@ func GetDeviceDetails(c *gin.Context) {
 
 	var deviceMetadata interface{}
 	if device.IsAta() {
-		deviceMetadata = thresholds.AtaMetadata
+		// Merge standard ATA SMART attribute metadata with ATA Device Statistics metadata
+		// Device statistics (like devstat_7_8 for Percentage Used Endurance Indicator)
+		// are critical for enterprise SSD monitoring
+		mergedMetadata := make(map[string]interface{})
+		for k, v := range thresholds.AtaMetadata {
+			mergedMetadata[fmt.Sprintf("%d", k)] = v
+		}
+		for k, v := range thresholds.AtaDeviceStatsMetadata {
+			mergedMetadata[k] = v
+		}
+		deviceMetadata = mergedMetadata
 	} else if device.IsNvme() {
 		deviceMetadata = thresholds.NmveMetadata
 	} else if device.IsScsi() {

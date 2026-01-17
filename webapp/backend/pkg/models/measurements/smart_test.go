@@ -574,3 +574,116 @@ func TestFromCollectorSmartInfo_Scsi_SAS_EnvironmentalReports(t *testing.T) {
 	// The fix should correctly extract 38 from scsi_environmental_reports
 	require.Equal(t, int64(38), smartMdl.Temp, "Temperature should be parsed from scsi_environmental_reports when standard temperature is 0")
 }
+
+// TestFromCollectorSmartInfo_ATA_DeviceStatistics tests that ATA Device Statistics
+// from GP Log 0x04 are correctly parsed, including enterprise SSD metrics like
+// "Percentage Used Endurance Indicator" (devstat_7_8). Fixes GitHub issue #7 (SCR-11).
+func TestFromCollectorSmartInfo_ATA_DeviceStatistics(t *testing.T) {
+	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{195}).AnyTimes()
+
+	smartDataFile, err := os.Open("../testdata/smart-ata-full.json")
+	require.NoError(t, err)
+	defer smartDataFile.Close()
+
+	var smartJson collector.SmartInfo
+
+	smartDataBytes, err := ioutil.ReadAll(smartDataFile)
+	require.NoError(t, err)
+	err = json.Unmarshal(smartDataBytes, &smartJson)
+	require.NoError(t, err)
+
+	//test
+	smartMdl := measurements.Smart{}
+	err = smartMdl.FromCollectorSmartInfo(fakeConfig, "WWN-test", smartJson)
+
+	//assert
+	require.NoError(t, err)
+	require.Equal(t, "WWN-test", smartMdl.DeviceWWN)
+	require.Equal(t, pkg.DeviceProtocolAta, smartMdl.DeviceProtocol)
+
+	// Check that device statistics are parsed with correct attribute IDs
+	// devstat_7_8 is "Percentage Used Endurance Indicator" - critical for enterprise SSDs
+	devstat, ok := smartMdl.Attributes["devstat_7_8"]
+	require.True(t, ok, "devstat_7_8 (Percentage Used Endurance Indicator) should be present")
+
+	// Verify it's the correct type
+	devstatAttr, ok := devstat.(*measurements.SmartAtaDeviceStatAttribute)
+	require.True(t, ok, "devstat_7_8 should be SmartAtaDeviceStatAttribute type")
+
+	require.Equal(t, "devstat_7_8", devstatAttr.AttributeId)
+	require.Equal(t, int64(19), devstatAttr.Value, "Percentage Used should be 19%")
+
+	// Verify other device statistics are also present (page 1, offset 8 = Lifetime Power-On Resets)
+	_, ok = smartMdl.Attributes["devstat_1_8"]
+	require.True(t, ok, "devstat_1_8 (Lifetime Power-On Resets) should be present")
+}
+
+// TestSmart_Flatten_WithDeviceStatistics tests that device statistics are correctly
+// flattened for storage in InfluxDB with proper string-based attribute IDs.
+func TestSmart_Flatten_WithDeviceStatistics(t *testing.T) {
+	//setup
+	timeNow := time.Now()
+	smart := measurements.Smart{
+		Date:            timeNow,
+		DeviceWWN:       "test-wwn",
+		DeviceProtocol:  pkg.DeviceProtocolAta,
+		Temp:            50,
+		PowerOnHours:    10,
+		PowerCycleCount: 10,
+		Attributes: map[string]measurements.SmartAttribute{
+			"devstat_7_8": &measurements.SmartAtaDeviceStatAttribute{
+				AttributeId:      "devstat_7_8",
+				Value:            25,
+				TransformedValue: 25,
+			},
+		},
+		Status: 0,
+	}
+
+	//test
+	_, fields := smart.Flatten()
+
+	//assert
+	require.Equal(t, "devstat_7_8", fields["attr.devstat_7_8.attribute_id"])
+	require.Equal(t, int64(25), fields["attr.devstat_7_8.value"])
+	require.Equal(t, int64(25), fields["attr.devstat_7_8.transformed_value"])
+}
+
+// TestNewSmartFromInfluxDB_WithDeviceStatistics tests that device statistics are
+// correctly inflated from InfluxDB data.
+func TestNewSmartFromInfluxDB_WithDeviceStatistics(t *testing.T) {
+	//setup
+	timeNow := time.Now()
+	attrs := map[string]interface{}{
+		"_time":           timeNow,
+		"device_wwn":      "test-wwn",
+		"device_protocol": pkg.DeviceProtocolAta,
+		"temp":            int64(50),
+		"power_on_hours":  int64(10),
+		// Device statistics with string-based attribute ID
+		"attr.devstat_7_8.attribute_id":      "devstat_7_8",
+		"attr.devstat_7_8.value":             int64(42),
+		"attr.devstat_7_8.thresh":            int64(100),
+		"attr.devstat_7_8.transformed_value": int64(42),
+		"attr.devstat_7_8.status":            int64(0),
+		"attr.devstat_7_8.status_reason":     "",
+		"attr.devstat_7_8.failure_rate":      float64(0),
+	}
+
+	//test
+	smart, err := measurements.NewSmartFromInfluxDB(attrs)
+
+	//assert
+	require.NoError(t, err)
+	require.Contains(t, smart.Attributes, "devstat_7_8")
+
+	devstatAttr, ok := smart.Attributes["devstat_7_8"].(*measurements.SmartAtaDeviceStatAttribute)
+	require.True(t, ok, "devstat_7_8 should be SmartAtaDeviceStatAttribute type")
+	require.Equal(t, "devstat_7_8", devstatAttr.AttributeId)
+	require.Equal(t, int64(42), devstatAttr.Value)
+	require.Equal(t, int64(100), devstatAttr.Threshold)
+}
