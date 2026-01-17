@@ -2,6 +2,30 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.7.2](https://github.com/Starosdev/scrutiny/compare/v1.7.1...v1.7.2) (2026-01-17)
+
+### Bug Fixes
+
+* **mock:** add ZFS pool management methods to MockDeviceRepo ([af2d4bd](https://github.com/Starosdev/scrutiny/commit/af2d4bdb78c9b932a5ba63b73e274212b4386d8e))
+
+## [1.7.1](https://github.com/Starosdev/scrutiny/compare/v1.7.0...v1.7.1) (2026-01-09)
+
+### Bug Fixes
+
+* **deps:** security audit and dependency inventory ([b42e940](https://github.com/Starosdev/scrutiny/commit/b42e94059ac19db10794517ec3bef027558d03e8)), closes [#69](https://github.com/Starosdev/scrutiny/issues/69) [#70](https://github.com/Starosdev/scrutiny/issues/70) [#36](https://github.com/Starosdev/scrutiny/issues/36)
+
+## [1.7.0](https://github.com/Starosdev/scrutiny/compare/v1.6.2...v1.7.0) (2026-01-08)
+
+### Features
+
+* **zfs:** add ZFS pool monitoring support ([6df294a](https://github.com/Starosdev/scrutiny/commit/6df294a8c208f2c2db3a8fecb49d764d47704bbf)), closes [#66](https://github.com/Starosdev/scrutiny/issues/66)
+
+## [1.6.2](https://github.com/Starosdev/scrutiny/compare/v1.6.1...v1.6.2) (2026-01-08)
+
+### Bug Fixes
+
+* **docker:** correct Angular 21 frontend build paths ([18d464b](https://github.com/Starosdev/scrutiny/commit/18d464bad430cb7e3d36f97cd55a7829a79b040f)), closes [#59](https://github.com/Starosdev/scrutiny/issues/59)
+
 ## [1.6.1](https://github.com/Starosdev/scrutiny/compare/v1.6.0...v1.6.1) (2026-01-08)
 
 ### Bug Fixes

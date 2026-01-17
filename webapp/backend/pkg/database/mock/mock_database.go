@@ -52,48 +52,6 @@ func (mr *MockDeviceRepoMockRecorder) Close() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockDeviceRepo)(nil).Close))
 }
 
-// UpdateDeviceArchived mocks base method.
-func (m *MockDeviceRepo) UpdateDeviceArchived(ctx context.Context, wwn string, archived bool) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateDeviceArchived", ctx, wwn)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UpdateDeviceArchived indicates an expected call of UpdateDeviceArchived.
-func (mr *MockDeviceRepoMockRecorder) UpdateDeviceArchived(ctx, wwn, archived interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceArchived", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDeviceArchived), ctx, wwn, archived)
-}
-
-// UpdateDeviceMuted mocks base method.
-func (m *MockDeviceRepo) UpdateDeviceMuted(ctx context.Context, wwn string, archived bool) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateDeviceMuted", ctx, wwn)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UpdateDeviceMuted indicates an expected call of UpdateDeviceMuted.
-func (mr *MockDeviceRepoMockRecorder) UpdateDeviceMuted(ctx, wwn, archived interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceMuted", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDeviceMuted), ctx, wwn, archived)
-}
-
-// UpdateDeviceLabel mocks base method.
-func (m *MockDeviceRepo) UpdateDeviceLabel(ctx context.Context, wwn string, label string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateDeviceLabel", ctx, wwn, label)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UpdateDeviceLabel indicates an expected call of UpdateDeviceLabel.
-func (mr *MockDeviceRepoMockRecorder) UpdateDeviceLabel(ctx, wwn, label interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceLabel", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDeviceLabel), ctx, wwn, label)
-}
-
 // DeleteDevice mocks base method.
 func (m *MockDeviceRepo) DeleteDevice(ctx context.Context, wwn string) error {
 	m.ctrl.T.Helper()
@@ -106,6 +64,20 @@ func (m *MockDeviceRepo) DeleteDevice(ctx context.Context, wwn string) error {
 func (mr *MockDeviceRepoMockRecorder) DeleteDevice(ctx, wwn interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDevice", reflect.TypeOf((*MockDeviceRepo)(nil).DeleteDevice), ctx, wwn)
+}
+
+// DeleteZFSPool mocks base method.
+func (m *MockDeviceRepo) DeleteZFSPool(ctx context.Context, guid string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteZFSPool", ctx, guid)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteZFSPool indicates an expected call of DeleteZFSPool.
+func (mr *MockDeviceRepoMockRecorder) DeleteZFSPool(ctx, guid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteZFSPool", reflect.TypeOf((*MockDeviceRepo)(nil).DeleteZFSPool), ctx, guid)
 }
 
 // GetDeviceDetails mocks base method.
@@ -183,6 +155,66 @@ func (mr *MockDeviceRepoMockRecorder) GetSummary(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSummary", reflect.TypeOf((*MockDeviceRepo)(nil).GetSummary), ctx)
 }
 
+// GetZFSPoolDetails mocks base method.
+func (m *MockDeviceRepo) GetZFSPoolDetails(ctx context.Context, guid string) (models.ZFSPool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetZFSPoolDetails", ctx, guid)
+	ret0, _ := ret[0].(models.ZFSPool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetZFSPoolDetails indicates an expected call of GetZFSPoolDetails.
+func (mr *MockDeviceRepoMockRecorder) GetZFSPoolDetails(ctx, guid interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetZFSPoolDetails", reflect.TypeOf((*MockDeviceRepo)(nil).GetZFSPoolDetails), ctx, guid)
+}
+
+// GetZFSPoolMetricsHistory mocks base method.
+func (m *MockDeviceRepo) GetZFSPoolMetricsHistory(ctx context.Context, guid, durationKey string) ([]measurements.ZFSPoolMetrics, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetZFSPoolMetricsHistory", ctx, guid, durationKey)
+	ret0, _ := ret[0].([]measurements.ZFSPoolMetrics)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetZFSPoolMetricsHistory indicates an expected call of GetZFSPoolMetricsHistory.
+func (mr *MockDeviceRepoMockRecorder) GetZFSPoolMetricsHistory(ctx, guid, durationKey interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetZFSPoolMetricsHistory", reflect.TypeOf((*MockDeviceRepo)(nil).GetZFSPoolMetricsHistory), ctx, guid, durationKey)
+}
+
+// GetZFSPools mocks base method.
+func (m *MockDeviceRepo) GetZFSPools(ctx context.Context) ([]models.ZFSPool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetZFSPools", ctx)
+	ret0, _ := ret[0].([]models.ZFSPool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetZFSPools indicates an expected call of GetZFSPools.
+func (mr *MockDeviceRepoMockRecorder) GetZFSPools(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetZFSPools", reflect.TypeOf((*MockDeviceRepo)(nil).GetZFSPools), ctx)
+}
+
+// GetZFSPoolsSummary mocks base method.
+func (m *MockDeviceRepo) GetZFSPoolsSummary(ctx context.Context) (map[string]*models.ZFSPool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetZFSPoolsSummary", ctx)
+	ret0, _ := ret[0].(map[string]*models.ZFSPool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetZFSPoolsSummary indicates an expected call of GetZFSPoolsSummary.
+func (mr *MockDeviceRepoMockRecorder) GetZFSPoolsSummary(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetZFSPoolsSummary", reflect.TypeOf((*MockDeviceRepo)(nil).GetZFSPoolsSummary), ctx)
+}
+
 // HealthCheck mocks base method.
 func (m *MockDeviceRepo) HealthCheck(ctx context.Context) error {
 	m.ctrl.T.Helper()
@@ -224,6 +256,20 @@ func (m *MockDeviceRepo) RegisterDevice(ctx context.Context, dev models.Device) 
 func (mr *MockDeviceRepoMockRecorder) RegisterDevice(ctx, dev interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterDevice", reflect.TypeOf((*MockDeviceRepo)(nil).RegisterDevice), ctx, dev)
+}
+
+// RegisterZFSPool mocks base method.
+func (m *MockDeviceRepo) RegisterZFSPool(ctx context.Context, pool models.ZFSPool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RegisterZFSPool", ctx, pool)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RegisterZFSPool indicates an expected call of RegisterZFSPool.
+func (mr *MockDeviceRepoMockRecorder) RegisterZFSPool(ctx, pool interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterZFSPool", reflect.TypeOf((*MockDeviceRepo)(nil).RegisterZFSPool), ctx, pool)
 }
 
 // SaveSettings mocks base method.
@@ -269,6 +315,20 @@ func (mr *MockDeviceRepoMockRecorder) SaveSmartTemperature(ctx, wwn, deviceProto
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveSmartTemperature", reflect.TypeOf((*MockDeviceRepo)(nil).SaveSmartTemperature), ctx, wwn, deviceProtocol, collectorSmartData, retrieveSCTTemperatureHistory)
 }
 
+// SaveZFSPoolMetrics mocks base method.
+func (m *MockDeviceRepo) SaveZFSPoolMetrics(ctx context.Context, pool models.ZFSPool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveZFSPoolMetrics", ctx, pool)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SaveZFSPoolMetrics indicates an expected call of SaveZFSPoolMetrics.
+func (mr *MockDeviceRepoMockRecorder) SaveZFSPoolMetrics(ctx, pool interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveZFSPoolMetrics", reflect.TypeOf((*MockDeviceRepo)(nil).SaveZFSPoolMetrics), ctx, pool)
+}
+
 // UpdateDevice mocks base method.
 func (m *MockDeviceRepo) UpdateDevice(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (models.Device, error) {
 	m.ctrl.T.Helper()
@@ -284,6 +344,48 @@ func (mr *MockDeviceRepoMockRecorder) UpdateDevice(ctx, wwn, collectorSmartData 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDevice", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDevice), ctx, wwn, collectorSmartData)
 }
 
+// UpdateDeviceArchived mocks base method.
+func (m *MockDeviceRepo) UpdateDeviceArchived(ctx context.Context, wwn string, archived bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateDeviceArchived", ctx, wwn, archived)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateDeviceArchived indicates an expected call of UpdateDeviceArchived.
+func (mr *MockDeviceRepoMockRecorder) UpdateDeviceArchived(ctx, wwn, archived interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceArchived", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDeviceArchived), ctx, wwn, archived)
+}
+
+// UpdateDeviceLabel mocks base method.
+func (m *MockDeviceRepo) UpdateDeviceLabel(ctx context.Context, wwn, label string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateDeviceLabel", ctx, wwn, label)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateDeviceLabel indicates an expected call of UpdateDeviceLabel.
+func (mr *MockDeviceRepoMockRecorder) UpdateDeviceLabel(ctx, wwn, label interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceLabel", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDeviceLabel), ctx, wwn, label)
+}
+
+// UpdateDeviceMuted mocks base method.
+func (m *MockDeviceRepo) UpdateDeviceMuted(ctx context.Context, wwn string, muted bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateDeviceMuted", ctx, wwn, muted)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateDeviceMuted indicates an expected call of UpdateDeviceMuted.
+func (mr *MockDeviceRepoMockRecorder) UpdateDeviceMuted(ctx, wwn, muted interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceMuted", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDeviceMuted), ctx, wwn, muted)
+}
+
 // UpdateDeviceStatus mocks base method.
 func (m *MockDeviceRepo) UpdateDeviceStatus(ctx context.Context, wwn string, status pkg.DeviceStatus) (models.Device, error) {
 	m.ctrl.T.Helper()
@@ -297,4 +399,46 @@ func (m *MockDeviceRepo) UpdateDeviceStatus(ctx context.Context, wwn string, sta
 func (mr *MockDeviceRepoMockRecorder) UpdateDeviceStatus(ctx, wwn, status interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceStatus", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDeviceStatus), ctx, wwn, status)
+}
+
+// UpdateZFSPoolArchived mocks base method.
+func (m *MockDeviceRepo) UpdateZFSPoolArchived(ctx context.Context, guid string, archived bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateZFSPoolArchived", ctx, guid, archived)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateZFSPoolArchived indicates an expected call of UpdateZFSPoolArchived.
+func (mr *MockDeviceRepoMockRecorder) UpdateZFSPoolArchived(ctx, guid, archived interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateZFSPoolArchived", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateZFSPoolArchived), ctx, guid, archived)
+}
+
+// UpdateZFSPoolLabel mocks base method.
+func (m *MockDeviceRepo) UpdateZFSPoolLabel(ctx context.Context, guid, label string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateZFSPoolLabel", ctx, guid, label)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateZFSPoolLabel indicates an expected call of UpdateZFSPoolLabel.
+func (mr *MockDeviceRepoMockRecorder) UpdateZFSPoolLabel(ctx, guid, label interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateZFSPoolLabel", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateZFSPoolLabel), ctx, guid, label)
+}
+
+// UpdateZFSPoolMuted mocks base method.
+func (m *MockDeviceRepo) UpdateZFSPoolMuted(ctx context.Context, guid string, muted bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateZFSPoolMuted", ctx, guid, muted)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateZFSPoolMuted indicates an expected call of UpdateZFSPoolMuted.
+func (mr *MockDeviceRepoMockRecorder) UpdateZFSPoolMuted(ctx, guid, muted interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateZFSPoolMuted", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateZFSPoolMuted), ctx, guid, muted)
 }
