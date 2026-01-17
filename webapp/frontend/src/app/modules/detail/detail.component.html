@@ -234,7 +234,7 @@
               <td mat-cell
                 *matCellDef="let attribute">
                 <span class="pr-6 font-medium text-sm text-secondary whitespace-no-wrap">
-                  {{attribute.attribute_id}} ({{toHex(attribute.attribute_id)}})
+                  {{formatAttributeId(attribute.attribute_id)}}
                 </span>
               </td>
             </ng-container>
