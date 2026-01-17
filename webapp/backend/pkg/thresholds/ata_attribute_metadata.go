@@ -359,6 +359,14 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 		Critical:    false,
 		Description: "Uncorrected read errors reported to the operating system.",
 	},
+	18: {
+		ID:          18,
+		DisplayName: "Head Health Self-Assessment",
+		DisplayType: AtaSmartAttributeDisplayTypeNormalized,
+		Ideal:       ObservedThresholdIdealHigh,
+		Critical:    false,
+		Description: "Vendor-specific attribute used by some manufacturers (Western Digital) to report head health or flying height status.",
+	},
 	22: {
 		ID:          22,
 		DisplayName: "Current Helium Level",
@@ -1839,6 +1847,36 @@ var AtaDeviceStatsMetadata = map[string]AtaDeviceStatisticsMetadata{
 		Ideal:       "",
 		Critical:    false,
 		Description: "Minimum operating temperature specified by the manufacturer.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	// Page 4 (General Errors Statistics) - additional entry
+	"devstat_4_24": {
+		DisplayName: "Number of Unrecoverable Read Errors",
+		Ideal:       ObservedThresholdIdealLow,
+		Critical:    true,
+		Description: "Number of unrecoverable read errors reported.",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	// Page 255 (Vendor Specific Statistics)
+	"devstat_255_8": {
+		DisplayName: "Vendor Specific Statistic 1",
+		Ideal:       "",
+		Critical:    false,
+		Description: "Vendor-specific device statistic (varies by manufacturer).",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	"devstat_255_16": {
+		DisplayName: "Vendor Specific Statistic 2",
+		Ideal:       "",
+		Critical:    false,
+		Description: "Vendor-specific device statistic (varies by manufacturer).",
+		DisplayType: AtaSmartAttributeDisplayTypeRaw,
+	},
+	"devstat_255_24": {
+		DisplayName: "Vendor Specific Statistic 3",
+		Ideal:       "",
+		Critical:    false,
+		Description: "Vendor-specific device statistic (varies by manufacturer).",
 		DisplayType: AtaSmartAttributeDisplayTypeRaw,
 	},
 }
