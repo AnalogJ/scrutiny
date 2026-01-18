@@ -83,6 +83,9 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     smartAttributeDataSource: MatTableDataSource<SmartAttributeModel>;
     smartAttributeTableColumns: string[];
 
+    // Timer for debouncing sparkline hover state
+    private sparklineHoverTimeout: ReturnType<typeof setTimeout> | null = null; // eslint-disable-line
+
     @ViewChild('smartAttributeTable', {read: MatSort})
     smartAttributeTableMatSort: MatSort;
 
@@ -390,12 +393,24 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                 },
                 events: {
                     mouseMove: () => {
+                        // Clear any pending timeout to prevent premature removal
+                        if (this.sparklineHoverTimeout) {
+                            clearTimeout(this.sparklineHoverTimeout);
+                            this.sparklineHoverTimeout = null;
+                        }
                         const wrapper = this.elementRef.nativeElement.querySelector('.smart-table-wrapper');
                         wrapper?.classList.add('sparkline-hover');
                     },
                     mouseLeave: () => {
-                        const wrapper = this.elementRef.nativeElement.querySelector('.smart-table-wrapper');
-                        wrapper?.classList.remove('sparkline-hover');
+                        // Debounce the removal to prevent flickering from DOM reflow
+                        if (this.sparklineHoverTimeout) {
+                            clearTimeout(this.sparklineHoverTimeout);
+                        }
+                        this.sparklineHoverTimeout = setTimeout(() => {
+                            const wrapper = this.elementRef.nativeElement.querySelector('.smart-table-wrapper');
+                            wrapper?.classList.remove('sparkline-hover');
+                            this.sparklineHoverTimeout = null;
+                        }, 150);
                     }
                 }
             },
