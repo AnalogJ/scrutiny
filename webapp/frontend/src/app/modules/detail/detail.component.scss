@@ -58,3 +58,14 @@ tr.attribute-row:not(.attribute-expanded-row):active {
     // Commenting this out for now. Need to figure out a better way.
     // vertical-align: middle;
 }
+
+// Fix for ApexCharts tooltips being clipped by overflow-auto container
+// GitHub Issue #71
+// When hovering over a chart, temporarily disable overflow clipping on the wrapper
+.smart-table-wrapper:has(.apexcharts-tooltip-active) {
+    overflow: visible !important;
+}
+
+::ng-deep .apexcharts-tooltip {
+    z-index: 9999 !important;
+}
