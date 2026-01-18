@@ -1,5 +1,5 @@
 import humanizeDuration from 'humanize-duration';
-import {AfterViewInit, Component, ElementRef, Inject, LOCALE_ID, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, Inject, LOCALE_ID, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ApexOptions} from 'ng-apexcharts';
 import {AppConfig} from 'app/core/config/app.config';
 import {DetailService} from './detail.service';
@@ -53,8 +53,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         private _detailService: DetailService,
         public dialog: MatDialog,
         private _configService: ScrutinyConfigService,
-        @Inject(LOCALE_ID) public locale: string,
-        private readonly elementRef: ElementRef
+        @Inject(LOCALE_ID) public locale: string
     ) {
         // Set the private defaults
         this._unsubscribeAll = new Subject();
@@ -82,9 +81,6 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     commonSparklineOptions: Partial<ApexOptions>;
     smartAttributeDataSource: MatTableDataSource<SmartAttributeModel>;
     smartAttributeTableColumns: string[];
-
-    // Timer for debouncing sparkline hover state
-    private sparklineHoverTimeout: ReturnType<typeof setTimeout> | null = null; // eslint-disable-line
 
     @ViewChild('smartAttributeTable', {read: MatSort})
     smartAttributeTableMatSort: MatSort;
@@ -390,54 +386,27 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                 },
                 animations: {
                     enabled: false
-                },
-                events: {
-                    mouseMove: () => {
-                        // Clear any pending timeout to prevent premature removal
-                        if (this.sparklineHoverTimeout) {
-                            clearTimeout(this.sparklineHoverTimeout);
-                            this.sparklineHoverTimeout = null;
-                        }
-                        const wrapper = this.elementRef.nativeElement.querySelector('.smart-table-wrapper');
-                        wrapper?.classList.add('sparkline-hover');
-                    },
-                    mouseLeave: () => {
-                        // Debounce the removal to prevent flickering from DOM reflow
-                        if (this.sparklineHoverTimeout) {
-                            clearTimeout(this.sparklineHoverTimeout);
-                        }
-                        this.sparklineHoverTimeout = setTimeout(() => {
-                            const wrapper = this.elementRef.nativeElement.querySelector('.smart-table-wrapper');
-                            wrapper?.classList.remove('sparkline-hover');
-                            this.sparklineHoverTimeout = null;
-                        }, 150);
-                    }
                 }
             },
-            // theme:{
-            //     // @ts-ignore
-            //     // mode:
-            //     mode: 'dark',
-            // },
             tooltip: {
                 fixed: {
-                    enabled: false
+                    enabled: true,
+                    position: 'topRight',
+                    offsetX: 0,
+                    offsetY: 0
                 },
                 x: {
                     show: true
                 },
                 y: {
                     title: {
-                        formatter: (seriesName) => {
-                            return '';
-                        }
+                        formatter: () => ''
                     }
                 },
                 marker: {
                     show: false
                 },
                 theme: this.determineTheme(this.config)
-
             },
             stroke: {
                 width: 2,
