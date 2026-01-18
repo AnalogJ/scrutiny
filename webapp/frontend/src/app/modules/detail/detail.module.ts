@@ -14,6 +14,7 @@ import { MatTooltipModule as MatTooltipModule } from '@angular/material/tooltip'
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { TreoCardModule } from '@treo/components/card';
 import {DetailSettingsModule} from 'app/layout/common/detail-settings/detail-settings.module';
+import {AttributeHistoryDialogModule} from 'app/layout/common/attribute-history-dialog/attribute-history-dialog.module';
 
 @NgModule({
     declarations: [
@@ -33,6 +34,7 @@ import {DetailSettingsModule} from 'app/layout/common/detail-settings/detail-set
         TreoCardModule,
         SharedModule,
         DetailSettingsModule,
+        AttributeHistoryDialogModule,
     ]
 })
 export class DetailModule

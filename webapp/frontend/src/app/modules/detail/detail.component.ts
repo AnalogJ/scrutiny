@@ -4,6 +4,7 @@ import {ApexOptions} from 'ng-apexcharts';
 import {AppConfig} from 'app/core/config/app.config';
 import {DetailService} from './detail.service';
 import {DetailSettingsComponent} from 'app/layout/common/detail-settings/detail-settings.component';
+import {AttributeHistoryDialogComponent, AttributeHistoryData} from 'app/layout/common/attribute-history-dialog/attribute-history-dialog.component';
 import {MatDialog as MatDialog} from '@angular/material/dialog';
 import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource as MatTableDataSource} from '@angular/material/table';
@@ -474,6 +475,19 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     trackByFn(index: number, item: any): any {
         return index;
         // return item.id || index;
+    }
+
+    openHistoryDialog(attribute: SmartAttributeModel, event: Event): void {
+        event.stopPropagation(); // Prevent row expansion when clicking sparkline
+        const dialogData: AttributeHistoryData = {
+            attributeName: this.getAttributeName(attribute),
+            chartData: attribute.chartData,
+            isDark: this.determineTheme(this.config) === 'dark'
+        };
+        this.dialog.open(AttributeHistoryDialogComponent, {
+            width: '600px',
+            data: dialogData
+        });
     }
 
 }
