@@ -389,24 +389,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
             },
             tooltip: {
-                fixed: {
-                    enabled: true,
-                    position: 'topRight',
-                    offsetX: 0,
-                    offsetY: 0
-                },
-                x: {
-                    show: true
-                },
-                y: {
-                    title: {
-                        formatter: () => ''
-                    }
-                },
-                marker: {
-                    show: false
-                },
-                theme: this.determineTheme(this.config)
+                enabled: false
             },
             stroke: {
                 width: 2,
