@@ -1,5 +1,5 @@
 import humanizeDuration from 'humanize-duration';
-import {AfterViewInit, Component, Inject, LOCALE_ID, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Inject, LOCALE_ID, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ApexOptions} from 'ng-apexcharts';
 import {AppConfig} from 'app/core/config/app.config';
 import {DetailService} from './detail.service';
@@ -53,7 +53,8 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         private _detailService: DetailService,
         public dialog: MatDialog,
         private _configService: ScrutinyConfigService,
-        @Inject(LOCALE_ID) public locale: string
+        @Inject(LOCALE_ID) public locale: string,
+        private readonly elementRef: ElementRef
     ) {
         // Set the private defaults
         this._unsubscribeAll = new Subject();
@@ -386,6 +387,16 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
                 },
                 animations: {
                     enabled: false
+                },
+                events: {
+                    mouseMove: () => {
+                        const wrapper = this.elementRef.nativeElement.querySelector('.smart-table-wrapper');
+                        wrapper?.classList.add('sparkline-hover');
+                    },
+                    mouseLeave: () => {
+                        const wrapper = this.elementRef.nativeElement.querySelector('.smart-table-wrapper');
+                        wrapper?.classList.remove('sparkline-hover');
+                    }
                 }
             },
             // theme:{

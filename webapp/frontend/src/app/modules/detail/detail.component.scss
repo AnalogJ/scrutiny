@@ -61,8 +61,8 @@ tr.attribute-row:not(.attribute-expanded-row):active {
 
 // Fix for ApexCharts tooltips being clipped by overflow-auto container
 // GitHub Issue #71
-// When hovering over a chart, temporarily disable overflow clipping on the wrapper
-.smart-table-wrapper:has(.apexcharts-tooltip-active) {
+// When hovering over a sparkline chart, disable overflow clipping to allow tooltip to display
+.smart-table-wrapper.sparkline-hover {
     overflow: visible !important;
 }
 
