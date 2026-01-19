@@ -1,0 +1,29 @@
+#!/command/with-contenv bash
+
+# Only run if ZFS collection is enabled
+if [ -z "${COLLECTOR_ZFS_CRON_SCHEDULE}" ] && [ "${COLLECTOR_ZFS_RUN_STARTUP}" != "true" ]; then
+    echo 'INFO: ZFS collector not enabled'
+    s6-svc -D /run/service/collector-zfs-once
+    exit 0
+fi
+
+# ensure not run before
+if [ -f /tmp/zfs-collector-init-performed ]; then
+    echo 'INFO: ZFS collector init already performed'
+    s6-svc -D /run/service/collector-zfs-once
+    exit 0
+fi
+
+echo "waiting for scrutiny service to start"
+s6-svwait -u /run/service/scrutiny
+
+# wait until scrutiny is "Ready"
+until $(curl --output /dev/null --silent --head --fail http://localhost:8080/api/health); do echo "scrutiny api not ready" && sleep 5; done
+
+echo "starting ZFS collector (run-once mode)"
+/opt/scrutiny/bin/scrutiny-collector-zfs run
+
+touch /tmp/zfs-collector-init-performed
+s6-svc -D /run/service/collector-zfs-once
+
+exit 0

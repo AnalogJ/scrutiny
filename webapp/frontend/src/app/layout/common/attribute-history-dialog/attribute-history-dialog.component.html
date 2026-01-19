@@ -1,0 +1,52 @@
+<h2 mat-dialog-title>{{data.attributeName}} History</h2>
+<mat-dialog-content>
+    <div class="chart-container mb-4">
+        <apx-chart
+            [series]="chartOptions.series"
+            [chart]="chartOptions.chart"
+            [xaxis]="chartOptions.xaxis"
+            [yaxis]="chartOptions.yaxis"
+            [tooltip]="chartOptions.tooltip"
+            [stroke]="chartOptions.stroke"
+            [grid]="chartOptions.grid"
+            [plotOptions]="chartOptions.plotOptions"
+        ></apx-chart>
+    </div>
+
+    <div class="history-table-container">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b">
+                    <th class="text-left py-2 px-3 font-medium">Date</th>
+                    <th class="text-right py-2 px-3 font-medium">Value</th>
+                    <th class="text-center py-2 px-3 font-medium">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of historyData" class="border-b last:border-b-0">
+                    <td class="py-2 px-3 text-secondary">{{item.date}}</td>
+                    <td class="py-2 px-3 text-right font-medium">{{item.value}}</td>
+                    <td class="py-2 px-3 text-center">
+                        <span class="inline-flex items-center">
+                            <span class="w-2 h-2 rounded-full mr-2"
+                                [ngClass]="{
+                                    'bg-red': item.status === 'failed',
+                                    'bg-green': item.status === 'passed',
+                                    'bg-yellow': item.status === 'warn'
+                                }"></span>
+                            <span class="text-xs uppercase"
+                                [ngClass]="{
+                                    'text-red-600': item.status === 'failed',
+                                    'text-green-600': item.status === 'passed',
+                                    'text-yellow-600': item.status === 'warn'
+                                }">{{item.status}}</span>
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button (click)="close()">Close</button>
+</mat-dialog-actions>

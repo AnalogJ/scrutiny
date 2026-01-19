@@ -13,3 +13,17 @@ COLLECTOR_CRON_SCHEDULE=${COLLECTOR_CRON_SCHEDULE:-"0 0 * * *"}
 
 # replace placeholder with correct value
 sed -i 's|{COLLECTOR_CRON_SCHEDULE}|'"${COLLECTOR_CRON_SCHEDULE}"'|g' /etc/cron.d/scrutiny
+
+# ZFS Collector cron schedule (disabled by default - requires zpool command)
+COLLECTOR_ZFS_CRON_SCHEDULE=${COLLECTOR_ZFS_CRON_SCHEDULE:-""}
+
+if [ -n "${COLLECTOR_ZFS_CRON_SCHEDULE}" ]; then
+    # strip quotes if present
+    [[ "${COLLECTOR_ZFS_CRON_SCHEDULE}" == \"*\" || "${COLLECTOR_ZFS_CRON_SCHEDULE}" == \'*\' ]] && COLLECTOR_ZFS_CRON_SCHEDULE="${COLLECTOR_ZFS_CRON_SCHEDULE:1:-1}"
+
+    # replace placeholder with correct value
+    sed -i 's|{COLLECTOR_ZFS_CRON_SCHEDULE}|'"${COLLECTOR_ZFS_CRON_SCHEDULE}"'|g' /etc/cron.d/scrutiny-zfs
+else
+    # Disable ZFS cron if no schedule set (comment out the cron line)
+    sed -i 's|^{COLLECTOR_ZFS_CRON_SCHEDULE}|# ZFS collector disabled (set COLLECTOR_ZFS_CRON_SCHEDULE to enable)|g' /etc/cron.d/scrutiny-zfs
+fi

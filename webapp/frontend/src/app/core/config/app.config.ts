@@ -6,7 +6,12 @@ export type Theme = 'light' | 'dark' | 'system';
 // Device title to display on the dashboard
 export type DashboardDisplay = 'name' | 'serial_id' | 'uuid' | 'label'
 
-export type DashboardSort = 'status' | 'title' | 'age'
+export type DashboardSort =
+    | 'status' | 'status_asc' | 'status_desc'
+    | 'title' | 'title_asc' | 'title_desc'
+    | 'age' | 'age_asc' | 'age_desc'
+    | 'capacity_asc' | 'capacity_desc'
+    | 'temperature_asc' | 'temperature_desc'
 
 export type TemperatureUnit = 'celsius' | 'fahrenheit'
 

@@ -360,7 +360,10 @@
               </span>
             </th>
             <td mat-cell
-              *matCellDef="let attribute">
+              *matCellDef="let attribute"
+              class="cursor-pointer"
+              matTooltip="Click to view history"
+              (click)="openHistoryDialog(attribute, $event)">
 
               <span class="font-medium whitespace-no-wrap">
                 <apx-chart
