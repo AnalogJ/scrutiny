@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import moment from 'moment';
 import { Subject } from 'rxjs';
-import { MatDialog as MatDialog } from '@angular/material/dialog';
-import { ZFSPoolSummaryModel } from 'app/core/models/zfs-pool-summary-model';
+import { MatDialog } from '@angular/material/dialog';
 import { ZFSPoolModel, ZFSPoolStatus } from 'app/core/models/zfs-pool-model';
 import { AppConfig } from 'app/core/config/app.config';
 import { ZFSPoolsService } from 'app/modules/zfs-pools/zfs-pools.service';
@@ -11,18 +10,14 @@ import { ZFSPoolsService } from 'app/modules/zfs-pools/zfs-pools.service';
     selector: 'app-zfs-pool-card',
     templateUrl: './zfs-pool-card.component.html',
     styleUrls: ['./zfs-pool-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ZFSPoolCardComponent implements OnInit {
-
-    constructor(
-        private _zfsPoolsService: ZFSPoolsService,
-        public dialog: MatDialog,
-    ) {
+    constructor(private _zfsPoolsService: ZFSPoolsService, public dialog: MatDialog) {
         this._unsubscribeAll = new Subject();
     }
 
-    @Input() poolSummary: ZFSPoolSummaryModel;
+    @Input() poolSummary: ZFSPoolModel;
     @Input() config: AppConfig;
     @Output() poolArchived = new EventEmitter<string>();
     @Output() poolUnarchived = new EventEmitter<string>();
@@ -30,8 +25,7 @@ export class ZFSPoolCardComponent implements OnInit {
 
     private _unsubscribeAll: Subject<void>;
 
-    ngOnInit(): void {
-    }
+    ngOnInit(): void {}
 
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
@@ -118,21 +112,21 @@ export class ZFSPoolCardComponent implements OnInit {
     }
 
     archivePool(): void {
-        if (this.poolSummary.pool.archived) {
-            this._zfsPoolsService.unarchivePool(this.poolSummary.pool.guid).subscribe(() => {
-                this.poolUnarchived.emit(this.poolSummary.pool.guid);
+        if (this.poolSummary.archived) {
+            this._zfsPoolsService.unarchivePool(this.poolSummary.guid).subscribe(() => {
+                this.poolUnarchived.emit(this.poolSummary.guid);
             });
         } else {
-            this._zfsPoolsService.archivePool(this.poolSummary.pool.guid).subscribe(() => {
-                this.poolArchived.emit(this.poolSummary.pool.guid);
+            this._zfsPoolsService.archivePool(this.poolSummary.guid).subscribe(() => {
+                this.poolArchived.emit(this.poolSummary.guid);
             });
         }
     }
 
     deletePool(): void {
-        if (confirm(`Are you sure you want to delete pool "${this.getPoolTitle(this.poolSummary.pool)}"?`)) {
-            this._zfsPoolsService.deletePool(this.poolSummary.pool.guid).subscribe(() => {
-                this.poolDeleted.emit(this.poolSummary.pool.guid);
+        if (confirm(`Are you sure you want to delete pool "${this.getPoolTitle(this.poolSummary)}"?`)) {
+            this._zfsPoolsService.deletePool(this.poolSummary.guid).subscribe(() => {
+                this.poolDeleted.emit(this.poolSummary.guid);
             });
         }
     }

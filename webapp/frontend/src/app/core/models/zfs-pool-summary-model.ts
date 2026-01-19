@@ -1,14 +1,10 @@
 // maps to API response for ZFS pool summary
 import { ZFSPoolModel } from './zfs-pool-model';
 
-export interface ZFSPoolSummaryModel {
-    pool: ZFSPoolModel;
-}
-
 export interface ZFSPoolSummaryResponseWrapper {
     success: boolean;
     data: {
-        summary: { [guid: string]: ZFSPoolSummaryModel };
+        pools: Record<string, ZFSPoolModel>;
     };
 }
 
