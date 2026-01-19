@@ -121,10 +121,10 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 		logger.Debugf("Serving frontend from configured path: %s", actualFrontendPath)
 	}
 
-	// Create a custom file server with proper MIME types
+	// Create file server - it will automatically use the MIME types registered globally above
 	fileServer := http.FileServer(http.Dir(actualFrontendPath))
 	
-	// Serve static files with proper MIME types
+	// Serve static files with proper MIME types and SPA routing support
 	base.GET("/web", func(c *gin.Context) {
 		c.File(filepath.Join(actualFrontendPath, "index.html"))
 	})
@@ -149,17 +149,8 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 			return
 		}
 		
-		// Determine MIME type based on file extension
-		ext := filepath.Ext(file)
-		if ext != "" {
-			mimeType := mime.TypeByExtension(ext)
-			if mimeType != "" {
-				c.Header("Content-Type", mimeType)
-			}
-		}
-		
 		// Serve the file using the file server
-		// Set the URL path to the file path relative to the root
+		// MIME type will be automatically set based on registered types above
 		c.Request.URL.Path = "/" + file
 		fileServer.ServeHTTP(c.Writer, c.Request)
 	})
@@ -169,7 +160,7 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 		c.Redirect(http.StatusFound, basePath+"/web")
 	})
 
-	//catch-all, serve index page.
+	//catch-all, serve index page for any unmatched routes
 	r.NoRoute(func(c *gin.Context) {
 		c.File(filepath.Join(actualFrontendPath, "index.html"))
 	})

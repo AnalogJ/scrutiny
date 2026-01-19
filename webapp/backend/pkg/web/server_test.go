@@ -694,3 +694,234 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	require.Equal(suite.T(), "a4c8e8ed-11a0-4c97-9bba-306440f1b944", deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.WWN)
 	require.Equal(suite.T(), pkg.DeviceStatusPassed, deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.DeviceStatus)
 }
+
+// helperCreateTestStaticFiles creates test files with various extensions for MIME type testing
+func helperCreateTestStaticFiles(t *testing.T, parentPath string, files map[string]string) {
+	for filename, content := range files {
+		filePath := path.Join(parentPath, filename)
+		dir := path.Dir(filePath)
+		err := os.MkdirAll(dir, 0755)
+		require.NoError(t, err)
+		err = ioutil.WriteFile(filePath, []byte(content), 0644)
+		require.NoError(t, err)
+	}
+}
+
+func (suite *ServerTestSuite) TestStaticFileMimeTypes() {
+	//setup
+	parentPath, _ := ioutil.TempDir("", "")
+	defer os.RemoveAll(parentPath)
+	helperCreateFrontendFiles(suite.T(), parentPath)
+	
+	// Create test static files with various extensions
+	testFiles := map[string]string{
+		"test.js":     "console.log('test');",
+		"test.mjs":    "export default {};",
+		"test.css":    "body { margin: 0; }",
+		"test.json":   `{"test": true}`,
+		"test.svg":    "<svg></svg>",
+		"test.woff":   "fake woff content",
+		"test.woff2":  "fake woff2 content",
+		"test.ttf":    "fake ttf content",
+		"test.otf":    "fake otf content",
+		"test.eot":    "fake eot content",
+	}
+	helperCreateTestStaticFiles(suite.T(), parentPath, testFiles)
+
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
+	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
+	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.database.journal_mode").Return("WAL").AnyTimes()
+	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.metrics.enabled").Return(false).AnyTimes()
+
+	fakeConfig.EXPECT().GetString("web.influxdb.scheme").Return("http").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{195}).AnyTimes()
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
+
+	ae := web.AppEngine{
+		Config: fakeConfig,
+	}
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
+
+	// Expected MIME types based on registered types
+	expectedMimeTypes := map[string]string{
+		"test.js":    "application/javascript",
+		"test.mjs":   "application/javascript",
+		"test.css":   "text/css",
+		"test.json":  "application/json",
+		"test.svg":   "image/svg+xml",
+		"test.woff":  "font/woff",
+		"test.woff2": "font/woff2",
+		"test.ttf":   "font/ttf",
+		"test.otf":   "font/otf",
+		"test.eot":   "application/vnd.ms-fontobject",
+	}
+
+	//test - verify each file is served with correct MIME type
+	for filename, expectedMimeType := range expectedMimeTypes {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", suite.Basepath+"/web/"+filename, nil)
+		router.ServeHTTP(w, req)
+
+		//assert
+		require.Equal(suite.T(), 200, w.Code, "Failed for file: %s", filename)
+		actualContentType := w.Header().Get("Content-Type")
+		// Go's http.FileServer may add charset parameter (e.g., "text/css; charset=utf-8")
+		// Check that Content-Type starts with expected MIME type
+		require.True(suite.T(), strings.HasPrefix(actualContentType, expectedMimeType), 
+			"Incorrect MIME type for file: %s, expected to start with: %s, got: %s", filename, expectedMimeType, actualContentType)
+	}
+}
+
+func (suite *ServerTestSuite) TestBrowserSubdirectoryDetection() {
+	//setup
+	parentPath, _ := ioutil.TempDir("", "")
+	defer os.RemoveAll(parentPath)
+	
+	// Create browser subdirectory with index.html
+	browserPath := path.Join(parentPath, "browser")
+	err := os.MkdirAll(browserPath, 0755)
+	require.NoError(suite.T(), err)
+	indexPath := path.Join(browserPath, "index.html")
+	err = ioutil.WriteFile(indexPath, []byte("<html><body>Browser subdirectory</body></html>"), 0644)
+	require.NoError(suite.T(), err)
+	
+	// Create a test file in browser subdirectory
+	testFilePath := path.Join(browserPath, "test.js")
+	err = ioutil.WriteFile(testFilePath, []byte("console.log('test');"), 0644)
+	require.NoError(suite.T(), err)
+
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
+	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
+	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.database.journal_mode").Return("WAL").AnyTimes()
+	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.metrics.enabled").Return(false).AnyTimes()
+
+	fakeConfig.EXPECT().GetString("web.influxdb.scheme").Return("http").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{195}).AnyTimes()
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
+
+	ae := web.AppEngine{
+		Config: fakeConfig,
+	}
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
+
+	//test - verify index.html is served from browser subdirectory
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", suite.Basepath+"/web", nil)
+	router.ServeHTTP(w, req)
+
+	//assert
+	require.Equal(suite.T(), 200, w.Code)
+	require.Contains(suite.T(), w.Body.String(), "Browser subdirectory")
+	
+	//test - verify test.js file is served from browser subdirectory with correct MIME type
+	w2 := httptest.NewRecorder()
+	req2, _ := http.NewRequest("GET", suite.Basepath+"/web/test.js", nil)
+	router.ServeHTTP(w2, req2)
+
+	//assert
+	require.Equal(suite.T(), 200, w2.Code)
+	actualContentType := w2.Header().Get("Content-Type")
+	require.True(suite.T(), strings.HasPrefix(actualContentType, "application/javascript"),
+		"Content-Type should start with 'application/javascript', got: %s", actualContentType)
+	require.Contains(suite.T(), w2.Body.String(), "console.log('test')")
+}
+
+func (suite *ServerTestSuite) TestBrowserSubdirectoryDetection_NoBrowserDir() {
+	//setup - create index.html directly in parent path (no browser subdirectory)
+	parentPath, _ := ioutil.TempDir("", "")
+	defer os.RemoveAll(parentPath)
+	helperCreateFrontendFiles(suite.T(), parentPath)
+	
+	// Create a test file in parent path
+	testFilePath := path.Join(parentPath, "test.js")
+	err := ioutil.WriteFile(testFilePath, []byte("console.log('test');"), 0644)
+	require.NoError(suite.T(), err)
+
+	mockCtrl := gomock.NewController(suite.T())
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
+	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
+	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.database.journal_mode").Return("WAL").AnyTimes()
+	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.metrics.enabled").Return(false).AnyTimes()
+
+	fakeConfig.EXPECT().GetString("web.influxdb.scheme").Return("http").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{195}).AnyTimes()
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
+
+	ae := web.AppEngine{
+		Config: fakeConfig,
+	}
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
+
+	//test - verify index.html is served from parent path (no browser subdirectory)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", suite.Basepath+"/web", nil)
+	router.ServeHTTP(w, req)
+
+	//assert
+	require.Equal(suite.T(), 200, w.Code)
+	
+	//test - verify test.js file is served from parent path with correct MIME type
+	w2 := httptest.NewRecorder()
+	req2, _ := http.NewRequest("GET", suite.Basepath+"/web/test.js", nil)
+	router.ServeHTTP(w2, req2)
+
+	//assert
+	require.Equal(suite.T(), 200, w2.Code)
+	actualContentType := w2.Header().Get("Content-Type")
+	require.True(suite.T(), strings.HasPrefix(actualContentType, "application/javascript"),
+		"Content-Type should start with 'application/javascript', got: %s", actualContentType)
+	require.Contains(suite.T(), w2.Body.String(), "console.log('test')")
+}
