@@ -56,7 +56,7 @@
 
             <div class="flex flex-wrap w-full">
               @for (poolSummary of poolSummariesForHostGroup(hostId.value); track poolSummary) {
-                @if (showArchived || !poolSummary.pool.archived) {
+                @if (showArchived || !poolSummary.archived) {
                   <app-zfs-pool-card
                     class="flex gt-sm:w-1/2 min-w-80 p-4"
                     [poolSummary]="poolSummary"
@@ -78,7 +78,7 @@
   <div class="dashboard-placeholder content-layout fullwidth-basic-content-scroll">
     <img
       class="image"
-      src="assets/images/dashboard-placeholder.png">
+      src="/assets/images/dashboard-placeholder.png">
 
     <h1>No ZFS Pools Detected!</h1>
 

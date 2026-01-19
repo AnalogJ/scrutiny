@@ -1,17 +1,11 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    OnDestroy,
-    OnInit,
-    ViewEncapsulation
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ZFSPoolsService } from 'app/modules/zfs-pools/zfs-pools.service';
 import { AppConfig } from 'app/core/config/app.config';
 import { ScrutinyConfigService } from 'app/core/config/scrutiny-config.service';
 import { Router } from '@angular/router';
-import { ZFSPoolSummaryModel } from 'app/core/models/zfs-pool-summary-model';
+import { ZFSPoolModel } from 'app/core/models/zfs-pool-model';
 
 @Component({
     selector: 'zfs-pools',
@@ -19,55 +13,47 @@ import { ZFSPoolSummaryModel } from 'app/core/models/zfs-pool-summary-model';
     styleUrls: ['./zfs-pools.component.scss'],
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    standalone: false,
 })
 export class ZFSPoolsComponent implements OnInit, OnDestroy {
-    summaryData: { [guid: string]: ZFSPoolSummaryModel };
+    summaryData: Record<string, ZFSPoolModel>;
     hostGroups: { [hostId: string]: string[] } = {};
     config: AppConfig;
     showArchived: boolean;
 
     private _unsubscribeAll: Subject<void>;
 
-    constructor(
-        private _zfsPoolsService: ZFSPoolsService,
-        private _configService: ScrutinyConfigService,
-        private router: Router,
-    ) {
+    constructor(private _zfsPoolsService: ZFSPoolsService, private _configService: ScrutinyConfigService, private router: Router) {
         this._unsubscribeAll = new Subject();
     }
 
     ngOnInit(): void {
         // Subscribe to config changes
-        this._configService.config$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((config: AppConfig) => {
-                const oldConfig = JSON.stringify(this.config);
-                const newConfig = JSON.stringify(config);
+        this._configService.config$.pipe(takeUntil(this._unsubscribeAll)).subscribe((config: AppConfig) => {
+            const oldConfig = JSON.stringify(this.config);
+            const newConfig = JSON.stringify(config);
 
-                if (oldConfig !== newConfig) {
-                    this.config = config;
-                    if (oldConfig) {
-                        this.refreshComponent();
-                    }
+            if (oldConfig !== newConfig) {
+                this.config = config;
+                if (oldConfig) {
+                    this.refreshComponent();
                 }
-            });
+            }
+        });
 
         // Get the data
-        this._zfsPoolsService.data$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((data) => {
-                this.summaryData = data;
+        this._zfsPoolsService.data$.pipe(takeUntil(this._unsubscribeAll)).subscribe((data) => {
+            this.summaryData = data;
 
-                // Generate group data by host
-                this.hostGroups = {};
-                for (const guid in this.summaryData) {
-                    const hostId = this.summaryData[guid].pool.host_id;
-                    const hostPoolList = this.hostGroups[hostId] || [];
-                    hostPoolList.push(guid);
-                    this.hostGroups[hostId] = hostPoolList;
-                }
-            });
+            // Generate group data by host
+            this.hostGroups = {};
+            for (const guid in this.summaryData) {
+                const hostId = this.summaryData[guid].host_id;
+                const hostPoolList = this.hostGroups[hostId] || [];
+                hostPoolList.push(guid);
+                this.hostGroups[hostId] = hostPoolList;
+            }
+        });
     }
 
     ngOnDestroy(): void {
@@ -82,8 +68,8 @@ export class ZFSPoolsComponent implements OnInit, OnDestroy {
         this.router.navigate([currentUrl]);
     }
 
-    poolSummariesForHostGroup(hostGroupGUIDs: string[]): ZFSPoolSummaryModel[] {
-        const poolSummaries: ZFSPoolSummaryModel[] = [];
+    poolSummariesForHostGroup(hostGroupGUIDs: string[]): ZFSPoolModel[] {
+        const poolSummaries: ZFSPoolModel[] = [];
         for (const guid of hostGroupGUIDs) {
             if (this.summaryData[guid]) {
                 poolSummaries.push(this.summaryData[guid]);
@@ -97,11 +83,11 @@ export class ZFSPoolsComponent implements OnInit, OnDestroy {
     }
 
     onPoolArchived(guid: string): void {
-        this.summaryData[guid].pool.archived = true;
+        this.summaryData[guid].archived = true;
     }
 
     onPoolUnarchived(guid: string): void {
-        this.summaryData[guid].pool.archived = false;
+        this.summaryData[guid].archived = false;
     }
 
     trackByFn(index: number, item: any): any {

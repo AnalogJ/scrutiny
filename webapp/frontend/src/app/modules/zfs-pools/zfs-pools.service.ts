@@ -3,18 +3,17 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { getBasePath } from 'app/app.routing';
-import { ZFSPoolSummaryModel, ZFSPoolSummaryResponseWrapper } from 'app/core/models/zfs-pool-summary-model';
+import { ZFSPoolSummaryResponseWrapper } from 'app/core/models/zfs-pool-summary-model';
+import { ZFSPoolModel } from 'app/core/models/zfs-pool-model';
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'root',
 })
 export class ZFSPoolsService {
     // Observables
-    private _data: BehaviorSubject<{ [guid: string]: ZFSPoolSummaryModel }>;
+    private _data: BehaviorSubject<Record<string, ZFSPoolModel>>;
 
-    constructor(
-        private _httpClient: HttpClient
-    ) {
+    constructor(private _httpClient: HttpClient) {
         this._data = new BehaviorSubject(null);
     }
 
@@ -22,7 +21,7 @@ export class ZFSPoolsService {
     // @ Accessors
     // -----------------------------------------------------------------------------------------------------
 
-    get data$(): Observable<{ [guid: string]: ZFSPoolSummaryModel }> {
+    get data$(): Observable<Record<string, ZFSPoolModel>> {
         return this._data.asObservable();
     }
 
@@ -30,12 +29,12 @@ export class ZFSPoolsService {
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
 
-    getSummaryData(): Observable<{ [guid: string]: ZFSPoolSummaryModel }> {
+    getSummaryData(): Observable<Record<string, ZFSPoolModel>> {
         return this._httpClient.get(getBasePath() + '/api/zfs/summary').pipe(
             map((response: ZFSPoolSummaryResponseWrapper) => {
-                return response.data.summary;
+                return response.data.pools;
             }),
-            tap((response: { [guid: string]: ZFSPoolSummaryModel }) => {
+            tap((response: Record<string, ZFSPoolModel>) => {
                 this._data.next(response);
             })
         );

@@ -2,6 +2,12 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.9.1](https://github.com/Starosdev/scrutiny/compare/v1.9.0...v1.9.1) (2026-01-19)
+
+### Bug Fixes
+
+* **frontend:** resolve issues related to display zfs pool data ([#87](https://github.com/Starosdev/scrutiny/issues/87)) ([00f9011](https://github.com/Starosdev/scrutiny/commit/00f9011b3c745b91fd8749bb77fbfc8c0012b37a))
+
 ## [1.8.0](https://github.com/Starosdev/scrutiny/compare/v1.7.2...v1.8.0) (2026-01-17)
 
 ### Features
