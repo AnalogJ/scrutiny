@@ -2,6 +2,20 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.8.0](https://github.com/Starosdev/scrutiny/compare/v1.7.2...v1.8.0) (2026-01-17)
+
+### Features
+
+* **thresholds:** add metadata for all ATA Device Statistics ([6602bf8](https://github.com/Starosdev/scrutiny/commit/6602bf83aea4fbc625a71e1232b732078b511694))
+* **thresholds:** add metadata for all remaining unknown attributes ([163284c](https://github.com/Starosdev/scrutiny/commit/163284c196eca32a4ed25beaefb9c6bc536f91be))
+* **thresholds:** add metadata for Page 3 and Page 5 device statistics ([72a7ea8](https://github.com/Starosdev/scrutiny/commit/72a7ea84ad8d60a1c66d7d9adf42c254bc4dd863))
+* **thresholds:** add metadata for remaining unknown attributes ([7b0acd0](https://github.com/Starosdev/scrutiny/commit/7b0acd0b572a392c9c74c5f61f2860e671b44b3e))
+
+### Bug Fixes
+
+* **frontend:** handle device statistics display in detail view ([1f81689](https://github.com/Starosdev/scrutiny/commit/1f816898da5c628bdd29ef7825e1e38c5e3c9ecc))
+* **smart:** add support for ATA Device Statistics (enterprise SSD metrics) ([79d7841](https://github.com/Starosdev/scrutiny/commit/79d784140d7faee7c979047843d4825316bf3603)), closes [#7](https://github.com/Starosdev/scrutiny/issues/7)
+
 ## [1.7.2](https://github.com/Starosdev/scrutiny/compare/v1.7.1...v1.7.2) (2026-01-17)
 
 ### Bug Fixes
