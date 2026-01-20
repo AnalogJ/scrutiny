@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"fmt"
+	"mime"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -25,6 +26,18 @@ type AppEngine struct {
 }
 
 func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
+	// Register additional MIME types for proper file serving
+	mime.AddExtensionType(".js", "application/javascript")
+	mime.AddExtensionType(".mjs", "application/javascript")
+	mime.AddExtensionType(".css", "text/css")
+	mime.AddExtensionType(".woff", "font/woff")
+	mime.AddExtensionType(".woff2", "font/woff2")
+	mime.AddExtensionType(".ttf", "font/ttf")
+	mime.AddExtensionType(".eot", "application/vnd.ms-fontobject")
+	mime.AddExtensionType(".otf", "font/otf")
+	mime.AddExtensionType(".svg", "image/svg+xml")
+	mime.AddExtensionType(".json", "application/json")
+	
 	r := gin.New()
 
 	r.Use(middleware.LoggerMiddleware(logger))
@@ -94,16 +107,62 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 	}
 
 	//Static request routing
-	base.StaticFS("/web", http.Dir(ae.Config.GetString("web.src.frontend.path")))
+	// Determine the actual frontend path - check if browser/ subdirectory exists
+	frontendPath := ae.Config.GetString("web.src.frontend.path")
+	browserPath := filepath.Join(frontendPath, "browser")
+	indexPath := filepath.Join(browserPath, "index.html")
+	
+	// Use browser subdirectory if it exists, otherwise use the configured path directly
+	actualFrontendPath := frontendPath
+	if utils.FileExists(indexPath) {
+		actualFrontendPath = browserPath
+		logger.Debugf("Serving frontend from browser subdirectory: %s", actualFrontendPath)
+	} else {
+		logger.Debugf("Serving frontend from configured path: %s", actualFrontendPath)
+	}
+
+	// Create file server - it will automatically use the MIME types registered globally above
+	fileServer := http.FileServer(http.Dir(actualFrontendPath))
+	
+	// Serve static files with proper MIME types and SPA routing support
+	base.GET("/web", func(c *gin.Context) {
+		c.File(filepath.Join(actualFrontendPath, "index.html"))
+	})
+	
+	base.GET("/web/*filepath", func(c *gin.Context) {
+		file := c.Param("filepath")
+		if file == "" || file == "/" {
+			c.File(filepath.Join(actualFrontendPath, "index.html"))
+			return
+		}
+		
+		// Remove leading slash if present
+		if strings.HasPrefix(file, "/") {
+			file = file[1:]
+		}
+		
+		// Check if file exists
+		fullPath := filepath.Join(actualFrontendPath, file)
+		if !utils.FileExists(fullPath) {
+			// For SPA routing, serve index.html for non-existent files
+			c.File(filepath.Join(actualFrontendPath, "index.html"))
+			return
+		}
+		
+		// Serve the file using the file server
+		// MIME type will be automatically set based on registered types above
+		c.Request.URL.Path = "/" + file
+		fileServer.ServeHTTP(c.Writer, c.Request)
+	})
 
 	//redirect base url to /web
 	base.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusFound, basePath+"/web")
 	})
 
-	//catch-all, serve index page.
+	//catch-all, serve index page for any unmatched routes
 	r.NoRoute(func(c *gin.Context) {
-		c.File(fmt.Sprintf("%s/index.html", ae.Config.GetString("web.src.frontend.path")))
+		c.File(filepath.Join(actualFrontendPath, "index.html"))
 	})
 	return r
 }
