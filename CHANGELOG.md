@@ -2,6 +2,12 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.10.1](https://github.com/Starosdev/scrutiny/compare/v1.10.0...v1.10.1) (2026-01-20)
+
+### Bug Fixes
+
+* **mock:** enhance ZFS pool management methods in MockDeviceRepo ([c8b22fd](https://github.com/Starosdev/scrutiny/commit/c8b22fdcd6a8fc4f75a09ddb42453318110d2062))
+
 ## [1.10.0](https://github.com/Starosdev/scrutiny/compare/v1.9.1...v1.10.0) (2026-01-19)
 
 ### Features
