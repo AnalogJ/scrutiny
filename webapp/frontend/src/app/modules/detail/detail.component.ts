@@ -291,15 +291,15 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     isAta(): boolean {
-        return this.device.device_protocol === 'ATA'
+        return this.device?.device_protocol === 'ATA'
     }
 
     isScsi(): boolean {
-        return this.device.device_protocol === 'SCSI'
+        return this.device?.device_protocol === 'SCSI'
     }
 
     isNvme(): boolean {
-        return this.device.device_protocol === 'NVMe'
+        return this.device?.device_protocol === 'NVMe'
     }
 
     private _generateSmartAttributeTableDataSource(smartResults: SmartModel[]): SmartAttributeModel[] {
@@ -437,6 +437,8 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     openSettingsDialog(): void {
+        if (!this.device) return;
+
         const dialogRef = this.dialog.open(DetailSettingsComponent, {
             width: '600px',
             data: {
@@ -446,7 +448,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         dialogRef.afterClosed().subscribe((result: undefined | null | { muted: boolean, label: string }) => {
-            if (!result) return;
+            if (!result || !this.device) return;
 
             const promises: Promise<any>[] = [];
 
@@ -477,6 +479,66 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         // return item.id || index;
     }
 
+    /**
+     * Calculate TBs written from LBAs (ATA) or data units (NVMe)
+     * Uses logical block size from smartctl data (defaults to 512 bytes if not available)
+     */
+    getTBsWritten(): number | null {
+        if (!this.smart_results || this.smart_results.length === 0) {
+            return null;
+        }
+
+        const attrs = this.smart_results[0]?.attrs;
+        if (!attrs) {
+            return null;
+        }
+
+        // ATA: Use attribute 241 with logical block size
+        const ataAttr = attrs['241'];
+        if (ataAttr?.raw_value != null) {
+            const blockSize = this.smart_results[0]?.logical_block_size || 512;
+            return (ataAttr.raw_value * blockSize) / (1024 * 1024 * 1024 * 1024);
+        }
+
+        // NVMe: data_units_written is in 512KB (512 * 1000 bytes) units per NVMe spec
+        const nvmeAttr = attrs['data_units_written'];
+        if (nvmeAttr?.value != null) {
+            return (nvmeAttr.value * 512 * 1000) / (1024 * 1024 * 1024 * 1024);
+        }
+
+        return null;
+    }
+
+    /**
+     * Calculate TBs read from LBAs (ATA) or data units (NVMe)
+     * Uses logical block size from smartctl data (defaults to 512 bytes if not available)
+     */
+    getTBsRead(): number | null {
+        if (!this.smart_results || this.smart_results.length === 0) {
+            return null;
+        }
+
+        const attrs = this.smart_results[0]?.attrs;
+        if (!attrs) {
+            return null;
+        }
+
+        // ATA: Use attribute 242 with logical block size
+        const ataAttr = attrs['242'];
+        if (ataAttr?.raw_value != null) {
+            const blockSize = this.smart_results[0]?.logical_block_size || 512;
+            return (ataAttr.raw_value * blockSize) / (1024 * 1024 * 1024 * 1024);
+        }
+
+        // NVMe: data_units_read is in 512KB (512 * 1000 bytes) units per NVMe spec
+        const nvmeAttr = attrs['data_units_read'];
+        if (nvmeAttr?.value != null) {
+            return (nvmeAttr.value * 512 * 1000) / (1024 * 1024 * 1024 * 1024);
+        }
+
+        return null;
+    }
+
     openHistoryDialog(attribute: SmartAttributeModel, event: Event): void {
         event.stopPropagation(); // Prevent row expansion when clicking sparkline
         const dialogData: AttributeHistoryData = {
@@ -489,5 +551,4 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
             data: dialogData
         });
     }
-
 }

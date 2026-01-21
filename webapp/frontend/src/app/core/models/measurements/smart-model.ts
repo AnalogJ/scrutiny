@@ -8,6 +8,7 @@ export interface SmartModel {
 
     temp: number;
     power_on_hours: number;
-    power_cycle_count: number
+    power_cycle_count: number;
+    logical_block_size?: number; //logical block size in bytes (typically 512 or 4096)
     attrs: { [key: string]: SmartAttributeModel }
 }

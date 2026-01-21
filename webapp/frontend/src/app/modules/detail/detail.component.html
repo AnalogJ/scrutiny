@@ -7,20 +7,21 @@
       <div class="mr-6">
         <h2 class="m-0 flex items-center gap-2">
           Drive Details – {{ device | deviceTitle:config.dashboard_display }}
-    
-          <mat-icon
-            *ngIf="device?.muted"
-            class="muted-icon"
-            [svgIcon]="'notifications_off'"
-            matTooltip="Notifications muted"
-          ></mat-icon>
+
+          @if (device?.muted) {
+            <mat-icon
+              class="muted-icon"
+              [svgIcon]="'notifications_off'"
+              matTooltip="Notifications muted"
+            ></mat-icon>
+          }
         </h2>
-    
+
         <div class="text-secondary tracking-tight">
           Dive into S.M.A.R.T data
         </div>
       </div>
-    
+
       <!-- Action buttons (desktop) -->
       <div class="flex items-center">
         <button
@@ -31,7 +32,7 @@
           <mat-icon class="icon-size-20" [svgIcon]="'save'"></mat-icon>
           <span class="ml-2">Export</span>
         </button>
-    
+
         <button
           class="ml-2 xs:hidden"
           mat-stroked-button
@@ -43,7 +44,7 @@
           </mat-icon>
           <span class="ml-2">Settings</span>
         </button>
-    
+
         <!-- Actions menu (mobile / xs) -->
         <div class="hidden xs:flex">
           <button
@@ -51,7 +52,7 @@
             [matMenuTriggerFor]="actionsMenu">
             <mat-icon [svgIcon]="'more_vert'"></mat-icon>
           </button>
-    
+
           <mat-menu #actionsMenu="matMenu">
             <button
               mat-menu-item
@@ -60,7 +61,7 @@
               <mat-icon class="icon-size-20" [svgIcon]="'save'"></mat-icon>
               <span class="ml-2">Export</span>
             </button>
-    
+
             <button
               mat-menu-item
               (click)="openSettingsDialog()">
@@ -74,7 +75,7 @@
         </div>
       </div>
     </div>
-    
+
 
 
     <!-- Card -->
@@ -167,7 +168,7 @@
             <div class="text-secondary text-md">Power Cycle Count</div>
           </div>
           @if (smart_results[0]?.power_on_hours) {
-            <div  class="my-2 col-span-2 lt-md:col-span-1">
+            <div class="my-2 col-span-2 lt-md:col-span-1">
               <div matTooltip="{{humanizeDuration(smart_results[0]?.power_on_hours * 60 * 60 * 1000, { conjunction: ' and ', serialComma: false })}}">{{ smart_results[0]?.power_on_hours | deviceHours:config.powered_on_hours_unit:{ round: true, largest: 1, units: ['y', 'd', 'h'] } }}</div>
               <div class="text-secondary text-md">Powered On</div>
             </div>
@@ -176,24 +177,36 @@
             <div>{{smart_results[0]?.temp | temperature:config.temperature_unit:true}}</div>
             <div class="text-secondary text-md">Temperature</div>
           </div>
+          @if (getTBsWritten() !== null) {
+            <div class="my-2 col-span-2 lt-md:col-span-1">
+              <div>{{getTBsWritten() | number:'1.2-2'}} TB</div>
+              <div class="text-secondary text-md">TBs Written</div>
+            </div>
+          }
+          @if (getTBsRead() !== null) {
+            <div class="my-2 col-span-2 lt-md:col-span-1">
+              <div>{{getTBsRead() | number:'1.2-2'}} TB</div>
+              <div class="text-secondary text-md">TBs Read</div>
+            </div>
+          }
+                </div>
+            </treo-card>
         </div>
-      </treo-card>
-    </div>
-    <!-- S.M.A.R.T. Data table -->
-    <div class="flex flex-auto w-3/4 p-4 lt-md:w-full">
-      <div class="flex flex-col flex-auto w-full bg-card shadow-md rounded ">
-        <div class="p-6">
-          <div class="font-bold text-md text-secondary uppercase tracking-wider">S.M.A.R.T {{device?.device_protocol}} Attributes</div>
-          <div class="text-sm text-hint font-medium">{{this.smartAttributeDataSource.data.length}} visible, {{getHiddenAttributes()}} hidden</div>
-        </div>
-        <div class="overflow-auto">
-          <table class="w-full bg-transparent"
-            mat-table
-            matSort
-            multiTemplateDataRows
-            [dataSource]="smartAttributeDataSource"
-            [trackBy]="trackByFn"
-            #smartAttributeTable>
+        <!-- S.M.A.R.T. Data table -->
+        <div class="flex flex-auto w-3/4 p-4 lt-md:w-full">
+            <div class="flex flex-col flex-auto w-full bg-card shadow-md rounded ">
+                <div class="p-6">
+                    <div class="font-bold text-md text-secondary uppercase tracking-wider">S.M.A.R.T {{device?.device_protocol}} Attributes</div>
+                    <div class="text-sm text-hint font-medium">{{this.smartAttributeDataSource.data.length}} visible, {{getHiddenAttributes()}} hidden</div>
+                </div>
+                <div class="overflow-auto">
+                    <table class="w-full bg-transparent"
+                           mat-table
+                           matSort
+                           multiTemplateDataRows
+                           [dataSource]="smartAttributeDataSource"
+                           [trackBy]="trackByFn"
+                           #smartAttributeTable>
 
             <!-- Status -->
             <ng-container matColumnDef="status">
