@@ -2,6 +2,12 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.11.0](https://github.com/Starosdev/scrutiny/compare/v1.10.1...v1.11.0) (2026-01-21)
+
+### Features
+
+* written and read TBs ([#74](https://github.com/Starosdev/scrutiny/issues/74)) ([10698c3](https://github.com/Starosdev/scrutiny/commit/10698c32e089fca86f4ab0d2d0ade1b53cdec94b))
+
 ## [1.10.1](https://github.com/Starosdev/scrutiny/compare/v1.10.0...v1.10.1) (2026-01-20)
 
 ### Bug Fixes
