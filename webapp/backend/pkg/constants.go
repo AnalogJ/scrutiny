@@ -14,6 +14,7 @@ const (
 	AttributeStatusFailedSmart     AttributeStatus = 1
 	AttributeStatusWarningScrutiny AttributeStatus = 2
 	AttributeStatusFailedScrutiny  AttributeStatus = 4
+	AttributeStatusInvalidValue    AttributeStatus = 8 // Value exceeds reasonable maximum, likely corrupted data
 )
 
 const AttributeWhenFailedFailingNow = "FAILING_NOW"

@@ -71,29 +71,44 @@ func (sa *SmartAtaDeviceStatAttribute) Inflate(key string, val interface{}) {
 	}
 }
 
+// MaxReasonableFailureCount is the maximum reasonable value for failure count attributes.
+// Any value above this is considered invalid/corrupted data from the drive.
+// A drive with even 1,000 real mechanical failures would have died long ago.
+const MaxReasonableFailureCount = 1_000_000
+
 // PopulateAttributeStatus sets the status based on device statistics metadata.
 // Chainable.
 func (sa *SmartAtaDeviceStatAttribute) PopulateAttributeStatus() *SmartAtaDeviceStatAttribute {
-	// Look up metadata for this device statistic
-	if metadata, ok := thresholds.AtaDeviceStatsMetadata[sa.AttributeId]; ok {
-		// For percentage-based metrics like devstat_7_8 (Percentage Used Endurance Indicator),
-		// check if value exceeds threshold based on ideal direction
-		if metadata.Critical {
-			// Default threshold for percentage used is 100 (device end of life)
-			threshold := int64(100)
-			if sa.Threshold > 0 {
-				threshold = sa.Threshold
-			}
-
-			if metadata.Ideal == thresholds.ObservedThresholdIdealLow && sa.Value >= threshold {
-				sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedScrutiny)
-				sa.StatusReason = "Device statistic exceeds recommended threshold"
-			}
-		}
-	}
-
 	// Set transformed value to the raw value for device statistics
 	sa.TransformedValue = sa.Value
+
+	// Look up metadata for this device statistic
+	metadata, ok := thresholds.AtaDeviceStatsMetadata[sa.AttributeId]
+	if !ok {
+		return sa
+	}
+
+	// Sanity check: reject impossibly high values for "ideal low" attributes
+	// Some drives report corrupted/encoded values that shouldn't be interpreted literally
+	if metadata.Ideal == thresholds.ObservedThresholdIdealLow && sa.Value > MaxReasonableFailureCount {
+		sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusInvalidValue)
+		sa.StatusReason = "Value exceeds reasonable maximum, likely corrupted data"
+		return sa
+	}
+
+	// For critical metrics, check if value exceeds threshold
+	if metadata.Critical {
+		// Default threshold is 100 (e.g., percentage used at end of life)
+		threshold := int64(100)
+		if sa.Threshold > 0 {
+			threshold = sa.Threshold
+		}
+
+		if metadata.Ideal == thresholds.ObservedThresholdIdealLow && sa.Value >= threshold {
+			sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedScrutiny)
+			sa.StatusReason = "Device statistic exceeds recommended threshold"
+		}
+	}
 
 	return sa
 }

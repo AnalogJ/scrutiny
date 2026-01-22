@@ -150,7 +150,7 @@ func (sm *Smart) FromCollectorSmartInfo(cfg config.Interface, wwn string, info c
 		sm.ProcessAtaSmartInfo(cfg, info.AtaSmartAttributes.Table)
 		// Also process ATA Device Statistics (GP Log 0x04) for enterprise SSD metrics
 		if len(info.AtaDeviceStatistics.Pages) > 0 {
-			sm.ProcessAtaDeviceStatistics(info)
+			sm.ProcessAtaDeviceStatistics(cfg, info)
 		}
 	} else if sm.DeviceProtocol == pkg.DeviceProtocolNvme {
 		sm.ProcessNvmeSmartInfo(info.NvmeSmartHealthInformationLog)
@@ -201,9 +201,22 @@ func (sm *Smart) ProcessAtaSmartInfo(cfg config.Interface, tableItems []collecto
 	}
 }
 
+// isDevstatIgnored checks if an attribute ID is in the devstat ignore list
+func isDevstatIgnored(cfg config.Interface, attrId string) bool {
+	if cfg == nil {
+		return false
+	}
+	for _, ignoredId := range cfg.GetStringSlice("failures.ignored.devstat") {
+		if attrId == ignoredId {
+			return true
+		}
+	}
+	return false
+}
+
 // ProcessAtaDeviceStatistics extracts device statistics from GP Log 0x04
 // This includes important SSD metrics like "Percentage Used Endurance Indicator" on Page 7
-func (sm *Smart) ProcessAtaDeviceStatistics(deviceStatistics collector.SmartInfo) {
+func (sm *Smart) ProcessAtaDeviceStatistics(cfg config.Interface, deviceStatistics collector.SmartInfo) {
 	for _, page := range deviceStatistics.AtaDeviceStatistics.Pages {
 		for _, stat := range page.Table {
 			// Skip invalid entries
@@ -215,18 +228,19 @@ func (sm *Smart) ProcessAtaDeviceStatistics(deviceStatistics collector.SmartInfo
 			// Format: "devstat_<page>_<offset>" e.g., "devstat_7_8" for Percentage Used
 			attrId := fmt.Sprintf("devstat_%d_%d", page.Number, stat.Offset)
 
-			// Use SmartAtaDeviceStatAttribute for device statistics
-			// These use string-based IDs rather than numeric SMART attribute IDs
 			attrModel := SmartAtaDeviceStatAttribute{
 				AttributeId: attrId,
 				Value:       stat.Value,
 			}
 
-			// Populate status based on known thresholds
 			attrModel.PopulateAttributeStatus()
-
-			// Add to attributes map with string key
 			sm.Attributes[attrId] = &attrModel
+
+			// Propagate failure status to device (matching ProcessAtaSmartInfo behavior)
+			// Skip attributes marked as invalid (corrupted data) or ignored by config
+			if pkg.AttributeStatusHas(attrModel.Status, pkg.AttributeStatusFailedScrutiny) && !isDevstatIgnored(cfg, attrId) {
+				sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
+			}
 		}
 	}
 }

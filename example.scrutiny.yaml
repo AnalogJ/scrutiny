@@ -67,9 +67,20 @@ log:
   level: INFO
 
 failures:
+  # Transient attributes are ones that may temporarily show failures but recover
+  # These are still evaluated but don't immediately trigger device failure status
   transient:
     ata:
       - 195 # Hardware_ECC_Recovered, see https://superuser.com/a/1511916/169872
+
+  # Ignored attributes are completely excluded from failure evaluation
+  # Use this for attributes that report invalid/corrupted data on your drives
+  # See issue #84: some drives report impossibly high values for certain devstat attributes
+  ignored:
+    ata: []       # numeric SMART attribute IDs, e.g., [1, 9, 199]
+    devstat: []   # string-based device statistics, e.g., ["devstat_1_40", "devstat_1_48"]
+    nvme: []      # NVME attribute IDs, e.g., ["media_errors"]
+    scsi: []      # SCSI attribute IDs, e.g., ["scsi_grown_defect_list"]
 
 # Notification "urls" look like the following. For more information about service specific configuration see
 # Shoutrrr's documentation: https://containrrr.dev/shoutrrr/services/overview/

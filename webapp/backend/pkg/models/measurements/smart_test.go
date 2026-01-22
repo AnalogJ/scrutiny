@@ -694,3 +694,290 @@ func TestNewSmartFromInfluxDB_WithDeviceStatistics(t *testing.T) {
 	require.Equal(t, int64(42), devstatAttr.Value)
 	require.Equal(t, int64(100), devstatAttr.Threshold)
 }
+
+// TestFromCollectorSmartInfo_ATA_DeviceStatistics_StatusPropagation tests that
+// failed device statistics propagate to device status (issue #84 fix)
+func TestFromCollectorSmartInfo_ATA_DeviceStatistics_StatusPropagation(t *testing.T) {
+	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{}).AnyTimes()
+	fakeConfig.EXPECT().GetStringSlice("failures.ignored.devstat").Return([]string{}).AnyTimes()
+
+	// Create minimal smartctl output with a failing devstat attribute
+	smartJson := collector.SmartInfo{
+		Device: struct {
+			Name     string `json:"name"`
+			InfoName string `json:"info_name"`
+			Type     string `json:"type"`
+			Protocol string `json:"protocol"`
+		}{Protocol: "ATA"},
+		LocalTime: struct {
+			TimeT   int64  `json:"time_t"`
+			Asctime string `json:"asctime"`
+		}{TimeT: time.Now().Unix()},
+		SmartStatus: struct {
+			Passed bool `json:"passed"`
+		}{Passed: true},
+	}
+
+	// Add device statistics with a value that should trigger failure
+	// devstat_7_8 (Percentage Used) at 100% should fail
+	smartJson.AtaDeviceStatistics.Pages = []struct {
+		Number   int    `json:"number"`
+		Name     string `json:"name"`
+		Revision int    `json:"revision"`
+		Table    []struct {
+			Offset int    `json:"offset"`
+			Name   string `json:"name"`
+			Size   int    `json:"size"`
+			Value  int64  `json:"value"`
+			Flags  struct {
+				Value                 int  `json:"value"`
+				Valid                 bool `json:"valid"`
+				Normalized            bool `json:"normalized"`
+				SupportsDsn           bool `json:"supports_dsn"`
+				MonitoredConditionMet bool `json:"monitored_condition_met"`
+			} `json:"flags"`
+		} `json:"table"`
+	}{
+		{
+			Number: 7,
+			Name:   "Solid State Device Statistics",
+			Table: []struct {
+				Offset int    `json:"offset"`
+				Name   string `json:"name"`
+				Size   int    `json:"size"`
+				Value  int64  `json:"value"`
+				Flags  struct {
+					Value                 int  `json:"value"`
+					Valid                 bool `json:"valid"`
+					Normalized            bool `json:"normalized"`
+					SupportsDsn           bool `json:"supports_dsn"`
+					MonitoredConditionMet bool `json:"monitored_condition_met"`
+				} `json:"flags"`
+			}{
+				{
+					Offset: 8,
+					Name:   "Percentage Used Endurance Indicator",
+					Value:  100, // At end of life
+					Flags: struct {
+						Value                 int  `json:"value"`
+						Valid                 bool `json:"valid"`
+						Normalized            bool `json:"normalized"`
+						SupportsDsn           bool `json:"supports_dsn"`
+						MonitoredConditionMet bool `json:"monitored_condition_met"`
+					}{Valid: true},
+				},
+			},
+		},
+	}
+
+	//test
+	smartMdl := measurements.Smart{}
+	err := smartMdl.FromCollectorSmartInfo(fakeConfig, "WWN-test", smartJson)
+
+	//assert
+	require.NoError(t, err)
+
+	// Device status should be failed due to devstat failure propagation
+	require.True(t, pkg.DeviceStatusHas(smartMdl.Status, pkg.DeviceStatusFailedScrutiny),
+		"Device status should be DeviceStatusFailedScrutiny when devstat attribute fails")
+
+	// The attribute itself should also be marked as failed
+	devstat := smartMdl.Attributes["devstat_7_8"].(*measurements.SmartAtaDeviceStatAttribute)
+	require.True(t, pkg.AttributeStatusHas(devstat.Status, pkg.AttributeStatusFailedScrutiny),
+		"devstat_7_8 should be marked as failed")
+}
+
+// TestFromCollectorSmartInfo_ATA_DeviceStatistics_IgnoreList tests that
+// devstat attributes in the ignore list don't trigger device failure (issue #84 fix)
+func TestFromCollectorSmartInfo_ATA_DeviceStatistics_IgnoreList(t *testing.T) {
+	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{}).AnyTimes()
+	// Add devstat_7_8 to the ignore list
+	fakeConfig.EXPECT().GetStringSlice("failures.ignored.devstat").Return([]string{"devstat_7_8"}).AnyTimes()
+
+	// Create smartctl output with a failing devstat attribute that's ignored
+	smartJson := collector.SmartInfo{
+		Device: struct {
+			Name     string `json:"name"`
+			InfoName string `json:"info_name"`
+			Type     string `json:"type"`
+			Protocol string `json:"protocol"`
+		}{Protocol: "ATA"},
+		LocalTime: struct {
+			TimeT   int64  `json:"time_t"`
+			Asctime string `json:"asctime"`
+		}{TimeT: time.Now().Unix()},
+		SmartStatus: struct {
+			Passed bool `json:"passed"`
+		}{Passed: true},
+	}
+
+	smartJson.AtaDeviceStatistics.Pages = []struct {
+		Number   int    `json:"number"`
+		Name     string `json:"name"`
+		Revision int    `json:"revision"`
+		Table    []struct {
+			Offset int    `json:"offset"`
+			Name   string `json:"name"`
+			Size   int    `json:"size"`
+			Value  int64  `json:"value"`
+			Flags  struct {
+				Value                 int  `json:"value"`
+				Valid                 bool `json:"valid"`
+				Normalized            bool `json:"normalized"`
+				SupportsDsn           bool `json:"supports_dsn"`
+				MonitoredConditionMet bool `json:"monitored_condition_met"`
+			} `json:"flags"`
+		} `json:"table"`
+	}{
+		{
+			Number: 7,
+			Name:   "Solid State Device Statistics",
+			Table: []struct {
+				Offset int    `json:"offset"`
+				Name   string `json:"name"`
+				Size   int    `json:"size"`
+				Value  int64  `json:"value"`
+				Flags  struct {
+					Value                 int  `json:"value"`
+					Valid                 bool `json:"valid"`
+					Normalized            bool `json:"normalized"`
+					SupportsDsn           bool `json:"supports_dsn"`
+					MonitoredConditionMet bool `json:"monitored_condition_met"`
+				} `json:"flags"`
+			}{
+				{
+					Offset: 8,
+					Name:   "Percentage Used Endurance Indicator",
+					Value:  100, // Would normally trigger failure
+					Flags: struct {
+						Value                 int  `json:"value"`
+						Valid                 bool `json:"valid"`
+						Normalized            bool `json:"normalized"`
+						SupportsDsn           bool `json:"supports_dsn"`
+						MonitoredConditionMet bool `json:"monitored_condition_met"`
+					}{Valid: true},
+				},
+			},
+		},
+	}
+
+	//test
+	smartMdl := measurements.Smart{}
+	err := smartMdl.FromCollectorSmartInfo(fakeConfig, "WWN-test", smartJson)
+
+	//assert
+	require.NoError(t, err)
+
+	// Device status should be PASSED because devstat_7_8 is in ignore list
+	require.Equal(t, pkg.DeviceStatusPassed, smartMdl.Status,
+		"Device status should be Passed when failing devstat attribute is in ignore list")
+
+	// The attribute itself is still marked as failed (just not propagated to device)
+	devstat := smartMdl.Attributes["devstat_7_8"].(*measurements.SmartAtaDeviceStatAttribute)
+	require.True(t, pkg.AttributeStatusHas(devstat.Status, pkg.AttributeStatusFailedScrutiny),
+		"devstat_7_8 should still be marked as failed even when ignored")
+}
+
+// TestFromCollectorSmartInfo_ATA_DeviceStatistics_InvalidValue tests that
+// impossibly high values are marked as invalid and don't trigger device failure (issue #84)
+func TestFromCollectorSmartInfo_ATA_DeviceStatistics_InvalidValue(t *testing.T) {
+	//setup
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetIntSlice("failures.transient.ata").Return([]int{}).AnyTimes()
+	fakeConfig.EXPECT().GetStringSlice("failures.ignored.devstat").Return([]string{}).AnyTimes()
+
+	// Create smartctl output with an impossibly high value (like reported in issue #84)
+	smartJson := collector.SmartInfo{
+		Device: struct {
+			Name     string `json:"name"`
+			InfoName string `json:"info_name"`
+			Type     string `json:"type"`
+			Protocol string `json:"protocol"`
+		}{Protocol: "ATA"},
+		LocalTime: struct {
+			TimeT   int64  `json:"time_t"`
+			Asctime string `json:"asctime"`
+		}{TimeT: time.Now().Unix()},
+		SmartStatus: struct {
+			Passed bool `json:"passed"`
+		}{Passed: true},
+	}
+
+	smartJson.AtaDeviceStatistics.Pages = []struct {
+		Number   int    `json:"number"`
+		Name     string `json:"name"`
+		Revision int    `json:"revision"`
+		Table    []struct {
+			Offset int    `json:"offset"`
+			Name   string `json:"name"`
+			Size   int    `json:"size"`
+			Value  int64  `json:"value"`
+			Flags  struct {
+				Value                 int  `json:"value"`
+				Valid                 bool `json:"valid"`
+				Normalized            bool `json:"normalized"`
+				SupportsDsn           bool `json:"supports_dsn"`
+				MonitoredConditionMet bool `json:"monitored_condition_met"`
+			} `json:"flags"`
+		} `json:"table"`
+	}{
+		{
+			Number: 1,
+			Name:   "General Statistics",
+			Table: []struct {
+				Offset int    `json:"offset"`
+				Name   string `json:"name"`
+				Size   int    `json:"size"`
+				Value  int64  `json:"value"`
+				Flags  struct {
+					Value                 int  `json:"value"`
+					Valid                 bool `json:"valid"`
+					Normalized            bool `json:"normalized"`
+					SupportsDsn           bool `json:"supports_dsn"`
+					MonitoredConditionMet bool `json:"monitored_condition_met"`
+				} `json:"flags"`
+			}{
+				{
+					Offset: 40,
+					Name:   "Number of Mechanical Start Failures",
+					Value:  420_000_000_000, // 420 billion - clearly corrupted data
+					Flags: struct {
+						Value                 int  `json:"value"`
+						Valid                 bool `json:"valid"`
+						Normalized            bool `json:"normalized"`
+						SupportsDsn           bool `json:"supports_dsn"`
+						MonitoredConditionMet bool `json:"monitored_condition_met"`
+					}{Valid: true},
+				},
+			},
+		},
+	}
+
+	//test
+	smartMdl := measurements.Smart{}
+	err := smartMdl.FromCollectorSmartInfo(fakeConfig, "WWN-test", smartJson)
+
+	//assert
+	require.NoError(t, err)
+
+	// Device status should be PASSED because the value is invalid (corrupted)
+	require.Equal(t, pkg.DeviceStatusPassed, smartMdl.Status,
+		"Device status should be Passed when devstat value is impossibly high (invalid)")
+
+	// The attribute should be marked as invalid, not failed
+	devstat := smartMdl.Attributes["devstat_1_40"].(*measurements.SmartAtaDeviceStatAttribute)
+	require.True(t, pkg.AttributeStatusHas(devstat.Status, pkg.AttributeStatusInvalidValue),
+		"devstat_1_40 should be marked as InvalidValue")
+	require.False(t, pkg.AttributeStatusHas(devstat.Status, pkg.AttributeStatusFailedScrutiny),
+		"devstat_1_40 should NOT be marked as FailedScrutiny")
+}

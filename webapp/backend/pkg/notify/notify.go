@@ -84,12 +84,18 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 			} else if device.IsNvme() {
 				critical = thresholds.NmveMetadata[attrId].Critical
 			} else {
-				//this is ATA
-				attrIdInt, err := strconv.Atoi(attrId)
-				if err != nil {
-					continue
+				// ATA: handle both numeric IDs and string-based devstat IDs
+				if strings.HasPrefix(attrId, "devstat_") {
+					if metadata, ok := thresholds.AtaDeviceStatsMetadata[attrId]; ok {
+						critical = metadata.Critical
+					}
+				} else {
+					attrIdInt, err := strconv.Atoi(attrId)
+					if err != nil {
+						continue
+					}
+					critical = thresholds.AtaMetadata[attrIdInt].Critical
 				}
-				critical = thresholds.AtaMetadata[attrIdInt].Critical
 			}
 			// Skip non-critical, non-passing attributes when this setting is on
 			if !critical {
