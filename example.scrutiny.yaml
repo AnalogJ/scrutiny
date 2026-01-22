@@ -82,6 +82,8 @@ failures:
 #  urls:
 #    - "discord://token@webhookid"
 #    - "telegram://token@telegram?channels=channel-1[,channel-2,...]"
+#    # For topic-based groups, append thread ID with colon: channels=chat_id:thread_id
+#    # Example: telegram://token@telegram?channels=-123456789:12345
 #    - "pushover://shoutrrr:apiToken@userKey/?priority=1&devices=device1[,device2, ...]"
 #    - "slack://[botname@]token-a/token-b/token-c"
 #    - "smtp://username:password@host:port/?fromAddress=fromAddress&toAddresses=recipient1[,recipient2,...]"

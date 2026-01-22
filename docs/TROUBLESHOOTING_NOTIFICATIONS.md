@@ -36,6 +36,38 @@ Then your `shoutrrr` url will look something like:
 
 - `smtp://myname%40example%2Ecom:124%4034%241@ms.my.domain.com:587`
 
+# Telegram Topics/Threads
+
+To send notifications to a specific topic (thread) in a Telegram group:
+
+1. Get your chat ID (negative number for groups, e.g., `-123456789`)
+2. Get the topic's thread ID from Telegram (e.g., `12345`)
+3. Combine them with a colon: `chat_id:thread_id`
+
+**Example configuration:**
+
+```yaml
+notify:
+  urls:
+    - "telegram://BOT_TOKEN@telegram?channels=-123456789:12345"
+```
+
+**Common mistake:** Do NOT use `message_thread_id` as a separate parameter:
+
+```yaml
+# WRONG - will fail with "message_thread_id is not a valid config key"
+- "telegram://token@telegram?channels=-123456789&message_thread_id=12345"
+
+# CORRECT - append thread ID to chat ID with colon
+- "telegram://token@telegram?channels=-123456789:12345"
+```
+
+**How to find your thread ID:**
+
+1. Open the Telegram topic in a web browser
+2. The URL will be: `https://web.telegram.org/a/#-CHATID_THREADID`
+3. Extract the thread ID from the URL
+
 # Testing Notifications
 
 You can test that your notifications are configured correctly by posting an empty payload to the notifications health
