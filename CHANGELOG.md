@@ -2,6 +2,12 @@
 
 All notable changes to Scrutiny will be documented in this file.
 
+## [1.12.0](https://github.com/Starosdev/scrutiny/compare/v1.11.0...v1.12.0) (2026-01-22)
+
+### Features
+
+* **detail:** add SSD health metrics to detail component ([#96](https://github.com/Starosdev/scrutiny/issues/96)) ([4713199](https://github.com/Starosdev/scrutiny/commit/4713199cdae5ac0d4c35d9443ad811b735412ade))
+
 ## [1.11.0](https://github.com/Starosdev/scrutiny/compare/v1.10.1...v1.11.0) (2026-01-21)
 
 ### Features
