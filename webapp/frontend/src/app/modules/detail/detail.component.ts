@@ -290,6 +290,45 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         return attributesLength - this.smartAttributeDataSource.data.length
     }
 
+    getSSDWearoutValue(): number | null {
+        if (!this.smart_results || this.smart_results.length === 0) {
+            return null;
+        }
+
+        const attrs = this.smart_results[0]?.attrs;
+        if (!attrs) {
+            return null;
+        }
+
+        // Check in order of preference: 177 (Samsung/Crucial), 233 (Intel), 231 (Life Left), 232 (Endurance)
+        const wearoutAttr = attrs['177'] || attrs['233'] || attrs['231'] || attrs['232'];
+        if (wearoutAttr) {
+            return wearoutAttr.value; // Normalized value (0-100)
+        }
+
+        return null;
+    }
+
+    getSSDPercentageUsed(): number | null {
+        if (!this.smart_results || this.smart_results.length === 0) {
+            return null;
+        }
+
+        const attrs = this.smart_results[0]?.attrs;
+        if (!attrs) {
+            return null;
+        }
+
+        // Check for percentage_used (NVMe) or devstat_7_8 (ATA)
+        const percentageUsedAttr = attrs['percentage_used'] || attrs['devstat_7_8'];
+        if (percentageUsedAttr) {
+            // For percentage_used, use value; for devstat_7_8, use raw_value if available, otherwise value
+            return percentageUsedAttr.raw_value !== undefined ? percentageUsedAttr.raw_value : percentageUsedAttr.value;
+        }
+
+        return null;
+    }
+
     isAta(): boolean {
         return this.device?.device_protocol === 'ATA'
     }

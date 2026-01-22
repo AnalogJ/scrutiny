@@ -177,6 +177,17 @@
             <div>{{smart_results[0]?.temp | temperature:config.temperature_unit:true}}</div>
             <div class="text-secondary text-md">Temperature</div>
           </div>
+          @if (getSSDPercentageUsed() !== null) {
+            <div class="my-2 col-span-2 lt-md:col-span-1">
+              <div>{{getSSDPercentageUsed()}}%</div>
+              <div class="text-secondary text-md">Percentage Used</div>
+            </div>
+          } @else if (getSSDWearoutValue() !== null) {
+            <div class="my-2 col-span-2 lt-md:col-span-1">
+              <div>{{getSSDWearoutValue()}}%</div>
+              <div class="text-secondary text-md">SSD Wearout Health</div>
+            </div>
+          }
           @if (getTBsWritten() !== null) {
             <div class="my-2 col-span-2 lt-md:col-span-1">
               <div>{{getTBsWritten() | number:'1.2-2'}} TB</div>
