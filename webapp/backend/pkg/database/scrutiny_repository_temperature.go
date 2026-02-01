@@ -138,13 +138,14 @@ func (sr *scrutinyRepository) aggregateTempQuery(durationKey string) string {
 	for _, nestedDurationKey := range nestedDurationKeys {
 		bucketName := sr.lookupBucketName(nestedDurationKey)
 		durationRange := sr.lookupDuration(nestedDurationKey)
+		durationResolution := sr.lookupResolution(nestedDurationKey)
 
 		subQueryNames = append(subQueryNames, fmt.Sprintf(`%sData`, nestedDurationKey))
 		partialQueryStr = append(partialQueryStr, []string{
 			fmt.Sprintf(`%sData = from(bucket: "%s")`, nestedDurationKey, bucketName),
 			fmt.Sprintf(`|> range(start: %s, stop: %s)`, durationRange[0], durationRange[1]),
 			`|> filter(fn: (r) => r["_measurement"] == "temp" )`,
-			`|> aggregateWindow(every: 1h, fn: mean, createEmpty: false)`,
+			fmt.Sprintf(`|> aggregateWindow(every: %s, fn: mean, createEmpty: false)`, durationResolution),
 			`|> group(columns: ["device_wwn"])`,
 			`|> toInt()`,
 			"",
@@ -166,6 +167,7 @@ func (sr *scrutinyRepository) aggregateTempQuery(durationKey string) string {
 			"|> schema.fieldsAsCols()",
 		}...)
 	}
+
 
 	return strings.Join(partialQueryStr, "\n")
 }
