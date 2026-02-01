@@ -17,7 +17,11 @@
     <div class="flex items-center">
         <div class="flex flex-col">
             <a [routerLink]="'/device/'+ deviceSummary.device.wwn"
-               class="font-bold text-md text-secondary uppercase tracking-wider">{{deviceSummary.device | deviceTitle:config.dashboard_display}}</a>
+               class="font-bold text-md text-secondary uppercase tracking-wider">{{deviceSummary.device | deviceTitle:config.dashboard_display}} <mat-icon
+                 [svgIcon]="'notifications_off'"
+                 *ngIf="deviceSummary.device.muted"
+                 class="muted-icon"
+               ></mat-icon></a>
             <div [ngClass]="classDeviceLastUpdatedOn(deviceSummary)" class="font-medium text-sm" *ngIf="deviceSummary.smart">
                 Last Updated on {{deviceSummary.smart.collector_date | date:'MMMM dd, yyyy - HH:mm' }}
             </div>

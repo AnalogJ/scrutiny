@@ -439,11 +439,21 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         this.smartAttributeDataSource.data = this._generateSmartAttributeTableDataSource(this.smart_results);
     }
 
-    openDialog(): void {
-        const dialogRef = this.dialog.open(DetailSettingsComponent);
+    openSettingsDialog(): void {
+        const dialogRef = this.dialog.open(DetailSettingsComponent, {
+            data: {
+                curMuted: this.device.muted
+            },
+        });
 
-        dialogRef.afterClosed().subscribe(result => {
-            console.log(`Dialog result: ${result}`);
+        dialogRef.afterClosed().subscribe((result: undefined | null | { muted: boolean }) => {
+            console.log('Settings dialog result', result);
+            if (!result) return;
+            if (result.muted !== this.device.muted) {
+                this._detailService.setMuted(this.device.wwn, result.muted).toPromise().then(() => {
+                    return this._detailService.getData(this.device.wwn).toPromise();
+                });
+            }
         });
     }
 

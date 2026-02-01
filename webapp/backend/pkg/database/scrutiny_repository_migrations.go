@@ -13,6 +13,7 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220509170100"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220716214900"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20250221084400"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20251108044508"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
@@ -407,6 +408,15 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				//migrate the device database.
 				// adding column (archived)
 				return tx.AutoMigrate(m20250221084400.Device{})
+			},
+		},
+		{
+			ID: "m20251108044508", // add archived to device data
+			Migrate: func(tx *gorm.DB) error {
+
+				//migrate the device database.
+				// adding column (muted)
+				return tx.AutoMigrate(m20251108044508.Device{})
 			},
 		},
 	})
