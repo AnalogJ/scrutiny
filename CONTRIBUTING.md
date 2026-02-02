@@ -1,5 +1,7 @@
 # Contributing
 
+**Please see our [AI policy](./AI_POLICY.md).**
+
 The Scrutiny repository is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) containing source code for:
 - Scrutiny Backend Server (API)
 - Scrutiny Frontend Angular SPA
