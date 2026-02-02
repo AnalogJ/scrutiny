@@ -34,9 +34,10 @@ scrutiny has strict rules for AI usage:
   if you're interested in that then don't use AI, and we'll help you.
   I'm sorry that bad AI drivers have ruined this for you.
 
-These rules apply only to outside contributions to Ghostty. Maintainers
-are exempt from these rules and may use AI tools at their discretion;
-they've proven themselves trustworthy to apply good judgment.
+These rules apply only to outside contributions to scrutiny. Maintainers
+and repeat contributors (with explicit permission) are exempt from these
+rules and may use AI tools at their discretion; they've proven themselves
+trustworthy to apply good judgment.
 
 ## There are Humans Here
 
