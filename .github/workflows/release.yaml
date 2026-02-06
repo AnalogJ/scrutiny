@@ -110,11 +110,14 @@ jobs:
   
   build_frontend:
     name: Build Frontend
+    needs: release
     runs-on: ubuntu-latest
     container: node:lts-slim
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Download workspace
+        uses: actions/download-artifact@v7
+        with:
+          name: workspace
       - name: "Generate frontend version information"
         run: "cd webapp/frontend && ./git.version.sh"
       - name: Build Frontend
@@ -130,7 +133,9 @@ jobs:
 
   release-publish:
     name: Publish Release
-    needs: build
+    needs: 
+      - build
+      - build_frontend
     runs-on: ubuntu-latest
     steps:
       - name: Download workspace
