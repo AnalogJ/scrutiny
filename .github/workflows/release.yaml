@@ -119,7 +119,7 @@ jobs:
         with:
           name: workspace
       - name: "Generate frontend version information"
-        run: "cd webapp/frontend && ./git.version.sh"
+        run: "cd webapp/frontend && chmod +x git.version.sh && ./git.version.sh"
       - name: Build Frontend
         run: |
           apt-get update && apt-get install -y make
