@@ -3,18 +3,19 @@ package database
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
-	"strings"
-	"time"
 )
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Temperature Data
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-func (sr *scrutinyRepository) SaveSmartTemperature(ctx context.Context, wwn string, deviceProtocol string, collectorSmartData collector.SmartInfo) error {
-	if len(collectorSmartData.AtaSctTemperatureHistory.Table) > 0 {
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+func (sr *scrutinyRepository) SaveSmartTemperature(ctx context.Context, wwn string, deviceProtocol string, collectorSmartData collector.SmartInfo, discardSCTTempHistory bool) error {
+	if len(collectorSmartData.AtaSctTemperatureHistory.Table) > 0 && !discardSCTTempHistory {
 
 		for ndx, temp := range collectorSmartData.AtaSctTemperatureHistory.Table {
 			//temp value may be null, we must skip/ignore them. See #393
