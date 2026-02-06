@@ -34,6 +34,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     temperatureOptions: ApexOptions;
     tempDurationKey = 'forever'
     config: AppConfig;
+    showArchived: boolean;
 
     // Private
     private _unsubscribeAll: Subject<void>;
@@ -159,9 +160,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
             for(const tempHistory of deviceSummary.temp_history){
                 const newDate = new Date(tempHistory.date);
+                let temperature;
+                switch (this.config.temperature_unit) {
+                    case 'celsius':
+                        temperature = tempHistory.temp;
+                        break
+                    case 'fahrenheit':
+                        temperature = TemperaturePipe.celsiusToFahrenheit(tempHistory.temp)
+                        break
+                }
                 deviceSeriesMetadata.data.push({
                     x: newDate,
-                    y: TemperaturePipe.formatTemperature(tempHistory.temp, this.config.temperature_unit, false)
+                    y: temperature
                 })
             }
             deviceTemperatureSeries.push(deviceSeriesMetadata)
@@ -206,6 +216,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
             },
             tooltip: {
                 theme: 'dark',
+                shared: true,
+                intersect: false,
                 x    : {
                     format: 'MMM dd, yyyy HH:mm:ss'
                 },
@@ -246,6 +258,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
     onDeviceDeleted(wwn: string): void {
         delete this.summaryData[wwn] // remove the device from the summary list.
+    }
+
+    onDeviceArchived(wwn: string): void {
+        this.summaryData[wwn].device.archived = true;
+    }
+
+    onDeviceUnarchived(wwn: string): void {
+        this.summaryData[wwn].device.archived = false;
     }
 
     /*

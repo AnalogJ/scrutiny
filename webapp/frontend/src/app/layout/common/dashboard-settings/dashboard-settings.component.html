@@ -55,6 +55,14 @@
 
         <div class="flex flex-col mt-5 gt-md:flex-row">
             <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
+                <mat-label>Powered On Format</mat-label>
+                <mat-select [(ngModel)]="poweredOnHoursUnit">
+                    <mat-option value="humanize">Humanize</mat-option>
+                    <mat-option value="device_hours">Device Hours</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
                 <mat-label>Line stroke</mat-label>
                 <mat-select [(ngModel)]="lineStroke">
                     <mat-option value="smooth">Smooth</mat-option>
@@ -81,6 +89,33 @@
                 <mat-select [(ngModel)]=statusFilterAttributes>
                     <mat-option [value]=0>All</mat-option>
                     <mat-option [value]=1>Critical</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <div class="flex flex-col mt-5 gt-md:flex-row">
+            <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
+                <mat-label>Repeat Notifications</mat-label>
+                <mat-select [(ngModel)]=repeatNotifications>
+                    <mat-option [value]=true>Always</mat-option>
+                    <mat-option [value]=false>Only when the value has changed</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <div class="mt-6 mb-2">
+            <h3 class="text-lg font-medium">Quirks</h3>
+            <div class="w-full border-b mt-1"></div>
+        </div>
+
+        <div class="flex flex-col mt-5 gt-md:flex-row">
+            <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3"
+                matTooltip="Discard historical temperature data retrieved from the SMART Command Transport (SCT) Data Table, which may be inaccurate for some drives. The current temperature is always stored."
+                matTooltipPosition="right">
+                <mat-label>Discard SCT Temperature History</mat-label>
+                <mat-select [(ngModel)]=discardSCTTempHistory>
+                    <mat-option [value]=true>Enabled</mat-option>
+                    <mat-option [value]=false>Disabled</mat-option>
                 </mat-select>
             </mat-form-field>
         </div>

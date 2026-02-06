@@ -2,9 +2,10 @@ package measurements
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
-	"strings"
 )
 
 type SmartNvmeAttribute struct {
@@ -16,6 +17,10 @@ type SmartNvmeAttribute struct {
 	Status           pkg.AttributeStatus `json:"status"`
 	StatusReason     string              `json:"status_reason,omitempty"`
 	FailureRate      float64             `json:"failure_rate,omitempty"`
+}
+
+func (sa *SmartNvmeAttribute) GetTransformedValue() int64 {
+	return sa.TransformedValue
 }
 
 func (sa *SmartNvmeAttribute) GetStatus() pkg.AttributeStatus {

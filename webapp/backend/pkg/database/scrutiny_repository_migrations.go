@@ -4,11 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20201107210306"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220503120000"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220509170100"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220716214900"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20250221084400"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
@@ -17,8 +21,6 @@ import (
 	"github.com/influxdata/influxdb-client-go/v2/api/http"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"strconv"
-	"time"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -331,7 +333,6 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						SettingDataType:       "string",
 						SettingValueString:    "smooth",
 					},
-
 					{
 						SettingKeyName:        "metrics.notify_level",
 						SettingKeyDescription: "Determines which device status will cause a notification (fail or warn)",
@@ -364,6 +365,60 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 						SettingKeyDescription: "Temperature chart line stroke ('smooth' | 'straight' | 'stepline')",
 						SettingDataType:       "string",
 						SettingValueString:    "smooth",
+					},
+				}
+				return tx.Create(&defaultSettings).Error
+			},
+		},
+		{
+			ID: "m20231123123300", // add repeat_notifications setting.
+			Migrate: func(tx *gorm.DB) error {
+				//add repeat_notifications setting default.
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "metrics.repeat_notifications",
+						SettingKeyDescription: "Whether to repeat all notifications or just when values change (true | false)",
+						SettingDataType:       "bool",
+						SettingValueBool:      true,
+					},
+				}
+				return tx.Create(&defaultSettings).Error
+			},
+		},
+		{
+			ID: "m20240722082740", // add powered_on_hours_unit setting.
+			Migrate: func(tx *gorm.DB) error {
+				//add powered_on_hours_unit setting default.
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "powered_on_hours_unit",
+						SettingKeyDescription: "Presentation format for device powered on time ('humanize' | 'device_hours')",
+						SettingDataType:       "string",
+						SettingValueString:    "humanize",
+					},
+				}
+				return tx.Create(&defaultSettings).Error
+			},
+		},
+		{
+			ID: "m20250221084400", // add archived to device data
+			Migrate: func(tx *gorm.DB) error {
+
+				//migrate the device database.
+				// adding column (archived)
+				return tx.AutoMigrate(m20250221084400.Device{})
+			},
+		},
+		{
+			ID: "m20260105083200", // add discard_sct_temp_history setting.
+			Migrate: func(tx *gorm.DB) error {
+				//add discard_sct_temp_history setting default.
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "collector.discard_sct_temp_history",
+						SettingKeyDescription: "Whether to discard SCT Temperature history (true | false)",
+						SettingDataType:       "bool",
+						SettingValueBool:      false,
 					},
 				}
 				return tx.Create(&defaultSettings).Error
@@ -405,8 +460,8 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 
 // helpers
 
-//When adding data to influxdb, an error may be returned if the data point is outside the range of the retention policy.
-//This function will ignore retention policy errors, and allow the migration to continue.
+// When adding data to influxdb, an error may be returned if the data point is outside the range of the retention policy.
+// This function will ignore retention policy errors, and allow the migration to continue.
 func ignorePastRetentionPolicyError(err error) error {
 	var influxDbWriteError *http.Error
 	if errors.As(err, &influxDbWriteError) {

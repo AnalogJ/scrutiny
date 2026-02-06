@@ -4,6 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path"
+	"strings"
+	"testing"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	mock_config "github.com/analogj/scrutiny/webapp/backend/pkg/config/mock"
@@ -14,15 +24,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"path"
-	"strings"
-	"testing"
-	"time"
 )
 
 /*
@@ -189,6 +190,8 @@ func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.metrics.repeat_notifications").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.collector.discard_sct_temp_history").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
@@ -247,6 +250,8 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.metrics.repeat_notifications").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.collector.discard_sct_temp_history").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
@@ -529,6 +534,8 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.metrics.repeat_notifications").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.collector.discard_sct_temp_history").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{})

@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 )
 
 func main() {
@@ -32,7 +33,7 @@ func main() {
 		log.Fatalf("ERROR %v", err)
 	}
 	defer file.Close()
-	_, err = SendPostRequest("http://localhost:9090/api/devices/register", file)
+	_, err = SendPostRequest("http://localhost:8080/api/devices/register", file)
 	if err != nil {
 		log.Fatalf("ERROR %v", err)
 	}
@@ -46,7 +47,7 @@ func main() {
 					log.Fatalf("ERROR %v", err)
 				}
 
-				_, err = SendPostRequest(fmt.Sprintf("http://localhost:9090/api/device/%s/smart", diskId), smartDataReader)
+				_, err = SendPostRequest(fmt.Sprintf("http://localhost:8080/api/device/%s/smart", diskId), smartDataReader)
 				if err != nil {
 					log.Fatalf("ERROR %v", err)
 				}

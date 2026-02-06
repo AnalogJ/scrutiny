@@ -12,6 +12,8 @@ export type TemperatureUnit = 'celsius' | 'fahrenheit'
 
 export type LineStroke = 'smooth' | 'straight' | 'stepline'
 
+export type DevicePoweredOnUnit = 'humanize' | 'device_hours'
+
 
 export enum MetricsNotifyLevel {
     Warn = 1,
@@ -47,14 +49,21 @@ export interface AppConfig {
 
     file_size_si_units?: boolean;
 
+    powered_on_hours_unit?: DevicePoweredOnUnit;
+
     line_stroke?: LineStroke;
 
     // Settings from Scrutiny API
+    
+    collector?: {
+        discard_sct_temp_history?: boolean
+    }
 
     metrics?: {
         notify_level?: MetricsNotifyLevel
         status_filter_attributes?: MetricsStatusFilterAttributes
         status_threshold?: MetricsStatusThreshold
+        repeat_notifications?: boolean
     }
 
 }
@@ -76,13 +85,19 @@ export const appConfig: AppConfig = {
 
     temperature_unit: 'celsius',
     file_size_si_units: false,
+    powered_on_hours_unit: 'humanize',
 
     line_stroke: 'smooth',
+    
+    collector: {
+        discard_sct_temp_history : false,
+    },
 
     metrics: {
         notify_level: MetricsNotifyLevel.Fail,
         status_filter_attributes: MetricsStatusFilterAttributes.All,
-        status_threshold: MetricsStatusThreshold.Both
+        status_threshold: MetricsStatusThreshold.Both,
+        repeat_notifications: true
     }
 };
 

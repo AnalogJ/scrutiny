@@ -2,10 +2,11 @@ package measurements
 
 import (
 	"fmt"
-	"github.com/analogj/scrutiny/webapp/backend/pkg"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"strconv"
 	"strings"
+
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 )
 
 type SmartAtaAttribute struct {
@@ -22,6 +23,10 @@ type SmartAtaAttribute struct {
 	Status           pkg.AttributeStatus `json:"status"`
 	StatusReason     string              `json:"status_reason,omitempty"`
 	FailureRate      float64             `json:"failure_rate,omitempty"`
+}
+
+func (sa *SmartAtaAttribute) GetTransformedValue() int64 {
+	return sa.TransformedValue
 }
 
 func (sa *SmartAtaAttribute) GetStatus() pkg.AttributeStatus {

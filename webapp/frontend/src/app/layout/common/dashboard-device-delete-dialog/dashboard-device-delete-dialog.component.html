@@ -1,10 +1,12 @@
 <h2 mat-dialog-title>Delete {{data.title}}?</h2>
-<mat-dialog-content>This will delete all data associated with this device (including all historical data).</mat-dialog-content>
+<mat-dialog-content>This will remove the device and all historical data from Scrutiny. <strong>Any data on the device
+    itself will remain untouched.</strong></mat-dialog-content>
 <mat-dialog-actions>
     <button mat-button mat-dialog-close>Cancel</button>
     <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->
     <button class="red-600" mat-button (click)="onDeleteClick()">
         <mat-icon class="icon-size-20 mr-3"
                   [svgIcon]="'delete_forever'"></mat-icon>
-        Delete</button>
+        Delete
+    </button>
 </mat-dialog-actions>

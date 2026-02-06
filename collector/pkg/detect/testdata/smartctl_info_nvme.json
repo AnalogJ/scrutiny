@@ -1,0 +1,48 @@
+{
+  "json_format_version": [
+    1,
+    0
+  ],
+  "smartctl": {
+    "version": [
+      7,
+      2
+    ],
+    "svn_revision": "5155",
+    "platform_info": "x86_64-linux-6.1.69-talos",
+    "build_info": "(local build)",
+    "argv": [
+      "smartctl",
+      "--info",
+      "--json",
+      "/dev/nvme4"
+    ],
+    "exit_status": 0
+  },
+  "device": {
+    "name": "/dev/nvme4",
+    "info_name": "/dev/nvme4",
+    "type": "nvme",
+    "protocol": "NVMe"
+  },
+  "model_name": "KCD61LUL3T84",
+  "serial_number": "61Q0A05UT7B8",
+  "firmware_version": "8002",
+  "nvme_pci_vendor": {
+    "id": 7695,
+    "subsystem_id": 7695
+  },
+  "nvme_ieee_oui_identifier": 9233294,
+  "nvme_total_capacity": 3840755982336,
+  "nvme_unallocated_capacity": 0,
+  "nvme_controller_id": 1,
+  "nvme_version": {
+    "string": "1.4",
+    "value": 66560
+  },
+  "nvme_number_of_namespaces": 16,
+  "local_time": {
+    "time_t": 1706045146,
+    "asctime": "Tue Jan 23 21:25:46 2024 UTC"
+  }
+}

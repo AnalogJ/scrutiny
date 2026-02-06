@@ -3,13 +3,14 @@ package database
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	log "github.com/sirupsen/logrus"
-	"strings"
-	"time"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,14 +31,17 @@ func (sr *scrutinyRepository) SaveSmartAttributes(ctx context.Context, wwn strin
 }
 
 // GetSmartAttributeHistory MUST return in sorted order, where newest entries are at the beginning of the list, and oldest are at the end.
-func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn string, durationKey string, attributes []string) ([]measurements.Smart, error) {
+// When selectEntries is > 0, only the most recent selectEntries database entries are returned, starting from the selectEntriesOffset entry.
+// For example, with selectEntries = 5, selectEntries = 0, the most recent 5 are returned. With selectEntries = 3, selectEntries = 2, entries
+// 2 to 4 are returned (2 being the third newest, since it is zero-indexed)
+func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn string, durationKey string, selectEntries int, selectEntriesOffset int, attributes []string) ([]measurements.Smart, error) {
 	// Get SMartResults from InfluxDB
 
 	//TODO: change the filter startrange to a real number.
 
 	// Get parser flux query result
 	//appConfig.GetString("web.influxdb.bucket")
-	queryStr := sr.aggregateSmartAttributesQuery(wwn, durationKey)
+	queryStr := sr.aggregateSmartAttributesQuery(wwn, durationKey, selectEntries, selectEntriesOffset, attributes)
 	log.Infoln(queryStr)
 
 	smartResults := []measurements.Smart{}
@@ -64,9 +68,6 @@ func (sr *scrutinyRepository) GetSmartAttributeHistory(ctx context.Context, wwn 
 	} else {
 		return nil, err
 	}
-
-	//we have to sort the smartResults again, because the `union` command will return multiple 'tables' and only sort the records in each table.
-	sortSmartMeasurementsDesc(smartResults)
 
 	return smartResults, nil
 
@@ -99,7 +100,7 @@ func (sr *scrutinyRepository) saveDatapoint(influxWriteApi api.WriteAPIBlocking,
 	return influxWriteApi.WritePoint(ctx, p)
 }
 
-func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, durationKey string) string {
+func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, durationKey string, selectEntries int, selectEntriesOffset int, attributes []string) string {
 
 	/*
 
@@ -108,28 +109,34 @@ func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, duration
 		|> range(start: -1w, stop: now())
 		|> filter(fn: (r) => r["_measurement"] == "smart" )
 		|> filter(fn: (r) => r["device_wwn"] == "0x5000c5002df89099" )
+		|> tail(n: 10, offset: 0)
 		|> schema.fieldsAsCols()
 
 		monthData = from(bucket: "metrics_weekly")
 		|> range(start: -1mo, stop: -1w)
 		|> filter(fn: (r) => r["_measurement"] == "smart" )
 		|> filter(fn: (r) => r["device_wwn"] == "0x5000c5002df89099" )
+		|> tail(n: 10, offset: 0)
 		|> schema.fieldsAsCols()
 
 		yearData = from(bucket: "metrics_monthly")
 		|> range(start: -1y, stop: -1mo)
 		|> filter(fn: (r) => r["_measurement"] == "smart" )
 		|> filter(fn: (r) => r["device_wwn"] == "0x5000c5002df89099" )
+		|> tail(n: 10, offset: 0)
 		|> schema.fieldsAsCols()
 
 		foreverData = from(bucket: "metrics_yearly")
 		|> range(start: -10y, stop: -1y)
 		|> filter(fn: (r) => r["_measurement"] == "smart" )
 		|> filter(fn: (r) => r["device_wwn"] == "0x5000c5002df89099" )
+		|> tail(n: 10, offset: 0)
 		|> schema.fieldsAsCols()
 
 		union(tables: [weekData, monthData, yearData, foreverData])
-		|> sort(columns: ["_time"], desc: false)
+		|> group()
+		|> sort(columns: ["_time"], desc: true)
+		|> tail(n: 6, offset: 4)
 		|> yield(name: "last")
 
 	*/
@@ -140,34 +147,60 @@ func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, duration
 
 	nestedDurationKeys := sr.lookupNestedDurationKeys(durationKey)
 
-	subQueryNames := []string{}
-	for _, nestedDurationKey := range nestedDurationKeys {
-		bucketName := sr.lookupBucketName(nestedDurationKey)
-		durationRange := sr.lookupDuration(nestedDurationKey)
-
-		subQueryNames = append(subQueryNames, fmt.Sprintf(`%sData`, nestedDurationKey))
-		partialQueryStr = append(partialQueryStr, []string{
-			fmt.Sprintf(`%sData = from(bucket: "%s")`, nestedDurationKey, bucketName),
-			fmt.Sprintf(`|> range(start: %s, stop: %s)`, durationRange[0], durationRange[1]),
-			`|> filter(fn: (r) => r["_measurement"] == "smart" )`,
-			fmt.Sprintf(`|> filter(fn: (r) => r["device_wwn"] == "%s" )`, wwn),
-			"|> schema.fieldsAsCols()",
-		}...)
-	}
-
-	if len(subQueryNames) == 1 {
+	if len(nestedDurationKeys) == 1 {
 		//there's only one bucket being queried, no need to union, just aggregate the dataset and return
 		partialQueryStr = append(partialQueryStr, []string{
-			subQueryNames[0],
+			sr.generateSmartAttributesSubquery(wwn, nestedDurationKeys[0], selectEntries, selectEntriesOffset, attributes),
+			fmt.Sprintf(`%sData`, nestedDurationKeys[0]),
+			`|> sort(columns: ["_time"], desc: true)`,
 			`|> yield()`,
 		}...)
-	} else {
-		partialQueryStr = append(partialQueryStr, []string{
-			fmt.Sprintf("union(tables: [%s])", strings.Join(subQueryNames, ", ")),
-			`|> sort(columns: ["_time"], desc: false)`,
-			`|> yield(name: "last")`,
-		}...)
+		return strings.Join(partialQueryStr, "\n")
 	}
+
+	subQueries := []string{}
+	subQueryNames := []string{}
+	for _, nestedDurationKey := range nestedDurationKeys {
+		subQueryNames = append(subQueryNames, fmt.Sprintf(`%sData`, nestedDurationKey))
+		if selectEntries > 0 {
+			// We only need the last `n + offset` # of entries from each table to guarantee we can
+			// get the last `n` # of entries starting from `offset` of the union
+			subQueries = append(subQueries, sr.generateSmartAttributesSubquery(wwn, nestedDurationKey, selectEntries+selectEntriesOffset, 0, attributes))
+		} else {
+			subQueries = append(subQueries, sr.generateSmartAttributesSubquery(wwn, nestedDurationKey, 0, 0, attributes))
+		}
+	}
+	partialQueryStr = append(partialQueryStr, subQueries...)
+	partialQueryStr = append(partialQueryStr, []string{
+		fmt.Sprintf("union(tables: [%s])", strings.Join(subQueryNames, ", ")),
+		`|> group()`,
+		`|> sort(columns: ["_time"], desc: true)`,
+	}...)
+	if selectEntries > 0 {
+		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> tail(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))
+	}
+	partialQueryStr = append(partialQueryStr, `|> yield(name: "last")`)
+
+	return strings.Join(partialQueryStr, "\n")
+}
+
+func (sr *scrutinyRepository) generateSmartAttributesSubquery(wwn string, durationKey string, selectEntries int, selectEntriesOffset int, attributes []string) string {
+	bucketName := sr.lookupBucketName(durationKey)
+	durationRange := sr.lookupDuration(durationKey)
+
+	partialQueryStr := []string{
+		fmt.Sprintf(`%sData = from(bucket: "%s")`, durationKey, bucketName),
+		fmt.Sprintf(`|> range(start: %s, stop: %s)`, durationRange[0], durationRange[1]),
+		`|> filter(fn: (r) => r["_measurement"] == "smart" )`,
+		fmt.Sprintf(`|> filter(fn: (r) => r["device_wwn"] == "%s" )`, wwn),
+	}
+
+	partialQueryStr = append(partialQueryStr, `|> aggregateWindow(every: 1d, fn: last, createEmpty: false)`)
+	
+	if selectEntries > 0 {
+		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> tail(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))
+	}
+	partialQueryStr = append(partialQueryStr, "|> schema.fieldsAsCols()")
 
 	return strings.Join(partialQueryStr, "\n")
 }

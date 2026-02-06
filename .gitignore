@@ -66,3 +66,5 @@ scrutiny.yaml
 coverage.txt
 /config
 /influxdb
+.angular
+web.log

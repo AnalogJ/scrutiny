@@ -26,7 +26,7 @@ If you run a server with more than a couple of hard drives, you're probably alre
 
 > smartd is a daemon that monitors the Self-Monitoring, Analysis and Reporting Technology (SMART) system built into many ATA, IDE and SCSI-3 hard drives. The purpose of SMART is to monitor the reliability of the hard drive and predict drive failures, and to carry out different types of drive self-tests.
 
-Theses S.M.A.R.T hard drive self-tests can help you detect and replace failing hard drives before they cause permanent data loss. However, there's a couple issues with `smartd`:
+These S.M.A.R.T hard drive self-tests can help you detect and replace failing hard drives before they cause permanent data loss. However, there's a couple issues with `smartd`:
 
 - There are more than a hundred S.M.A.R.T attributes, however `smartd` does not differentiate between critical and informational metrics
 - `smartd` does not record S.M.A.R.T attribute history, so it can be hard to determine if an attribute is degrading slowly over time.
@@ -69,10 +69,10 @@ See [docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md](./docs/TROUBLESHOOTING_DEVICE_COL
 
 If you're using Docker, getting started is as simple as running the following command:
 
-> See [docker/example.omnibus.docker-compose.yml](./docker/example.omnibus.docker-compose.yml) for a docker-compose file.
+> See [docker/example.omnibus.docker-compose.yml](https://github.com/AnalogJ/scrutiny/blob/master/docker/example.omnibus.docker-compose.yml) for a docker-compose file.
 
 ```bash
-docker run -it --rm -p 8080:8080 -p 8086:8086 \
+docker run -p 8080:8080 -p 8086:8086 --restart unless-stopped \
   -v `pwd`/scrutiny:/opt/scrutiny/config \
   -v `pwd`/influxdb2:/opt/scrutiny/influxdb \
   -v /run/udev:/run/udev:ro \
@@ -100,20 +100,20 @@ other Docker images:
 - `influxdb:2.2` - InfluxDB image, used by the Web container to persist SMART data. Only one container necessary
   See [docs/TROUBLESHOOTING_INFLUXDB.md](./docs/TROUBLESHOOTING_INFLUXDB.md)
 
-> See [docker/example.hubspoke.docker-compose.yml](./docker/example.hubspoke.docker-compose.yml) for a docker-compose file.
+> See [docker/example.hubspoke.docker-compose.yml](https://github.com/AnalogJ/scrutiny/blob/master/docker/example.hubspoke.docker-compose.yml) for a docker-compose file.
 
 ```bash
-docker run --rm -p 8086:8086 \
+docker run -p 8086:8086 --restart unless-stopped \
   -v `pwd`/influxdb2:/var/lib/influxdb2 \
   --name scrutiny-influxdb \
   influxdb:2.2
 
-docker run --rm -p 8080:8080 \
+docker run -p 8080:8080 --restart unless-stopped \
   -v `pwd`/scrutiny:/opt/scrutiny/config \
   --name scrutiny-web \
   ghcr.io/analogj/scrutiny:master-web
 
-docker run --rm \
+docker run --restart unless-stopped \
   -v /run/udev:/run/udev:ro \
   --cap-add SYS_RAWIO \
   --device=/dev/sda \
@@ -265,7 +265,8 @@ We use SemVer for versioning. For the versions available, see the tags on this r
 
 # Authors
 
-Jason Kulatunga - Initial Development - @AnalogJ
+* Jason Kulatunga - Initial Development - [@AnalogJ](https://github.com/AnalogJ/)
+* Aram Akhavan - Maintenence - [@kaysond](https://github.com/kaysond/)
 
 # Licenses
 

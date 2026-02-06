@@ -60,10 +60,14 @@ log:
 
 # Notification "urls" look like the following. For more information about service specific configuration see
 # Shoutrrr's documentation: https://containrrr.dev/shoutrrr/services/overview/
+#
+# note, usernames and passwords containing special characters will need to be urlencoded.
+# if your username is: "myname@example.com" and your password is "124@34$1"
+# your shoutrrr url will look like: "smtp://myname%40example%2Ecom:124%4034%241@ms.my.domain.com:587"
 
 #notify:
 #  urls:
-#    - "discord://token@channel"
+#    - "discord://token@webhookid"
 #    - "telegram://token@telegram?channels=channel-1[,channel-2,...]"
 #    - "pushover://shoutrrr:apiToken@userKey/?priority=1&devices=device1[,device2, ...]"
 #    - "slack://[botname@]token-a/token-b/token-c"

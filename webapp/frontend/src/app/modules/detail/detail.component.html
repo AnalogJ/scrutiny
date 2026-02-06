@@ -123,7 +123,7 @@
                         <div class="text-secondary text-md">Power Cycle Count</div>
                     </div>
                     <div *ngIf="smart_results[0]?.power_on_hours"  class="my-2 col-span-2 lt-md:col-span-1">
-                        <div matTooltip="{{humanizeDuration(smart_results[0]?.power_on_hours * 60 * 60 * 1000, { conjunction: ' and ', serialComma: false })}}">{{humanizeDuration(smart_results[0]?.power_on_hours *60 * 60 * 1000, { round: true, largest: 1, units: ['y', 'd', 'h'] })}}</div>
+                        <div matTooltip="{{humanizeDuration(smart_results[0]?.power_on_hours * 60 * 60 * 1000, { conjunction: ' and ', serialComma: false })}}">{{ smart_results[0]?.power_on_hours | deviceHours:config.powered_on_hours_unit:{ round: true, largest: 1, units: ['y', 'd', 'h'] } }}</div>
                         <div class="text-secondary text-md">Powered On</div>
                     </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">

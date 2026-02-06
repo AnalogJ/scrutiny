@@ -59,6 +59,7 @@ networks:
 
 services:
   influxdb:
+    restart: unless-stopped
     container_name: influxdb
     image: influxdb:2.1-alpine
     ports:
@@ -73,11 +74,11 @@ services:
       - DOCKER_INFLUXDB_INIT_ORG=homelab
       - DOCKER_INFLUXDB_INIT_BUCKET=scrutiny
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=your-very-secret-token
-    restart: unless-stopped
     networks:
       - monitoring
 
   scrutiny:
+    restart: unless-stopped
     container_name: scrutiny
     image: ghcr.io/analogj/scrutiny:master-web
     ports:
@@ -91,10 +92,9 @@ services:
       - SCRUTINY_WEB_INFLUXDB_ORG=homelab
       - SCRUTINY_WEB_INFLUXDB_BUCKET=scrutiny
       # Optional but highly recommended to notify you in case of a problem
-      - SCRUTINY_WEB_NOTIFY_URLS=["http://gotify:80/message?token=a-gotify-token"]
+      - SCRUTINY_NOTIFY_URLS=["http://gotify:80/message?token=a-gotify-token"]
     depends_on:
       - influxdb
-    restart: unless-stopped
     networks:
       - notifications
       - monitoring
@@ -121,7 +121,7 @@ apt install smartmontools -y
 # 3. Make it exacutable
 # 4. List the contents of the library for confirmation
 mkdir -p /opt/scrutiny/bin && \
-curl -L https://github.com/AnalogJ/scrutiny/releases/download/v0.5.0/scrutiny-collector-metrics-linux-amd64 > /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 && \
+curl -L https://github.com/AnalogJ/scrutiny/releases/download/v0.8.1/scrutiny-collector-metrics-linux-amd64 > /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 && \
 chmod +x /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 && \
 ls -lha /opt/scrutiny/bin
 ```
@@ -168,6 +168,7 @@ version: "3.4"
 services:
 
   collector:
+    restart: unless-stopped
     image: 'ghcr.io/analogj/scrutiny:master-collector'
     cap_add:
       - SYS_RAWIO

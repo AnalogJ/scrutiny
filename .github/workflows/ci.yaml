@@ -13,7 +13,7 @@ jobs:
         run: |
           make binary-frontend-test-coverage
       - name: Upload coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: ${{ github.workspace }}/webapp/frontend/coverage/lcov.info
@@ -49,7 +49,7 @@ jobs:
         run: |
           make binary-clean binary-test-coverage
       - name: Upload coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: ${{ github.workspace }}/coverage.txt
@@ -64,12 +64,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Download coverage reports
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: coverage
       - name: Upload coverage reports
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ${{ github.workspace }}/coverage.txt,${{ github.workspace }}/lcov.info
           flags: unittests
           fail_ci_if_error: true
@@ -106,9 +107,9 @@ jobs:
         run: |
           make binary-clean binary-all
       - name: Archive
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: binaries.zip
+          name: binaries-${{ matrix.cfg.on }}-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}-${{ matrix.cfg.goarm || 'na' }}.zip
           path: |
             scrutiny-web-*
             scrutiny-collector-metrics-*
