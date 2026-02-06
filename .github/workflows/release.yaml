@@ -103,10 +103,10 @@ jobs:
       - name: Archive
         uses: actions/upload-artifact@v4
         with:
-          name: binaries.zip
+          name: scrutiny-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ matrix.cfg.goarm && '-' }}${{ matrix.cfg.goarm || '' }}.zip
           path: |
-            scrutiny-web-*
-            scrutiny-collector-metrics-*
+            scrutiny-web-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ matrix.cfg.goarm && '-' }}${{ matrix.cfg.goarm || '' }}${{ matrix.cfg.goos == 'windows' && '.exe' }}
+            scrutiny-collector-metrics-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ matrix.cfg.goarm && '-' }}${{ matrix.cfg.goarm || '' }}${{ matrix.cfg.goos == 'windows' && '.exe' }}
 
   release-publish:
     name: Publish Release
@@ -118,9 +118,10 @@ jobs:
         with:
           name: workspace
       - name: Download binaries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
-          name: binaries.zip
+          merge_multiple: true
+          pattern: scrutiny-*.zip
       - name: List
         shell: bash
         run: |
