@@ -39,7 +39,7 @@ jobs:
           add-apt-repository ppa:git-core/ppa && apt-get update && apt-get install -y git
           git --version
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Bump version
@@ -91,22 +91,22 @@ jobs:
           - { on: windows-latest, goos: windows,    goarch: arm64 }
     steps:
       - name: Download workspace
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: workspace
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v6
         with:
           go-version: '1.20.1' # The Go version to download (if necessary) and use.
       - name: Build Binaries
         run: |
           make binary-clean binary-all
       - name: Archive
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
-          name: scrutiny-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ matrix.cfg.goarm && '-' }}${{ matrix.cfg.goarm || '' }}.zip
+          name: scrutiny-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ case(matrix.cfg.goarm, format('-{0}', matrix.cfg.goarm), '') }}.zip
           path: |
-            scrutiny-web-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ matrix.cfg.goarm && '-' }}${{ matrix.cfg.goarm || '' }}${{ matrix.cfg.goos == 'windows' && '.exe' }}
-            scrutiny-collector-metrics-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ matrix.cfg.goarm && '-' }}${{ matrix.cfg.goarm || '' }}${{ matrix.cfg.goos == 'windows' && '.exe' }}
+            scrutiny-web-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ case(matrix.cfg.goarm, format('-{0}', matrix.cfg.goarm), '') }}${{ case(matrix.cfg.goos == 'windows', '.exe', '') }}
+            scrutiny-collector-metrics-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ case(matrix.cfg.goarm, format('-{0}', matrix.cfg.goarm), '') }}${{ case(matrix.cfg.goos == 'windows', '.exe', '') }}
 
   release-publish:
     name: Publish Release
@@ -114,11 +114,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download workspace
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: workspace
       - name: Download binaries
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           merge_multiple: true
           pattern: scrutiny-*.zip
