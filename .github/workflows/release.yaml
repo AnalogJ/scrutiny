@@ -105,8 +105,8 @@ jobs:
         with:
           name: scrutiny-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ case(matrix.cfg.goarm != '', format('-{0}', matrix.cfg.goarm), '') }}.zip
           path: |
-            scrutiny-web-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ case(matrix.cfg.goarm, format('-{0}', matrix.cfg.goarm), '') }}${{ case(matrix.cfg.goos == 'windows', '.exe', '') }}
-            scrutiny-collector-metrics-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ case(matrix.cfg.goarm, format('-{0}', matrix.cfg.goarm), '') }}${{ case(matrix.cfg.goos == 'windows', '.exe', '') }}
+            scrutiny-web-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ case(matrix.cfg.goarm != '', format('-{0}', matrix.cfg.goarm), '') }}${{ case(matrix.cfg.goos == 'windows', '.exe', '') }}
+            scrutiny-collector-metrics-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ case(matrix.cfg.goarm != '', format('-{0}', matrix.cfg.goarm), '') }}${{ case(matrix.cfg.goos == 'windows', '.exe', '') }}
   
   build_frontend:
     name: Build Frontend
