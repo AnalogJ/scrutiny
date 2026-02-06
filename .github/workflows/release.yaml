@@ -145,7 +145,7 @@ jobs:
       - name: Download binaries
         uses: actions/download-artifact@v7
         with:
-          merge_multiple: true
+          merge-multiple: true
           pattern: scrutiny-*.zip
       - name: Download frontend
         uses: actions/download-artifact@v7
