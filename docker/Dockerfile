@@ -74,4 +74,4 @@ RUN chmod 0644 /etc/cron.d/scrutiny && \
     chmod +x /etc/services.d/*/run && \
     chmod +x /etc/services.d/*/finish
 
-CMD ["/init"]
+ENTRYPOINT ["/init"]
