@@ -64,6 +64,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: workspace
+          include-hidden-files: true
           path: ${{ github.workspace }}/**/*
           retention-days: 1
 
