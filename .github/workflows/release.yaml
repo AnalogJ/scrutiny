@@ -155,33 +155,33 @@ jobs:
         shell: bash
         run: |
           ls -alt
-      # - name: Publish Release & Assets
-      #   id: publish
-      #   uses: packagrio/action-publishr-go@master
-      #   env:
-      #     # This is necessary in order to push a commit to the repo
-      #     GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
-      #   with:
-      #     version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
-      #     upload_assets:
-      #       scrutiny-collector-metrics-darwin-amd64
-      #       scrutiny-collector-metrics-darwin-arm64
-      #       scrutiny-collector-metrics-freebsd-amd64
-      #       scrutiny-collector-metrics-linux-amd64
-      #       scrutiny-collector-metrics-linux-arm-5
-      #       scrutiny-collector-metrics-linux-arm-6
-      #       scrutiny-collector-metrics-linux-arm-7
-      #       scrutiny-collector-metrics-linux-arm64
-      #       scrutiny-collector-metrics-windows-amd64.exe
-      #       scrutiny-collector-metrics-windows-arm64.exe
-      #       scrutiny-web-frontend.tar.gz
-      #       scrutiny-web-darwin-amd64
-      #       scrutiny-web-darwin-arm64
-      #       scrutiny-web-freebsd-amd64
-      #       scrutiny-web-linux-amd64
-      #       scrutiny-web-linux-arm-5
-      #       scrutiny-web-linux-arm-6
-      #       scrutiny-web-linux-arm-7
-      #       scrutiny-web-linux-arm64
-      #       scrutiny-web-windows-amd64.exe
-      #       scrutiny-web-windows-arm64.exe
+      - name: Publish Release & Assets
+        id: publish
+        uses: packagrio/action-publishr-go@master
+        env:
+          # This is necessary in order to push a commit to the repo
+          GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
+        with:
+          version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
+          upload_assets:
+            scrutiny-collector-metrics-darwin-amd64
+            scrutiny-collector-metrics-darwin-arm64
+            scrutiny-collector-metrics-freebsd-amd64
+            scrutiny-collector-metrics-linux-amd64
+            scrutiny-collector-metrics-linux-arm-5
+            scrutiny-collector-metrics-linux-arm-6
+            scrutiny-collector-metrics-linux-arm-7
+            scrutiny-collector-metrics-linux-arm64
+            scrutiny-collector-metrics-windows-amd64.exe
+            scrutiny-collector-metrics-windows-arm64.exe
+            scrutiny-web-frontend.tar.gz
+            scrutiny-web-darwin-amd64
+            scrutiny-web-darwin-arm64
+            scrutiny-web-freebsd-amd64
+            scrutiny-web-linux-amd64
+            scrutiny-web-linux-arm-5
+            scrutiny-web-linux-arm-6
+            scrutiny-web-linux-arm-7
+            scrutiny-web-linux-arm64
+            scrutiny-web-windows-amd64.exe
+            scrutiny-web-windows-arm64.exe
