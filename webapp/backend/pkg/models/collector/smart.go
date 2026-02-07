@@ -235,6 +235,17 @@ type SmartInfo struct {
 	ScsiVersion         string              `json:"scsi_version"`
 	ScsiGrownDefectList int64               `json:"scsi_grown_defect_list"`
 	ScsiErrorCounterLog ScsiErrorCounterLog `json:"scsi_error_counter_log"`
+
+	ScsiEnvironmentalReports map[string]ScsiTemperatureData `json:"scsi_environmental_reports"`
+}
+
+type ScsiTemperatureData struct {
+	ParameterCode       int   `json:"parameter_code"`
+	Current             int64 `json:"current"`
+	LifetimeMaximum     int64 `json:"lifetime_maximum"`
+	LifetimeMinimum     int64 `json:"lifetime_minimum"`
+	MaximumSincePowerOn int64 `json:"maximum_since_power_on"`
+	MinimumSincePowerOn int64 `json:"minimum_since_power_on"`
 }
 
 // Capacity finds the total capacity of the device in bytes, or 0 if unknown.
