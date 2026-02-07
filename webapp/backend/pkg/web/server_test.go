@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -52,7 +51,7 @@ func helperReadSmartDataFileFixTimestamp(t *testing.T, smartDataFilepath string)
 	metricsfile, err := os.Open(smartDataFilepath)
 	require.NoError(t, err)
 
-	metricsFileData, err := ioutil.ReadAll(metricsfile)
+	metricsFileData, err := io.ReadAll(metricsfile)
 	require.NoError(t, err)
 
 	//unmarshal because we need to change the timestamp
@@ -87,7 +86,7 @@ func TestServerTestSuite_WithCustomBasePath(t *testing.T) {
 
 func (suite *ServerTestSuite) TestHealthRoute() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -130,7 +129,7 @@ func (suite *ServerTestSuite) TestHealthRoute() {
 
 func (suite *ServerTestSuite) TestRegisterDevicesRoute() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -172,7 +171,7 @@ func (suite *ServerTestSuite) TestRegisterDevicesRoute() {
 
 func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -226,7 +225,7 @@ func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 
 func (suite *ServerTestSuite) TestPopulateMultiple() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -307,7 +306,7 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 //TODO: this test should use a recorded request/response playback.
 //func TestSendTestNotificationRoute(t *testing.T) {
 //	//setup
-//	parentPath, _ := ioutil.TempDir("", "")
+//	parentPath, _ := os.MkdirTemp("", "")
 //	defer os.RemoveAll(parentPath)
 //	mockCtrl := gomock.NewController(t)
 //	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -330,7 +329,7 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 
 func (suite *ServerTestSuite) TestSendTestNotificationRoute_WebhookFailure() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -375,7 +374,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_WebhookFailure() {
 
 func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptFailure() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -420,7 +419,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptFailure() {
 
 func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptSuccess() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -465,7 +464,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptSuccess() {
 
 func (suite *ServerTestSuite) TestSendTestNotificationRoute_ShoutrrrFailure() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
@@ -509,7 +508,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ShoutrrrFailure() {
 
 func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)

@@ -2,12 +2,13 @@ package detect
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/analogj/scrutiny/collector/pkg/common/shell"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/jaypipes/ghw"
-	"io/ioutil"
-	"path/filepath"
-	"strings"
 )
 
 func DevicePrefix() string {
@@ -24,14 +25,14 @@ func (d *Detect) Start() ([]models.Device, error) {
 
 	//inflate device info for detected devices.
 	for ndx, _ := range detectedDevices {
-		d.SmartCtlInfo(&detectedDevices[ndx]) //ignore errors.
+		d.SmartCtlInfo(&detectedDevices[ndx])   //ignore errors.
 		populateUdevInfo(&detectedDevices[ndx]) //ignore errors.
 	}
 
 	return detectedDevices, nil
 }
 
-//WWN values NVMe and SCSI
+// WWN values NVMe and SCSI
 func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 	block, err := ghw.Block()
 	if err == nil {
@@ -61,7 +62,7 @@ func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 func populateUdevInfo(detectedDevice *models.Device) error {
 	// Get device major:minor numbers
 	// `cat /sys/class/block/sda/dev`
-	devNo, err := ioutil.ReadFile(filepath.Join("/sys/class/block/", detectedDevice.DeviceName, "dev"))
+	devNo, err := os.ReadFile(filepath.Join("/sys/class/block/", detectedDevice.DeviceName, "dev"))
 	if err != nil {
 		return err
 	}
@@ -69,7 +70,7 @@ func populateUdevInfo(detectedDevice *models.Device) error {
 	// Look up block device in udev runtime database
 	// `cat /run/udev/data/b8:0`
 	udevID := "b" + strings.TrimSpace(string(devNo))
-	udevBytes, err := ioutil.ReadFile(filepath.Join("/run/udev/data/", udevID))
+	udevBytes, err := os.ReadFile(filepath.Join("/run/udev/data/", udevID))
 	if err != nil {
 		return err
 	}
@@ -97,7 +98,5 @@ func populateUdevInfo(detectedDevice *models.Device) error {
 		detectedDevice.DeviceSerialID = fmt.Sprintf("%s-%s", udevInfo["ID_BUS"], deviceSerialID)
 	}
 
-
 	return nil
 }
-
