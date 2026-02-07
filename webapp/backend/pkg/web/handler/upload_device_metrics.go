@@ -50,14 +50,12 @@ func UploadDeviceMetrics(c *gin.Context) {
 		return
 	}
 
-	if smartData.Status != pkg.DeviceStatusPassed {
-		//there is a failure detected by Scrutiny, update the device status on the homepage.
-		updatedDevice, err = deviceRepo.UpdateDeviceStatus(c, c.Param("wwn"), smartData.Status)
-		if err != nil {
-			logger.Errorln("An error occurred while updating device status", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"success": false})
-			return
-		}
+	// update device status with the latest SMART evaluation (overwrite, not accumulate)
+	updatedDevice, err = deviceRepo.UpdateDeviceStatus(c, c.Param("wwn"), smartData.Status)
+	if err != nil {
+		logger.Errorln("An error occurred while updating device status", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
+		return
 	}
 
 	// save smart temperature data (ignore failures)
