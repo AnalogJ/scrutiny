@@ -24,7 +24,7 @@ func (d *Detect) Start() ([]models.Device, error) {
 	}
 
 	//inflate device info for detected devices.
-	for ndx, _ := range detectedDevices {
+	for ndx := range detectedDevices {
 		d.SmartCtlInfo(&detectedDevices[ndx])   //ignore errors.
 		populateUdevInfo(&detectedDevices[ndx]) //ignore errors.
 	}

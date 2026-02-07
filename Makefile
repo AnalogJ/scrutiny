@@ -67,6 +67,11 @@ binary-dep:
 binary-test: binary-dep
 	go test -v $(STATIC_TAGS) ./...
 
+.PHONY: lint
+lint:
+	GOTOOLCHAIN=go1.25.5 go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.8.0
+	golangci-lint run ./...
+
 .PHONY: binary-test-coverage
 binary-test-coverage: binary-dep
 	go test -coverprofile=coverage.txt -covermode=atomic -v $(STATIC_TAGS) ./...

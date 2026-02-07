@@ -83,7 +83,7 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Failed to connect to database! - %v", err)
+		return nil, fmt.Errorf("failed to connect to database! - %v", err)
 	}
 	globalLogger.Infof("Successfully connected to scrutiny sqlite db: %s\n", appConfig.GetString("web.database.location"))
 
@@ -147,7 +147,7 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 	taskAPI := client.TasksAPI()
 
 	if writeAPI == nil || queryAPI == nil || taskAPI == nil {
-		return nil, fmt.Errorf("Failed to connect to influxdb!")
+		return nil, fmt.Errorf("failed to connect to influxdb")
 	}
 
 	deviceRepo := scrutinyRepository{
