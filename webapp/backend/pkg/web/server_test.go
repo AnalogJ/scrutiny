@@ -20,10 +20,10 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web"
-	"github.com/golang/mock/gomock"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/mock/gomock"
 )
 
 /*
@@ -90,7 +90,6 @@ func (suite *ServerTestSuite) TestHealthRoute() {
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -134,7 +133,6 @@ func (suite *ServerTestSuite) TestRegisterDevicesRoute() {
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -177,7 +175,6 @@ func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -232,7 +229,6 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -314,7 +310,6 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 //	parentPath, _ := ioutil.TempDir("", "")
 //	defer os.RemoveAll(parentPath)
 //	mockCtrl := gomock.NewController(t)
-//	defer mockCtrl.Finish()
 //	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 //	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 //	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
@@ -338,7 +333,6 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_WebhookFailure() {
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -384,7 +378,6 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptFailure() {
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -430,7 +423,6 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptSuccess() {
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -476,7 +468,6 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ShoutrrrFailure() {
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -521,7 +512,6 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	parentPath, _ := ioutil.TempDir("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)

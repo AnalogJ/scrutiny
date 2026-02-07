@@ -8,8 +8,8 @@ import (
 	reflect "reflect"
 
 	config "github.com/analogj/scrutiny/webapp/backend/pkg/config"
-	gomock "github.com/golang/mock/gomock"
 	viper "github.com/spf13/viper"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockInterface is a mock of Interface interface.
