@@ -8,7 +8,6 @@
 # lowercased automatically. As such, Configuration keys are case-insensitive,
 # and should be lowercase in this file to be consistent with usage.
 
-
 ######################################################################
 # Version
 #
@@ -26,7 +25,7 @@ web:
     # see docs/TROUBLESHOOTING_REVERSE_PROXY.md
     # basepath: `/scrutiny`
     # leave empty unless behind a path prefixed proxy
-    basepath: ''
+    basepath: ""
   database:
     # can also set absolute path here
     location: /opt/scrutiny/config/scrutiny.db
@@ -40,12 +39,12 @@ web:
   # and store the information in the config file. If you 're re-using an existing influxdb installation, you'll need to provide
   # the `token`
   influxdb:
-#    scheme: 'http'
+    #    scheme: 'http'
     host: 0.0.0.0
     port: 8086
-#    token: 'my-token'
-#    org: 'my-org'
-#    bucket: 'bucket'
+    #    token: 'my-token'
+    #    org: 'my-org'
+    #    bucket: 'bucket'
     retention_policy: true
     # if you wish to disable TLS certificate verification,
     # when using self-signed certificates for example,
@@ -54,9 +53,21 @@ web:
     #   insecure_skip_verify: false
 
 log:
-  file: '' #absolute or relative paths allowed, eg. web.log
+  file: "" #absolute or relative paths allowed, eg. web.log
   level: INFO
-
+# Optional: ignore or force specific SMART attributes at the host level.
+# smart:
+#   attribute_overrides:
+#     - protocol: ATA           # ATA | NVMe | SCSI
+#       attribute_id: "187"    # string ID as shown in the UI/SMART table
+#       wwn: "0x5000c5002df89099" # optional: limit to a specific device WWN
+#       action: ignore          # ignore | force_status
+#       warn_above: 5           # optional: warn when value exceeds
+#       fail_above: 10          # optional: fail when value exceeds (takes precedence)
+#     - protocol: NVMe
+#       attribute_id: "media_errors"
+#       action: force_status
+#       status: passed          # passed | warn | failed
 
 # Notification "urls" look like the following. For more information about service specific configuration see
 # Shoutrrr's documentation: https://containrrr.dev/shoutrrr/services/overview/
