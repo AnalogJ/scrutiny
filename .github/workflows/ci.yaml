@@ -37,13 +37,10 @@ jobs:
     env:
       STATIC: true
     steps:
-      - name: Git
-        run: |
-          apt-get update && apt-get install -y software-properties-common
-          add-apt-repository ppa:git-core/ppa && apt-get update && apt-get install -y git
-          git --version
+      - name: Add influxdb to hosts
+        run: echo "127.0.0.1 influxdb" | sudo tee -a /etc/hosts
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
       - name: Test Backend
         run: |
           make binary-clean binary-test-coverage
