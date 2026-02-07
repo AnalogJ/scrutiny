@@ -64,7 +64,7 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 	var failingAttributes []string
 	// Loop through the attributes to find the failing ones
 	for attrId, attrData := range smartAttrs.Attributes {
-		var status pkg.AttributeStatus = attrData.GetStatus()
+		var status = attrData.GetStatus()
 		// Skip over passing attributes
 		if status == pkg.AttributeStatusPassed {
 			continue
@@ -147,7 +147,7 @@ func NewPayload(device models.Device, test bool, currentTime ...time.Time) Paylo
 
 	//validate that the Payload is populated
 	var sendDate time.Time
-	if currentTime != nil && len(currentTime) > 0 {
+	if len(currentTime) > 0 {
 		sendDate = currentTime[0]
 	} else {
 		sendDate = time.Now()
@@ -318,7 +318,7 @@ func (n *Notify) SendScriptNotification(scriptUrl string) error {
 
 	if !utils.FileExists(scriptPath) {
 		n.Logger.Errorf("Script does not exist: %s", scriptPath)
-		return errors.New(fmt.Sprintf("custom script path does not exist: %s", scriptPath))
+		return fmt.Errorf("custom script path does not exist: %s", scriptPath)
 	}
 
 	copyEnv := os.Environ()

@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/analogj/scrutiny/collector/pkg/collector"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
-	"github.com/sirupsen/logrus"
 	"io"
 	"log"
 	"os"
 	"time"
+
+	"github.com/analogj/scrutiny/collector/pkg/collector"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
+	"github.com/sirupsen/logrus"
 
 	utils "github.com/analogj/go-util/utils"
 	"github.com/fatih/color"
@@ -57,7 +58,7 @@ OPTIONS:
 
 			subtitle := collectorSelfTest + utils.LeftPad2Len(versionInfo, " ", 65-len(collectorSelfTest))
 
-			color.New(color.FgGreen).Fprintf(c.App.Writer, fmt.Sprintf(utils.StripIndent(
+			color.New(color.FgGreen).Fprintf(c.App.Writer, utils.StripIndent(
 				`
 			 ___   ___  ____  __  __  ____  ____  _  _  _  _
 			/ __) / __)(  _ \(  )(  )(_  _)(_  _)( \( )( \/ )
@@ -65,7 +66,7 @@ OPTIONS:
 			(___/ \___)(_)\_)(______) (__) (____)(_)\_) (__)
 			%s
 
-			`), subtitle))
+			`), subtitle)
 
 			return nil
 		},

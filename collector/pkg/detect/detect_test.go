@@ -9,16 +9,15 @@ import (
 	mock_config "github.com/analogj/scrutiny/collector/pkg/config/mock"
 	"github.com/analogj/scrutiny/collector/pkg/detect"
 	"github.com/analogj/scrutiny/collector/pkg/models"
-	"github.com/golang/mock/gomock"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 func TestDetect_SmartctlScan(t *testing.T) {
 	// setup
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
 	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{})
@@ -48,7 +47,6 @@ func TestDetect_SmartctlScan(t *testing.T) {
 func TestDetect_SmartctlScan_Megaraid(t *testing.T) {
 	// setup
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
 	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{})
@@ -81,7 +79,6 @@ func TestDetect_SmartctlScan_Megaraid(t *testing.T) {
 func TestDetect_SmartctlScan_Nvme(t *testing.T) {
 	// setup
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
 	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{})
@@ -113,7 +110,6 @@ func TestDetect_SmartctlScan_Nvme(t *testing.T) {
 func TestDetect_TransformDetectedDevices_Empty(t *testing.T) {
 	// setup
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
 	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{})
@@ -147,7 +143,6 @@ func TestDetect_TransformDetectedDevices_Empty(t *testing.T) {
 func TestDetect_TransformDetectedDevices_Ignore(t *testing.T) {
 	// setup
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
 	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{{Device: "/dev/sda", DeviceType: nil, Ignore: true}})
@@ -180,7 +175,6 @@ func TestDetect_TransformDetectedDevices_Ignore(t *testing.T) {
 func TestDetect_TransformDetectedDevices_Raid(t *testing.T) {
 	// setup
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
 	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
@@ -223,7 +217,6 @@ func TestDetect_TransformDetectedDevices_Raid(t *testing.T) {
 func TestDetect_TransformDetectedDevices_Simple(t *testing.T) {
 	// setup
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
 	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
@@ -257,7 +250,6 @@ func TestDetect_TransformDetectedDevices_Simple(t *testing.T) {
 func TestDetect_TransformDetectedDevices_WithoutDeviceTypeOverride(t *testing.T) {
 	// setup
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
 	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
@@ -290,7 +282,6 @@ func TestDetect_TransformDetectedDevices_WithoutDeviceTypeOverride(t *testing.T)
 func TestDetect_TransformDetectedDevices_WhenDeviceNotDetected(t *testing.T) {
 	// setup
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
 	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
@@ -312,7 +303,6 @@ func TestDetect_TransformDetectedDevices_WhenDeviceNotDetected(t *testing.T) {
 
 func TestDetect_TransformDetectedDevices_AllowListFilters(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
@@ -353,7 +343,6 @@ func TestDetect_TransformDetectedDevices_AllowListFilters(t *testing.T) {
 func TestDetect_SmartCtlInfo(t *testing.T) {
 	t.Run("should report nvme info", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
 
 		const (
 			someArgs = "--info --json"

@@ -1,10 +1,11 @@
 package database
 
 import (
-	mock_config "github.com/analogj/scrutiny/webapp/backend/pkg/config/mock"
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	mock_config "github.com/analogj/scrutiny/webapp/backend/pkg/config/mock"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 func Test_DownsampleScript_Weekly(t *testing.T) {
@@ -12,7 +13,6 @@ func Test_DownsampleScript_Weekly(t *testing.T) {
 
 	//setup
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
@@ -64,7 +64,6 @@ func Test_DownsampleScript_Monthly(t *testing.T) {
 
 	//setup
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
@@ -116,7 +115,6 @@ func Test_DownsampleScript_Yearly(t *testing.T) {
 
 	//setup
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
 	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()

@@ -12,9 +12,9 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	"github.com/gin-gonic/gin"
-	"github.com/golang/mock/gomock"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 func TestShouldNotify_MustSkipPassingDevices(t *testing.T) {
@@ -28,7 +28,6 @@ func TestShouldNotify_MustSkipPassingDevices(t *testing.T) {
 	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
 
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 	//assert
 	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
@@ -44,7 +43,6 @@ func TestShouldNotify_MetricsStatusThresholdBoth_FailingSmartDevice(t *testing.T
 	statusThreshold := pkg.MetricsStatusThresholdBoth
 	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 	//assert
 	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
@@ -60,7 +58,6 @@ func TestShouldNotify_MetricsStatusThresholdSmart_FailingSmartDevice(t *testing.
 	statusThreshold := pkg.MetricsStatusThresholdSmart
 	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 	//assert
 	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
@@ -76,7 +73,6 @@ func TestShouldNotify_MetricsStatusThresholdScrutiny_FailingSmartDevice(t *testi
 	statusThreshold := pkg.MetricsStatusThresholdScrutiny
 	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 	//assert
 	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
@@ -96,7 +92,6 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithCriticalAttrs(t 
 	statusThreshold := pkg.MetricsStatusThresholdBoth
 	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesCritical
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 
 	//assert
@@ -120,7 +115,6 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithMultipleCritical
 	statusThreshold := pkg.MetricsStatusThresholdBoth
 	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesCritical
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 
 	//assert
@@ -141,7 +135,6 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithNoCriticalAttrs(
 	statusThreshold := pkg.MetricsStatusThresholdBoth
 	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesCritical
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 
 	//assert
@@ -162,7 +155,6 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_WithNoFailingCritica
 	statusThreshold := pkg.MetricsStatusThresholdBoth
 	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesCritical
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 
 	//assert
@@ -186,7 +178,6 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_MetricsStatusThresho
 	statusThreshold := pkg.MetricsStatusThresholdSmart
 	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesCritical
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 
 	//assert
@@ -206,7 +197,6 @@ func TestShouldNotify_NoRepeat_DatabaseFailure(t *testing.T) {
 	statusThreshold := pkg.MetricsStatusThresholdBoth
 	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, "", database.DURATION_KEY_FOREVER, 1, 1, []string{"5"}).Return([]measurements.Smart{}, errors.New("")).Times(1)
 
@@ -228,7 +218,6 @@ func TestShouldNotify_NoRepeat_NoDatabaseData(t *testing.T) {
 	statusThreshold := pkg.MetricsStatusThresholdBoth
 	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, "", database.DURATION_KEY_FOREVER, 1, 1, []string{"5"}).Return([]measurements.Smart{}, nil).Times(1)
 
@@ -250,7 +239,6 @@ func TestShouldNotify_NoRepeat(t *testing.T) {
 	statusThreshold := pkg.MetricsStatusThresholdBoth
 	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesAll
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, "", database.DURATION_KEY_FOREVER, 1, 1, []string{"5"}).Return([]measurements.Smart{smartAttrs}, nil).Times(1)
 

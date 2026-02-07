@@ -3,15 +3,15 @@ package middleware
 import (
 	"bytes"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"io"
-	"io/ioutil"
 	"math"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 // Middleware based on https://github.com/toorop/gin-logrus/blob/master/logger.go
@@ -40,9 +40,9 @@ func LoggerMiddleware(logger *logrus.Entry) gin.HandlerFunc {
 		//clone the request body reader.
 		var reqBody string
 		if c.Request.Body != nil {
-			buf, _ := ioutil.ReadAll(c.Request.Body)
-			reqBodyReader1 := ioutil.NopCloser(bytes.NewBuffer(buf))
-			reqBodyReader2 := ioutil.NopCloser(bytes.NewBuffer(buf)) //We have to create a new Buffer, because reqBodyReader1 will be read.
+			buf, _ := io.ReadAll(c.Request.Body)
+			reqBodyReader1 := io.NopCloser(bytes.NewBuffer(buf))
+			reqBodyReader2 := io.NopCloser(bytes.NewBuffer(buf)) //We have to create a new Buffer, because reqBodyReader1 will be read.
 			c.Request.Body = reqBodyReader2
 			reqBody = readBody(reqBodyReader1)
 		}
