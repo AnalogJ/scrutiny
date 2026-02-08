@@ -42,7 +42,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           tags: |
-            type=schedule,enable=true,pattern=nightly,suffix=-omnibus
+            type=raw,enable=true,value=nightly,suffix=-omnibus
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
@@ -64,7 +64,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           tags: |
-            type=schedule,enable=true,pattern=nightly,suffix=-collector
+            type=raw,enable=true,value=nightly,suffix=-collector
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
@@ -86,7 +86,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           tags: |
-            type=schedule,enable=true,pattern=nightly,suffix=-web
+            type=raw,enable=true,value=nightly,suffix=-web
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
