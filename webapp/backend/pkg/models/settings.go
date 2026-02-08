@@ -17,6 +17,10 @@ type Settings struct {
 	LineStroke         string `json:"line_stroke" mapstructure:"line_stroke"`
 	PoweredOnHoursUnit string `json:"powered_on_hours_unit" mapstructure:"powered_on_hours_unit"`
 
+	Collector struct {
+		DiscardSCTTempHistory bool `json:"discard_sct_temp_history" mapstructure:"discard_sct_temp_history"`
+	} `json:"collector" mapstructure:"collector"`
+
 	Metrics struct {
 		NotifyLevel            int  `json:"notify_level" mapstructure:"notify_level"`
 		StatusFilterAttributes int  `json:"status_filter_attributes" mapstructure:"status_filter_attributes"`

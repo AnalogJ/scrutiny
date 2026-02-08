@@ -68,8 +68,9 @@ jobs:
         with:
           name: coverage
       - name: Upload coverage reports
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ${{ github.workspace }}/coverage.txt,${{ github.workspace }}/lcov.info
           flags: unittests
           fail_ci_if_error: true

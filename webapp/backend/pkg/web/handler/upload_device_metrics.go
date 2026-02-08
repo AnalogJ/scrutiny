@@ -61,7 +61,7 @@ func UploadDeviceMetrics(c *gin.Context) {
 	}
 
 	// save smart temperature data (ignore failures)
-	err = deviceRepo.SaveSmartTemperature(c, c.Param("wwn"), updatedDevice.DeviceProtocol, collectorSmartData)
+	err = deviceRepo.SaveSmartTemperature(c, c.Param("wwn"), updatedDevice.DeviceProtocol, collectorSmartData, appConfig.GetBool(fmt.Sprintf("%s.collector.discard_sct_temp_history", config.DB_USER_SETTINGS_SUBKEY)))
 	if err != nil {
 		logger.Errorln("An error occurred while saving smartctl temp data", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false})

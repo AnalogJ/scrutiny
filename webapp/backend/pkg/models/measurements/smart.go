@@ -64,11 +64,27 @@ func NewSmartFromInfluxDB(attrs map[string]interface{}) (*Smart, error) {
 	for key, val := range attrs {
 		switch key {
 		case "temp":
-			sm.Temp = val.(int64)
+			temp, tempOk := val.(int64)
+			if tempOk {
+				sm.Temp = temp
+			} else {
+				log.Printf("unable to parse temp information: %v", val)
+			}
+
 		case "power_on_hours":
-			sm.PowerOnHours = val.(int64)
+			powerOn, powerOnOk := val.(int64)
+			if powerOnOk {
+				sm.PowerOnHours = powerOn
+			} else {
+				log.Printf("unable to parse power_on_hours information: %v", val)
+			}
 		case "power_cycle_count":
-			sm.PowerCycleCount = val.(int64)
+			powerCycle, powerCycleOk := val.(int64)
+			if powerCycleOk {
+				sm.PowerCycleCount = powerCycle
+			} else {
+				log.Printf("unable to parse power_cycle_count information: %v", val)
+			}
 		default:
 			// this key is unknown.
 			if !strings.HasPrefix(key, "attr.") {
