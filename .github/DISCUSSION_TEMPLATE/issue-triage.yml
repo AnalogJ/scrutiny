@@ -65,7 +65,7 @@ body:
     attributes:
       label: Smartmontools Version
       description: The version of smartmontools you are using (or "docker", if you're using the docker image)
-      placeholder: 7.2
+      placeholder: "7.2"
     validations:
       required: true
   - type: input
@@ -91,9 +91,9 @@ body:
       label: Deployment Method
       description: How are you running scrutiny?
       options:
-        - docker
-        - binaries
-        - systemd
+        - label: docker
+        - label: binaries
+        - label: systemd
     validations:
       required: true
   - type: input
@@ -109,9 +109,9 @@ body:
       label: smartctl output
       description: |
         What is the output of smartctl --xall --json <drive>?
+      render: json
     validations:
       required: false
-    render: json
   - type: textarea
     attributes:
       label: scrutiny.yaml
