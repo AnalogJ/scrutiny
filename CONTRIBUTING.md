@@ -5,9 +5,9 @@ for anyone considering opening an **issue**, **discussion** or **pull request**.
 
 > [!NOTE]
 >
-> Apologies for the wall of text. The intention is not to be difficult, and
-> contributions are greatly appreciated. The goal is actually to streamline
-> efforts of both contributers and maintainers.
+> The intention of these policies is not to be difficult, and
+> contributions are greatly appreciated. The goal is to streamline
+> and simplify the efforts of both contributers and maintainers.
 
 ## AI Usage
 
