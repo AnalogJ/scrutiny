@@ -1,4 +1,8 @@
 version: "2"
+formatters:
+  enable:
+    - gofmt
+    - goimports
 linters:
   enable:
     - bodyclose
