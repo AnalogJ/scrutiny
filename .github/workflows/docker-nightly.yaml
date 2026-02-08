@@ -1,5 +1,6 @@
 name: Docker - Nightly
 on:
+  workflow_dispatch:
   # Note: this only runs on the default branch
   schedule:
     - cron: '36 12 * * *'
