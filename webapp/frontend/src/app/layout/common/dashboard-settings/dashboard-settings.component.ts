@@ -28,6 +28,7 @@ export class DashboardSettingsComponent implements OnInit {
     poweredOnHoursUnit: string;
     lineStroke: string;
     theme: string;
+    discardSCTTempHistory: boolean;
     statusThreshold: number;
     statusFilterAttributes: number;
     repeatNotifications: boolean;
@@ -57,6 +58,8 @@ export class DashboardSettingsComponent implements OnInit {
                 this.lineStroke = config.line_stroke;
                 this.theme = config.theme;
 
+                this.discardSCTTempHistory = config.collector.discard_sct_temp_history;
+
                 this.statusFilterAttributes = config.metrics.status_filter_attributes;
                 this.statusThreshold = config.metrics.status_threshold;
                 this.repeatNotifications = config.metrics.repeat_notifications;
@@ -74,6 +77,9 @@ export class DashboardSettingsComponent implements OnInit {
             powered_on_hours_unit: this.poweredOnHoursUnit as DevicePoweredOnUnit,
             line_stroke: this.lineStroke as LineStroke,
             theme: this.theme as Theme,
+            collector: {
+                discard_sct_temp_history: this.discardSCTTempHistory
+            },
             metrics: {
                 status_filter_attributes: this.statusFilterAttributes as MetricsStatusFilterAttributes,
                 status_threshold: this.statusThreshold as MetricsStatusThreshold,

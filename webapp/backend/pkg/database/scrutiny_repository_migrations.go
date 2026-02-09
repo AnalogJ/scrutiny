@@ -409,6 +409,21 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				return tx.AutoMigrate(m20250221084400.Device{})
 			},
 		},
+		{
+			ID: "m20260105083200", // add discard_sct_temp_history setting.
+			Migrate: func(tx *gorm.DB) error {
+				//add discard_sct_temp_history setting default.
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "collector.discard_sct_temp_history",
+						SettingKeyDescription: "Whether to discard SCT Temperature history (true | false)",
+						SettingDataType:       "bool",
+						SettingValueBool:      false,
+					},
+				}
+				return tx.Create(&defaultSettings).Error
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
@@ -632,7 +647,7 @@ func m20201107210306_FromPreInfluxDBSmartResultsCreatePostInfluxDBSmartResults(d
 		}
 		postDeviceSmartData.ProcessScsiSmartInfo(postScsiGrownDefectList, postScsiErrorCounterLog)
 	} else {
-		return fmt.Errorf("Unknown device protocol: %s", preDevice.DeviceProtocol), postDeviceSmartData
+		return fmt.Errorf("unknown device protocol: %s", preDevice.DeviceProtocol), postDeviceSmartData
 	}
 
 	return nil, postDeviceSmartData
