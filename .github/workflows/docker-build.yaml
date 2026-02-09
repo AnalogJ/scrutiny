@@ -145,10 +145,10 @@ jobs:
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
+        # tag latest and latest-omnibus
         with:
           flavor: |
             latest=true
-            # tag latest and latest-omnibus
             suffix=-omnibus,onlatest=false
           tags: |
             type=raw,value=latest
