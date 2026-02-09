@@ -69,7 +69,7 @@ See [docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md](./docs/TROUBLESHOOTING_DEVICE_COL
 
 > [!IMPORTANT]
 > Using `latest-` tags is dangerous as it can update your image without warning. It is a best practice to pin a specific version. scrutiny pushes releases with semver tags,
-> so you can use things like `v0.8.2-omnibus`, `v0.8-web`, `v0-collector`, etc. For a list of all image tags see
+> so you can use tags like `v0.8.2-omnibus`, `v0.8-web`, `v0-collector`, etc. For a list of all image tags see
 > [scrutiny package versions](https://github.com/AnalogJ/scrutiny/pkgs/container/scrutiny/versions?filters%5Bversion_type%5D=tagged)
 
 If you're using Docker, getting started is as simple as running the following command:
