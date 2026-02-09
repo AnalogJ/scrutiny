@@ -5,6 +5,11 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/glebarez/sqlite"
@@ -13,10 +18,6 @@ import (
 	"github.com/influxdata/influxdb-client-go/v2/domain"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"time"
 )
 
 const (
@@ -82,7 +83,7 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Failed to connect to database! - %v", err)
+		return nil, fmt.Errorf("failed to connect to database! - %v", err)
 	}
 	globalLogger.Infof("Successfully connected to scrutiny sqlite db: %s\n", appConfig.GetString("web.database.location"))
 
@@ -146,7 +147,7 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 	taskAPI := client.TasksAPI()
 
 	if writeAPI == nil || queryAPI == nil || taskAPI == nil {
-		return nil, fmt.Errorf("Failed to connect to influxdb!")
+		return nil, fmt.Errorf("failed to connect to influxdb")
 	}
 
 	deviceRepo := scrutinyRepository{
@@ -238,13 +239,13 @@ func InfluxSetupComplete(influxEndpoint string, tlsConfig *tls.Config) (bool, er
 		return false, err
 	}
 
-    client := &http.Client{Transport: &http.Transport{TLSClientConfig: tlsConfig}}
+	client := &http.Client{Transport: &http.Transport{TLSClientConfig: tlsConfig}}
 	res, err := client.Get(influxUri.String())
 	if err != nil {
 		return false, err
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return false, err
 	}

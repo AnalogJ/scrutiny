@@ -3,11 +3,12 @@ package shell
 import (
 	"bytes"
 	"errors"
-	"github.com/sirupsen/logrus"
 	"io"
 	"os/exec"
 	"path"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 type localShell struct{}
@@ -36,7 +37,7 @@ func (s *localShell) Command(logger *logrus.Entry, cmdName string, cmdArgs []str
 	if workingDir != "" && path.IsAbs(workingDir) {
 		cmd.Dir = workingDir
 	} else if workingDir != "" {
-		return "", errors.New("Working Directory must be an absolute path")
+		return "", errors.New("working directory must be an absolute path")
 	}
 
 	err := cmd.Run()

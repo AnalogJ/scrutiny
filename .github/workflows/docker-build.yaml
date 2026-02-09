@@ -108,7 +108,7 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           context: .
-          file: docker/Dockerfile.collector
+          file: docker/Dockerfile.web
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -164,7 +164,7 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           context: .
-          file: docker/Dockerfile.collector
+          file: docker/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
