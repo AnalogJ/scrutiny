@@ -1,22 +1,18 @@
-# Docker Images `master-omnibus` vs `latest`
+# Docker Images `latest` vs `nightly`
 
-> TL;DR; The `master-omnibus` and `latest` tags are almost semantically identical, as I follow a `golden master` 
-development process. However if you want to ensure you're only using the latest release, you can change to `latest`
+> TL;DR; The `latest-omnibus`, `latest-collector`, and `latest-web` tags point to the most recent release. (`latest` points to `latest-omnibus`)
+> The `nightly-omnibus`, `nightly-collector`, and `nightly-web` tags point to builds that are generated every night from the latest commit on the `master` branch.
 
-The CI script used to orchestrate the docker image builds can be found here: https://github.com/AnalogJ/scrutiny/blob/master/.github/workflows/docker-build.yaml#L166-L184
+The CD scripts used to orchestrate the docker image builds can be found here:
+* https://github.com/AnalogJ/scrutiny/blob/master/.github/workflows/docker-build.yaml
+* https://github.com/AnalogJ/scrutiny/blob/master/.github/workflows/docker-nightly.yaml
 
-In general Scrutiny follows a `golden master` development process, which means that the `master` branch is not directly updated (unless its for documentation changes), 
-instead development is done in a feature branch, or committed to the `beta` branch. 
+In general scrutiny follows a feature branch development process, which means that the `master` branch should ideally always be free of bugs 
+This is driven by the requirement that every PR be reviewed and pass all tests.  Unfortunately, bugs do make it through, especially because of the
+enormous number of hard drives that scrutiny must support.. 
 
-As development progresses, and we're satisfied that a feature is complete, and the quality is acceptable, 
-I merge the changes to `master` and trigger the creation of a new release -- ie, when master is updated, a new release
-is almost immediately created (and tagged with `latest`)
-
-So changing from `master-omnibus -> latest` will be the same thing for all intents and purposes. 
-
-> NOTE: Previously, there was a `automated cron build` that ran on the `master` and `beta` branches. 
-They used to trigger a `nightly` build, even if nothing has changed on the branch. This has a couple of benefits, but one is to 
-ensure that there's no broken external dependencies in our (unchanged) code. This `nightly` build no longer updates the `master-omnibus` tag. 
+This means that while the nightly builds should have the latest features and bug fixes, there may be things that sneak through. Unless you need a particular
+feature or bug fix, we recommend sticking to releases. Also note that using `latest` tags is generally considered a bad practice; pin a specific version instead.
 
 # Running Docker `rootless`
 
