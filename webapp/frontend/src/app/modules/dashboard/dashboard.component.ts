@@ -229,7 +229,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                 }
             },
             xaxis: {
-                type: 'datetime'
+                type: 'datetime',
+                labels: {
+                    datetimeUTC: false
+                }
             }
         };
     }

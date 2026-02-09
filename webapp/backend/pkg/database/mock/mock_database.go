@@ -12,7 +12,7 @@ import (
 	models "github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	collector "github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	measurements "github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
-	gomock "github.com/golang/mock/gomock"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockDeviceRepo is a mock of DeviceRepo interface.
@@ -228,17 +228,17 @@ func (mr *MockDeviceRepoMockRecorder) SaveSmartAttributes(ctx, wwn, collectorSma
 }
 
 // SaveSmartTemperature mocks base method.
-func (m *MockDeviceRepo) SaveSmartTemperature(ctx context.Context, wwn, deviceProtocol string, collectorSmartData collector.SmartInfo) error {
+func (m *MockDeviceRepo) SaveSmartTemperature(ctx context.Context, wwn, deviceProtocol string, collectorSmartData collector.SmartInfo, discardSCTTempHistory bool) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveSmartTemperature", ctx, wwn, deviceProtocol, collectorSmartData)
+	ret := m.ctrl.Call(m, "SaveSmartTemperature", ctx, wwn, deviceProtocol, collectorSmartData, discardSCTTempHistory)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SaveSmartTemperature indicates an expected call of SaveSmartTemperature.
-func (mr *MockDeviceRepoMockRecorder) SaveSmartTemperature(ctx, wwn, deviceProtocol, collectorSmartData interface{}) *gomock.Call {
+func (mr *MockDeviceRepoMockRecorder) SaveSmartTemperature(ctx, wwn, deviceProtocol, collectorSmartData, discardSCTTempHistory interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveSmartTemperature", reflect.TypeOf((*MockDeviceRepo)(nil).SaveSmartTemperature), ctx, wwn, deviceProtocol, collectorSmartData)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveSmartTemperature", reflect.TypeOf((*MockDeviceRepo)(nil).SaveSmartTemperature), ctx, wwn, deviceProtocol, collectorSmartData, discardSCTTempHistory)
 }
 
 // UpdateDevice mocks base method.
