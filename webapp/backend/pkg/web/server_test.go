@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -20,10 +19,10 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web"
-	"github.com/golang/mock/gomock"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/mock/gomock"
 )
 
 /*
@@ -52,7 +51,7 @@ func helperReadSmartDataFileFixTimestamp(t *testing.T, smartDataFilepath string)
 	metricsfile, err := os.Open(smartDataFilepath)
 	require.NoError(t, err)
 
-	metricsFileData, err := ioutil.ReadAll(metricsfile)
+	metricsFileData, err := io.ReadAll(metricsfile)
 	require.NoError(t, err)
 
 	//unmarshal because we need to change the timestamp
@@ -87,10 +86,9 @@ func TestServerTestSuite_WithCustomBasePath(t *testing.T) {
 
 func (suite *ServerTestSuite) TestHealthRoute() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -131,10 +129,9 @@ func (suite *ServerTestSuite) TestHealthRoute() {
 
 func (suite *ServerTestSuite) TestRegisterDevicesRoute() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -174,10 +171,9 @@ func (suite *ServerTestSuite) TestRegisterDevicesRoute() {
 
 func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -229,10 +225,9 @@ func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 
 func (suite *ServerTestSuite) TestPopulateMultiple() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -311,10 +306,9 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 //TODO: this test should use a recorded request/response playback.
 //func TestSendTestNotificationRoute(t *testing.T) {
 //	//setup
-//	parentPath, _ := ioutil.TempDir("", "")
+//	parentPath, _ := os.MkdirTemp("", "")
 //	defer os.RemoveAll(parentPath)
 //	mockCtrl := gomock.NewController(t)
-//	defer mockCtrl.Finish()
 //	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 //	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 //	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
@@ -335,10 +329,9 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 
 func (suite *ServerTestSuite) TestSendTestNotificationRoute_WebhookFailure() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -381,10 +374,9 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_WebhookFailure() {
 
 func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptFailure() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -427,10 +419,9 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptFailure() {
 
 func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptSuccess() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -473,10 +464,9 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptSuccess() {
 
 func (suite *ServerTestSuite) TestSendTestNotificationRoute_ShoutrrrFailure() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
@@ -518,10 +508,9 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ShoutrrrFailure() {
 
 func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	//setup
-	parentPath, _ := ioutil.TempDir("", "")
+	parentPath, _ := os.MkdirTemp("", "")
 	defer os.RemoveAll(parentPath)
 	mockCtrl := gomock.NewController(suite.T())
-	defer mockCtrl.Finish()
 	fakeConfig := mock_config.NewMockInterface(mockCtrl)
 	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
