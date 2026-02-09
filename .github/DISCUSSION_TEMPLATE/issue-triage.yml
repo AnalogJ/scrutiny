@@ -1,0 +1,154 @@
+labels: ["needs-confirmation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > [!IMPORTANT]
+        > Please read through [the Discussion rules](https://github.com/AnalogJ/scrutiny/discussions/876), review [the docs](https://github.com/AnalogJ/scrutiny/tree/master/docs), and check for both existing [Discussions](https://github.com/AnalogJ/scrutiny/discussions?discussions_q=) and [Issues](https://github.com/AnalogJ/scrutiny/issues?q=sort%3Areactions-desc) prior to opening a new Discussion.
+  - type: markdown
+    attributes:
+      value: "# Issue Details"
+  - type: textarea
+    attributes:
+      label: Issue Description
+      description: |
+        Provide a detailed description of the issue.  Include relevant information, such as:
+        - The feature or configuration option you encounter the issue with.
+        - Screenshots, screen recordings, or other supporting media (as needed).
+        - If this is a regression of an existing issue that was closed or resolved, please include the previous item reference (Discussion, Issue, PR, commit) in your description.
+      placeholder: |
+        Temperature data is missing from the plots.        
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: |
+        Describe how you expect scrutiny to behave in this situation.  Include any relevant documentation links.
+      placeholder: |
+        All temperature data uploaded by collectors should make it into the plots.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Actual Behavior
+      description: |
+        Describe how scrutiny actually behaves in this situation.  If it is not immediately obvious how the actual behavior differs from the expected behavior described above, please be sure to mention the deviation specifically.
+      placeholder: |
+        Only half the points appear.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction Steps
+      description: |
+        Provide a detailed set of step-by-step instructions for reproducing this issue. If you can't, describe what you were doing when the issue occurred.
+      placeholder: |
+        1. Set up the omnibus docker image
+        2. Launch the web dashboard
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: scrutiny logs
+      description: |
+        Provide any captured scrutiny logs or panic dumps during your issue reproduction in this field.
+      render: text
+  - type: input
+    attributes:
+      label: Scrutiny Version
+      description: The version of scrutiny you are using
+      placeholder: v0.8.2
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Smartmontools Version
+      description: The version of smartmontools you are using (or "docker", if you're using the docker image)
+      placeholder: "7.2"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: OS Version Information
+      description: |
+        Please tell us what operating system (name and version) you are using.
+      placeholder: Ubuntu 24.04.1 (Noble Numbat)
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Component
+      description: Which component of scrutiny has a problem?
+      options:
+        - web
+        - collector
+        - omnibus (docker only)
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Deployment Method
+      description: How are you running scrutiny?
+      options:
+        - label: docker
+        - label: binaries
+        - label: systemd
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Hard Drive Information
+      description: |
+        If the problem is related to a specific hard drive, what are the make and model?
+      placeholder: Seagate ST8000DM004-2CX188
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: smartctl output
+      description: |
+        What is the output of smartctl --xall --json <drive>?
+      render: json
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: scrutiny.yaml
+      description: |
+        Please provide your full scrutiny.yaml file.
+      render: yaml
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: collector.yaml
+      description: |
+        Please provide your full collector.yaml file.
+      render: yaml
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Additional relevant configuration
+      description: |
+        Please any additional relevant configuration (e.g. systemd service definitions, OS configuration)
+      render: text
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        # User Acknowledgements
+        > [!TIP]
+        > Use these links to review the existing scrutiny [Discussions](https://github.com/AnalogJ/scrutiny/discussions?discussions_q=) and [Issues](https://github.com/AnalogJ/scrutiny/issues?q=sort%3Areactions-desc).
+  - type: checkboxes
+    attributes:
+      label: "I acknowledge that:"
+      options:
+        - label: I have reviewed the FAQ and confirm that my issue is NOT among them.
+          required: true
+        - label: I have searched the scrutiny repository (both open and closed Discussions and Issues) and confirm this is not a duplicate of an existing issue or discussion.
+          required: true
+        - label: I have checked the "Preview" tab on all text fields to ensure that everything looks right, and have wrapped all configuration and code in code blocks with a group of three backticks (` ``` `) on separate lines.
+          required: true

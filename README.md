@@ -67,6 +67,11 @@ See [docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md](./docs/TROUBLESHOOTING_DEVICE_COL
 
 ## Docker
 
+> [!IMPORTANT]
+> Using `latest-` tags is dangerous as it can update your image without warning. It is a best practice to pin a specific version. scrutiny pushes releases with semver tags,
+> so you can use tags like `v0.8.2-omnibus`, `v0.8-web`, `v0-collector`, etc. For a list of all image tags see
+> [scrutiny package versions](https://github.com/AnalogJ/scrutiny/pkgs/container/scrutiny/versions?filters%5Bversion_type%5D=tagged)
+
 If you're using Docker, getting started is as simple as running the following command:
 
 > See [docker/example.omnibus.docker-compose.yml](https://github.com/AnalogJ/scrutiny/blob/master/docker/example.omnibus.docker-compose.yml) for a docker-compose file.
@@ -80,23 +85,23 @@ docker run -p 8080:8080 -p 8086:8086 --restart unless-stopped \
   --device=/dev/sda \
   --device=/dev/sdb \
   --name scrutiny \
-  ghcr.io/analogj/scrutiny:master-omnibus
+  ghcr.io/analogj/scrutiny:latest-omnibus
 ```
 
 - `/run/udev` is necessary to provide the Scrutiny collector with access to your device metadata
 - `--cap-add SYS_RAWIO` is necessary to allow `smartctl` permission to query your device SMART data
     - NOTE: If you have **NVMe** drives, you must add `--cap-add SYS_ADMIN` as well. See issue [#26](https://github.com/AnalogJ/scrutiny/issues/26#issuecomment-696817130)
 - `--device` entries are required to ensure that your hard disk devices are accessible within the container.
-- `ghcr.io/analogj/scrutiny:master-omnibus` is a omnibus image, containing both the webapp server (frontend & api) as well as the S.M.A.R.T metric collector. (see below)
+- `ghcr.io/analogj/scrutiny:latest-omnibus` is a omnibus image, containing both the webapp server (frontend & api) as well as the S.M.A.R.T metric collector. (see below)
 
 ### Hub/Spoke Deployment
 
 In addition to the Omnibus image (available under the `latest` tag) you can deploy in Hub/Spoke mode, which requires 3
 other Docker images:
 
-- `ghcr.io/analogj/scrutiny:master-collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like
+- `ghcr.io/analogj/scrutiny:latest-collector` - Contains the Scrutiny data collector, `smartctl` binary and cron-like
   scheduler. You can run one collector on each server.
-- `ghcr.io/analogj/scrutiny:master-web` - Contains the Web UI and API. Only one container necessary
+- `ghcr.io/analogj/scrutiny:latest-web` - Contains the Web UI and API. Only one container necessary
 - `influxdb:2.2` - InfluxDB image, used by the Web container to persist SMART data. Only one container necessary
   See [docs/TROUBLESHOOTING_INFLUXDB.md](./docs/TROUBLESHOOTING_INFLUXDB.md)
 
@@ -111,7 +116,7 @@ docker run -p 8086:8086 --restart unless-stopped \
 docker run -p 8080:8080 --restart unless-stopped \
   -v `pwd`/scrutiny:/opt/scrutiny/config \
   --name scrutiny-web \
-  ghcr.io/analogj/scrutiny:master-web
+  ghcr.io/analogj/scrutiny:latest-web
 
 docker run --restart unless-stopped \
   -v /run/udev:/run/udev:ro \
@@ -120,7 +125,7 @@ docker run --restart unless-stopped \
   --device=/dev/sdb \
   -e COLLECTOR_API_ENDPOINT=http://SCRUTINY_WEB_IPADDRESS:8080 \
   --name scrutiny-collector \
-  ghcr.io/analogj/scrutiny:master-collector
+  ghcr.io/analogj/scrutiny:latest-collector
 ```
 
 ## Manual Installation (without-Docker)
@@ -157,7 +162,7 @@ Neither file is required, however if provided, it allows you to configure how Sc
 
 ## Cron Schedule
 Unfortunately the Cron schedule cannot be configured via the `collector.yaml` (as the collector binary needs to be trigged by a scheduler/cron).
-However, if you are using the official `ghcr.io/analogj/scrutiny:master-collector` or `ghcr.io/analogj/scrutiny:master-omnibus` docker images,
+However, if you are using the official `ghcr.io/analogj/scrutiny:latest-collector` or `ghcr.io/analogj/scrutiny:latest-omnibus` docker images,
 you can use the `COLLECTOR_CRON_SCHEDULE` environmental variable to override the default cron schedule (daily @ midnight - `0 0 * * *`).
 
 `docker run -e COLLECTOR_CRON_SCHEDULE="0 0 * * *" ...`
