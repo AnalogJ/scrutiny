@@ -80,7 +80,8 @@ services:
   scrutiny:
     restart: unless-stopped
     container_name: scrutiny
-    image: ghcr.io/analogj/scrutiny:master-web
+    # best practice: pin to a specific release instead of latest
+    image: ghcr.io/analogj/scrutiny:latest-web
     ports:
       - 8080:8080
     volumes:
@@ -169,7 +170,8 @@ services:
 
   collector:
     restart: unless-stopped
-    image: 'ghcr.io/analogj/scrutiny:master-collector'
+    # best practice: pin to a specific release instead of latest
+    image: 'ghcr.io/analogj/scrutiny:latest-collector'
     cap_add:
       - SYS_RAWIO
     volumes:
