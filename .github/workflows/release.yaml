@@ -39,7 +39,7 @@ jobs:
           add-apt-repository ppa:git-core/ppa && apt-get update && apt-get install -y git
           git --version
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Bump version
@@ -64,6 +64,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: workspace
+          include-hidden-files: true
           path: ${{ github.workspace }}/**/*
           retention-days: 1
 
@@ -91,36 +92,66 @@ jobs:
           - { on: windows-latest, goos: windows,    goarch: arm64 }
     steps:
       - name: Download workspace
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: workspace
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v6
         with:
-          go-version: '1.20.1' # The Go version to download (if necessary) and use.
+          go-version: '1.25' # The Go version to download (if necessary) and use.
       - name: Build Binaries
         run: |
           make binary-clean binary-all
-      - name: Archive
-        uses: actions/upload-artifact@v4
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
         with:
-          name: binaries.zip
+          name: scrutiny-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ case(matrix.cfg.goarm != '', format('-{0}', matrix.cfg.goarm), '') }}.zip
           path: |
-            scrutiny-web-*
-            scrutiny-collector-metrics-*
+            scrutiny-web-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ case(matrix.cfg.goarm != '', format('-{0}', matrix.cfg.goarm), '') }}${{ case(matrix.cfg.goos == 'windows', '.exe', '') }}
+            scrutiny-collector-metrics-${{ matrix.cfg.goos }}-${{ matrix.cfg.goarch }}${{ case(matrix.cfg.goarm != '', format('-{0}', matrix.cfg.goarm), '') }}${{ case(matrix.cfg.goos == 'windows', '.exe', '') }}
+  
+  build_frontend:
+    name: Build Frontend
+    needs: release
+    runs-on: ubuntu-latest
+    container: node:lts-slim
+    steps:
+      - name: Download workspace
+        uses: actions/download-artifact@v7
+        with:
+          name: workspace
+      - name: "Generate frontend version information"
+        run: "cd webapp/frontend && chmod +x git.version.sh && ./git.version.sh"
+      - name: Build Frontend
+        run: |
+          apt-get update && apt-get install -y make
+          make binary-frontend
+          tar -czf scrutiny-web-frontend.tar.gz dist
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: scrutiny-web-frontend.zip
+          path: scrutiny-web-frontend.tar.gz
 
   release-publish:
     name: Publish Release
-    needs: build
+    needs: 
+      - build
+      - build_frontend
     runs-on: ubuntu-latest
     steps:
       - name: Download workspace
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: workspace
       - name: Download binaries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
-          name: binaries.zip
+          merge-multiple: true
+          pattern: scrutiny-*.zip
+      - name: Download frontend
+        uses: actions/download-artifact@v7
+        with:
+          name: scrutiny-web-frontend.zip
       - name: List
         shell: bash
         run: |
@@ -144,6 +175,7 @@ jobs:
             scrutiny-collector-metrics-linux-arm64
             scrutiny-collector-metrics-windows-amd64.exe
             scrutiny-collector-metrics-windows-arm64.exe
+            scrutiny-web-frontend.tar.gz
             scrutiny-web-darwin-amd64
             scrutiny-web-darwin-arm64
             scrutiny-web-freebsd-amd64
