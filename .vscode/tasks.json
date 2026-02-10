@@ -1,0 +1,10 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build Frontend",
+      "type": "shell",
+      "command": "cd webapp/frontend && npm run build:prod -- --output-path=../../dist"
+    }
+  ]
+}

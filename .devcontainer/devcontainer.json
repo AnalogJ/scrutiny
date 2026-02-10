@@ -1,0 +1,28 @@
+{
+  "name": "Scrutiny Dev Env",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/scrutiny",
+
+  "features": {
+    "ghcr.io/devcontainers/features/go:1": "1.25",
+    "ghcr.io/devcontainers/features/node:1": "lts"
+  },
+
+  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y smartmontools iputils-ping",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+
+  "forwardPorts": [8080, 8086],
+
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "remoteUser": "vscode"
+}
