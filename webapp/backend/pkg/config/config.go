@@ -33,6 +33,11 @@ func (c *configuration) Init() error {
 	c.SetDefault("web.listen.port", "8080")
 	c.SetDefault("web.listen.host", "0.0.0.0")
 	c.SetDefault("web.listen.basepath", "")
+	c.SetDefault("web.listen.read_timeout", "15s")
+	c.SetDefault("web.listen.read_header_timeout", "5s")
+	c.SetDefault("web.listen.write_timeout", "15s")
+	c.SetDefault("web.listen.idle_timeout", "60s")
+	c.SetDefault("web.listen.shutdown_timeout", "10s")
 	c.SetDefault("web.src.frontend.path", "/opt/scrutiny/web")
 	c.SetDefault("web.database.location", "/opt/scrutiny/config/scrutiny.db")
 

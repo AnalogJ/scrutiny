@@ -20,6 +20,12 @@ web:
   listen:
     port: 8080
     host: 0.0.0.0
+    # timeouts are Go duration strings, e.g. "15s", "1m", "500ms"
+    read_timeout: 15s
+    read_header_timeout: 5s
+    write_timeout: 15s
+    idle_timeout: 60s
+    shutdown_timeout: 10s
 
     # if you're using a reverse proxy like apache/nginx, you can override this value to serve scrutiny on a subpath.
     # eg. http://example.com/scrutiny/* vs http://example.com:8080
@@ -104,4 +110,3 @@ log:
 #  nvme:
 #    critical: true
 #    standard: true
-

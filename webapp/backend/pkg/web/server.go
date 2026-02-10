@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
@@ -10,8 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
+	"time"
 )
 
 type AppEngine struct {
@@ -83,5 +88,46 @@ func (ae *AppEngine) Start() error {
 
 	r := ae.Setup(ae.Logger)
 
-	return r.Run(fmt.Sprintf("%s:%s", ae.Config.GetString("web.listen.host"), ae.Config.GetString("web.listen.port")))
+	addr := fmt.Sprintf("%s:%s", ae.Config.GetString("web.listen.host"), ae.Config.GetString("web.listen.port"))
+	server := &http.Server{
+		Addr:              addr,
+		Handler:           r,
+		ReadTimeout:       durationOrDefault(ae.Config.GetString("web.listen.read_timeout"), 15*time.Second),
+		ReadHeaderTimeout: durationOrDefault(ae.Config.GetString("web.listen.read_header_timeout"), 5*time.Second),
+		WriteTimeout:      durationOrDefault(ae.Config.GetString("web.listen.write_timeout"), 15*time.Second),
+		IdleTimeout:       durationOrDefault(ae.Config.GetString("web.listen.idle_timeout"), 60*time.Second),
+	}
+
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- server.ListenAndServe()
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+	defer signal.Stop(quit)
+
+	select {
+	case err := <-errCh:
+		if err != nil && err != http.ErrServerClosed {
+			return err
+		}
+	case sig := <-quit:
+		ae.Logger.Infof("Received signal %s, initiating graceful shutdown", sig)
+	}
+
+	shutdownTimeout := durationOrDefault(ae.Config.GetString("web.listen.shutdown_timeout"), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+	return server.Shutdown(ctx)
+}
+
+func durationOrDefault(value string, def time.Duration) time.Duration {
+	if len(value) == 0 {
+		return def
+	}
+	if d, err := time.ParseDuration(value); err == nil && d > 0 {
+		return d
+	}
+	return def
 }
