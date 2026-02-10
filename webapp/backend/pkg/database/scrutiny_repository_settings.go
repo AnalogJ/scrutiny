@@ -3,17 +3,18 @@ package database
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
-	"github.com/mitchellh/mapstructure"
-	"strings"
+	"github.com/go-viper/mapstructure/v2"
 )
 
 // LoadSettings will retrieve settings from the database, store them in the AppConfig object, and return a Settings struct
 func (sr *scrutinyRepository) LoadSettings(ctx context.Context) (*models.Settings, error) {
 	settingsEntries := []models.SettingEntry{}
 	if err := sr.gormClient.WithContext(ctx).Find(&settingsEntries).Error; err != nil {
-		return nil, fmt.Errorf("Could not get settings from DB: %v", err)
+		return nil, fmt.Errorf("could not get settings from DB: %v", err)
 	}
 
 	// store retrieved settings in the AppConfig obj
@@ -58,7 +59,7 @@ func (sr *scrutinyRepository) SaveSettings(ctx context.Context, settings models.
 	//retrieve current settings from the database
 	settingsEntries := []models.SettingEntry{}
 	if err := sr.gormClient.WithContext(ctx).Find(&settingsEntries).Error; err != nil {
-		return fmt.Errorf("Could not get settings from DB: %v", err)
+		return fmt.Errorf("could not get settings from DB: %v", err)
 	}
 
 	//update settingsEntries
