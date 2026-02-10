@@ -128,6 +128,64 @@ docker run --restart unless-stopped \
   ghcr.io/analogj/scrutiny:latest-collector
 ```
 
+### Access to Host Devices
+
+The previous examples show how each host device can be shared with the container individually.
+An alternative strategy is to use cgroup Device Whitelists to give the container access.
+This allows the container access to all storage devices on the host without listing each individually, if that fits with the security considerations of the deployment.
+Refer to the [Linux kernel](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/devices.html) and [docker](https://docs.docker.com/reference/compose-file/services/#device_cgroup_rules) documentation for more on this functionality.
+
+The following shows the changes that can be made to the previous Hub/Spoke
+compose stack to leverage Device Whitelists.
+
+```diff
+  collector:
+    restart: unless-stopped
+    image: 'ghcr.io/analogj/scrutiny:master-collector'
+    cap_add:
++     # Uncomment if using NVMe drives
++     # - SYS_ADMIN
+      - SYS_RAWIO
+    volumes:
++     - '/dev:/dev'
+      - '/run/udev:/run/udev:ro'
+    environment:
+      COLLECTOR_API_ENDPOINT: 'http://web:8080'
+      COLLECTOR_HOST_ID: 'scrutiny-collector-hostname'
+      # If true forces the collector to run on startup (cron will be started after the collector completes)
+      # see: https://github.com/AnalogJ/scrutiny/blob/master/docs/TROUBLESHOOTING_DEVICE_COLLECTOR.md#collector-trigger-on-startup
+      COLLECTOR_RUN_STARTUP: false
+    depends_on:
+      web:
+        condition: service_healthy
++   device_cgroup_rules:
++     - 'a *:* rw' # all devices
++     # Alternatively, allow block and char devices independently:
++     # - 'b *:* rw' # all block devices
++     # - 'c *:* rw' # all char devices
++     # Or restrict to specific device types:
++     # --- IDE Devices ---
++     # IDE devices include major numbers 3, 22, 33-34, 56-57, and 89-91
++     # - 'b 3:* rw'
++     # ...
++     # - 'b 91:* rw'
++     # --- SATA/SCSI Devices ---
++     # SATA/SCSI devices include major numbers 8 and 65-71, and 128-135
++     # - 'b 8:* rw'
++     # ...
++     # - 'b 135:* rw'
++     # --- Dynamic assignment (e.g., for NVMe) ---
++     # Dynamic assignments may vary by system and include major numbers 234-254
++     # - 'c 234:* rw
++     # ...
++     # - 'c 254:* rw'
+-   devices:
+-     - "/dev/sda"
+-     - "/dev/sdb"
+```
+
+Similar configuration can used with the Omnibus deployment method.
+
 ## Manual Installation (without-Docker)
 
 While the easiest way to get started with [Scrutiny is using Docker](https://github.com/AnalogJ/scrutiny#docker),
