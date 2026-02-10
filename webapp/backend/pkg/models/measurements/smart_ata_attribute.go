@@ -115,15 +115,6 @@ func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
 
 // compare the attribute (raw, normalized, transformed) value to observed thresholds, and update status if necessary
 func (sa *SmartAtaAttribute) ValidateThreshold(smartMetadata thresholds.AtaAttributeMetadata) {
-	//TODO: multiple rules
-	// try to predict the failure rates for observed thresholds that have 0 failure rate and error bars.
-	// - if the attribute is critical
-	//		- the failure rate is over 10 - set to failed
-	//		- the attribute does not match any threshold, set to warn
-	// - if the attribute is not critical
-	//		- if failure rate is above 20 - set to failed
-	// 		- if failure rate is above 10 but below 20 - set to warn
-
 	//update the smart attribute status based on Observed thresholds.
 	var value int64
 	if smartMetadata.DisplayType == thresholds.AtaSmartAttributeDisplayTypeNormalized {
@@ -139,18 +130,26 @@ func (sa *SmartAtaAttribute) ValidateThreshold(smartMetadata thresholds.AtaAttri
 		//check if "value" is in this bucket
 		if ((obsThresh.Low == obsThresh.High) && value == obsThresh.Low) ||
 			(obsThresh.Low < value && value <= obsThresh.High) {
-			sa.FailureRate = obsThresh.AnnualFailureRate
+			failureRate := obsThresh.AnnualFailureRate
+			if failureRate == 0 && len(obsThresh.ErrorInterval) == 2 {
+				low := obsThresh.ErrorInterval[0]
+				high := obsThresh.ErrorInterval[1]
+				if low != 0 || high != 0 {
+					failureRate = (low + high) / 2
+				}
+			}
+			sa.FailureRate = failureRate
 
 			if smartMetadata.Critical {
-				if obsThresh.AnnualFailureRate >= 0.10 {
+				if failureRate >= 0.10 {
 					sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedScrutiny)
 					sa.StatusReason += "Observed Failure Rate for Critical Attribute is greater than 10%"
 				}
 			} else {
-				if obsThresh.AnnualFailureRate >= 0.20 {
+				if failureRate >= 0.20 {
 					sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedScrutiny)
 					sa.StatusReason += "Observed Failure Rate for Non-Critical Attribute is greater than 20%"
-				} else if obsThresh.AnnualFailureRate >= 0.10 {
+				} else if failureRate >= 0.10 {
 					sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusWarningScrutiny)
 					sa.StatusReason += "Observed Failure Rate for Non-Critical Attribute is greater than 10%"
 				}
