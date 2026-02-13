@@ -17,6 +17,7 @@ import {SmartModel} from 'app/core/models/measurements/smart-model';
 import {SmartAttributeModel} from 'app/core/models/measurements/smart-attribute-model';
 import {AttributeMetadataModel} from 'app/core/models/thresholds/attribute-metadata-model';
 import {DeviceStatusPipe} from 'app/shared/device-status.pipe';
+import {FileSizePipe} from 'app/shared/file-size.pipe';
 
 // from Constants.go - these must match
 const AttributeStatusPassed = 0
@@ -204,8 +205,12 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    getAttributeValue(attributeData: SmartAttributeModel): number {
+    getAttributeValue(attributeData: SmartAttributeModel): number | string {
         if (this.isAta()) {
+            if (attributeData.attribute_id === 241 || attributeData.attribute_id === 242) {
+                return `${attributeData.raw_value} [${new FileSizePipe().transform(attributeData.raw_value * 512, this.config?.file_size_si_units)}]`
+            }
+
             const attributeMetadata = this.metadata[attributeData.attribute_id]
             if (!attributeMetadata) {
                 return attributeData.value
@@ -216,6 +221,8 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
             } else {
                 return attributeData.value
             }
+        } else if (this.isNvme() && (attributeData.attribute_id === 'data_units_written' || attributeData.attribute_id === 'data_units_read')) {
+            return `${attributeData.value} [${new FileSizePipe().transform(attributeData.value * 1000 * 512, this.config?.file_size_si_units)}]`
         } else {
             return attributeData.value
         }

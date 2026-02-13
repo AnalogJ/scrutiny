@@ -30,6 +30,17 @@ export const sdb = {
             'power_on_hours': 1730,
             'power_cycle_count': 9,
             'attrs': {
+                '241': {
+                    'attribute_id': 241,
+                    'value': 100,
+                    'thresh': 0,
+                    'worst': 100,
+                    'raw_value': 1953125000,
+                    'raw_string': '1953125000',
+                    'when_failed': '',
+                    'transformed_value': 0,
+                    'status': 0
+                },
                 '1': {
                     'attribute_id': 1,
                     'value': 100,
@@ -456,6 +467,17 @@ export const sdb = {
                     'worst': 100,
                     'raw_value': 1730,
                     'raw_string': '1730',
+                    'when_failed': '',
+                    'transformed_value': 0,
+                    'status': 0
+                },
+                '241': {
+                    'attribute_id': 241,
+                    'value': 100,
+                    'thresh': 0,
+                    'worst': 100,
+                    'raw_value': 1953125000,
+                    'raw_string': '1953125000',
                     'when_failed': '',
                     'transformed_value': 0,
                     'status': 0
