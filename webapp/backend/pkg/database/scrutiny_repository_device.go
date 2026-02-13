@@ -59,8 +59,10 @@ func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, wwn string
 		return device, fmt.Errorf("could not get device from DB: %v", err)
 	}
 
-	device.DeviceStatus = pkg.DeviceStatusSet(device.DeviceStatus, status)
-	return device, sr.gormClient.Model(&device).Updates(device).Error
+	// Overwrite with the latest evaluated status so old failure bits do not linger.
+	device.DeviceStatus = status
+	// Use map update so status=0 (passed) is persisted; gorm skips zero values in struct Updates.
+	return device, sr.gormClient.Model(&device).Update("device_status", status).Error
 }
 
 func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, wwn string) (models.Device, error) {
