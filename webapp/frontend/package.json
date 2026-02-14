@@ -47,8 +47,8 @@
         "web-animations-js": "^2.3.2"
     },
     "devDependencies": {
-        "@angular-devkit/build-angular": "v13-lts",
-        "@angular/cli": "v13-lts",
+        "@angular-devkit/build-angular": "v21-lts",
+        "@angular/cli": "v21-lts",
         "@angular/compiler-cli": "v13-lts",
         "@angular/language-service": "v13-lts",
         "@types/crypto-js": "^4.1.1",
