@@ -23,8 +23,12 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
 RUN make binary-clean binary-all WEB_BINARY_NAME=scrutiny
 
 
+######## Use pre-built smartmontools image
+FROM smartmontools-build AS smartmontoolsbuild
+
+
 ######## Combine build artifacts in runtime image
-FROM debian:bookworm-slim as runtime
+FROM debian:bookworm-slim AS runtime
 ARG TARGETARCH
 EXPOSE 8080
 WORKDIR /opt/scrutiny
@@ -40,7 +44,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
     ca-certificates \
     cron \
     curl \
-    smartmontools \
     tzdata \
     procps \
     xz-utils \
@@ -61,6 +64,9 @@ RUN curl -L https://dl.influxdata.com/influxdb/releases/influxdb2-${INFLUXVER}-$
     && rm -rf /tmp/influxdb2-${INFLUXVER}-${TARGETARCH}.deb
 
 COPY /rootfs /
+
+COPY --from=smartmontoolsbuild /usr/sbin/smartctl /usr/sbin/smartctl
+COPY --from=smartmontoolsbuild /usr/share/smartmontools/ /usr/share/smartmontools/
 
 COPY --link --from=backendbuild --chmod=755 /go/src/github.com/analogj/scrutiny/scrutiny /opt/scrutiny/bin/
 COPY --link --from=backendbuild --chmod=755 /go/src/github.com/analogj/scrutiny/scrutiny-collector-metrics /opt/scrutiny/bin/
