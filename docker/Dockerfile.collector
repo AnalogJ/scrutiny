@@ -4,7 +4,7 @@
 
 
 ########
-FROM golang:1.25-bookworm as backendbuild
+FROM golang:1.25-bookworm AS backendbuild
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 
@@ -13,12 +13,18 @@ COPY . /go/src/github.com/analogj/scrutiny
 RUN apt-get update && apt-get install -y file && rm -rf /var/lib/apt/lists/*
 RUN make binary-clean binary-collector
 
+######## Use pre-built smartmontools image
+FROM smartmontools-build AS smartmontoolsbuild
+
 ########
-FROM debian:bookworm-slim as runtime
+FROM debian:bookworm-slim AS runtime
 WORKDIR /opt/scrutiny
 ENV PATH="/opt/scrutiny/bin:${PATH}"
 
-RUN apt-get update && apt-get install -y cron smartmontools ca-certificates tzdata && rm -rf /var/lib/apt/lists/* && update-ca-certificates
+RUN apt-get update && apt-get install -y cron ca-certificates tzdata && rm -rf /var/lib/apt/lists/* && update-ca-certificates
+
+COPY --from=smartmontoolsbuild /usr/sbin/smartctl /usr/sbin/smartctl
+COPY --from=smartmontoolsbuild /usr/share/smartmontools/ /usr/share/smartmontools/
 
 COPY /docker/entrypoint-collector.sh /entrypoint-collector.sh
 COPY /rootfs/etc/cron.d/scrutiny /etc/cron.d/scrutiny
