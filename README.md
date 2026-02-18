@@ -128,6 +128,10 @@ docker run --restart unless-stopped \
   ghcr.io/analogj/scrutiny:latest-collector
 ```
 
+### Hub rootless installation using Podman Quadlets
+
+See [docs/INSTALL_ROOTLESS_PODMAN.md](docs/INSTALL_ROOTLESS_PODMAN.md) for instructions.
+
 ## Manual Installation (without-Docker)
 
 While the easiest way to get started with [Scrutiny is using Docker](https://github.com/AnalogJ/scrutiny#docker),
