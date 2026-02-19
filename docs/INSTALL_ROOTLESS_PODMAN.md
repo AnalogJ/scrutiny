@@ -55,7 +55,7 @@ cd /etc/containers/systemd/users/$(id -u scrutiny-svc)
 ```
 
 
-### Qaudlet Files
+### Quadlet Files
 
 Now that everything is set up and configured for the account to run quadlets, we just need to create a few quadlet files.
 

@@ -254,10 +254,10 @@ MemoryDenyWriteExecute=yes
 ProtectSystem=strict
 ProtectHome=yes
 PrivateDevices=no
-## alternatively you can restrict devices using:
+## you can restrict devices using:
 #DevicePolicy=closed
-#DeviceAllow=/dev/sda rw
-#DeviceAllow=/dev/nvme0 rw
+#DeviceAllow=/dev/sda r
+#DeviceAllow=/dev/nvme0 r
 ProtectKernelModules=yes
 ProtectKernelTunables=yes
 ProtectControlGroups=yes
@@ -285,7 +285,14 @@ Additionally, for nvme drives you may need to create a udev rule on many systems
 ##### add udev rule `/etc/udev/rules.d/99-nvme.rules` with contents:
 
 ```
-KERNEL=="nvme[0-9]*", GROUP="disk", MODE="0660"
+KERNEL=="nvme[0-9]*", GROUP="disk", MODE="0640"
+```
+
+then run the following commands to load the udev rule:
+
+```sh
+sudo udevadm control --reload-rules
+sudo udevadm trigger --subsystem-match=nvme --action=add
 ```
 
 
@@ -293,7 +300,7 @@ KERNEL=="nvme[0-9]*", GROUP="disk", MODE="0660"
 
 - easy to maintain
 - much better than running as root (especially if you don't need nvme drives)
-- scrutiny has zero options to escalate its privileges
+- there are no privilege escalations needed
 
 
 ##### Cons:
@@ -345,7 +352,7 @@ Environment="PATH=/opt/smartctl-shim/bin:/usr/bin:/bin"
 ExecStart=/opt/scrutiny/bin/scrutiny-collector-metrics run --api-endpoint "http://localhost:8080"
 
 # --- PRIVILEGE LOCKDOWN ---
-## we use sudo in elevate privileges for smartctl only, so no Ambient Capabilities are needed
+## we use sudo to elevate privileges for smartctl only, so no Ambient Capabilities are needed
 AmbientCapabilities=
 ## CAP_SYS_RAWIO is needed for SATA drives
 CapabilityBoundingSet=CAP_SETUID CAP_SETGID CAP_AUDIT_WRITE CAP_SYS_RAWIO CAP_SYS_RESOURCE
@@ -363,9 +370,6 @@ MemoryDenyWriteExecute=yes
 ProtectSystem=strict
 ProtectHome=yes
 PrivateDevices=no
-## alternatively you can restrict devices using:
-# DevicePolicy=closed
-# DeviceAllow=/dev/sda rw
 ProtectKernelModules=yes
 ProtectKernelTunables=yes
 ProtectControlGroups=yes
@@ -390,7 +394,7 @@ WantedBy=multi-user.target
 
 ##### Pros:
 
-- the scrutiny binary itself will not have permissions
+- the scrutiny binary itself will not have permissions like CAP_SYS_ADMIN
 - much better than running as root (especially if you don't need nvme drives)
 - `sudo` restricts privilege escalation to just `smartctl`
 - no udev rule needed
@@ -403,6 +407,7 @@ NOTE: These cons basically only apply if a major supply-chain attack happens aga
 - Any sort of privilege escalation attack in sudo could theoretically allow a compromised scrutiny to gain additional privileges, since the process has permission to escelate privileges in general
 - Even though sudo only allows `smartctl`, it still has `CAP_SYS_RAWIO` and `CAP_SYS_ADMIN` so in theory the same attacks from the first method are possible, though now only with an exploit using smartctl instead of scrutiny directly
 - even though you don't need a udev rule, this adds a lot of additional administrative overhead
+- while the scrutiny binary itself isn't elevated, it has a sub-process that is running as root (systemctl)
 
 #### Create a Systemd Timer to run scrutiny-collector.service
 
