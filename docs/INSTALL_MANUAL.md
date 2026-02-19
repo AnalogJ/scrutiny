@@ -168,6 +168,16 @@ Now that we have downloaded the required files, let's prepare the filesystem.
 chmod +x /opt/scrutiny/bin/scrutiny-collector-metrics
 ```
 
+if you are using SELinux, you may need to also do the following:
+
+```sh
+# tell SELinux to allow these binaries
+sudo semanage fcontext -a -t bin_t "/opt/scrutiny/bin(/.*)?"
+# update labels
+sudo restorecon -Rv /opt/scrutiny/bin
+```
+
+
 ### Start Scrutiny Collector, Populate Webapp
 
 Next, we will manually trigger the collector, to populate the Scrutiny dashboard:
