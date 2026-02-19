@@ -117,7 +117,7 @@ Requires=influxdb.service
 
 [Container]
 ContainerName=scrutiny-web
-Image=ghcr.io/analogj/scrutiny:v0.8.6-web
+Image=ghcr.io/analogj/scrutiny:latest-web
 AutoUpdate=registry
 Timezone=local
 Volume=/opt/scrutiny-svc/scrutiny/config:/opt/scrutiny/config:Z
