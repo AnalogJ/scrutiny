@@ -45,12 +45,6 @@ func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 		}
 	}
 
-	//no WWN found, or could not open Block devices. Either way, fallback to serial number
-	if len(detectedDevice.WWN) == 0 {
-		d.Logger.Debugf("WWN is empty, falling back to serial number: %s", detectedDevice.SerialNumber)
-		detectedDevice.WWN = detectedDevice.SerialNumber
-	}
-
 	//wwn must always be lowercase.
 	detectedDevice.WWN = strings.ToLower(detectedDevice.WWN)
 }

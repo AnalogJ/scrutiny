@@ -4,6 +4,7 @@ import {SmartAttributeModel} from './smart-attribute-model';
 export interface SmartModel {
     date: string;
     device_wwn: string;
+    scrutiny_uuid: string;
     device_protocol: string;
 
     temp: number;

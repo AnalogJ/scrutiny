@@ -10,7 +10,7 @@ export const sdb = {
             'model_name': 'WDC_WD140EDFZ-11A0VA0',
             'interface_type': 'SCSI',
             'interface_speed': '',
-            'serial_number': '9RK1XXXXX',
+            'serial_number': '9RK1XXXX',
             'firmware': '81.00A81',
             'rotational_speed': 0,
             'capacity': 14000519643136,

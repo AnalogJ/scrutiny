@@ -7,6 +7,7 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
+	"github.com/gofrs/uuid/v5"
 )
 
 // Create mock using:
@@ -17,16 +18,16 @@ type DeviceRepo interface {
 
 	RegisterDevice(ctx context.Context, dev models.Device) error
 	GetDevices(ctx context.Context) ([]models.Device, error)
-	UpdateDevice(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (models.Device, error)
-	UpdateDeviceStatus(ctx context.Context, wwn string, status pkg.DeviceStatus) (models.Device, error)
-	GetDeviceDetails(ctx context.Context, wwn string) (models.Device, error)
-	UpdateDeviceArchived(ctx context.Context, wwn string, archived bool) error
-	DeleteDevice(ctx context.Context, wwn string) error
+	UpdateDevice(ctx context.Context, scrutiny_uuid uuid.UUID, collectorSmartData collector.SmartInfo) (models.Device, error)
+	UpdateDeviceStatus(ctx context.Context, scrutiny_uuid uuid.UUID, status pkg.DeviceStatus) (models.Device, error)
+	GetDeviceDetails(ctx context.Context, scrutiny_uuid uuid.UUID) (models.Device, error)
+	UpdateDeviceArchived(ctx context.Context, scrutiny_uuid uuid.UUID, archived bool) error
+	DeleteDevice(ctx context.Context, scrutiny_uuid uuid.UUID) error
 
-	SaveSmartAttributes(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (measurements.Smart, error)
-	GetSmartAttributeHistory(ctx context.Context, wwn string, durationKey string, selectEntries int, selectEntriesOffset int, attributes []string) ([]measurements.Smart, error)
+	SaveSmartAttributes(ctx context.Context, scrutiny_uuid uuid.UUID, collectorSmartData collector.SmartInfo) (measurements.Smart, error)
+	GetSmartAttributeHistory(ctx context.Context, scrutiny_uuid uuid.UUID, durationKey string, selectEntries int, selectEntriesOffset int, attributes []string) ([]measurements.Smart, error)
 
-	SaveSmartTemperature(ctx context.Context, wwn string, deviceProtocol string, collectorSmartData collector.SmartInfo, discardSCTTempHistory bool) error
+	SaveSmartTemperature(ctx context.Context, scrutiny_uuid uuid.UUID, deviceProtocol string, collectorSmartData collector.SmartInfo, discardSCTTempHistory bool) error
 
 	GetSummary(ctx context.Context) (map[string]*models.DeviceSummary, error)
 	GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[string][]measurements.SmartTemperature, error)

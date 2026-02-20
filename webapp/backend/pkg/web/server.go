@@ -2,6 +2,10 @@ package web
 
 import (
 	"fmt"
+	"net/http"
+	"path/filepath"
+	"strings"
+
 	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
@@ -9,9 +13,6 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
-	"path/filepath"
-	"strings"
 )
 
 type AppEngine struct {
@@ -37,15 +38,15 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 			api.GET("/health", handler.HealthCheck)
 			api.POST("/health/notify", handler.SendTestNotification) //check if notifications are configured correctly
 
-			api.POST("/devices/register", handler.RegisterDevices)         //used by Collector to register new devices and retrieve filtered list
-			api.GET("/summary", handler.GetDevicesSummary)                 //used by Dashboard
-			api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory) //used by Dashboard (Temperature history dropdown)
-			api.POST("/device/:wwn/smart", handler.UploadDeviceMetrics)    //used by Collector to upload data
-			api.POST("/device/:wwn/selftest", handler.UploadDeviceSelfTests)
-			api.GET("/device/:wwn/details", handler.GetDeviceDetails)   //used by Details
-			api.POST("/device/:wwn/archive", handler.ArchiveDevice)     //used by UI to archive device
-			api.POST("/device/:wwn/unarchive", handler.UnarchiveDevice) //used by UI to unarchive device
-			api.DELETE("/device/:wwn", handler.DeleteDevice)            //used by UI to delete device
+			api.POST("/devices/register", handler.RegisterDevices)                //used by Collector to register new devices and retrieve filtered list
+			api.GET("/summary", handler.GetDevicesSummary)                        //used by Dashboard
+			api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory)        //used by Dashboard (Temperature history dropdown)
+			api.POST("/device/:scrutiny_uuid/smart", handler.UploadDeviceMetrics) //used by Collector to upload data
+			api.POST("/device/:scrutiny_uuid/selftest", handler.UploadDeviceSelfTests)
+			api.GET("/device/:scrutiny_uuid/details", handler.GetDeviceDetails)   //used by Details
+			api.POST("/device/:scrutiny_uuid/archive", handler.ArchiveDevice)     //used by UI to archive device
+			api.POST("/device/:scrutiny_uuid/unarchive", handler.UnarchiveDevice) //used by UI to unarchive device
+			api.DELETE("/device/:scrutiny_uuid", handler.DeleteDevice)            //used by UI to delete device
 
 			api.GET("/settings", handler.GetSettings)   //used to get settings
 			api.POST("/settings", handler.SaveSettings) //used to save settings

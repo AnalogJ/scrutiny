@@ -357,7 +357,7 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 	|> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
 	|> last()
 	|> schema.fieldsAsCols()
-	|> group(columns: ["device_wwn"])
+	|> group(columns: ["scrutiny_uuid"])
 	
 	weeklyData = from(bucket: bucketBaseName + "_weekly")
 	|> range(start: -10y, stop: now())
@@ -365,7 +365,7 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 	|> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
 	|> last()
 	|> schema.fieldsAsCols()
-	|> group(columns: ["device_wwn"])
+	|> group(columns: ["scrutiny_uuid"])
 	
 	monthlyData = from(bucket: bucketBaseName + "_monthly")
 	|> range(start: -10y, stop: now())
@@ -373,7 +373,7 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 	|> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
 	|> last()
 	|> schema.fieldsAsCols()
-	|> group(columns: ["device_wwn"])
+	|> group(columns: ["scrutiny_uuid"])
 	
 	yearlyData = from(bucket: bucketBaseName + "_yearly")
 	|> range(start: -10y, stop: now())
@@ -381,12 +381,12 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 	|> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
 	|> last()
 	|> schema.fieldsAsCols()
-	|> group(columns: ["device_wwn"])
+	|> group(columns: ["scrutiny_uuid"])
 	
 	union(tables: [dailyData, weeklyData, monthlyData, yearlyData])
 	|> sort(columns: ["_time"], desc: false)
-	|> group(columns: ["device_wwn"])
-	|> last(column: "device_wwn")
+	|> group(columns: ["scrutiny_uuid"])
+	|> last(column: "scrutiny_uuid")
 	|> yield(name: "last")
 		`,
 		sr.appConfig.GetString("web.influxdb.bucket"),
@@ -404,14 +404,14 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 
 			//get summary data from Influxdb.
 			//result.Record().Values()
-			if deviceWWN, ok := result.Record().Values()["device_wwn"]; ok {
+			if scrutinyUUID, ok := result.Record().Values()["scrutiny_uuid"]; ok {
 
-				//ensure summaries is intialized for this wwn
-				if _, exists := summaries[deviceWWN.(string)]; !exists {
-					summaries[deviceWWN.(string)] = &models.DeviceSummary{}
+				//ensure summaries is intialized for this scrutiny_uuid
+				if _, exists := summaries[scrutinyUUID.(string)]; !exists {
+					summaries[scrutinyUUID.(string)] = &models.DeviceSummary{}
 				}
 
-				summaries[deviceWWN.(string)].SmartResults = &models.SmartSummary{
+				summaries[scrutinyUUID.(string)].SmartResults = &models.SmartSummary{
 					Temp:          result.Record().Values()["temp"].(int64),
 					PowerOnHours:  result.Record().Values()["power_on_hours"].(int64),
 					CollectorDate: result.Record().Values()["_time"].(time.Time),

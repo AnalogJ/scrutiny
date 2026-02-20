@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 // register devices that are detected by various collectors.
@@ -23,9 +24,9 @@ func RegisterDevices(c *gin.Context) {
 		return
 	}
 
-	//filter any device with empty wwn (they are invalid)
+	// Filter any device without a scrutiny UUID. This should never happen...
 	detectedStorageDevices := lo.Filter[models.Device](collectorDeviceWrapper.Data, func(dev models.Device, _ int) bool {
-		return len(dev.WWN) > 0
+		return !dev.ScrutinyUUID.IsNil()
 	})
 
 	errs := []error{}

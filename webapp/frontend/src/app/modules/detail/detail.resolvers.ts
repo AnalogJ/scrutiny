@@ -30,6 +30,6 @@ export class DetailResolver implements Resolve<any> {
      * @param state
      */
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<DeviceDetailsResponseWrapper> {
-        return this._detailService.getData(route.params.wwn);
+        return this._detailService.getData(route.params.scrutiny_uuid);
     }
 }

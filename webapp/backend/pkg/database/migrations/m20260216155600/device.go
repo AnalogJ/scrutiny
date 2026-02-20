@@ -1,12 +1,20 @@
-package models
+package m20260216155600
 
 import (
+	"time"
+
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/gofrs/uuid/v5"
 )
 
 type Device struct {
-	ScrutinyUUID uuid.UUID `json:"scrutiny_uuid"`
-	WWN          string    `json:"wwn"`
+	//GORM attributes, see: http://gorm.io/docs/conventions.html
+	Archived  bool `json:"archived"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
+
+	WWN string `json:"wwn"`
 
 	DeviceName     string `json:"device_name"`
 	DeviceUUID     string `json:"device_uuid"`
@@ -29,10 +37,8 @@ type Device struct {
 	// User provided metadata
 	Label  string `json:"label"`
 	HostId string `json:"host_id"`
-}
 
-type DeviceWrapper struct {
-	Success bool     `json:"success,omitempty"`
-	Errors  []error  `json:"errors,omitempty"`
-	Data    []Device `json:"data"`
+	// Data set by Scrutiny
+	DeviceStatus pkg.DeviceStatus `json:"device_status"`
+	ScrutinyUUID uuid.UUID        `json:"scrutiny_uuid" gorm:"primaryKey;uniqueIndex"`
 }

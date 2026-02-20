@@ -4,15 +4,16 @@
       "wwn": "0x5000cca264eb01d7",
       "device_name": "sdb",
       "manufacturer": "ATA",
-      "model_name": "WDC_WD140EDFZ-11A0VA0",
+      "model_name": "WDC WD140EDFZ-11A0VA0",
       "interface_type": "SCSI",
       "interface_speed": "",
-      "serial_number": "9RK1XXXXX",
+      "serial_number": "9RK1XXXX",
       "firmware": "",
       "rotational_speed": 0,
       "capacity": 14000519643136,
       "form_factor": "",
-      "smart_support": false
+      "smart_support": false,
+      "scrutiny_uuid": "9a4d34b5-b2ee-51ef-8506-90eea09be417"
     }
   ]
 }

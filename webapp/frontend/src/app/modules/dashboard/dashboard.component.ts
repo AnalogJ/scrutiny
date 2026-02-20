@@ -100,10 +100,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                 this.summaryData = data;
 
                 // generate group data.
-                for (const wwn in this.summaryData) {
-                    const hostid = this.summaryData[wwn].device.host_id
+                for (const scrutiny_uuid in this.summaryData) {
+                    const hostid = this.summaryData[scrutiny_uuid].device.host_id
                     const hostDeviceList = this.hostGroups[hostid] || []
-                    hostDeviceList.push(wwn)
+                    hostDeviceList.push(scrutiny_uuid)
                     this.hostGroups[hostid] = hostDeviceList
                 }
                 console.log(this.hostGroups)
@@ -145,8 +145,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
         console.log('DEVICE DATA SUMMARY', this.summaryData)
 
-        for (const wwn in this.summaryData) {
-            const deviceSummary = this.summaryData[wwn]
+        for (const scrutiny_uuid in this.summaryData) {
+            const deviceSummary = this.summaryData[scrutiny_uuid]
             if (!deviceSummary.temp_history) {
                 continue
             }
@@ -241,11 +241,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
 
-    deviceSummariesForHostGroup(hostGroupWWNs: string[]): DeviceSummaryModel[] {
+    deviceSummariesForHostGroup(hostGroupScrutinyUUIDs: string[]): DeviceSummaryModel[] {
         const deviceSummaries: DeviceSummaryModel[] = []
-        for (const wwn of hostGroupWWNs) {
-            if (this.summaryData[wwn]) {
-                deviceSummaries.push(this.summaryData[wwn])
+        for (const scrutiny_uuid of hostGroupScrutinyUUIDs) {
+            if (this.summaryData[scrutiny_uuid]) {
+                deviceSummaries.push(this.summaryData[scrutiny_uuid])
             }
         }
         return deviceSummaries
@@ -259,16 +259,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         });
     }
 
-    onDeviceDeleted(wwn: string): void {
-        delete this.summaryData[wwn] // remove the device from the summary list.
+    onDeviceDeleted(scrutiny_uuid: string): void {
+        delete this.summaryData[scrutiny_uuid] // remove the device from the summary list.
     }
 
-    onDeviceArchived(wwn: string): void {
-        this.summaryData[wwn].device.archived = true;
+    onDeviceArchived(scrutiny_uuid: string): void {
+        this.summaryData[scrutiny_uuid].device.archived = true;
     }
 
-    onDeviceUnarchived(wwn: string): void {
-        this.summaryData[wwn].device.archived = false;
+    onDeviceUnarchived(scrutiny_uuid: string): void {
+        this.summaryData[scrutiny_uuid].device.archived = false;
     }
 
     /*
@@ -286,9 +286,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
             .subscribe((tempHistoryData) => {
 
                 // given a list of device temp history, override the data in the "summary" object.
-                for (const wwn in this.summaryData) {
-                    // console.log(`Updating ${wwn}, length: ${this.data.data.summary[wwn].temp_history.length}`)
-                    this.summaryData[wwn].temp_history = tempHistoryData[wwn] || []
+                for (const scrutiny_uuid in this.summaryData) {
+                    // console.log(`Updating ${scrutiny_uuid}, length: ${this.data.data.summary[scrutiny_uuid].temp_history.length}`)
+                    this.summaryData[scrutiny_uuid].temp_history = tempHistoryData[scrutiny_uuid] || []
                 }
 
                 // Prepare the chart series data

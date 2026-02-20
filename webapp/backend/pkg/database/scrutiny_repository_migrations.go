@@ -7,17 +7,20 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/analogj/scrutiny/collector/pkg/detect"
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20201107210306"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220503120000"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220509170100"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220716214900"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20250221084400"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20260216155600"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	_ "github.com/glebarez/sqlite"
 	"github.com/go-gormigrate/gormigrate/v2"
+	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/api/http"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -424,6 +427,50 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				return tx.Create(&defaultSettings).Error
 			},
 		},
+		{
+			ID: "m20260216155600", // add ScrutinyUUID as primary key
+			Migrate: func(tx *gorm.DB) error {
+				devices := []m20260216155600.Device{}
+				if err := tx.Find(&devices).Error; err != nil {
+					return err
+				}
+
+				for i := range devices {
+					device := &devices[i]
+					device.ScrutinyUUID = detect.GenerateScrutinyUUID(device.ModelName, device.SerialNumber, device.WWN)
+				}
+
+				// sqlite doesn't support altering columns
+				// so we have to create a new one, drop the old one, then rename.
+				tx.Table("devices_new").AutoMigrate(&m20260216155600.Device{})
+				if len(devices) > 0 {
+					if err := tx.Table("devices_new").Create(&devices).Error; err != nil {
+						return err
+					}
+				}
+
+				if err := tx.Migrator().DropTable(&m20260216155600.Device{}); err != nil {
+					return err
+				}
+
+				if err := tx.Migrator().RenameTable("devices_new", "devices"); err != nil {
+					return err
+				}
+
+				//
+				wwnToUUID := make(map[string]string)
+				for _, device := range devices {
+					wwnToUUID[device.WWN] = device.ScrutinyUUID.String()
+				}
+
+				err := m20260216155600_ChangeInfluxDBTags(sr, ctx, wwnToUUID)
+				if ignorePastRetentionPolicyError(err) != nil {
+					return err
+				}
+
+				return nil
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
@@ -471,6 +518,77 @@ func ignorePastRetentionPolicyError(err error) error {
 		}
 	}
 	return err
+}
+
+func m20260216155600_ChangeInfluxDBTags(sr *scrutinyRepository, ctx context.Context, wwnToUUID map[string]string) error {
+	bucket := sr.appConfig.GetString("web.influxdb.bucket")
+	buckets := []string{
+		bucket,
+		fmt.Sprintf("%s_weekly", bucket),
+		fmt.Sprintf("%s_monthly", bucket),
+		fmt.Sprintf("%s_yearly", bucket),
+	}
+
+	for _, bucket := range buckets {
+		queryStr := fmt.Sprintf(`
+		from(bucket: "%s")
+		|> range(start: -10y, stop: now())
+		|> filter(fn: (r) => r["_measurement"] == "smart" or r["_measurement"] == "temp")
+		|> filter(fn: (r) => exists r.device_wwn)
+		|> group(columns: ["device_wwn", "_measurement", "_field"])
+		|> sort(columns: ["_time"], desc: false)
+	`, bucket)
+
+		result, err := sr.influxQueryApi.Query(ctx, queryStr)
+		if err != nil {
+			return fmt.Errorf("Failed to query influxdb bucket bucket %s: %w", bucket, err)
+		}
+		// scrutinyRepository's writeAPI field is fixed to the main bucket
+		writeAPI := sr.influxClient.WriteAPIBlocking(sr.appConfig.GetString("web.influxdb.org"), bucket)
+
+		for result.Next() {
+			wwn := result.Record().Values()["device_wwn"].(string)
+			scrutinyUUID, exists := wwnToUUID[wwn]
+			if !exists {
+				sr.logger.Warnf("No device found for WWN %s, skipping data point", wwn)
+				continue
+			}
+
+			measurement := result.Record().Measurement()
+			tags := make(map[string]string)
+			fields := make(map[string]any)
+
+			for key, value := range result.Record().Values() {
+				if key == "device_wwn" || key == "_time" || key == "_measurement" || key == "_field" || key == "_value" {
+					continue
+				}
+				if strVal, ok := value.(string); ok {
+					tags[key] = strVal
+				}
+			}
+			tags["scrutiny_uuid"] = scrutinyUUID
+			fields[result.Record().Field()] = result.Record().Value()
+
+			point := influxdb2.NewPoint(measurement, tags, fields, result.Record().Time())
+			if err := writeAPI.WritePoint(ctx, point); err != nil {
+				return fmt.Errorf("Failed to write point %s @ %s for scrutiny_uuid %s: %w", point.Name(), point.Time(), scrutinyUUID, err)
+			}
+		}
+
+		if result.Err() != nil {
+			return fmt.Errorf("Query error for bucket %s: %w", bucket, result.Err())
+		}
+
+		predicate := `device_wwn != ""`
+		startTime := time.Now().Add(-24 * 365 * 10 * time.Hour) // 10 years ago
+		endTime := time.Now()
+
+		if err := sr.influxClient.DeleteAPI().DeleteWithName(ctx, sr.appConfig.GetString("web.influxdb.org"), bucket, startTime, endTime, predicate); err != nil {
+			return fmt.Errorf("Failed to delete records with device_wwn tag: %w", err)
+		}
+	}
+
+	return nil
 }
 
 // Deprecated

@@ -9,6 +9,7 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-gormigrate/gormigrate/v2 v2.1.5
 	github.com/go-viper/mapstructure/v2 v2.5.0
+	github.com/gofrs/uuid/v5 v5.4.0
 	github.com/influxdata/influxdb-client-go/v2 v2.14.0
 	github.com/jaypipes/ghw v0.21.2
 	github.com/nicholas-fedor/shoutrrr v0.13.2

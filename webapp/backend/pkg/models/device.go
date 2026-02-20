@@ -1,9 +1,11 @@
 package models
 
 import (
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
-	"time"
+	"github.com/gofrs/uuid/v5"
 )
 
 type DeviceWrapper struct {
@@ -19,7 +21,7 @@ type Device struct {
 	UpdatedAt time.Time
 	DeletedAt *time.Time
 
-	WWN string `json:"wwn" gorm:"primary_key"`
+	WWN string `json:"wwn"`
 
 	DeviceName     string `json:"device_name"`
 	DeviceUUID     string `json:"device_uuid"`
@@ -45,6 +47,7 @@ type Device struct {
 
 	// Data set by Scrutiny
 	DeviceStatus pkg.DeviceStatus `json:"device_status"`
+	ScrutinyUUID uuid.UUID        `json:"scrutiny_uuid" gorm:"primaryKey;uniqueIndex"`
 }
 
 func (dv *Device) IsAta() bool {
