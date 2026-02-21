@@ -31,7 +31,7 @@ jobs:
     # Service containers to run with `build` (Required for end-to-end testing)
     services:
       influxdb:
-        image: influxdb:2.2
+        image: influxdb:2.8
         env:
           DOCKER_INFLUXDB_INIT_MODE: setup
           DOCKER_INFLUXDB_INIT_USERNAME: admin
