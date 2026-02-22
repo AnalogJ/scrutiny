@@ -32,7 +32,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     summaryData: { [key: string]: DeviceSummaryModel };
     hostGroups: { [hostId: string]: string[] } = {}
     temperatureOptions: ApexOptions;
-    tempDurationKey = 'forever'
+    tempDurationKey = 'week'
     config: AppConfig;
     showArchived: boolean;
 
