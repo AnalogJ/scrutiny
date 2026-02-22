@@ -10,9 +10,9 @@ Scrutiny is made up of three components: an influxdb Database, a collector and a
 
 ## InfluxDB
 
-Please follow the official InfluxDB installation guide. Note, you'll need to install v2.2.0+. 
+Please follow the official InfluxDB installation guide. Note, you'll need to install v2.8.0+. 
 
-https://docs.influxdata.com/influxdb/v2.2/install/
+https://docs.influxdata.com/influxdb/v2/install/
 
 ## Webapp/API
 

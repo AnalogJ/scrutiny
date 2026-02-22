@@ -88,7 +88,7 @@ Description=influxdb
 
 [Container]
 ContainerName=influxdb
-Image=docker.io/library/influxdb:2.2
+Image=docker.io/library/influxdb:2.8
 AutoUpdate=registry
 Timezone=local
 ## not strictly necessary, but keeps file permission sane for influxdb
