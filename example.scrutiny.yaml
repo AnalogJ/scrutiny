@@ -77,7 +77,7 @@ log:
 #    - signal://[user[:password]@]host[:port]/source_phone/recipient1[,recipient2,...]
 #    - slack://[botname@]token-a/token-b/token-c
 #    - teams://group@tenant/altId/groupOwner?host=organization.webhook.office.com
-#    - telegram://token@telegram?chats=@channel-1[,chat-id-1,...]
+#    - telegram://token@telegram?chats=@channel-1[,chat-id-1,chat-id-2:message-thread-id,...]
 #    - wecom://key
 #    - zulip://bot-mail:bot-key@zulip-domain/?stream=name-or-id&topic=name
 #    - bark://devicekey@host
