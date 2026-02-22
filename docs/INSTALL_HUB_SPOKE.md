@@ -57,7 +57,7 @@ services:
   influxdb:
     restart: unless-stopped
     container_name: influxdb
-    image: influxdb:2.7-alpine
+    image: influxdb:2.8-alpine
     ports:
       - 8086:8086
     volumes:
@@ -89,9 +89,9 @@ services:
       - SCRUTINY_WEB_INFLUXDB_TOKEN=SUPER-SECRET-TOKEN
       - SCRUTINY_WEB_INFLUXDB_ORG=homelab
       - SCRUTINY_WEB_INFLUXDB_BUCKET=scrutiny
-      # Optional but highly recommended to notify you in case of a problem
+      # Optional but highly recommended to notify you in case of a problem; space-separated list of shoutrrr uri's
       # https://github.com/AnalogJ/scrutiny/blob/master/docs/TROUBLESHOOTING_NOTIFICATIONS.md
-      - SCRUTINY_NOTIFY_URLS=[ smtp://myname%40example%2Ecom:124%4034%241@ms.my.domain.com:587 ]
+      - SCRUTINY_NOTIFY_URLS=http://gotify:80/message?token=a-gotify-token ntfy://username:password@host:port/topic
       - TZ=Europe/Stockholm
     depends_on:
       influxdb:
