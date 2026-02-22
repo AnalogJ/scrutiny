@@ -130,7 +130,6 @@ jobs:
             scrutiny-web-*
             scrutiny-collector-metrics-*
 
-jobs:
   build-docker:
     runs-on: ubuntu-latest
     permissions:
