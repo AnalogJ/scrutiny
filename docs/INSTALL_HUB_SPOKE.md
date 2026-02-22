@@ -57,7 +57,7 @@ services:
   influxdb:
     restart: unless-stopped
     container_name: influxdb
-    image: influxdb:2.8-alpine
+    image: influxdb:2.8
     ports:
       - 8086:8086
     volumes:
