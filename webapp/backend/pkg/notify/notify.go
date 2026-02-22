@@ -19,9 +19,9 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
-	"github.com/containrrr/shoutrrr"
-	shoutrrrTypes "github.com/containrrr/shoutrrr/pkg/types"
 	"github.com/gin-gonic/gin"
+	"github.com/nicholas-fedor/shoutrrr"
+	shoutrrrTypes "github.com/nicholas-fedor/shoutrrr/pkg/types"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
