@@ -4,7 +4,7 @@
 # Updates the drive database to include the latest drive models since it can change between releases.
 # Used as a shared build stage by Dockerfile and Dockerfile.collector.
 ########################################################################################################################
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 ARG SMARTMONTOOLS_VER=7.5
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
     apt-get install -y --no-install-recommends \
