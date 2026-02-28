@@ -424,8 +424,10 @@ func (n *Notify) GenShoutrrrNotificationParams(shoutrrrUrl string) (string, *sho
 	case "telegram":
 		(*params)["title"] = subject
 	case "zulip":
-		if len(subject) > 60 {
-			subject = subject[:60]
+		subjectRunes = []rune(subject)
+		if len(subjectRunes) > 60 {
+			n.Logger.Warningf("Zulip notification subject too long (%d characters), truncating to 60 characters", len(subjectRunes))
+			subject = string(subjectRunes[:60])
 		}
 		urlTopic := serviceURL.Query()["force_topic"]
 		if len(urlTopic) > 0 && urlTopic[len(urlTopic)-1] != "" {
