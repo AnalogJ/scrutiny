@@ -15,6 +15,11 @@ jobs:
     permissions:
       contents: read
       packages: write
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
 
     steps:
       - name: Checkout repository
@@ -27,6 +32,12 @@ jobs:
           platforms: 'arm64'
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
+          buildkitd-config-inline: |
+            [registry."localhost:5000"]
+              http = true
+              insecure = true
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
@@ -35,6 +46,14 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build smartmontools
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.smartmontools
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: localhost:5000/smartmontools-build:latest
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata for omnibus
@@ -56,7 +75,7 @@ jobs:
           tags: ${{ steps.meta_omnibus.outputs.tags }}
           labels: ${{ steps.meta_omnibus.outputs.labels }}
           build-contexts: |
-            smartmontools-build=docker/smartmontools
+            smartmontools-build=docker-image://localhost:5000/smartmontools-build:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
       # Extract metadata (tags, labels) for Docker
@@ -80,7 +99,7 @@ jobs:
           tags: ${{ steps.meta_collector.outputs.tags }}
           labels: ${{ steps.meta_collector.outputs.labels }}
           build-contexts: |
-            smartmontools-build=docker/smartmontools
+            smartmontools-build=docker-image://localhost:5000/smartmontools-build:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
       # Extract metadata (tags, labels) for Docker

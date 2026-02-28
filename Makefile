@@ -125,7 +125,7 @@ binary-frontend-test-coverage:
 .PHONY: docker-smartmontools
 docker-smartmontools:
 	@echo "building smartmontools docker image"
-	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/smartmontools/Dockerfile -t smartmontools-build .
+	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile.smartmontools -t smartmontools-build .
 
 .PHONY: docker-collector
 docker-collector: docker-smartmontools
