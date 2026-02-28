@@ -1,8 +1,10 @@
 ########################################################################################################################
 # Smartmontools Builder
-# Builds smartctl from source as a static binary.
-# Updates the drive database to include the latest drive models since it can change between releases.
-# Used as a shared build stage by Dockerfile and Dockerfile.collector.
+# - Builds smartctl from source as a static binary.
+# - Updates the drive database to include the latest drive models since it can change between releases.
+# - Used as a shared build stage by Dockerfile and Dockerfile.collector.
+# - This Dockerfile has to reside in a directory by itself since build-contexts in the various github workflow files
+#   expect a directory as a build context.
 ########################################################################################################################
 FROM debian:trixie-slim
 ARG SMARTMONTOOLS_VER=7.5

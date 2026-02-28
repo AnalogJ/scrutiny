@@ -56,7 +56,7 @@ jobs:
           tags: ${{ steps.meta_omnibus.outputs.tags }}
           labels: ${{ steps.meta_omnibus.outputs.labels }}
           build-contexts: |
-            smartmontools-build=docker/Dockerfile.smartmontools
+            smartmontools-build=docker/smartmontools
           cache-from: type=gha
           cache-to: type=gha,mode=max
       # Extract metadata (tags, labels) for Docker
@@ -80,7 +80,7 @@ jobs:
           tags: ${{ steps.meta_collector.outputs.tags }}
           labels: ${{ steps.meta_collector.outputs.labels }}
           build-contexts: |
-            smartmontools-build=docker/Dockerfile.smartmontools
+            smartmontools-build=docker/smartmontools
           cache-from: type=gha
           cache-to: type=gha,mode=max
       # Extract metadata (tags, labels) for Docker

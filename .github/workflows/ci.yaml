@@ -152,7 +152,7 @@ jobs:
           file: docker/Dockerfile
           push: false
           build-contexts: |
-            smartmontools-build=docker/Dockerfile.smartmontools
+            smartmontools-build=docker/smartmontools
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Build collector
@@ -163,7 +163,7 @@ jobs:
           file: docker/Dockerfile.collector
           push: false
           build-contexts: |
-            smartmontools-build=docker/Dockerfile.smartmontools
+            smartmontools-build=docker/smartmontools
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Build web

@@ -59,7 +59,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-contexts: |
-            smartmontools-build=docker/Dockerfile.smartmontools
+            smartmontools-build=docker/smartmontools
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -171,6 +171,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-contexts: |
-            smartmontools-build=docker/Dockerfile.smartmontools
+            smartmontools-build=docker/smartmontools
           cache-from: type=gha
           cache-to: type=gha,mode=max
