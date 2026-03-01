@@ -347,7 +347,7 @@ smartctl-shim 0.3
 Args: "${ARGS}"
 Message: ${MSG}
 Please check journald for proxy errors
-and review the docs: 
+and review the docs: https://github.com/AnalogJ/scrutiny/blob/master/docs/INSTALL_MANUAL.md
 EOF
     exit $EXIT_CODE
 }
