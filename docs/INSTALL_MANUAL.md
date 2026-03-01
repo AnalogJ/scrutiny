@@ -315,7 +315,6 @@ NOTE: These cons basically only apply if a major supply-chain attack happens aga
 
 - CAP_SYS_RAWIO allows for data exfiltration/modification from SATA drives (ssh keys, /etc/shadow, etc)
 - CAP_SYS_ADMIN would theoretically allow for significant system compromise
-- nvme drives requires a udev rule for reliable access
 
 
 If you are happy with that, you can jump to [Create a Systemd Timer to run scrutiny-collector.service](#create-a-systemd-timer-to-run-scrutiny-collectorservice)
