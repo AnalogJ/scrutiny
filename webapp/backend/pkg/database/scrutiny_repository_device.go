@@ -3,11 +3,12 @@ package database
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"gorm.io/gorm/clause"
-	"time"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +32,7 @@ func (sr *scrutinyRepository) GetDevices(ctx context.Context) ([]models.Device, 
 	//Get a list of all the active devices.
 	devices := []models.Device{}
 	if err := sr.gormClient.WithContext(ctx).Find(&devices).Error; err != nil {
-		return nil, fmt.Errorf("Could not get device summary from DB: %v", err)
+		return nil, fmt.Errorf("could not get device summary from DB: %v", err)
 	}
 	return devices, nil
 }
@@ -40,7 +41,7 @@ func (sr *scrutinyRepository) GetDevices(ctx context.Context) ([]models.Device, 
 func (sr *scrutinyRepository) UpdateDevice(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (models.Device, error) {
 	var device models.Device
 	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
-		return device, fmt.Errorf("Could not get device from DB: %v", err)
+		return device, fmt.Errorf("could not get device from DB: %v", err)
 	}
 
 	//TODO catch GormClient err
@@ -55,7 +56,7 @@ func (sr *scrutinyRepository) UpdateDevice(ctx context.Context, wwn string, coll
 func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, wwn string, status pkg.DeviceStatus) (models.Device, error) {
 	var device models.Device
 	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
-		return device, fmt.Errorf("Could not get device from DB: %v", err)
+		return device, fmt.Errorf("could not get device from DB: %v", err)
 	}
 
 	device.DeviceStatus = pkg.DeviceStatusSet(device.DeviceStatus, status)
@@ -78,7 +79,7 @@ func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, wwn string) 
 func (sr *scrutinyRepository) UpdateDeviceArchived(ctx context.Context, wwn string, archived bool) error {
 	var device models.Device
 	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
-		return fmt.Errorf("Could not get device from DB: %v", err)
+		return fmt.Errorf("could not get device from DB: %v", err)
 	}
 
 	return sr.gormClient.Model(&device).Where("wwn = ?", wwn).Update("archived", archived).Error

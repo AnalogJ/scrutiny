@@ -1,10 +1,10 @@
 package detect_test
 
 import (
-	"fmt"
+	"testing"
+
 	"github.com/analogj/scrutiny/collector/pkg/detect"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestWwn_FromStringTable(t *testing.T) {
@@ -25,8 +25,7 @@ func TestWwn_FromStringTable(t *testing.T) {
 	}
 	//test
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%s", tt.wwnStr)
-		t.Run(testname, func(t *testing.T) {
+		t.Run(tt.wwnStr, func(t *testing.T) {
 			str := tt.wwn.ToString()
 			require.Equal(t, tt.wwnStr, str)
 		})

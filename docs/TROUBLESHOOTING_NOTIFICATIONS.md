@@ -3,8 +3,8 @@
 As documented in [example.scrutiny.yaml](https://github.com/AnalogJ/scrutiny/blob/master/example.scrutiny.yaml#L59-L75)
 there are multiple ways to configure notifications for Scrutiny.
 
-Under the hood we use a library called [Shoutrrr](https://github.com/containrrr/shoutrrr) to send our notifications, and you should use their documentation if you run into
-any issues: https://containrrr.dev/shoutrrr/services/overview/
+Under the hood we use a library called [Shoutrrr](https://github.com/nicholas-fedor/shoutrrr) to send our notifications, and you should use their documentation if you run into
+any issues: https://shoutrrr.nickfedor.com/services/overview/
 
 
 # Script Notifications

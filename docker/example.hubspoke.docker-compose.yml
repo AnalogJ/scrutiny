@@ -3,7 +3,7 @@ version: '2.4'
 services:
   influxdb:
     restart: unless-stopped
-    image: influxdb:2.2
+    image: influxdb:2.8
     ports:
       - '8086:8086'
     volumes:

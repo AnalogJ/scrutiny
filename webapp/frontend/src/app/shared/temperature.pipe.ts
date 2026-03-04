@@ -35,7 +35,7 @@ export class TemperaturePipe implements PipeTransform {
                 temperature = TemperaturePipe.celsiusToFahrenheit(celsiusTemp)
                 break
         }
-        return TemperaturePipe.formatTemperature(celsiusTemp, unit, includeUnits)
+        return TemperaturePipe.formatTemperature(temperature, unit, includeUnits)
   }
 
 }

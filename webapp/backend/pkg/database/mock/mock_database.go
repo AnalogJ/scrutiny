@@ -12,7 +12,7 @@ import (
 	models "github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	collector "github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	measurements "github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
-	gomock "github.com/golang/mock/gomock"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // MockDeviceRepo is a mock of DeviceRepo interface.

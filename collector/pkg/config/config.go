@@ -2,15 +2,16 @@ package config
 
 import (
 	"fmt"
-	"github.com/analogj/go-util/utils"
-	"github.com/analogj/scrutiny/collector/pkg/errors"
-	"github.com/analogj/scrutiny/collector/pkg/models"
-	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"sort"
 	"strings"
+
+	"github.com/analogj/go-util/utils"
+	"github.com/analogj/scrutiny/collector/pkg/errors"
+	"github.com/analogj/scrutiny/collector/pkg/models"
+	"github.com/go-viper/mapstructure/v2"
+	"github.com/spf13/viper"
 )
 
 // When initializing this class the following methods must be called:
@@ -20,7 +21,7 @@ import (
 type configuration struct {
 	*viper.Viper
 
-	deviceOverrides    []models.ScanOverride
+	deviceOverrides []models.ScanOverride
 }
 
 //Viper uses the following precedence order. Each item takes precedence over the item below it:
@@ -53,7 +54,7 @@ func (c *configuration) Init() error {
 	c.SetEnvPrefix("COLLECTOR")
 	c.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
 	c.AutomaticEnv()
-	
+
 	//c.SetDefault("collect.short.command", "-a -o on -S on")
 
 	c.SetDefault("allow_listed_devices", []string{})
@@ -167,7 +168,7 @@ func (c *configuration) GetCommandMetricsInfoArgs(deviceName string) string {
 	overrides := c.GetDeviceOverrides()
 
 	for _, deviceOverrides := range overrides {
-		if strings.ToLower(deviceName) == strings.ToLower(deviceOverrides.Device) {
+		if strings.EqualFold(deviceName, deviceOverrides.Device) {
 			//found matching device
 			if len(deviceOverrides.Commands.MetricsInfoArgs) > 0 {
 				return deviceOverrides.Commands.MetricsInfoArgs
@@ -183,7 +184,7 @@ func (c *configuration) GetCommandMetricsSmartArgs(deviceName string) string {
 	overrides := c.GetDeviceOverrides()
 
 	for _, deviceOverrides := range overrides {
-		if strings.ToLower(deviceName) == strings.ToLower(deviceOverrides.Device) {
+		if strings.EqualFold(deviceName, deviceOverrides.Device) {
 			//found matching device
 			if len(deviceOverrides.Commands.MetricsSmartArgs) > 0 {
 				return deviceOverrides.Commands.MetricsSmartArgs

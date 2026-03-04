@@ -3,15 +3,16 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
+	"os"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web"
 	"github.com/sirupsen/logrus"
-	"io"
-	"log"
-	"os"
-	"time"
 
 	utils "github.com/analogj/go-util/utils"
 	"github.com/fatih/color"
@@ -36,8 +37,8 @@ func main() {
 	}
 
 	//we're going to load the config file manually, since we need to validate it.
-	err = config.ReadConfig(configFilePath) // Find and read the config file
-	if _, ok := err.(errors.ConfigFileMissingError); ok {         // Handle errors reading the config file
+	err = config.ReadConfig(configFilePath)               // Find and read the config file
+	if _, ok := err.(errors.ConfigFileMissingError); ok { // Handle errors reading the config file
 		//ignore "could not find config file"
 	} else if err != nil {
 		log.Print(color.HiRedString("CONFIG ERROR: %v", err))
@@ -81,7 +82,7 @@ OPTIONS:
 
 			subtitle := scrutiny + utils.LeftPad2Len(versionInfo, " ", 65-len(scrutiny))
 
-			color.New(color.FgGreen).Fprintf(c.App.Writer, fmt.Sprintf(utils.StripIndent(
+			color.New(color.FgGreen).Fprintf(c.App.Writer, utils.StripIndent(
 				`
 			 ___   ___  ____  __  __  ____  ____  _  _  _  _
 			/ __) / __)(  _ \(  )(  )(_  _)(_  _)( \( )( \/ )
@@ -89,7 +90,7 @@ OPTIONS:
 			(___/ \___)(_)\_)(______) (__) (____)(_)\_) (__)
 			%s
 
-			`), subtitle))
+			`), subtitle)
 
 			return nil
 		},

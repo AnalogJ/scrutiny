@@ -5,6 +5,11 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"time"
+
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/glebarez/sqlite"
@@ -13,10 +18,6 @@ import (
 	"github.com/influxdata/influxdb-client-go/v2/domain"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"time"
 )
 
 const (
@@ -29,6 +30,7 @@ const (
 	// 60seconds * 60minutes * 24hours * 7 days * (52 + 52 + 4)weeks
 	RETENTION_PERIOD_25_MONTHS_IN_SECONDS = 65_318_400
 
+	DURATION_KEY_DAY     = "day"
 	DURATION_KEY_WEEK    = "week"
 	DURATION_KEY_MONTH   = "month"
 	DURATION_KEY_YEAR    = "year"
@@ -82,7 +84,7 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Failed to connect to database! - %v", err)
+		return nil, fmt.Errorf("failed to connect to database! - %v", err)
 	}
 	globalLogger.Infof("Successfully connected to scrutiny sqlite db: %s\n", appConfig.GetString("web.database.location"))
 
@@ -146,7 +148,7 @@ func NewScrutinyRepository(appConfig config.Interface, globalLogger logrus.Field
 	taskAPI := client.TasksAPI()
 
 	if writeAPI == nil || queryAPI == nil || taskAPI == nil {
-		return nil, fmt.Errorf("Failed to connect to influxdb!")
+		return nil, fmt.Errorf("failed to connect to influxdb")
 	}
 
 	deviceRepo := scrutinyRepository{
@@ -238,13 +240,13 @@ func InfluxSetupComplete(influxEndpoint string, tlsConfig *tls.Config) (bool, er
 		return false, err
 	}
 
-    client := &http.Client{Transport: &http.Transport{TLSClientConfig: tlsConfig}}
+	client := &http.Client{Transport: &http.Transport{TLSClientConfig: tlsConfig}}
 	res, err := client.Get(influxUri.String())
 	if err != nil {
 		return false, err
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return false, err
 	}
@@ -445,6 +447,7 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 
 func (sr *scrutinyRepository) lookupBucketName(durationKey string) string {
 	switch durationKey {
+	case DURATION_KEY_DAY:
 	case DURATION_KEY_WEEK:
 		//data stored in the last week
 		return sr.appConfig.GetString("web.influxdb.bucket")
@@ -462,8 +465,10 @@ func (sr *scrutinyRepository) lookupBucketName(durationKey string) string {
 }
 
 func (sr *scrutinyRepository) lookupDuration(durationKey string) []string {
-
 	switch durationKey {
+	case DURATION_KEY_DAY:
+		//data stored in the last day
+		return []string{"-1d", "now()"}
 	case DURATION_KEY_WEEK:
 		//data stored in the last week
 		return []string{"-1w", "now()"}
@@ -480,8 +485,22 @@ func (sr *scrutinyRepository) lookupDuration(durationKey string) []string {
 	return []string{"-1w", "now()"}
 }
 
+func (sr *scrutinyRepository) lookupResolution(durationKey string) string {
+	switch durationKey {
+	case DURATION_KEY_DAY:
+		// Return data with higher resolution for daily summaries
+		return "10m"
+	default:
+		// Return data with 1h resolution for other summaries
+		return "1h"
+	}
+}
+
 func (sr *scrutinyRepository) lookupNestedDurationKeys(durationKey string) []string {
 	switch durationKey {
+	case DURATION_KEY_DAY:
+		//all data is stored in a single bucket, but we want a finer resolution
+		return []string{DURATION_KEY_DAY}
 	case DURATION_KEY_WEEK:
 		//all data is stored in a single bucket
 		return []string{DURATION_KEY_WEEK}

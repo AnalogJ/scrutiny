@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -68,7 +67,7 @@ func SendPostRequest(url string, file io.Reader) ([]byte, error) {
 
 	log.Printf("%v\n", response.Status)
 
-	return ioutil.ReadAll(response.Body)
+	return io.ReadAll(response.Body)
 }
 
 // InfluxDB will throw an error/ignore any submitted data with a timestamp older than the
@@ -79,7 +78,7 @@ func readSmartDataFileFixTimestamp(daysToSubtract int, smartDataFilepath string)
 		return nil, err
 	}
 
-	metricsFileData, err := ioutil.ReadAll(metricsfile)
+	metricsFileData, err := io.ReadAll(metricsfile)
 	if err != nil {
 		return nil, err
 	}

@@ -59,7 +59,7 @@ log:
 
 
 # Notification "urls" look like the following. For more information about service specific configuration see
-# Shoutrrr's documentation: https://containrrr.dev/shoutrrr/services/overview/
+# Shoutrrr's documentation: https://shoutrrr.nickfedor.com/services/overview/
 #
 # note, usernames and passwords containing special characters will need to be urlencoded.
 # if your username is: "myname@example.com" and your password is "124@34$1"
@@ -67,41 +67,26 @@ log:
 
 #notify:
 #  urls:
-#    - "discord://token@webhookid"
-#    - "telegram://token@telegram?channels=channel-1[,channel-2,...]"
-#    - "pushover://shoutrrr:apiToken@userKey/?priority=1&devices=device1[,device2, ...]"
-#    - "slack://[botname@]token-a/token-b/token-c"
-#    - "smtp://username:password@host:port/?fromAddress=fromAddress&toAddresses=recipient1[,recipient2,...]"
-#    - "teams://token-a/token-b/token-c"
-#    - "gotify://gotify-host/token"
-#    - "pushbullet://api-token[/device/#channel/email]"
-#    - "ifttt://key/?events=event1[,event2,...]&value1=value1&value2=value2&value3=value3"
-#    - "mattermost://[username@]mattermost-host/token[/channel]"
-#    - "ntfy://username:password@host:port/topic"
-#    - "hangouts://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz"
-#    - "zulip://bot-mail:bot-key@zulip-domain/?stream=name-or-id&topic=name"
-#    - "join://shoutrrr:api-key@join/?devices=device1[,device2, ...][&icon=icon][&title=title]"
-#    - "script:///file/path/on/disk"
-#    - "https://www.example.com/path"
-
-########################################################################################################################
-# FEATURES COMING SOON
-#
-# The following commented out sections are a preview of additional configuration options that will be available soon.
-#
-########################################################################################################################
-
-#limits:
-#  ata:
-#    critical:
-#      error: 10
-#    standard:
-#      error: 20
-#      warn: 10
-#  scsi:
-#    critical: true
-#    standard: true
-#  nvme:
-#    critical: true
-#    standard: true
-
+#    - discord://token@id[?thread_id=threadid]
+#    - googlechat://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz
+#    - hangouts://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz
+#    - lark://host/token?secret=secret&title=title&link=url
+#    - matrix://username:password@host:port/[?rooms=!roomID1[,roomAlias2]]
+#    - mattermost://[username@]mattermost-host/token[/channel]
+#    - rocketchat://[username@]rocketchat-host/token[/channel|@recipient]
+#    - signal://[user[:password]@]host[:port]/source_phone/recipient1[,recipient2,...]
+#    - slack://[botname@]token-a/token-b/token-c
+#    - teams://group@tenant/altId/groupOwner?host=organization.webhook.office.com
+#    - telegram://token@telegram?chats=@channel-1[,chat-id-1,chat-id-2:message-thread-id,...]
+#    - wecom://key
+#    - zulip://bot-mail:bot-key@zulip-domain/?stream=name-or-id&topic=name
+#    - bark://devicekey@host
+#    - gotify://gotify-host/token
+#    - ifttt://key/?events=event1[,event2,...]&value1=value1&value2=value2&value3=value3
+#    - join://shoutrrr:api-key@join/?devices=device1[,device2, ...][&icon=icon][&title=title]
+#    - ntfy://username:password@ntfy.sh/topic
+#    - pushbullet://api-token[/device/#channel/email]
+#    - pushover://shoutrrr:apiToken@userKey/?devices=device1[,device2, ...]
+#    - opsgenie://host/token?responders=responder1[,responder2]
+#    - pagerduty://[host[:port]]/integration-key[?query-parameters]
+#    - smtp://username:password@host:port/?fromaddress=fromAddress&toaddresses=recipient1[,recipient2,...][&additional_params]
