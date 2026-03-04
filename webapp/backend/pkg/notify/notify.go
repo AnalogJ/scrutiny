@@ -19,9 +19,9 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
-	"github.com/containrrr/shoutrrr"
-	shoutrrrTypes "github.com/containrrr/shoutrrr/pkg/types"
 	"github.com/gin-gonic/gin"
+	"github.com/nicholas-fedor/shoutrrr"
+	shoutrrrTypes "github.com/nicholas-fedor/shoutrrr/pkg/types"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -424,6 +424,17 @@ func (n *Notify) GenShoutrrrNotificationParams(shoutrrrUrl string) (string, *sho
 	case "telegram":
 		(*params)["title"] = subject
 	case "zulip":
+		query := serviceURL.Query()
+		urlTopic := query["topic"]
+		delete(query, "topic")
+		if len(urlTopic) > 0 && urlTopic[len(urlTopic)-1] != "" {
+			subject = urlTopic[len(urlTopic)-1]
+		}
+		subjectRunes := []rune(subject)
+		if len(subjectRunes) > 60 {
+			n.Logger.Warningf("Zulip notification subject too long (%d characters), truncating to 60 characters", len(subjectRunes))
+			subject = string(subjectRunes[:60])
+		}
 		(*params)["topic"] = subject
 	}
 

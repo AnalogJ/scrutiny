@@ -4,7 +4,6 @@ go 1.25
 
 require (
 	github.com/analogj/go-util v0.0.0-20210417161720-39b497cca03b
-	github.com/containrrr/shoutrrr v0.8.0
 	github.com/fatih/color v1.18.0
 	github.com/gin-gonic/gin v1.11.0
 	github.com/glebarez/sqlite v1.11.0
@@ -12,6 +11,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.5.0
 	github.com/influxdata/influxdb-client-go/v2 v2.14.0
 	github.com/jaypipes/ghw v0.21.2
+	github.com/nicholas-fedor/shoutrrr v0.13.2
 	github.com/samber/lo v1.52.0
 	github.com/sirupsen/logrus v1.9.4
 	github.com/spf13/viper v1.21.0
@@ -41,7 +41,6 @@ require (
 	github.com/go-playground/validator/v10 v10.30.1 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/influxdata/line-protocol v0.0.0-20210922203350-b1ad95c89adf // indirect
 	github.com/jaypipes/pcidb v1.1.1 // indirect
