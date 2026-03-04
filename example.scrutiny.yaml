@@ -20,6 +20,12 @@ web:
   listen:
     port: 8080
     host: 0.0.0.0
+    # timeouts are Go duration strings, e.g. "15s", "1m", "500ms"
+    read_timeout: 15s
+    read_header_timeout: 5s
+    write_timeout: 15s
+    idle_timeout: 60s
+    shutdown_timeout: 10s
 
     # if you're using a reverse proxy like apache/nginx, you can override this value to serve scrutiny on a subpath.
     # eg. http://example.com/scrutiny/* vs http://example.com:8080
@@ -67,6 +73,43 @@ log:
 
 #notify:
 #  urls:
+#    - "discord://token@webhookid"
+#    - "telegram://token@telegram?channels=channel-1[,channel-2,...]"
+#    - "pushover://shoutrrr:apiToken@userKey/?priority=1&devices=device1[,device2, ...]"
+#    - "slack://[botname@]token-a/token-b/token-c"
+#    - "smtp://username:password@host:port/?fromAddress=fromAddress&toAddresses=recipient1[,recipient2,...]"
+#    - "teams://token-a/token-b/token-c"
+#    - "gotify://gotify-host/token"
+#    - "pushbullet://api-token[/device/#channel/email]"
+#    - "ifttt://key/?events=event1[,event2,...]&value1=value1&value2=value2&value3=value3"
+#    - "mattermost://[username@]mattermost-host/token[/channel]"
+#    - "ntfy://username:password@host:port/topic"
+#    - "hangouts://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz"
+#    - "zulip://bot-mail:bot-key@zulip-domain/?stream=name-or-id&topic=name"
+#    - "join://shoutrrr:api-key@join/?devices=device1[,device2, ...][&icon=icon][&title=title]"
+#    - "script:///file/path/on/disk"
+#    - "https://www.example.com/path"
+
+########################################################################################################################
+# FEATURES COMING SOON
+#
+# The following commented out sections are a preview of additional configuration options that will be available soon.
+#
+########################################################################################################################
+
+#limits:
+#  ata:
+#    critical:
+#      error: 10
+#    standard:
+#      error: 20
+#      warn: 10
+#  scsi:
+#    critical: true
+#    standard: true
+#  nvme:
+#    critical: true
+#    standard: true
 #    - discord://token@id[?thread_id=threadid]
 #    - googlechat://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz
 #    - hangouts://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz
