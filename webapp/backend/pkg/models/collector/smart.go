@@ -143,21 +143,21 @@ type SmartInfo struct {
 				ErrorNumber         int `json:"error_number"`
 				LifetimeHours       int `json:"lifetime_hours"`
 				CompletionRegisters struct {
-					Error  int `json:"error"`
-					Status int `json:"status"`
-					Count  int `json:"count"`
-					Lba    int `json:"lba"`
-					Device int `json:"device"`
+					Error  int    `json:"error"`
+					Status int    `json:"status"`
+					Count  int    `json:"count"`
+					Lba    uint64 `json:"lba"`
+					Device int    `json:"device"`
 				} `json:"completion_registers"`
 				ErrorDescription string `json:"error_description"`
 				PreviousCommands []struct {
 					Registers struct {
-						Command       int `json:"command"`
-						Features      int `json:"features"`
-						Count         int `json:"count"`
-						Lba           int `json:"lba"`
-						Device        int `json:"device"`
-						DeviceControl int `json:"device_control"`
+						Command       int    `json:"command"`
+						Features      int    `json:"features"`
+						Count         int    `json:"count"`
+						Lba           uint64 `json:"lba"`
+						Device        int    `json:"device"`
+						DeviceControl int    `json:"device_control"`
 					} `json:"registers"`
 					PowerupMilliseconds int    `json:"powerup_milliseconds"`
 					CommandName         string `json:"command_name"`
@@ -188,8 +188,8 @@ type SmartInfo struct {
 	AtaSmartSelectiveSelfTestLog struct {
 		Revision int `json:"revision"`
 		Table    []struct {
-			LbaMin int `json:"lba_min"`
-			LbaMax int `json:"lba_max"`
+			LbaMin uint64 `json:"lba_min"`
+			LbaMax uint64 `json:"lba_max"`
 			Status struct {
 				Value  int    `json:"value"`
 				String string `json:"string"`

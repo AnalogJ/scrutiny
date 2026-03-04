@@ -49,19 +49,15 @@ contains the connection and notification details but I always find it easier to 
 docker-compose.
 
 ```yaml
-version: "3.4"
-
 networks:
   monitoring: # A common network for all monitoring services to communicate into
-    external: true
   notifications: # To Gotify or another Notification service
-    external: true
 
 services:
   influxdb:
     restart: unless-stopped
     container_name: influxdb
-    image: influxdb:2.1-alpine
+    image: influxdb:2.8
     ports:
       - 8086:8086
     volumes:
@@ -73,7 +69,8 @@ services:
       - DOCKER_INFLUXDB_INIT_PASSWORD=${PASSWORD}
       - DOCKER_INFLUXDB_INIT_ORG=homelab
       - DOCKER_INFLUXDB_INIT_BUCKET=scrutiny
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=your-very-secret-token
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=SUPER-SECRET-TOKEN
+      - TZ=Europe/Stockholm
     networks:
       - monitoring
 
@@ -85,17 +82,20 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - ${DIR_CONFIG}/scrutiny/config:/opt/scrutiny/config
+      - ${DIR_CONFIG}/config:/opt/scrutiny/config
     environment:
       - SCRUTINY_WEB_INFLUXDB_HOST=influxdb
       - SCRUTINY_WEB_INFLUXDB_PORT=8086
-      - SCRUTINY_WEB_INFLUXDB_TOKEN=your-very-secret-token
+      - SCRUTINY_WEB_INFLUXDB_TOKEN=SUPER-SECRET-TOKEN
       - SCRUTINY_WEB_INFLUXDB_ORG=homelab
       - SCRUTINY_WEB_INFLUXDB_BUCKET=scrutiny
-      # Optional but highly recommended to notify you in case of a problem
-      - SCRUTINY_NOTIFY_URLS=["http://gotify:80/message?token=a-gotify-token"]
+      # Optional but highly recommended to notify you in case of a problem; space-separated list of shoutrrr uri's
+      # https://github.com/AnalogJ/scrutiny/blob/master/docs/TROUBLESHOOTING_NOTIFICATIONS.md
+      - SCRUTINY_NOTIFY_URLS=http://gotify:80/message?token=a-gotify-token ntfy://username:password@host:port/topic
+      - TZ=Europe/Stockholm
     depends_on:
-      - influxdb
+      influxdb:
+        condition: service_healthy
     networks:
       - notifications
       - monitoring
@@ -164,8 +164,6 @@ Also all drives that you wish to monitor need to be presented to the container u
 The image handles the periodic scanning of the drives.
 
 ```yaml
-version: "3.4"
-
 services:
 
   collector:

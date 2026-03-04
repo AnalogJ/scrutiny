@@ -12,7 +12,7 @@ RUN make binary-frontend
 
 
 ######## Build the backend
-FROM golang:1.25-bookworm as backendbuild
+FROM golang:1.25-trixie as backendbuild
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 COPY --link . /go/src/github.com/analogj/scrutiny
@@ -24,7 +24,7 @@ RUN make binary-clean binary-all WEB_BINARY_NAME=scrutiny
 
 
 ######## Combine build artifacts in runtime image
-FROM debian:bookworm-slim as runtime
+FROM debian:trixie-slim as runtime
 ARG TARGETARCH
 EXPOSE 8080
 WORKDIR /opt/scrutiny

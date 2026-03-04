@@ -177,7 +177,7 @@ func (sr *scrutinyRepository) aggregateSmartAttributesQuery(wwn string, duration
 		`|> sort(columns: ["_time"], desc: true)`,
 	}...)
 	if selectEntries > 0 {
-		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> tail(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))
+		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> limit(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))
 	}
 	partialQueryStr = append(partialQueryStr, `|> yield(name: "last")`)
 
@@ -196,9 +196,11 @@ func (sr *scrutinyRepository) generateSmartAttributesSubquery(wwn string, durati
 	}
 
 	partialQueryStr = append(partialQueryStr, `|> aggregateWindow(every: 1d, fn: last, createEmpty: false)`)
-	
+
+	// ensure we are selecting the latest entries when paging
+	partialQueryStr = append(partialQueryStr, `|> sort(columns: ["_time"], desc: true)`)
 	if selectEntries > 0 {
-		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> tail(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))
+		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> limit(n: %d, offset: %d)`, selectEntries, selectEntriesOffset))
 	}
 	partialQueryStr = append(partialQueryStr, "|> schema.fieldsAsCols()")
 
