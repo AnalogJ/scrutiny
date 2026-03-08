@@ -23,8 +23,21 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
 RUN make binary-clean binary-all WEB_BINARY_NAME=scrutiny
 
 
-######## Use pre-built smartmontools image
-FROM smartmontools-build AS smartmontoolsbuild
+######## Build smartmontools from source
+FROM debian:trixie-slim AS smartmontoolsbuild
+ARG SMARTMONTOOLS_VER=7.5
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
+    apt-get install -y --no-install-recommends \
+    ca-certificates curl gcc g++ gnupg make \
+    && rm -rf /var/lib/apt/lists/*
+RUN curl -L "https://github.com/smartmontools/smartmontools/releases/download/RELEASE_$(echo ${SMARTMONTOOLS_VER} | tr '.' '_')/smartmontools-${SMARTMONTOOLS_VER}.tar.gz" -o /tmp/smartmontools.tar.gz \
+    && tar -xzf /tmp/smartmontools.tar.gz -C /tmp \
+    && cd /tmp/smartmontools-${SMARTMONTOOLS_VER} \
+    && ./configure --prefix=/usr LDFLAGS='-static' --without-libcap-ng --without-libsystemd \
+    && make -j"$(nproc)" \
+    && make install \
+    && /usr/sbin/update-smart-drivedb \
+    && rm -rf /tmp/smartmontools*
 
 
 ######## Combine build artifacts in runtime image

@@ -13,8 +13,21 @@ COPY . /go/src/github.com/analogj/scrutiny
 RUN apt-get update && apt-get install -y file && rm -rf /var/lib/apt/lists/*
 RUN make binary-clean binary-collector
 
-######## Use pre-built smartmontools image
-FROM smartmontools-build AS smartmontoolsbuild
+######## Build smartmontools from source
+FROM debian:trixie-slim AS smartmontoolsbuild
+ARG SMARTMONTOOLS_VER=7.5
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
+    apt-get install -y --no-install-recommends \
+    ca-certificates curl gcc g++ gnupg make \
+    && rm -rf /var/lib/apt/lists/*
+RUN curl -L "https://github.com/smartmontools/smartmontools/releases/download/RELEASE_$(echo ${SMARTMONTOOLS_VER} | tr '.' '_')/smartmontools-${SMARTMONTOOLS_VER}.tar.gz" -o /tmp/smartmontools.tar.gz \
+    && tar -xzf /tmp/smartmontools.tar.gz -C /tmp \
+    && cd /tmp/smartmontools-${SMARTMONTOOLS_VER} \
+    && ./configure --prefix=/usr LDFLAGS='-static' --without-libcap-ng --without-libsystemd \
+    && make -j"$(nproc)" \
+    && make install \
+    && /usr/sbin/update-smart-drivedb \
+    && rm -rf /tmp/smartmontools*
 
 ########
 FROM debian:trixie-slim AS runtime

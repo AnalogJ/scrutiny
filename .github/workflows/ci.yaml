@@ -134,11 +134,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
 
     steps:
       - name: Checkout repository
@@ -149,20 +144,6 @@ jobs:
           platforms: 'arm64,arm'
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: network=host
-          buildkitd-config-inline: |
-            [registry."localhost:5000"]
-              http = true
-              insecure = true
-      - name: Build smartmontools
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/Dockerfile.smartmontools
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
-          push: true
-          tags: localhost:5000/smartmontools-build:latest
       - name: Build omnibus
         uses: docker/build-push-action@v6
         with:
@@ -170,8 +151,6 @@ jobs:
           context: .
           file: docker/Dockerfile
           push: false
-          build-contexts: |
-            smartmontools-build=docker-image://localhost:5000/smartmontools-build:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Build collector
@@ -181,8 +160,6 @@ jobs:
           context: .
           file: docker/Dockerfile.collector
           push: false
-          build-contexts: |
-            smartmontools-build=docker-image://localhost:5000/smartmontools-build:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Build web
