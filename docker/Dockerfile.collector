@@ -4,7 +4,7 @@
 
 
 ########
-FROM golang:1.25-trixie as backendbuild
+FROM golang:1.25-trixie AS backendbuild
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 
@@ -13,12 +13,31 @@ COPY . /go/src/github.com/analogj/scrutiny
 RUN apt-get update && apt-get install -y file && rm -rf /var/lib/apt/lists/*
 RUN make binary-clean binary-collector
 
+######## Build smartmontools from source
+FROM debian:trixie-slim AS smartmontoolsbuild
+ARG SMARTMONTOOLS_VER=7.5
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
+    apt-get install -y --no-install-recommends \
+    ca-certificates curl gcc g++ gnupg make \
+    && rm -rf /var/lib/apt/lists/*
+RUN curl -L "https://github.com/smartmontools/smartmontools/releases/download/RELEASE_$(echo ${SMARTMONTOOLS_VER} | tr '.' '_')/smartmontools-${SMARTMONTOOLS_VER}.tar.gz" -o /tmp/smartmontools.tar.gz \
+    && tar -xzf /tmp/smartmontools.tar.gz -C /tmp \
+    && cd /tmp/smartmontools-${SMARTMONTOOLS_VER} \
+    && ./configure --prefix=/usr LDFLAGS='-static' --without-libcap-ng --without-libsystemd \
+    && make -j"$(nproc)" \
+    && make install \
+    && /usr/sbin/update-smart-drivedb \
+    && rm -rf /tmp/smartmontools*
+
 ########
-FROM debian:trixie-slim as runtime
+FROM debian:trixie-slim AS runtime
 WORKDIR /opt/scrutiny
 ENV PATH="/opt/scrutiny/bin:${PATH}"
 
-RUN apt-get update && apt-get install -y cron smartmontools ca-certificates tzdata && rm -rf /var/lib/apt/lists/* && update-ca-certificates
+RUN apt-get update && apt-get install -y cron ca-certificates tzdata && rm -rf /var/lib/apt/lists/* && update-ca-certificates
+
+COPY --from=smartmontoolsbuild /usr/sbin/smartctl /usr/sbin/smartctl
+COPY --from=smartmontoolsbuild /usr/share/smartmontools/ /usr/share/smartmontools/
 
 COPY /docker/entrypoint-collector.sh /entrypoint-collector.sh
 COPY /rootfs/etc/cron.d/scrutiny /etc/cron.d/scrutiny
