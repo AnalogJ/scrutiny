@@ -1,6 +1,6 @@
 {
-  "name": "Scrutiny Dev Env",
-  "dockerComposeFile": "docker-compose.yml",
+  "name": "Scrutiny Dev (rootless docker)",
+  "dockerComposeFile": "../docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspaces/scrutiny",
 

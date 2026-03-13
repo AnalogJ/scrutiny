@@ -7,7 +7,7 @@ services:
     network_mode: service:influxdb
 
   influxdb:
-    image: influxdb:2.2
+    image: influxdb:2.8
     restart: unless-stopped
     ports:
       - "8086:8086"
