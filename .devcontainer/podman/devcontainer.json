@@ -9,7 +9,7 @@
     "ghcr.io/devcontainers/features/node:1": "lts"
   },
 
-  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y smartmontools iputils-ping",
+  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y smartmontools iputils-ping chromium-browser",
 
   "customizations": {
     "vscode": {
