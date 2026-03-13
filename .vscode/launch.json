@@ -1,0 +1,37 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Scrutiny",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/webapp/backend/cmd/scrutiny/scrutiny.go",
+            "args": ["start", "--config", "./scrutiny.yaml"],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "DEBUG": "true"
+            },
+            "console": "integratedTerminal",
+            "preLaunchTask": "Build Frontend",
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "Listening and serving HTTP on",
+                "uriFormat": "http://localhost:8080/web/"
+            }
+        },
+        {
+            "name": "Run Collector",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/collector/cmd/collector-metrics/collector-metrics.go",
+            "args": ["run", "--debug"],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "COLLECTOR_DEBUG": "true"
+            },
+            "console": "integratedTerminal"
+        }
+    ]
+}

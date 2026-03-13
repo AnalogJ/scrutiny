@@ -147,6 +147,11 @@ The Scrutiny repository is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) 
 
 Depending on the functionality you are adding, you may need to setup a development environment for 1 or more projects.
 
+# Devcontainer
+Devcontainer configurations are available to build and run Scrutiny (WebUI and Collector) in a fully isolated environment.
+When opening the project with vscode, choose "Reopen in Container". Three configurations are available depending on your 
+container runtime and setup: docker, docker-rootless, and podman. 
+
 # Modifying the Scrutiny Backend Server (API)
 
 1. install the [Go runtime](https://go.dev/doc/install) (v1.25)
