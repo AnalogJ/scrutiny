@@ -20,7 +20,6 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	_ "github.com/glebarez/sqlite"
 	"github.com/go-gormigrate/gormigrate/v2"
-	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/api/http"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -434,7 +433,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				if err := tx.Find(&devices).Error; err != nil {
 					return err
 				}
-
+				sr.logger.Debug("Generating Scrutiny UUIDs")
 				for i := range devices {
 					device := &devices[i]
 					device.ScrutinyUUID = detect.GenerateScrutinyUUID(device.ModelName, device.SerialNumber, device.WWN)
@@ -442,6 +441,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 
 				// sqlite doesn't support altering columns
 				// so we have to create a new one, drop the old one, then rename.
+				sr.logger.Debug("Creating new devices table")
 				tx.Table("devices_new").AutoMigrate(&m20260216155600.Device{})
 				if len(devices) > 0 {
 					if err := tx.Table("devices_new").Create(&devices).Error; err != nil {
@@ -449,10 +449,12 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 					}
 				}
 
+				sr.logger.Debug("Dropping old devices table")
 				if err := tx.Migrator().DropTable(&m20260216155600.Device{}); err != nil {
 					return err
 				}
 
+				sr.logger.Debug("Renaming new device table")
 				if err := tx.Migrator().RenameTable("devices_new", "devices"); err != nil {
 					return err
 				}
@@ -522,70 +524,83 @@ func ignorePastRetentionPolicyError(err error) error {
 
 func m20260216155600_ChangeInfluxDBTags(sr *scrutinyRepository, ctx context.Context, wwnToUUID map[string]string) error {
 	bucket := sr.appConfig.GetString("web.influxdb.bucket")
-	buckets := []string{
+	org := sr.appConfig.GetString("web.influxdb.org")
+	bucketNames := []string{
 		bucket,
 		fmt.Sprintf("%s_weekly", bucket),
 		fmt.Sprintf("%s_monthly", bucket),
 		fmt.Sprintf("%s_yearly", bucket),
 	}
 
-	for _, bucket := range buckets {
-		queryStr := fmt.Sprintf(`
-		from(bucket: "%s")
-		|> range(start: -10y, stop: now())
-		|> filter(fn: (r) => r["_measurement"] == "smart" or r["_measurement"] == "temp")
-		|> filter(fn: (r) => exists r.device_wwn)
-		|> group(columns: ["device_wwn", "_measurement", "_field"])
-		|> sort(columns: ["_time"], desc: false)
-	`, bucket)
+	const batchSize = 10
+	bucketsAPI := sr.influxClient.BucketsAPI()
 
-		result, err := sr.influxQueryApi.Query(ctx, queryStr)
+	for _, bucketName := range bucketNames {
+		newBucketName := fmt.Sprintf("%s_new", bucketName)
+
+		// Step 1: Create the new bucket. Copy retention rules from the original.
+		sr.logger.Debugf("Creating temporary bucket %s...", newBucketName)
+		oldBucket, err := bucketsAPI.FindBucketByName(ctx, bucketName)
 		if err != nil {
-			return fmt.Errorf("Failed to query influxdb bucket bucket %s: %w", bucket, err)
+			return fmt.Errorf("Failed to find bucket %s: %w", bucketName, err)
 		}
-		// scrutinyRepository's writeAPI field is fixed to the main bucket
-		writeAPI := sr.influxClient.WriteAPIBlocking(sr.appConfig.GetString("web.influxdb.org"), bucket)
 
-		for result.Next() {
-			wwn := result.Record().Values()["device_wwn"].(string)
-			scrutinyUUID, exists := wwnToUUID[wwn]
-			if !exists {
-				sr.logger.Warnf("No device found for WWN %s, skipping data point", wwn)
-				continue
+		// Delete leftover _new bucket from a previous failed migration attempt.
+		if existingNew, _ := bucketsAPI.FindBucketByName(ctx, newBucketName); existingNew != nil {
+			sr.logger.Debugf("Found leftover bucket %s from previous migration, deleting...", newBucketName)
+			if err := bucketsAPI.DeleteBucket(ctx, existingNew); err != nil {
+				return fmt.Errorf("Failed to delete leftover bucket %s: %w", newBucketName, err)
 			}
+		}
 
-			measurement := result.Record().Measurement()
-			tags := make(map[string]string)
-			fields := make(map[string]any)
+		orgObj, err := sr.influxClient.OrganizationsAPI().FindOrganizationByName(ctx, org)
+		if err != nil {
+			return fmt.Errorf("failed to find organization %s: %w", org, err)
+		}
 
-			for key, value := range result.Record().Values() {
-				if key == "device_wwn" || key == "_time" || key == "_measurement" || key == "_field" || key == "_value" {
-					continue
+		newBucket, err := bucketsAPI.CreateBucketWithName(ctx, orgObj, newBucketName, oldBucket.RetentionRules...)
+		if err != nil {
+			return fmt.Errorf("failed to create bucket %s: %w", newBucketName, err)
+		}
+
+		for wwn, scrutinyUUID := range wwnToUUID {
+			sr.logger.Debugf("Copying points from %s to %s for wwn %s...", bucketName, newBucketName, wwn)
+
+			offset := 0
+			for ; ; offset += batchSize {
+				queryStr := fmt.Sprintf(`
+					from(bucket: "%s")
+					|> range(start: -10y, stop: now())
+					|> filter(fn: (r) => r["_measurement"] == "smart" or r["_measurement"] == "temp")
+					|> filter(fn: (r) => r["device_wwn"] == "%s")
+					|> limit(n: %d, offset: %d)
+					|> set(key: "scrutiny_uuid", value: "%s")
+					|> to(bucket: "%s")
+				`, bucketName, wwn, batchSize, offset, scrutinyUUID, newBucketName)
+
+				result, err := sr.influxQueryApi.Query(ctx, queryStr)
+				if err != nil {
+					return fmt.Errorf("failed to copy points from %s to %s for wwn %s (offset %d): %w", bucketName, newBucketName, wwn, offset, err)
 				}
-				if strVal, ok := value.(string); ok {
-					tags[key] = strVal
+
+				if !result.Next() {
+					break
 				}
 			}
-			tags["scrutiny_uuid"] = scrutinyUUID
-			fields[result.Record().Field()] = result.Record().Value()
-
-			point := influxdb2.NewPoint(measurement, tags, fields, result.Record().Time())
-			if err := writeAPI.WritePoint(ctx, point); err != nil {
-				return fmt.Errorf("Failed to write point %s @ %s for scrutiny_uuid %s: %w", point.Name(), point.Time(), scrutinyUUID, err)
-			}
+			sr.logger.Debugf("Copied ~%d points for wwn %s", offset, wwn)
 		}
 
-		if result.Err() != nil {
-			return fmt.Errorf("Query error for bucket %s: %w", bucket, result.Err())
+		sr.logger.Debugf("Replacing bucket %s with %s...", bucketName, newBucketName)
+		if err := bucketsAPI.DeleteBucket(ctx, oldBucket); err != nil {
+			return fmt.Errorf("Failed to delete old bucket %s: %w", bucketName, err)
 		}
 
-		predicate := `device_wwn != ""`
-		startTime := time.Now().Add(-24 * 365 * 10 * time.Hour) // 10 years ago
-		endTime := time.Now()
-
-		if err := sr.influxClient.DeleteAPI().DeleteWithName(ctx, sr.appConfig.GetString("web.influxdb.org"), bucket, startTime, endTime, predicate); err != nil {
-			return fmt.Errorf("Failed to delete records with device_wwn tag: %w", err)
+		newBucket.Name = bucketName
+		if _, err := bucketsAPI.UpdateBucket(ctx, newBucket); err != nil {
+			return fmt.Errorf("Failed to rename bucket %s to %s: %w", newBucketName, bucketName, err)
 		}
+
+		sr.logger.Debugf("Bucket %s migrated successfully", bucketName)
 	}
 
 	return nil

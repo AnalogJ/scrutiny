@@ -60,10 +60,10 @@ func (sr *scrutinyRepository) SaveSmartTemperature(ctx context.Context, scrutiny
 	return sr.influxWriteApi.WritePoint(ctx, p)
 }
 
-func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[string][]measurements.SmartTemperature, error) {
+func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[uuid.UUID][]measurements.SmartTemperature, error) {
 	//we can get temp history for "week", "month", DURATION_KEY_YEAR, "forever"
 
-	deviceTempHistory := map[string][]measurements.SmartTemperature{}
+	deviceTempHistory := map[uuid.UUID][]measurements.SmartTemperature{}
 
 	//TODO: change the query range to a variable.
 	queryStr := sr.aggregateTempQuery(durationKey)
@@ -73,14 +73,15 @@ func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context, du
 		// Use Next() to iterate over query result lines
 		for result.Next() {
 
-			if scrutinyUUID, ok := result.Record().Values()["scrutiny_uuid"]; ok {
+			if scrutinyUUIDString, ok := result.Record().Values()["scrutiny_uuid"]; ok {
+				scrutinyUUID := uuid.Must(uuid.FromString(scrutinyUUIDString.(string)))
 
 				//check if scrutinyUUID has been seen and initialized already
-				if _, ok := deviceTempHistory[scrutinyUUID.(string)]; !ok {
-					deviceTempHistory[scrutinyUUID.(string)] = []measurements.SmartTemperature{}
+				if _, ok := deviceTempHistory[scrutinyUUID]; !ok {
+					deviceTempHistory[scrutinyUUID] = []measurements.SmartTemperature{}
 				}
 
-				currentTempHistory := deviceTempHistory[scrutinyUUID.(string)]
+				currentTempHistory := deviceTempHistory[scrutinyUUID]
 				smartTemp := measurements.SmartTemperature{}
 
 				for key, val := range result.Record().Values() {
@@ -88,7 +89,7 @@ func (sr *scrutinyRepository) GetSmartTemperatureHistory(ctx context.Context, du
 				}
 				smartTemp.Date = result.Record().Values()["_time"].(time.Time)
 				currentTempHistory = append(currentTempHistory, smartTemp)
-				deviceTempHistory[scrutinyUUID.(string)] = currentTempHistory
+				deviceTempHistory[scrutinyUUID] = currentTempHistory
 			}
 		}
 		if result.Err() != nil {

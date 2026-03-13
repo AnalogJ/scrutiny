@@ -29,8 +29,8 @@ type DeviceRepo interface {
 
 	SaveSmartTemperature(ctx context.Context, scrutiny_uuid uuid.UUID, deviceProtocol string, collectorSmartData collector.SmartInfo, discardSCTTempHistory bool) error
 
-	GetSummary(ctx context.Context) (map[string]*models.DeviceSummary, error)
-	GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[string][]measurements.SmartTemperature, error)
+	GetSummary(ctx context.Context) (map[uuid.UUID]*models.DeviceSummary, error)
+	GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[uuid.UUID][]measurements.SmartTemperature, error)
 
 	LoadSettings(ctx context.Context) (*models.Settings, error)
 	SaveSettings(ctx context.Context, settings models.Settings) error
