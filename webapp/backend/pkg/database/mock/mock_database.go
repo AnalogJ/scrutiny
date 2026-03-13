@@ -119,10 +119,10 @@ func (mr *MockDeviceRepoMockRecorder) GetSmartAttributeHistory(ctx, scrutiny_uui
 }
 
 // GetSmartTemperatureHistory mocks base method.
-func (m *MockDeviceRepo) GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[string][]measurements.SmartTemperature, error) {
+func (m *MockDeviceRepo) GetSmartTemperatureHistory(ctx context.Context, durationKey string) (map[uuid.UUID][]measurements.SmartTemperature, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSmartTemperatureHistory", ctx, durationKey)
-	ret0, _ := ret[0].(map[string][]measurements.SmartTemperature)
+	ret0, _ := ret[0].(map[uuid.UUID][]measurements.SmartTemperature)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -134,10 +134,10 @@ func (mr *MockDeviceRepoMockRecorder) GetSmartTemperatureHistory(ctx, durationKe
 }
 
 // GetSummary mocks base method.
-func (m *MockDeviceRepo) GetSummary(ctx context.Context) (map[string]*models.DeviceSummary, error) {
+func (m *MockDeviceRepo) GetSummary(ctx context.Context) (map[uuid.UUID]*models.DeviceSummary, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSummary", ctx)
-	ret0, _ := ret[0].(map[string]*models.DeviceSummary)
+	ret0, _ := ret[0].(map[uuid.UUID]*models.DeviceSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

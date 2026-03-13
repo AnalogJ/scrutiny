@@ -19,6 +19,7 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web"
+	"github.com/gofrs/uuid/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -571,6 +572,8 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	require.NoError(suite.T(), err)
 
 	//assert
-	require.Equal(suite.T(), "a4c8e8ed-11a0-4c97-9bba-306440f1b944", deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.WWN)
-	require.Equal(suite.T(), pkg.DeviceStatusPassed, deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.DeviceStatus)
+	deviceUUIDString := "bde1d2d2-7e5c-525a-8327-6adbfa382637"
+	deviceUUID := uuid.Must(uuid.FromString(deviceUUIDString))
+	require.Equal(suite.T(), deviceUUID, deviceSummary.Data.Summary[deviceUUIDString].Device.ScrutinyUUID)
+	require.Equal(suite.T(), pkg.DeviceStatusPassed, deviceSummary.Data.Summary[deviceUUIDString].Device.DeviceStatus)
 }
