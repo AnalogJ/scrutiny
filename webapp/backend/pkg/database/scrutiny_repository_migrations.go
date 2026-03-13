@@ -575,6 +575,7 @@ func m20260216155600_ChangeInfluxDBTags(sr *scrutinyRepository, ctx context.Cont
 					|> filter(fn: (r) => r["device_wwn"] == "%s")
 					|> limit(n: %d, offset: %d)
 					|> set(key: "scrutiny_uuid", value: "%s")
+					|> drop(columns: ["device_wwn"])
 					|> to(bucket: "%s")
 				`, bucketName, wwn, batchSize, offset, scrutinyUUID, newBucketName)
 
