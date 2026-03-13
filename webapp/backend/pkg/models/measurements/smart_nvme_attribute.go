@@ -67,7 +67,7 @@ func (sa *SmartNvmeAttribute) Inflate(key string, val interface{}) {
 	}
 }
 
-//populate attribute status, using SMART Thresholds & Observed Metadata
+// populate attribute status, using SMART Thresholds & Observed Metadata
 // Chainable
 func (sa *SmartNvmeAttribute) PopulateAttributeStatus() *SmartNvmeAttribute {
 
