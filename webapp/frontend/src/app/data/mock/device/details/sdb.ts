@@ -5,6 +5,7 @@ export const sdb = {
             'UpdatedAt': '2021-10-24T17:06:39.436996-07:00',
             'DeletedAt': null,
             'wwn': '0x5000cca264eb01d7',
+            'scrutiny_uuid': '3ea22b35-682b-49fb-a655-abffed108e48',
             'device_name': 'sdb',
             'manufacturer': 'ATA',
             'model_name': 'WDC_WD140EDFZ-11A0VA0',

@@ -5,6 +5,7 @@ export const sda = {
             'UpdatedAt': '2021-10-24T16:37:56.981833-07:00',
             'DeletedAt': null,
             'wwn': '0x5002538e40a22954',
+            'scrutiny_uuid': 'ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c',
             'device_name': 'sda',
             'manufacturer': 'ATA',
             'model_name': 'Samsung_SSD_860_EVO_500GB',

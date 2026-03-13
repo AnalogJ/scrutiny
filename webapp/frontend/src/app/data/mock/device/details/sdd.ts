@@ -5,6 +5,7 @@ export const sdd = {
             'UpdatedAt': '2021-10-24T16:37:57.013758-07:00',
             'DeletedAt': null,
             'wwn': '0x5000cca252c859cc',
+            'scrutiny_uuid': 'd8796fe7-2422-520c-8991-e970993dad3e',
             'device_name': 'sdd',
             'manufacturer': 'ATA',
             'model_name': 'WDC_WD80EFAX-68LHPN0',
