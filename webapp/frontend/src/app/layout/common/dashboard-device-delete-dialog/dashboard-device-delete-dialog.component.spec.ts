@@ -28,7 +28,7 @@ describe('DashboardDeviceDeleteDialogComponent', () => {
             ],
             providers: [
                 {provide: MatDialogRef, useValue: matDialogRefSpy},
-                {provide: MAT_DIALOG_DATA, useValue: {wwn: 'test-wwn', title: 'my-test-device-title'}},
+                {provide: MAT_DIALOG_DATA, useValue: {scrutiny_uuid: 'ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c', title: 'my-test-device-title'}},
                 {provide: DashboardDeviceDeleteDialogService, useValue: dashboardDeviceDeleteDialogServiceSpy}
             ],
             declarations: [DashboardDeviceDeleteDialogComponent]
@@ -56,7 +56,7 @@ describe('DashboardDeviceDeleteDialogComponent', () => {
         dashboardDeviceDeleteDialogServiceSpy.deleteDevice.and.returnValue(of({'success': true}));
 
         component.onDeleteClick()
-        expect(dashboardDeviceDeleteDialogServiceSpy.deleteDevice).toHaveBeenCalledWith('test-wwn');
+        expect(dashboardDeviceDeleteDialogServiceSpy.deleteDevice).toHaveBeenCalledWith('ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c');
         expect(dashboardDeviceDeleteDialogServiceSpy.deleteDevice.calls.count())
             .withContext('one call')
             .toBe(1);
