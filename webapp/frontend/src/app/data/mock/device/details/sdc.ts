@@ -26,6 +26,7 @@ export const sdc = {
         'smart_results': [{
             'date': '2021-10-24T23:20:44Z',
             'device_wwn': '0x5000cca264ec3183',
+            'scrutiny_uuid': '42caca8a-9b95-5c75-b059-305771a2a193',
             'device_protocol': 'ATA',
             'temp': 25,
             'power_on_hours': 65592,

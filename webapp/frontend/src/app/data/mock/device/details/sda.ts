@@ -27,6 +27,7 @@ export const sda = {
         'smart_results': [{
             'date': '2021-10-24T23:20:44Z',
             'device_wwn': '0x5002538e40a22954',
+            'scrutiny_uuid': 'ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c',
             'device_protocol': 'NVMe',
             'temp': 36,
             'power_on_hours': 2401,

@@ -26,6 +26,7 @@ export const sdb = {
         'smart_results': [{
             'date': '2021-10-24T20:34:04Z',
             'device_wwn': '0x5000cca264eb01d7',
+            'scrutiny_uuid': '3ea22b35-682b-49fb-a655-abffed108e48',
             'device_protocol': 'ATA',
             'temp': 32,
             'power_on_hours': 1730,
@@ -246,6 +247,7 @@ export const sdb = {
         }, {
             'date': '2021-10-24T23:20:44Z',
             'device_wwn': '0x5000cca264eb01d7',
+            'scrutiny_uuid': '3ea22b35-682b-49fb-a655-abffed108e48',
             'device_protocol': 'ATA',
             'temp': 32,
             'power_on_hours': 1730,
