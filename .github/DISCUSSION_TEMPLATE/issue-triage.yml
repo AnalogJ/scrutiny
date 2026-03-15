@@ -50,9 +50,10 @@ body:
       required: true
   - type: textarea
     attributes:
-      label: scrutiny logs
+      label: scrutiny debug logs
       description: |
         Provide any captured scrutiny logs or panic dumps during your issue reproduction in this field.
+        Make sure to turn on debug logging with the environment variable DEBUG=true
       render: text
   - type: input
     attributes:
@@ -110,6 +111,14 @@ body:
       description: |
         What is the output of smartctl --xall --json <drive>?
       render: json
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: docker-compose.yml
+      description: |
+        If using docker, please provide your full docker-compose.yml file.
+      render: yaml
     validations:
       required: false
   - type: textarea
