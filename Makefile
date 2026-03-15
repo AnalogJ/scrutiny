@@ -122,13 +122,8 @@ binary-frontend-test-coverage:
 # Docker
 # NOTE: these docker make targets are only used for local development (not used by Github Actions/CI)
 ########################################################################################################################
-.PHONY: docker-smartmontools
-docker-smartmontools:
-	@echo "building smartmontools docker image"
-	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile.smartmontools -t smartmontools-build .
-
 .PHONY: docker-collector
-docker-collector: docker-smartmontools
+docker-collector:
 	@echo "building collector docker image"
 	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile.collector -t ghcr.io/analogj/scrutiny-dev:collector .
 
@@ -138,6 +133,6 @@ docker-web:
 	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile.web -t ghcr.io/analogj/scrutiny-dev:web .
 
 .PHONY: docker-omnibus
-docker-omnibus: docker-smartmontools
+docker-omnibus:
 	@echo "building omnibus docker image"
 	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile -t ghcr.io/analogj/scrutiny-dev:omnibus .
