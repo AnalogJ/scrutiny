@@ -532,7 +532,7 @@ func m20260216155600_ChangeInfluxDBTags(sr *scrutinyRepository, ctx context.Cont
 		fmt.Sprintf("%s_yearly", bucket),
 	}
 
-	const batchSize = 10
+	const batchSize = 1000
 	bucketsAPI := sr.influxClient.BucketsAPI()
 
 	for _, bucketName := range bucketNames {
@@ -574,8 +574,8 @@ func m20260216155600_ChangeInfluxDBTags(sr *scrutinyRepository, ctx context.Cont
 					|> filter(fn: (r) => r["_measurement"] == "smart" or r["_measurement"] == "temp")
 					|> filter(fn: (r) => r["device_wwn"] == "%s")
 					|> limit(n: %d, offset: %d)
-					|> set(key: "scrutiny_uuid", value: "%s")
 					|> drop(columns: ["device_wwn"])
+					|> set(key: "scrutiny_uuid", value: "%s")
 					|> to(bucket: "%s")
 				`, bucketName, wwn, batchSize, offset, scrutinyUUID, newBucketName)
 
@@ -588,7 +588,7 @@ func m20260216155600_ChangeInfluxDBTags(sr *scrutinyRepository, ctx context.Cont
 					break
 				}
 			}
-			sr.logger.Debugf("Copied ~%d points for wwn %s", offset, wwn)
+			sr.logger.Debugf("Copied approx. %d points for wwn %s", offset, wwn)
 		}
 
 		sr.logger.Debugf("Replacing bucket %s with %s...", bucketName, newBucketName)
