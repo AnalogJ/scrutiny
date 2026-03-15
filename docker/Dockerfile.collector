@@ -8,7 +8,10 @@ FROM golang:1.25-trixie AS backendbuild
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 
-COPY . /go/src/github.com/analogj/scrutiny
+COPY --link Makefile /go/src/github.com/analogj/scrutiny/
+COPY --link go.mod go.sum /go/src/github.com/analogj/scrutiny/
+COPY --link collector /go/src/github.com/analogj/scrutiny/collector
+COPY --link webapp/backend /go/src/github.com/analogj/scrutiny/webapp/backend
 
 RUN apt-get update && apt-get install -y file && rm -rf /var/lib/apt/lists/*
 RUN make binary-clean binary-collector

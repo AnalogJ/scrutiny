@@ -6,7 +6,8 @@
 ######## Build the frontend
 FROM --platform=${BUILDPLATFORM} node AS frontendbuild
 WORKDIR /go/src/github.com/analogj/scrutiny
-COPY --link . /go/src/github.com/analogj/scrutiny
+COPY --link Makefile /go/src/github.com/analogj/scrutiny/
+COPY --link webapp/frontend /go/src/github.com/analogj/scrutiny/webapp/frontend
 
 RUN make binary-frontend
 
@@ -15,7 +16,10 @@ RUN make binary-frontend
 FROM golang:1.25-trixie as backendbuild
 
 WORKDIR /go/src/github.com/analogj/scrutiny
-COPY --link . /go/src/github.com/analogj/scrutiny
+COPY --link Makefile /go/src/github.com/analogj/scrutiny/
+COPY --link go.mod go.sum /go/src/github.com/analogj/scrutiny/
+COPY --link collector /go/src/github.com/analogj/scrutiny/collector
+COPY --link webapp/backend /go/src/github.com/analogj/scrutiny/webapp/backend
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
     apt-get install -y --no-install-recommends \
     file \
