@@ -13,10 +13,12 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/glebarez/sqlite"
+	"github.com/gofrs/uuid/v5"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/domain"
 	"github.com/sirupsen/logrus"
+
 	"gorm.io/gorm"
 )
 
@@ -333,16 +335,16 @@ func (sr *scrutinyRepository) EnsureBuckets(ctx context.Context, org *domain.Org
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // get a map of all devices and associated SMART data
-func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*models.DeviceSummary, error) {
+func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[uuid.UUID]*models.DeviceSummary, error) {
 	devices, err := sr.GetDevices(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	summaries := map[string]*models.DeviceSummary{}
+	summaries := map[uuid.UUID]*models.DeviceSummary{}
 
 	for _, device := range devices {
-		summaries[device.WWN] = &models.DeviceSummary{Device: device}
+		summaries[device.ScrutinyUUID] = &models.DeviceSummary{Device: device}
 	}
 
 	// Get parser flux query result
@@ -357,7 +359,7 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 	|> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
 	|> last()
 	|> schema.fieldsAsCols()
-	|> group(columns: ["device_wwn"])
+	|> group(columns: ["scrutiny_uuid"])
 	
 	weeklyData = from(bucket: bucketBaseName + "_weekly")
 	|> range(start: -10y, stop: now())
@@ -365,7 +367,7 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 	|> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
 	|> last()
 	|> schema.fieldsAsCols()
-	|> group(columns: ["device_wwn"])
+	|> group(columns: ["scrutiny_uuid"])
 	
 	monthlyData = from(bucket: bucketBaseName + "_monthly")
 	|> range(start: -10y, stop: now())
@@ -373,7 +375,7 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 	|> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
 	|> last()
 	|> schema.fieldsAsCols()
-	|> group(columns: ["device_wwn"])
+	|> group(columns: ["scrutiny_uuid"])
 	
 	yearlyData = from(bucket: bucketBaseName + "_yearly")
 	|> range(start: -10y, stop: now())
@@ -381,12 +383,12 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 	|> filter(fn: (r) => r["_field"] == "temp" or r["_field"] == "power_on_hours" or r["_field"] == "date")
 	|> last()
 	|> schema.fieldsAsCols()
-	|> group(columns: ["device_wwn"])
+	|> group(columns: ["scrutiny_uuid"])
 	
 	union(tables: [dailyData, weeklyData, monthlyData, yearlyData])
 	|> sort(columns: ["_time"], desc: false)
-	|> group(columns: ["device_wwn"])
-	|> last(column: "device_wwn")
+	|> group(columns: ["scrutiny_uuid"])
+	|> last(column: "scrutiny_uuid")
 	|> yield(name: "last")
 		`,
 		sr.appConfig.GetString("web.influxdb.bucket"),
@@ -404,14 +406,15 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 
 			//get summary data from Influxdb.
 			//result.Record().Values()
-			if deviceWWN, ok := result.Record().Values()["device_wwn"]; ok {
+			if scrutinyUUIDString, ok := result.Record().Values()["scrutiny_uuid"]; ok {
+				scrutinyUUID := uuid.Must(uuid.FromString(scrutinyUUIDString.(string)))
 
-				//ensure summaries is intialized for this wwn
-				if _, exists := summaries[deviceWWN.(string)]; !exists {
-					summaries[deviceWWN.(string)] = &models.DeviceSummary{}
+				//ensure summaries is intialized for this scrutiny_uuid
+				if _, exists := summaries[scrutinyUUID]; !exists {
+					summaries[scrutinyUUID] = &models.DeviceSummary{}
 				}
 
-				summaries[deviceWWN.(string)].SmartResults = &models.SmartSummary{
+				summaries[scrutinyUUID].SmartResults = &models.SmartSummary{
 					Temp:          result.Record().Values()["temp"].(int64),
 					PowerOnHours:  result.Record().Values()["power_on_hours"].(int64),
 					CollectorDate: result.Record().Values()["_time"].(time.Time),
@@ -434,8 +437,8 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[string]*model
 		sr.logger.Printf("========================>>>>>>>>======================")
 		sr.logger.Printf("Error: %v", err)
 	}
-	for wwn, tempHistory := range deviceTempHistory {
-		summaries[wwn].TempHistory = tempHistory
+	for scutiny_uuid, tempHistory := range deviceTempHistory {
+		summaries[scutiny_uuid].TempHistory = tempHistory
 	}
 
 	return summaries, nil

@@ -28,7 +28,7 @@ describe('DashboardDeviceArchiveDialogComponent', () => {
             ],
             providers: [
                 {provide: MatDialogRef, useValue: matDialogRefSpy},
-                {provide: MAT_DIALOG_DATA, useValue: {wwn: 'test-wwn', title: 'my-test-device-title'}},
+                {provide: MAT_DIALOG_DATA, useValue: {scrutiny_uuid: 'ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c', title: 'my-test-device-title'}},
                 {provide: DashboardDeviceArchiveDialogService, useValue: dashboardDeviceArchiveDialogServiceSpy}
             ],
             declarations: [DashboardDeviceArchiveDialogComponent]
@@ -56,7 +56,7 @@ describe('DashboardDeviceArchiveDialogComponent', () => {
         dashboardDeviceArchiveDialogServiceSpy.archiveDevice.and.returnValue(of({'success': true}));
 
         component.onArchiveClick()
-        expect(dashboardDeviceArchiveDialogServiceSpy.archiveDevice).toHaveBeenCalledWith('test-wwn');
+        expect(dashboardDeviceArchiveDialogServiceSpy.archiveDevice).toHaveBeenCalledWith('ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c');
         expect(dashboardDeviceArchiveDialogServiceSpy.archiveDevice.calls.count())
             .withContext('one call')
             .toBe(1);

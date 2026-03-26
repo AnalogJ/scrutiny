@@ -12,27 +12,29 @@
       "rotational_speed": 0,
       "capacity": 500107862016,
       "form_factor": "",
-      "smart_support": false
+      "smart_support": false,
+      "scrutiny_uuid": "ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c"
     },
     {
       "wwn": "0x5000cca264eb01d7",
       "device_name": "sdb",
       "manufacturer": "ATA",
-      "model_name": "WDC_WD140EDFZ-11A0VA0",
+      "model_name": "WDC WD140EDFZ-11A0VA0",
       "interface_type": "SCSI",
       "interface_speed": "",
-      "serial_number": "9RK1XXXXX",
+      "serial_number": "9RK1XXXX",
       "firmware": "",
       "rotational_speed": 0,
       "capacity": 14000519643136,
       "form_factor": "",
-      "smart_support": false
+      "smart_support": false,
+      "scrutiny_uuid": "3ea22b35-682b-49fb-a655-abffed108e48"
     },
     {
       "wwn": "0x5000cca264ec3183",
       "device_name": "sdc",
       "manufacturer": "ATA",
-      "model_name": "WDC_WD140EDFZ-11A0VA0",
+      "model_name": "WDC WD140EDFZ-11A0VA0",
       "interface_type": "SCSI",
       "interface_speed": "",
       "serial_number": "9RK4XXXXX",
@@ -40,7 +42,8 @@
       "rotational_speed": 0,
       "capacity": 14000519643136,
       "form_factor": "",
-      "smart_support": false
+      "smart_support": false,
+      "scrutiny_uuid": "42caca8a-9b95-5c75-b059-305771a2a193"
     },
     {
       "wwn": "0x5000cca252c859cc",
@@ -54,7 +57,8 @@
       "rotational_speed": 0,
       "capacity": 8001563222016,
       "form_factor": "",
-      "smart_support": false
+      "smart_support": false,
+      "scrutiny_uuid": "d8796fe7-2422-520c-8991-e970993dad3e"
     },
     {
       "wwn": "0x5000cca264ebc248",
@@ -68,7 +72,8 @@
       "rotational_speed": 0,
       "capacity": 14000519643136,
       "form_factor": "",
-      "smart_support": false
+      "smart_support": false,
+      "scrutiny_uuid": "00328b73-9f8a-53ad-8f20-8d0b1be00f47"
     },
     {
       "wwn": "0x50014ee20b2a72a9",
@@ -82,7 +87,8 @@
       "rotational_speed": 0,
       "capacity": 6001175126016,
       "form_factor": "",
-      "smart_support": false
+      "smart_support": false,
+      "scrutiny_uuid": "e5ccc378-24fc-5a9d-b1ce-8732096a9ea5"
     },
     {
       "wwn": "0x5000c500673e6b5f",
@@ -96,7 +102,8 @@
       "rotational_speed": 0,
       "capacity": 6001175126016,
       "form_factor": "",
-      "smart_support": false
+      "smart_support": false,
+      "scrutiny_uuid": "acfbce7d-0e19-579b-895e-85809dab63fb"
     }
   ]
 }

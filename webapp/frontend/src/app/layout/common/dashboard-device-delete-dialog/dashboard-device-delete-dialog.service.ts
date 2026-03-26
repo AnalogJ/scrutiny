@@ -27,8 +27,8 @@ export class DashboardDeviceDeleteDialogService
     // -----------------------------------------------------------------------------------------------------
 
 
-    deleteDevice(wwn: string): Observable<any>
+    deleteDevice(scrutiny_uuid: string): Observable<any>
     {
-        return this._httpClient.delete( `${getBasePath()}/api/device/${wwn}`, {});
+        return this._httpClient.delete( `${getBasePath()}/api/device/${scrutiny_uuid}`, {});
     }
 }

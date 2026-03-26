@@ -3,7 +3,6 @@ package detect
 import (
 	"github.com/analogj/scrutiny/collector/pkg/common/shell"
 	"github.com/analogj/scrutiny/collector/pkg/models"
-	"strings"
 )
 
 func DevicePrefix() string {
@@ -26,14 +25,7 @@ func (d *Detect) Start() ([]models.Device, error) {
 	return detectedDevices, nil
 }
 
-//WWN values NVMe and SCSI
+// WWN values NVMe and SCSI
 func (d *Detect) wwnFallback(detectedDevice *models.Device) {
-
-	//fallback to serial number
-	if len(detectedDevice.WWN) == 0 {
-		detectedDevice.WWN = detectedDevice.SerialNumber
-	}
-
-	//wwn must always be lowercase.
-	detectedDevice.WWN = strings.ToLower(detectedDevice.WWN)
+	// No fallback on windows
 }

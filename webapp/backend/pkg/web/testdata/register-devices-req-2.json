@@ -14,7 +14,8 @@
       "form_factor": "",
       "smart_support": false,
       "device_protocol": "NVMe",
-      "device_type": "nvme"
+      "device_type": "nvme",
+      "scrutiny_uuid": "bde1d2d2-7e5c-525a-8327-6adbfa382637"
     }
   ]
 }

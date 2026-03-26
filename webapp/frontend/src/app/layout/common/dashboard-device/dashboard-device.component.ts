@@ -75,22 +75,22 @@ export class DashboardDeviceComponent implements OnInit {
 
     openArchiveDialog(): void {
         if(this.deviceSummary.device.archived){
-            this._archiveService.unarchiveDevice(this.deviceSummary.device.wwn).subscribe((result) => {
+            this._archiveService.unarchiveDevice(this.deviceSummary.device.scrutiny_uuid).subscribe((result) => {
                 if(result) {
-                    this.deviceUnarchived.emit(this.deviceSummary.device.wwn)
+                    this.deviceUnarchived.emit(this.deviceSummary.device.scrutiny_uuid)
                 }
             })
             return;
         }
         const dialogRef = this.dialog.open(DashboardDeviceArchiveDialogComponent, {
             data: {
-                wwn: this.deviceSummary.device.wwn,
+                scrutiny_uuid: this.deviceSummary.device.scrutiny_uuid,
                 title: DeviceTitlePipe.deviceTitleWithFallback(this.deviceSummary.device, this.config.dashboard_display)
             }
         });
         dialogRef.afterClosed().subscribe(result => {
             if(result) {
-                this.deviceArchived.emit(this.deviceSummary.device.wwn);
+                this.deviceArchived.emit(this.deviceSummary.device.scrutiny_uuid);
             }
         })
     }
@@ -99,7 +99,7 @@ export class DashboardDeviceComponent implements OnInit {
         const dialogRef = this.dialog.open(DashboardDeviceDeleteDialogComponent, {
             // width: '250px',
             data: {
-                wwn: this.deviceSummary.device.wwn,
+                scrutiny_uuid: this.deviceSummary.device.scrutiny_uuid,
                 title: DeviceTitlePipe.deviceTitleWithFallback(this.deviceSummary.device, this.config.dashboard_display)
             }
         });
@@ -107,7 +107,7 @@ export class DashboardDeviceComponent implements OnInit {
         dialogRef.afterClosed().subscribe(result => {
             console.log('The dialog was closed', result);
             if (result.success) {
-                this.deviceDeleted.emit(this.deviceSummary.device.wwn)
+                this.deviceDeleted.emit(this.deviceSummary.device.scrutiny_uuid)
             }
         });
     }

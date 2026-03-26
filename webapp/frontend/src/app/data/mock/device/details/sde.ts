@@ -5,6 +5,7 @@ export const sde = {
             'UpdatedAt': '2021-10-24T16:40:16.495248-07:00',
             'DeletedAt': null,
             'wwn': '0x5000cca264ebc248',
+            'scrutiny_uuid': '00328b73-9f8a-53ad-8f20-8d0b1be00f47',
             'device_name': 'sde',
             'manufacturer': 'ATA',
             'model_name': 'WDC_WD140EDFZ-11A0VA0',
@@ -25,6 +26,7 @@ export const sde = {
         'smart_results': [{
             'date': '2021-10-24T23:20:44Z',
             'device_wwn': '0x5000cca264ebc248',
+            'scrutiny_uuid': '00328b73-9f8a-53ad-8f20-8d0b1be00f47',
             'device_protocol': 'SCSI',
             'temp': 31,
             'power_on_hours': 5675,

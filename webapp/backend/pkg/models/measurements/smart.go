@@ -10,11 +10,13 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
+	"github.com/gofrs/uuid/v5"
 )
 
 type Smart struct {
 	Date           time.Time `json:"date"`
-	DeviceWWN      string    `json:"device_wwn"` //(tag)
+	DeviceWWN      string    `json:"device_wwn`     // deprecated
+	ScrutinyUUID   uuid.UUID `json:"scrutiny_uuid"` //(tag)
 	DeviceProtocol string    `json:"device_protocol"`
 
 	//Metrics (fields)
@@ -31,7 +33,7 @@ type Smart struct {
 
 func (sm *Smart) Flatten() (tags map[string]string, fields map[string]interface{}) {
 	tags = map[string]string{
-		"device_wwn":      sm.DeviceWWN,
+		"scrutiny_uuid":   sm.ScrutinyUUID.String(),
 		"device_protocol": sm.DeviceProtocol,
 	}
 
@@ -53,10 +55,15 @@ func (sm *Smart) Flatten() (tags map[string]string, fields map[string]interface{
 func NewSmartFromInfluxDB(attrs map[string]interface{}) (*Smart, error) {
 	//go though the massive map returned from influxdb. If a key is associated with the Smart struct, assign it. If it starts with "attr.*" group it by attributeId, and pass to attribute inflate.
 
+	scrutiny_uuid, err := uuid.FromString(attrs["scrutiny_uuid"].(string))
+	if err != nil {
+		return nil, err
+	}
+
 	sm := Smart{
 		//required fields
 		Date:           attrs["_time"].(time.Time),
-		DeviceWWN:      attrs["device_wwn"].(string),
+		ScrutinyUUID:   scrutiny_uuid,
 		DeviceProtocol: attrs["device_protocol"].(string),
 
 		Attributes: map[string]SmartAttribute{},
@@ -112,14 +119,14 @@ func NewSmartFromInfluxDB(attrs map[string]interface{}) (*Smart, error) {
 
 	}
 
-	log.Printf("Found Smart Device (%s) Attributes (%v)", sm.DeviceWWN, len(sm.Attributes))
+	log.Printf("Found Smart Device (%s) Attributes (%v)", sm.ScrutinyUUID, len(sm.Attributes))
 
 	return &sm, nil
 }
 
 // Parse Collector SMART data results and create Smart object (and associated SmartAtaAttribute entries)
-func (sm *Smart) FromCollectorSmartInfo(wwn string, info collector.SmartInfo) error {
-	sm.DeviceWWN = wwn
+func (sm *Smart) FromCollectorSmartInfo(scrutiny_uuid uuid.UUID, info collector.SmartInfo) error {
+	sm.ScrutinyUUID = scrutiny_uuid
 	sm.Date = time.Unix(info.LocalTime.TimeT, 0)
 
 	//smart metrics
@@ -133,11 +140,12 @@ func (sm *Smart) FromCollectorSmartInfo(wwn string, info collector.SmartInfo) er
 	sm.DeviceProtocol = info.Device.Protocol
 	// process ATA/NVME/SCSI protocol data
 	sm.Attributes = map[string]SmartAttribute{}
-	if sm.DeviceProtocol == pkg.DeviceProtocolAta {
+	switch sm.DeviceProtocol {
+	case pkg.DeviceProtocolAta:
 		sm.ProcessAtaSmartInfo(info.AtaSmartAttributes.Table)
-	} else if sm.DeviceProtocol == pkg.DeviceProtocolNvme {
+	case pkg.DeviceProtocolNvme:
 		sm.ProcessNvmeSmartInfo(info.NvmeSmartHealthInformationLog)
-	} else if sm.DeviceProtocol == pkg.DeviceProtocolScsi {
+	case pkg.DeviceProtocolScsi:
 		sm.ProcessScsiSmartInfo(info.ScsiGrownDefectList, info.ScsiErrorCounterLog)
 	}
 

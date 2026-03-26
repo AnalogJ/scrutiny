@@ -37,7 +37,7 @@ export class DeviceTitlePipe implements PipeTransform {
     }
 
     static deviceTitleWithFallback(device: DeviceModel, titleType: string): string {
-        console.log(`Displaying Device ${device.wwn} with: ${titleType}`)
+        console.log(`Displaying Device ${device.scrutiny_uuid} with: ${titleType}`)
         const titleParts = []
         if (device.host_id) titleParts.push(device.host_id)
 

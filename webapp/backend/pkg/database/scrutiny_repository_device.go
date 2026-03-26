@@ -8,6 +8,7 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
+	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm/clause"
 )
 
@@ -19,7 +20,7 @@ import (
 // update device fields that may change: (DeviceType, HostID)
 func (sr *scrutinyRepository) RegisterDevice(ctx context.Context, dev models.Device) error {
 	if err := sr.gormClient.WithContext(ctx).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "wwn"}},
+		Columns:   []clause.Column{{Name: "scrutiny_uuid"}},
 		DoUpdates: clause.AssignmentColumns([]string{"host_id", "device_name", "device_type", "device_uuid", "device_serial_id", "device_label"}),
 	}).Create(&dev).Error; err != nil {
 		return err
@@ -38,9 +39,9 @@ func (sr *scrutinyRepository) GetDevices(ctx context.Context) ([]models.Device, 
 }
 
 // update device (only metadata) from collector
-func (sr *scrutinyRepository) UpdateDevice(ctx context.Context, wwn string, collectorSmartData collector.SmartInfo) (models.Device, error) {
+func (sr *scrutinyRepository) UpdateDevice(ctx context.Context, scrutiny_uuid uuid.UUID, collectorSmartData collector.SmartInfo) (models.Device, error) {
 	var device models.Device
-	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
+	if err := sr.gormClient.WithContext(ctx).Where("scrutiny_uuid = ?", scrutiny_uuid.String()).First(&device).Error; err != nil {
 		return device, fmt.Errorf("could not get device from DB: %v", err)
 	}
 
@@ -53,9 +54,9 @@ func (sr *scrutinyRepository) UpdateDevice(ctx context.Context, wwn string, coll
 }
 
 // Update Device Status
-func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, wwn string, status pkg.DeviceStatus) (models.Device, error) {
+func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, scrutiny_uuid uuid.UUID, status pkg.DeviceStatus) (models.Device, error) {
 	var device models.Device
-	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
+	if err := sr.gormClient.WithContext(ctx).Where("scrutiny_uuid = ?", scrutiny_uuid.String()).First(&device).Error; err != nil {
 		return device, fmt.Errorf("could not get device from DB: %v", err)
 	}
 
@@ -63,12 +64,12 @@ func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, wwn string
 	return device, sr.gormClient.Model(&device).Updates(device).Error
 }
 
-func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, wwn string) (models.Device, error) {
+func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, scrutiny_uuid uuid.UUID) (models.Device, error) {
 	var device models.Device
 
 	fmt.Println("GetDeviceDetails from GORM")
 
-	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
+	if err := sr.gormClient.WithContext(ctx).Where("scrutiny_uuid = ?", scrutiny_uuid.String()).First(&device).Error; err != nil {
 		return models.Device{}, err
 	}
 
@@ -76,17 +77,17 @@ func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, wwn string) 
 }
 
 // Update Device Archived State
-func (sr *scrutinyRepository) UpdateDeviceArchived(ctx context.Context, wwn string, archived bool) error {
+func (sr *scrutinyRepository) UpdateDeviceArchived(ctx context.Context, scrutiny_uuid uuid.UUID, archived bool) error {
 	var device models.Device
-	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).First(&device).Error; err != nil {
+	if err := sr.gormClient.WithContext(ctx).Where("scrutiny_uuid = ?", scrutiny_uuid.String()).First(&device).Error; err != nil {
 		return fmt.Errorf("could not get device from DB: %v", err)
 	}
 
-	return sr.gormClient.Model(&device).Where("wwn = ?", wwn).Update("archived", archived).Error
+	return sr.gormClient.Model(&device).Where("scrutiny_uuid = ?", scrutiny_uuid.String()).Update("archived", archived).Error
 }
 
-func (sr *scrutinyRepository) DeleteDevice(ctx context.Context, wwn string) error {
-	if err := sr.gormClient.WithContext(ctx).Where("wwn = ?", wwn).Delete(&models.Device{}).Error; err != nil {
+func (sr *scrutinyRepository) DeleteDevice(ctx context.Context, scrutiny_uuid uuid.UUID) error {
+	if err := sr.gormClient.WithContext(ctx).Where("scrutiny_uuid = ?", scrutiny_uuid.String()).Delete(&models.Device{}).Error; err != nil {
 		return err
 	}
 
@@ -99,14 +100,14 @@ func (sr *scrutinyRepository) DeleteDevice(ctx context.Context, wwn string) erro
 	}
 
 	for _, bucket := range buckets {
-		sr.logger.Infof("Deleting data for %s in bucket: %s", wwn, bucket)
+		sr.logger.Infof("Deleting data for %s in bucket: %s", scrutiny_uuid.String(), bucket)
 		if err := sr.influxClient.DeleteAPI().DeleteWithName(
 			ctx,
 			sr.appConfig.GetString("web.influxdb.org"),
 			bucket,
 			time.Now().AddDate(-10, 0, 0),
 			time.Now(),
-			fmt.Sprintf(`device_wwn="%s"`, wwn),
+			fmt.Sprintf(`scrutiny_uuid="%s"`, scrutiny_uuid.String()),
 		); err != nil {
 			return err
 		}

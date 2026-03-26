@@ -67,9 +67,8 @@ func (sa *SmartScsiAttribute) Inflate(key string, val interface{}) {
 	}
 }
 
-//
-//populate attribute status, using SMART Thresholds & Observed Metadata
-//Chainable
+// populate attribute status, using SMART Thresholds & Observed Metadata
+// Chainable
 func (sa *SmartScsiAttribute) PopulateAttributeStatus() *SmartScsiAttribute {
 
 	//-1 is a special number meaning no threshold.

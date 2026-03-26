@@ -5,6 +5,7 @@ export const sdf = {
             'UpdatedAt': '2021-06-24T21:17:31.305246-07:00',
             'DeletedAt': null,
             'wwn': '0x50014ee20b2a72a9',
+            'scrutiny_uuid': 'e5ccc378-24fc-5a9d-b1ce-8732096a9ea5',
             'device_name': 'sdf',
             'manufacturer': 'ATA',
             'model_name': 'WDC_WD60EFRX-68MYMN1',

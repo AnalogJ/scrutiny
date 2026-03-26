@@ -19,6 +19,7 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web"
+	"github.com/gofrs/uuid/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -35,7 +36,7 @@ docker run --rm -it -p 8086:8086 \
 -e DOCKER_INFLUXDB_INIT_ORG=scrutiny \
 -e DOCKER_INFLUXDB_INIT_BUCKET=metrics \
 -e DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token \
-influxdb:2.0
+influxdb:2.2
 */
 
 //func TestMain(m *testing.M) {
@@ -216,7 +217,7 @@ func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 	require.Equal(suite.T(), 200, wr.Code)
 
 	mr := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/0x5000cca264eb01d7/smart", metricsfile)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/9a4d34b5-b2ee-51ef-8506-90eea09be417/smart", metricsfile)
 	router.ServeHTTP(mr, req)
 	require.Equal(suite.T(), 200, mr.Code)
 
@@ -275,28 +276,31 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 	router.ServeHTTP(wr, req)
 	require.Equal(suite.T(), 200, wr.Code)
 
+	// NOTE: The scrutiny_uuid's below must come from devicesfile because those get inserted into the database.
+	// They don't match the scrutiny_uuid that would be derived from the smart info files because the drives
+	// in those files don't match those in the registration. Currently, scrutiny does not reconcile the two.
 	mr := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/0x5000cca264eb01d7/smart", metricsfile)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c/smart", metricsfile)
 	router.ServeHTTP(mr, req)
 	require.Equal(suite.T(), 200, mr.Code)
 
 	fr := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/0x5000cca264ec3183/smart", failfile)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/3ea22b35-682b-49fb-a655-abffed108e48/smart", failfile)
 	router.ServeHTTP(fr, req)
 	require.Equal(suite.T(), 200, fr.Code)
 
 	nr := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/0x5002538e40a22954/smart", nvmefile)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/d8796fe7-2422-520c-8991-e970993dad3e/smart", nvmefile)
 	router.ServeHTTP(nr, req)
 	require.Equal(suite.T(), 200, nr.Code)
 
 	sr := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/0x5000cca252c859cc/smart", scsifile)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/00328b73-9f8a-53ad-8f20-8d0b1be00f47/smart", scsifile)
 	router.ServeHTTP(sr, req)
 	require.Equal(suite.T(), 200, sr.Code)
 
 	s2r := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/0x5000cca264ebc248/smart", scsi2file)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/e5ccc378-24fc-5a9d-b1ce-8732096a9ea5/smart", scsi2file)
 	router.ServeHTTP(s2r, req)
 	require.Equal(suite.T(), 200, s2r.Code)
 
@@ -555,7 +559,7 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	require.Equal(suite.T(), 200, wr.Code)
 
 	mr := httptest.NewRecorder()
-	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/a4c8e8ed-11a0-4c97-9bba-306440f1b944/smart", metricsfile)
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/bde1d2d2-7e5c-525a-8327-6adbfa382637/smart", metricsfile)
 	router.ServeHTTP(mr, req)
 	require.Equal(suite.T(), 200, mr.Code)
 
@@ -568,6 +572,8 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	require.NoError(suite.T(), err)
 
 	//assert
-	require.Equal(suite.T(), "a4c8e8ed-11a0-4c97-9bba-306440f1b944", deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.WWN)
-	require.Equal(suite.T(), pkg.DeviceStatusPassed, deviceSummary.Data.Summary["a4c8e8ed-11a0-4c97-9bba-306440f1b944"].Device.DeviceStatus)
+	deviceUUIDString := "bde1d2d2-7e5c-525a-8327-6adbfa382637"
+	deviceUUID := uuid.Must(uuid.FromString(deviceUUIDString))
+	require.Equal(suite.T(), deviceUUID, deviceSummary.Data.Summary[deviceUUIDString].Device.ScrutinyUUID)
+	require.Equal(suite.T(), pkg.DeviceStatusPassed, deviceSummary.Data.Summary[deviceUUIDString].Device.DeviceStatus)
 }

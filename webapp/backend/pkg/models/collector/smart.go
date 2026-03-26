@@ -207,10 +207,10 @@ type SmartInfo struct {
 		ID          int `json:"id"`
 		SubsystemID int `json:"subsystem_id"`
 	} `json:"nvme_pci_vendor"`
-	NvmeIeeeOuiIdentifier  int   `json:"nvme_ieee_oui_identifier"`
-	NvmeTotalCapacity      int64 `json:"nvme_total_capacity"`
-	NvmeControllerID       int   `json:"nvme_controller_id"`
-	NvmeNumberOfNamespaces int   `json:"nvme_number_of_namespaces"`
+	NvmeIeeeOuiIdentifier  uint32 `json:"nvme_ieee_oui_identifier"`
+	NvmeTotalCapacity      int64  `json:"nvme_total_capacity"`
+	NvmeControllerID       int    `json:"nvme_controller_id"`
+	NvmeNumberOfNamespaces int    `json:"nvme_number_of_namespaces"`
 	NvmeNamespaces         []struct {
 		ID   int `json:"id"`
 		Size struct {
@@ -226,6 +226,10 @@ type SmartInfo struct {
 			Bytes  int64 `json:"bytes"`
 		} `json:"utilization"`
 		FormattedLbaSize int `json:"formatted_lba_size"`
+		Eui64            struct {
+			Oui   uint32 `json:"oui"`
+			ExtId uint64 `json:"ext_id"`
+		} `json:"eui64"`
 	} `json:"nvme_namespaces"`
 	NvmeSmartHealthInformationLog NvmeSmartHealthInformationLog `json:"nvme_smart_health_information_log"`
 

@@ -4,12 +4,13 @@ import * as moment from 'moment';
 export const summary = {
     'data': {
         'summary': {
-            '0x5000c500673e6b5f': {
+            'acfbce7d-0e19-579b-895e-85809dab63fb': {
                 'device': {
                     'CreatedAt': '2021-04-30T08:17:13.155217-07:00',
                     'UpdatedAt': '2021-04-30T08:17:13.155217-07:00',
                     'DeletedAt': null,
                     'wwn': '0x5000c500673e6b5f',
+                    'scrutiny_uuid': 'acfbce7d-0e19-579b-895e-85809dab63fb',
                     'device_name': 'sdg',
                     'device_label': '14TB-WD-DRIVE2',
                     'device_uuid': '',
@@ -32,12 +33,13 @@ export const summary = {
                     'archived': false
                 }
             },
-            '0x5000cca252c859cc': {
+            'd8796fe7-2422-520c-8991-e970993dad3e': {
                 'device': {
                     'CreatedAt': '2021-04-30T08:17:13.152705-07:00',
                     'UpdatedAt': '2021-05-02T14:22:50.357164-07:00',
                     'DeletedAt': null,
                     'wwn': '0x5000cca252c859cc',
+                    'scrutiny_uuid': 'd8796fe7-2422-520c-8991-e970993dad3e',
                     'device_name': 'sdd',
                     'device_label': '14TB-WD-DRIVE1',
                     'device_uuid': '806cf4bc-d160-4d96-8ee9-3ab7cf2a2e1f',
@@ -69,21 +71,22 @@ export const summary = {
                     'temp': 34
                 }]
             },
-            '0x5000cca264eb01d7': {
+            '3ea22b35-682b-49fb-a655-abffed108e48': {
                 'device': {
                     'CreatedAt': '2021-04-28T20:52:49.047154-07:00',
                     'UpdatedAt': '2021-05-02T14:22:49.86136-07:00',
                     'DeletedAt': null,
                     'wwn': '0x5000cca264eb01d7',
+                    'scrutiny_uuid': '3ea22b35-682b-49fb-a655-abffed108e48',
                     'device_name': 'sdb',
                     'device_label': '14TB-WD-DRIVE5',
                     'device_uuid': '8125ec6d-a7e4-4950-ac84-72d6a4d67128',
-                    'device_serial_id': 'ata-WDC_WD140EDFZ-11A0VA0-9RK1XXXXX',
+                    'device_serial_id': 'ata-WDC_WD140EDFZ-11A0VA0-9RK1XXXX',
                     'manufacturer': 'ATA',
                     'model_name': 'WDC_WD140EDFZ-11A0VA0',
                     'interface_type': 'SCSI',
                     'interface_speed': '',
-                    'serial_number': '9RK1XXXXX',
+                    'serial_number': '9RK1XXXX',
                     'firmware': '81.00A81',
                     'rotational_speed': 0,
                     'capacity': 14000519643136,
@@ -106,12 +109,13 @@ export const summary = {
                     'temp': 32
                 }]
             },
-            '0x5000cca264ebc248': {
+            '00328b73-9f8a-53ad-8f20-8d0b1be00f47': {
                 'device': {
                     'CreatedAt': '2021-04-30T08:17:13.153782-07:00',
                     'UpdatedAt': '2021-05-02T14:22:50.385282-07:00',
                     'DeletedAt': null,
                     'wwn': '0x5000cca264ebc248',
+                    'scrutiny_uuid': '00328b73-9f8a-53ad-8f20-8d0b1be00f47',
                     'device_name': 'sde',
                     'device_label': '14TB-WD-DRIVE3',
                     'device_uuid': '9eb60cde-d6d0-4172-b520-b241a6a5477f',
@@ -134,12 +138,13 @@ export const summary = {
                     'archived': false
                 }
             },
-            '0x5000cca264ec3183': {
+            '42caca8a-9b95-5c75-b059-305771a2a193': {
                 'device': {
                     'CreatedAt': '2021-04-30T08:17:13.151906-07:00',
                     'UpdatedAt': '2021-05-02T14:49:51.645012-07:00',
                     'DeletedAt': null,
                     'wwn': '0x5000cca264ec3183',
+                    'scrutiny_uuid': '42caca8a-9b95-5c75-b059-305771a2a193',
                     'device_name': 'sdc',
                     'device_label': '14TB-WD-DRIVE6',
                     'device_uuid': 'e1378723-7861-49b9-8e01-0bd063f0ecdd',
@@ -555,12 +560,13 @@ export const summary = {
                     'temp': 39
                 }]
             },
-            '0x50014ee20b2a72a9': {
+            'e5ccc378-24fc-5a9d-b1ce-8732096a9ea5': {
                 'device': {
                     'CreatedAt': '2021-04-30T08:17:13.15451-07:00',
                     'UpdatedAt': '2021-04-30T08:17:13.15451-07:00',
                     'DeletedAt': null,
                     'wwn': '0x50014ee20b2a72a9',
+                    'scrutiny_uuid': 'e5ccc378-24fc-5a9d-b1ce-8732096a9ea5',
                     'device_name': 'sdf',
                     'device_label': '8.0TB-WD-4',
                     'device_uuid': 'fc684dcc-aa2f-44f3-a958-d302dc7dd46d',
@@ -583,12 +589,13 @@ export const summary = {
                     'archived': false
                 }
             },
-            '0x5002538e40a22954': {
+            'ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c': {
                 'device': {
                     'CreatedAt': '2021-04-30T08:17:13.150792-07:00',
                     'UpdatedAt': '2021-05-02T14:22:50.330706-07:00',
                     'DeletedAt': null,
                     'wwn': '0x5002538e40a22954',
+                    'scrutiny_uuid': 'ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c',
                     'device_name': 'sda',
                     'device_label': '',
                     'device_uuid': '',

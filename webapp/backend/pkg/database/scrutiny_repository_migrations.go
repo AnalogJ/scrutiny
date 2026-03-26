@@ -7,12 +7,14 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/analogj/scrutiny/collector/pkg/detect"
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20201107210306"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220503120000"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220509170100"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220716214900"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20250221084400"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20260216155600"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
@@ -424,6 +426,53 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				return tx.Create(&defaultSettings).Error
 			},
 		},
+		{
+			ID: "m20260216155600", // add ScrutinyUUID as primary key
+			Migrate: func(tx *gorm.DB) error {
+				devices := []m20260216155600.Device{}
+				if err := tx.Find(&devices).Error; err != nil {
+					return err
+				}
+				sr.logger.Debug("Generating Scrutiny UUIDs")
+				for i := range devices {
+					device := &devices[i]
+					device.ScrutinyUUID = detect.GenerateScrutinyUUID(device.ModelName, device.SerialNumber, device.WWN)
+				}
+
+				// sqlite doesn't support altering columns
+				// so we have to create a new one, drop the old one, then rename.
+				sr.logger.Debug("Creating new devices table")
+				tx.Table("devices_new").AutoMigrate(&m20260216155600.Device{})
+				if len(devices) > 0 {
+					if err := tx.Table("devices_new").Create(&devices).Error; err != nil {
+						return err
+					}
+				}
+
+				sr.logger.Debug("Dropping old devices table")
+				if err := tx.Migrator().DropTable(&m20260216155600.Device{}); err != nil {
+					return err
+				}
+
+				sr.logger.Debug("Renaming new device table")
+				if err := tx.Migrator().RenameTable("devices_new", "devices"); err != nil {
+					return err
+				}
+
+				//
+				wwnToUUID := make(map[string]string)
+				for _, device := range devices {
+					wwnToUUID[device.WWN] = device.ScrutinyUUID.String()
+				}
+
+				err := m20260216155600_ChangeInfluxDBTags(sr, ctx, wwnToUUID)
+				if ignorePastRetentionPolicyError(err) != nil {
+					return err
+				}
+
+				return nil
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
@@ -471,6 +520,91 @@ func ignorePastRetentionPolicyError(err error) error {
 		}
 	}
 	return err
+}
+
+func m20260216155600_ChangeInfluxDBTags(sr *scrutinyRepository, ctx context.Context, wwnToUUID map[string]string) error {
+	bucket := sr.appConfig.GetString("web.influxdb.bucket")
+	org := sr.appConfig.GetString("web.influxdb.org")
+	bucketNames := []string{
+		bucket,
+		fmt.Sprintf("%s_weekly", bucket),
+		fmt.Sprintf("%s_monthly", bucket),
+		fmt.Sprintf("%s_yearly", bucket),
+	}
+
+	const batchSize = 1000
+	bucketsAPI := sr.influxClient.BucketsAPI()
+
+	for _, bucketName := range bucketNames {
+		newBucketName := fmt.Sprintf("%s_new", bucketName)
+
+		// Step 1: Create the new bucket. Copy retention rules from the original.
+		sr.logger.Debugf("Creating temporary bucket %s...", newBucketName)
+		oldBucket, err := bucketsAPI.FindBucketByName(ctx, bucketName)
+		if err != nil {
+			return fmt.Errorf("Failed to find bucket %s: %w", bucketName, err)
+		}
+
+		// Delete leftover _new bucket from a previous failed migration attempt.
+		if existingNew, _ := bucketsAPI.FindBucketByName(ctx, newBucketName); existingNew != nil {
+			sr.logger.Debugf("Found leftover bucket %s from previous migration, deleting...", newBucketName)
+			if err := bucketsAPI.DeleteBucket(ctx, existingNew); err != nil {
+				return fmt.Errorf("Failed to delete leftover bucket %s: %w", newBucketName, err)
+			}
+		}
+
+		orgObj, err := sr.influxClient.OrganizationsAPI().FindOrganizationByName(ctx, org)
+		if err != nil {
+			return fmt.Errorf("failed to find organization %s: %w", org, err)
+		}
+
+		newBucket, err := bucketsAPI.CreateBucketWithName(ctx, orgObj, newBucketName, oldBucket.RetentionRules...)
+		if err != nil {
+			return fmt.Errorf("failed to create bucket %s: %w", newBucketName, err)
+		}
+
+		for wwn, scrutinyUUID := range wwnToUUID {
+			sr.logger.Debugf("Copying points from %s to %s for wwn %s...", bucketName, newBucketName, wwn)
+
+			offset := 0
+			for ; ; offset += batchSize {
+				queryStr := fmt.Sprintf(`
+					from(bucket: "%s")
+					|> range(start: -10y, stop: now())
+					|> filter(fn: (r) => r["_measurement"] == "smart" or r["_measurement"] == "temp")
+					|> filter(fn: (r) => r["device_wwn"] == "%s")
+					|> limit(n: %d, offset: %d)
+					|> drop(columns: ["device_wwn"])
+					|> set(key: "scrutiny_uuid", value: "%s")
+					|> to(bucket: "%s")
+				`, bucketName, wwn, batchSize, offset, scrutinyUUID, newBucketName)
+
+				result, err := sr.influxQueryApi.Query(ctx, queryStr)
+				if err != nil {
+					return fmt.Errorf("failed to copy points from %s to %s for wwn %s (offset %d): %w", bucketName, newBucketName, wwn, offset, err)
+				}
+
+				if !result.Next() {
+					break
+				}
+			}
+			sr.logger.Debugf("Copied approx. %d points for wwn %s", offset, wwn)
+		}
+
+		sr.logger.Debugf("Replacing bucket %s with %s...", bucketName, newBucketName)
+		if err := bucketsAPI.DeleteBucket(ctx, oldBucket); err != nil {
+			return fmt.Errorf("Failed to delete old bucket %s: %w", bucketName, err)
+		}
+
+		newBucket.Name = bucketName
+		if _, err := bucketsAPI.UpdateBucket(ctx, newBucket); err != nil {
+			return fmt.Errorf("Failed to rename bucket %s to %s: %w", newBucketName, bucketName, err)
+		}
+
+		sr.logger.Debugf("Bucket %s migrated successfully", bucketName)
+	}
+
+	return nil
 }
 
 // Deprecated

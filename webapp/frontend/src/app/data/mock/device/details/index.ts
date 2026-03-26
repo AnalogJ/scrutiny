@@ -40,7 +40,7 @@ export class DetailsMockApi implements TreoMockApi
     register(): void
     {
         this._treoMockApiService
-            .onGet('/api/device/0x5002538e40a22954/details')
+            .onGet('/api/device/ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c/details')
             .reply(() => {
 
                 return [
@@ -50,7 +50,7 @@ export class DetailsMockApi implements TreoMockApi
             });
 
         this._treoMockApiService
-            .onGet('/api/device/0x5000cca264eb01d7/details')
+            .onGet('/api/device/3ea22b35-682b-49fb-a655-abffed108e48/details')
             .reply(() => {
 
                 return [
@@ -60,7 +60,7 @@ export class DetailsMockApi implements TreoMockApi
             });
 
         this._treoMockApiService
-            .onGet('/api/device/0x5000cca264ec3183/details')
+            .onGet('/api/device/42caca8a-9b95-5c75-b059-305771a2a193/details')
             .reply(() => {
 
                 return [
@@ -70,7 +70,7 @@ export class DetailsMockApi implements TreoMockApi
             });
 
         this._treoMockApiService
-            .onGet('/api/device/0x5000cca252c859cc/details')
+            .onGet('/api/device/d8796fe7-2422-520c-8991-e970993dad3e/details')
             .reply(() => {
 
                 return [
@@ -80,7 +80,17 @@ export class DetailsMockApi implements TreoMockApi
             });
 
         this._treoMockApiService
-            .onGet('/api/device/0x5000cca264ebc248/details')
+            .onGet('/api/device/00328b73-9f8a-53ad-8f20-8d0b1be00f47/details')
+            .reply(() => {
+
+                return [
+                    200,
+                    _.cloneDeep(sde)
+                ];
+            });
+
+        this._treoMockApiService
+            .onGet('/api/device/e5ccc378-24fc-5a9d-b1ce-8732096a9ea5/details')
             .reply(() => {
 
                 return [

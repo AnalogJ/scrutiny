@@ -26,13 +26,13 @@ export class DashboardDeviceArchiveDialogService
     // -----------------------------------------------------------------------------------------------------
 
 
-    archiveDevice(wwn: string): Observable<any>
+    archiveDevice(scrutiny_uid: string): Observable<any>
     {
-        return this._httpClient.post( `${getBasePath()}/api/device/${wwn}/archive`, {});
+        return this._httpClient.post( `${getBasePath()}/api/device/${scrutiny_uid}/archive`, {});
     }
 
-    unarchiveDevice(wwn: string): Observable<any>
+    unarchiveDevice(scrutiny_uid: string): Observable<any>
     {
-        return this._httpClient.post( `${getBasePath()}/api/device/${wwn}/unarchive`, {});
+        return this._httpClient.post( `${getBasePath()}/api/device/${scrutiny_uid}/unarchive`, {});
     }
 }

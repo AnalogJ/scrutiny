@@ -1,10 +1,11 @@
 package detect
 
 import (
+	"strings"
+
 	"github.com/analogj/scrutiny/collector/pkg/common/shell"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/jaypipes/ghw"
-	"strings"
 )
 
 func DevicePrefix() string {
@@ -89,7 +90,7 @@ func (d *Detect) findMissingDevices(detectedDevices []models.Device) ([]models.D
 	return missingDevices, nil
 }
 
-//WWN values NVMe and SCSI
+// WWN values NVMe and SCSI
 func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 	block, err := ghw.Block()
 	if err == nil {
@@ -100,12 +101,6 @@ func (d *Detect) wwnFallback(detectedDevice *models.Device) {
 				break
 			}
 		}
-	}
-
-	//no WWN found, or could not open Block devices. Either way, fallback to serial number
-	if len(detectedDevice.WWN) == 0 {
-		d.Logger.Debugf("WWN is empty, falling back to serial number: %s", detectedDevice.SerialNumber)
-		detectedDevice.WWN = detectedDevice.SerialNumber
 	}
 
 	//wwn must always be lowercase.

@@ -42,8 +42,8 @@ export class DetailService {
     /**
      * Get data
      */
-    getData(wwn): Observable<DeviceDetailsResponseWrapper> {
-        return this._httpClient.get(getBasePath() + `/api/device/${wwn}/details`).pipe(
+    getData(scrutiny_uuid): Observable<DeviceDetailsResponseWrapper> {
+        return this._httpClient.get(getBasePath() + `/api/device/${scrutiny_uuid}/details`).pipe(
             tap((response: DeviceDetailsResponseWrapper) => {
                 this._data.next(response);
             })
