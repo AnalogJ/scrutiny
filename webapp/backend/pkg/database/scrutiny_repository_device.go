@@ -74,6 +74,7 @@ func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, scrutiny_u
 	}
 
 	device.DeviceStatus = pkg.DeviceStatusSet(device.DeviceStatus, status)
+	device.FriendlyName = sr.GetDeviceFriendlyName(device.ScrutinyUUID)
 	return device, sr.gormClient.Model(&device).Updates(device).Error
 }
 

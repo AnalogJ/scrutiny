@@ -20,9 +20,9 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid/v5"
 	"github.com/nicholas-fedor/shoutrrr"
 	shoutrrrTypes "github.com/nicholas-fedor/shoutrrr/pkg/types"
-	"github.com/gofrs/uuid/v5"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -127,6 +127,7 @@ type Payload struct {
 	HostId       string `json:"host_id,omitempty"` //host id (optional)
 	DeviceType   string `json:"device_type"`       //ATA/SCSI/NVMe
 	DeviceName   string `json:"device_name"`       //dev/sda
+	FriendlyName string `json:"friendly_name"`     //dev/sda
 	DeviceSerial string `json:"device_serial"`     //WDDJ324KSO
 	Test         bool   `json:"test"`              // false
 
@@ -142,6 +143,7 @@ func NewPayload(device models.Device, test bool, currentTime ...time.Time) Paylo
 		HostId:       strings.TrimSpace(device.HostId),
 		DeviceType:   device.DeviceType,
 		DeviceName:   device.DeviceName,
+		FriendlyName: device.FriendlyName,
 		DeviceSerial: device.SerialNumber,
 		Test:         test,
 	}
@@ -194,6 +196,10 @@ func (p *Payload) GenerateMessage() string {
 	messageParts = append(messageParts, fmt.Sprintf("Scrutiny SMART error notification for device: %s", p.DeviceName))
 	if len(p.HostId) > 0 {
 		messageParts = append(messageParts, fmt.Sprintf("Host Id: %s", p.HostId))
+	}
+
+	if len(p.FriendlyName) > 0 {
+		messageParts = append(messageParts, fmt.Sprintf("Name: %s", p.FriendlyName))
 	}
 
 	messageParts = append(messageParts,
