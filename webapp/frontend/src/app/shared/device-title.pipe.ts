@@ -26,10 +26,8 @@ export class DeviceTitlePipe implements PipeTransform {
                 break;
             case 'friendly_name':
                 if(device.friendly_name !== ''){
-                    console.log("fn")
                     titleParts.push(device.friendly_name)
                 } else {
-                    console.log("fb")
                     titleParts.push(`/dev/${device.device_name}`)
                 }
                 break;
