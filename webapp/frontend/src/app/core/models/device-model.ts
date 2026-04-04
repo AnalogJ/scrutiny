@@ -7,6 +7,7 @@ export interface DeviceModel {
     device_uuid?: string;
     device_serial_id?: string;
     device_label?: string;
+    friendly_name?: string;
 
     manufacturer: string;
     model_name: string;

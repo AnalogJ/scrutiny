@@ -3,6 +3,8 @@ package database
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
@@ -35,6 +37,13 @@ func (sr *scrutinyRepository) GetDevices(ctx context.Context) ([]models.Device, 
 	if err := sr.gormClient.WithContext(ctx).Find(&devices).Error; err != nil {
 		return nil, fmt.Errorf("could not get device summary from DB: %v", err)
 	}
+
+	for i := range devices {
+		var envuuid = strings.Replace(devices[i].ScrutinyUUID.String(), "-", "_", -1)
+		var env = "FRIENDLY_NAME_" + envuuid
+		devices[i].FriendlyName = os.Getenv(env)
+	}
+
 	return devices, nil
 }
 
@@ -73,6 +82,7 @@ func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, scrutiny_uui
 		return models.Device{}, err
 	}
 
+	device.FriendlyName = os.Getenv("FRIENDLY_NAME_" + device.ScrutinyUUID.String())
 	return device, nil
 }
 
