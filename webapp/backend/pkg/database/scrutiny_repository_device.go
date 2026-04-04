@@ -18,6 +18,12 @@ import (
 // Device
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func (sr *scrutinyRepository) GetDeviceFriendlyName(scrutiny_uuid uuid.UUID) string {
+	var envuuid = strings.Replace(scrutiny_uuid.String(), "-", "_", -1)
+	var env = "FRIENDLY_NAME_" + envuuid
+	return os.Getenv(env)
+}
+
 // insert device into DB (and update specified columns if device is already registered)
 // update device fields that may change: (DeviceType, HostID)
 func (sr *scrutinyRepository) RegisterDevice(ctx context.Context, dev models.Device) error {
@@ -39,9 +45,7 @@ func (sr *scrutinyRepository) GetDevices(ctx context.Context) ([]models.Device, 
 	}
 
 	for i := range devices {
-		var envuuid = strings.Replace(devices[i].ScrutinyUUID.String(), "-", "_", -1)
-		var env = "FRIENDLY_NAME_" + envuuid
-		devices[i].FriendlyName = os.Getenv(env)
+		devices[i].FriendlyName = sr.GetDeviceFriendlyName(devices[i].ScrutinyUUID)
 	}
 
 	return devices, nil
@@ -82,7 +86,7 @@ func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, scrutiny_uui
 		return models.Device{}, err
 	}
 
-	device.FriendlyName = os.Getenv("FRIENDLY_NAME_" + device.ScrutinyUUID.String())
+	device.FriendlyName = sr.GetDeviceFriendlyName(device.ScrutinyUUID)
 	return device, nil
 }
 
