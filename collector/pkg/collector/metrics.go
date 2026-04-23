@@ -15,6 +15,7 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/detect"
 	"github.com/analogj/scrutiny/collector/pkg/errors"
 	"github.com/analogj/scrutiny/collector/pkg/models"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/gofrs/uuid/v5"
 	"github.com/sirupsen/logrus"
 )
@@ -59,9 +60,22 @@ func (mc *MetricsCollector) Run() error {
 		Logger: mc.logger,
 		Config: mc.config,
 	}
-	rawDetectedStorageDevices, err := deviceDetector.Start()
+	scannedDevices, err := deviceDetector.Scan()
 	if err != nil {
+		mc.reportScanError(err)
 		return err
+	}
+
+	rawDetectedStorageDevices, err := deviceDetector.Info(scannedDevices)
+	if err != nil {
+		mc.logger.Errorf("An error occurred while retrieving device info: %v", err)
+		// report errors for devices that failed to get info (no ScrutinyUUID)
+		for _, device := range rawDetectedStorageDevices {
+			if device.ScrutinyUUID.IsNil() {
+				mc.reportDeviceError(device, err)
+			}
+		}
+		// continue with devices that succeeded
 	}
 
 	// Ignore any device without a Scrutiny UUID. This should never happen...
@@ -149,9 +163,33 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 	resultBytes := []byte(result)
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
-			// smartctl command exited with an error, we should still push the data to the API server
+			exitStatus := models.NewSmartctlExitStatus(exitError.ExitCode())
 			mc.logger.Errorf("smartctl returned an error code (%d) while processing %s\n", exitError.ExitCode(), deviceName)
-			mc.LogSmartctlExitCode(exitError.ExitCode())
+			mc.LogSmartctlExitCode(exitStatus)
+
+			// check for fatal errors that mean we should not publish
+			if exitStatus.HasFailCmd() || exitStatus.HasFailSmart() {
+				mc.logger.Errorf("Fatal smartctl error for %s, not publishing results\n", deviceName)
+				mc.reportDeviceError(models.Device{ScrutinyUUID: scrutiny_uuid, DeviceName: deviceName}, err)
+				return
+			}
+
+			if exitStatus.HasFailDev() {
+				// if the only issue is FailDev and we passed "-n standby", the drive is just in standby — not a real error
+				hasStandbyArg := false
+				for i, arg := range args {
+					if arg == "-n" && i+1 < len(args) && args[i+1] == "standby" {
+						hasStandbyArg = true
+						break
+					}
+				}
+				if !hasStandbyArg {
+					mc.logger.Errorf("Fatal smartctl error (device open failed) for %s, not publishing results\n", deviceName)
+					mc.reportDeviceError(models.Device{ScrutinyUUID: scrutiny_uuid, DeviceName: deviceName}, err)
+					return
+				}
+			}
+
 			mc.Publish(scrutiny_uuid, resultBytes)
 		} else {
 			mc.logger.Errorf("error while attempting to execute smartctl: %s\n", deviceName)
@@ -179,4 +217,57 @@ func (mc *MetricsCollector) Publish(scrutinyUuid uuid.UUID, payload []byte) erro
 	defer resp.Body.Close()
 
 	return nil
+}
+
+func (mc *MetricsCollector) reportScanError(scanErr error) {
+	mc.logger.Debugf("Reporting scan error to API: %v", scanErr)
+
+	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
+	apiEndpoint, _ = apiEndpoint.Parse("api/collector_scan_error")
+
+	payload := collector.CollectorError{
+		Error:  scanErr.Error(),
+		HostId: mc.config.GetString("host.id"),
+	}
+	requestBody, err := json.Marshal(payload)
+	if err != nil {
+		mc.logger.Errorf("An error occurred while marshalling scan error payload: %v", err)
+		return
+	}
+
+	resp, err := httpClient.Post(apiEndpoint.String(), "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		mc.logger.Errorf("An error occurred while reporting scan error to API: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+}
+
+func (mc *MetricsCollector) reportDeviceError(device models.Device, deviceErr error) {
+	scrutinyUuid := device.ScrutinyUUID
+	if scrutinyUuid.IsNil() {
+		scrutinyUuid = detect.GenerateScrutinyUUID("", "", device.DeviceName)
+	}
+
+	mc.logger.Debugf("Reporting device error for %s (%s) to API: %v", device.DeviceName, scrutinyUuid, deviceErr)
+
+	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
+	apiEndpoint, _ = apiEndpoint.Parse(fmt.Sprintf("api/device/%s/collector_error", scrutinyUuid.String()))
+
+	payload := collector.CollectorError{
+		Error:  deviceErr.Error(),
+		HostId: mc.config.GetString("host.id"),
+	}
+	requestBody, err := json.Marshal(payload)
+	if err != nil {
+		mc.logger.Errorf("An error occurred while marshalling device error payload: %v", err)
+		return
+	}
+
+	resp, err := httpClient.Post(apiEndpoint.String(), "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		mc.logger.Errorf("An error occurred while reporting device error to API: %v", err)
+		return
+	}
+	defer resp.Body.Close()
 }

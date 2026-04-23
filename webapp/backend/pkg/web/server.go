@@ -38,15 +38,16 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 			api.GET("/health", handler.HealthCheck)
 			api.POST("/health/notify", handler.SendTestNotification) //check if notifications are configured correctly
 
-			api.POST("/devices/register", handler.RegisterDevices)                //used by Collector to register new devices and retrieve filtered list
-			api.GET("/summary", handler.GetDevicesSummary)                        //used by Dashboard
-			api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory)        //used by Dashboard (Temperature history dropdown)
-			api.POST("/device/:scrutiny_uuid/smart", handler.UploadDeviceMetrics) //used by Collector to upload data
+			api.POST("/devices/register", handler.RegisterDevices)         //used by Collector to register new devices and retrieve filtered list
+			api.GET("/summary", handler.GetDevicesSummary)                 //used by Dashboard
+			api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory) //used by Dashboard (Temperature history dropdown)
+			api.POST("/collector_scan_error", handler.CollectorScanError)
 			api.POST("/device/:scrutiny_uuid/selftest", handler.UploadDeviceSelfTests)
-			api.GET("/device/:scrutiny_uuid/details", handler.GetDeviceDetails)   //used by Details
-			api.POST("/device/:scrutiny_uuid/archive", handler.ArchiveDevice)     //used by UI to archive device
-			api.POST("/device/:scrutiny_uuid/unarchive", handler.UnarchiveDevice) //used by UI to unarchive device
-			api.DELETE("/device/:scrutiny_uuid", handler.DeleteDevice)            //used by UI to delete device
+			api.GET("/device/:scrutiny_uuid/details", handler.GetDeviceDetails)               //used by Details
+			api.POST("/device/:scrutiny_uuid/archive", handler.ArchiveDevice)                 //used by UI to archive device
+			api.POST("/device/:scrutiny_uuid/unarchive", handler.UnarchiveDevice)             //used by UI to unarchive device
+			api.POST("/device/:scrutiny_uuid/collector_error", handler.CollectorDeviceError)
+			api.DELETE("/device/:scrutiny_uuid", handler.DeleteDevice)                        //used by UI to delete device
 
 			api.GET("/settings", handler.GetSettings)   //used to get settings
 			api.POST("/settings", handler.SaveSettings) //used to save settings

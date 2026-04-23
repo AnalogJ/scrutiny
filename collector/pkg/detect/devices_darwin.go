@@ -12,7 +12,7 @@ func DevicePrefix() string {
 	return "/dev/"
 }
 
-func (d *Detect) Start() ([]models.Device, error) {
+func (d *Detect) Scan() ([]models.Device, error) {
 	d.Shell = shell.Create()
 	// call the base/common functionality to get a list of devices
 	detectedDevices, err := d.SmartctlScan()
@@ -26,12 +26,20 @@ func (d *Detect) Start() ([]models.Device, error) {
 		detectedDevices = append(detectedDevices, missingDevices...)
 	}
 
+	return detectedDevices, nil
+}
+
+func (d *Detect) Info(detectedDevices []models.Device) ([]models.Device, error) {
 	//inflate device info for detected devices.
-	for ndx, _ := range detectedDevices {
-		d.SmartCtlInfo(&detectedDevices[ndx]) //ignore errors.
+	var firstErr error
+	for ndx := range detectedDevices {
+		err := d.SmartCtlInfo(&detectedDevices[ndx])
+		if err != nil && firstErr == nil {
+			firstErr = err
+		}
 	}
 
-	return detectedDevices, nil
+	return detectedDevices, firstErr
 }
 
 func (d *Detect) findMissingDevices(detectedDevices []models.Device) ([]models.Device, error) {
