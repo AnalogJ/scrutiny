@@ -13,7 +13,6 @@ require (
 	github.com/influxdata/influxdb-client-go/v2 v2.14.0
 	github.com/jaypipes/ghw v0.21.2
 	github.com/nicholas-fedor/shoutrrr v0.13.2
-	github.com/samber/lo v1.52.0
 	github.com/sirupsen/logrus v1.9.4
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1

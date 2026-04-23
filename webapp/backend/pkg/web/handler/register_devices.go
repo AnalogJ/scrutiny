@@ -6,7 +6,6 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/gin-gonic/gin"
-	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 )
 
@@ -24,10 +23,15 @@ func RegisterDevices(c *gin.Context) {
 		return
 	}
 
-	// Filter any device without a scrutiny UUID. This should never happen...
-	detectedStorageDevices := lo.Filter[models.Device](collectorDeviceWrapper.Data, func(dev models.Device, _ int) bool {
-		return !dev.ScrutinyUUID.IsNil()
-	})
+	// Ignore any device without a Scrutiny UUID. This should never happen...
+	detectedStorageDevices := make([]models.Device, 0, len(collectorDeviceWrapper.Data))
+	for _, dev := range collectorDeviceWrapper.Data {
+		if dev.ScrutinyUUID.IsNil() {
+			logger.Errorf("Device %s has no scrutiny UUID; skipping registration (no data association possible).", dev.DeviceName)
+			continue
+		}
+		detectedStorageDevices = append(detectedStorageDevices, dev)
+	}
 
 	errs := []error{}
 	for _, dev := range detectedStorageDevices {
