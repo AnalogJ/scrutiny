@@ -15,21 +15,24 @@ func DevicePrefix() string {
 	return "/dev/"
 }
 
-func (d *Detect) Start() ([]models.Device, error) {
+func (d *Detect) Scan() ([]models.Device, error) {
 	d.Shell = shell.Create()
 	// call the base/common functionality to get a list of devices
-	detectedDevices, err := d.SmartctlScan()
-	if err != nil {
-		return nil, err
-	}
+	return d.SmartctlScan()
+}
 
+func (d *Detect) Info(detectedDevices []models.Device) ([]models.Device, error) {
 	//inflate device info for detected devices.
+	var firstErr error
 	for ndx := range detectedDevices {
-		d.SmartCtlInfo(&detectedDevices[ndx])   //ignore errors.
+		err := d.SmartCtlInfo(&detectedDevices[ndx])
+		if err != nil && firstErr == nil {
+			firstErr = err
+		}
 		populateUdevInfo(&detectedDevices[ndx]) //ignore errors.
 	}
 
-	return detectedDevices, nil
+	return detectedDevices, firstErr
 }
 
 // WWN values NVMe and SCSI

@@ -20,9 +20,9 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid/v5"
 	"github.com/nicholas-fedor/shoutrrr"
 	shoutrrrTypes "github.com/nicholas-fedor/shoutrrr/pkg/types"
-	"github.com/gofrs/uuid/v5"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -31,6 +31,8 @@ const NotifyFailureTypeEmailTest = "EmailTest"
 const NotifyFailureTypeBothFailure = "SmartFailure" //SmartFailure always takes precedence when Scrutiny & Smart failed.
 const NotifyFailureTypeSmartFailure = "SmartFailure"
 const NotifyFailureTypeScrutinyFailure = "ScrutinyFailure"
+const NotifyFailureTypeCollectorScanError = "CollectorScanError"
+const NotifyFailureTypeCollectorDeviceError = "CollectorDeviceError"
 
 // ShouldNotify check if the error Message should be filtered (level mismatch or filtered_attributes)
 func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs measurements.Smart, scrutiny_uuid uuid.UUID, statusThreshold pkg.MetricsStatusThreshold, statusFilterAttributes pkg.MetricsStatusFilterAttributes, repeatNotifications bool, c *gin.Context, deviceRepo database.DeviceRepo) bool {
@@ -210,6 +212,19 @@ func (p *Payload) GenerateMessage() string {
 	}
 
 	return strings.Join(messageParts, "\n")
+}
+
+func NewError(logger logrus.FieldLogger, appconfig config.Interface, device models.Device, failureType string, errMsg string) Notify {
+	payload := NewPayload(device, false)
+	payload.FailureType = failureType
+	payload.Subject = "Collector Error"
+	payload.Message = fmt.Sprintf("%s\n\nError: %s", payload.GenerateMessage(), errMsg)
+
+	return Notify{
+		Logger:  logger,
+		Config:  appconfig,
+		Payload: payload,
+	}
 }
 
 func New(logger logrus.FieldLogger, appconfig config.Interface, device models.Device, test bool) Notify {
