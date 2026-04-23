@@ -67,7 +67,7 @@ func (mc *MetricsCollector) Run() error {
 
 	// Remove any device without a scrutiny UUID, but this should never happen...
 	detectedStorageDevices := lo.Filter(rawDetectedStorageDevices, func(device models.Device, _ int) bool {
-		return device.ScrutinyUUID.IsNil()
+		return !device.ScrutinyUUID.IsNil()
 	})
 
 	mc.logger.Infoln("Sending detected devices to API, for filtering & validation")
