@@ -65,10 +65,7 @@ func (mc *MetricsCollector) Run() error {
 		return err
 	}
 
-	// Remove any device without a scrutiny UUID, but this should never happen...
-	detectedStorageDevices := lo.Filter(rawDetectedStorageDevices, func(device models.Device, _ int) bool {
-		return device.ScrutinyUUID.IsNil()
-	})
+	detectedStorageDevices := filterDetectedStorageDevices(rawDetectedStorageDevices)
 
 	mc.logger.Infoln("Sending detected devices to API, for filtering & validation")
 	jsonObj, _ := json.Marshal(detectedStorageDevices)
@@ -104,6 +101,13 @@ func (mc *MetricsCollector) Run() error {
 	}
 
 	return nil
+}
+
+func filterDetectedStorageDevices(rawDetectedStorageDevices []models.Device) []models.Device {
+	// Remove any device without a scrutiny UUID, but this should never happen...
+	return lo.Filter(rawDetectedStorageDevices, func(device models.Device, _ int) bool {
+		return !device.ScrutinyUUID.IsNil()
+	})
 }
 
 func (mc *MetricsCollector) Validate() error {
