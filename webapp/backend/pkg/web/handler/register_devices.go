@@ -27,7 +27,7 @@ func RegisterDevices(c *gin.Context) {
 	detectedStorageDevices := make([]models.Device, 0, len(collectorDeviceWrapper.Data))
 	for _, dev := range collectorDeviceWrapper.Data {
 		if dev.ScrutinyUUID.IsNil() {
-			logger.Warnf("Device %s has no scrutiny UUID; skipping registration (no data association possible).", dev.DeviceName)
+			logger.Errorf("Device %s has no scrutiny UUID; skipping registration (no data association possible).", dev.DeviceName)
 			continue
 		}
 		detectedStorageDevices = append(detectedStorageDevices, dev)

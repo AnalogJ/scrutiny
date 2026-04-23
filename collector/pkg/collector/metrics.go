@@ -68,7 +68,7 @@ func (mc *MetricsCollector) Run() error {
 	detectedStorageDevices := make([]models.Device, 0, len(rawDetectedStorageDevices))
 	for _, device := range rawDetectedStorageDevices {
 		if device.ScrutinyUUID.IsNil() {
-			mc.logger.Warnf("Device %s has no scrutiny UUID; skipping (no data association possible).", device.DeviceName)
+			mc.logger.Errorf("Device %s has no scrutiny UUID; skipping (no data association possible).", device.DeviceName)
 			continue
 		}
 		detectedStorageDevices = append(detectedStorageDevices, device)
@@ -127,7 +127,7 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 	// Run() filters out devices with nil ScrutinyUUIDs before calling Collect, so this should never
 	// happen; guarded here in case Collect is called from elsewhere in the future.
 	if scrutiny_uuid.IsNil() {
-		mc.logger.Warnf("Device %s has no scrutiny UUID; skipping collection (no data association possible).", deviceName)
+		mc.logger.Errorf("Device %s has no scrutiny UUID; skipping collection (no data association possible).", deviceName)
 		return
 	}
 	mc.logger.Infof("Collecting smartctl results for %s\n", deviceName)
