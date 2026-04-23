@@ -36,3 +36,18 @@ func TestApiEndpointParse_WithBasepathWithTrailingSlash(t *testing.T) {
 	url2, _ := baseURL.Parse("/d/e")
 	require.Equal(t, "http://localhost:8080/d/e", url2.String())
 }
+
+func TestFilterDetectedStorageDevices(t *testing.T) {
+	validUUID := uuid.Must(uuid.NewV4())
+
+	devices := []models.Device{
+		{DeviceName: "sda"},
+		{DeviceName: "sdb", ScrutinyUUID: validUUID},
+	}
+
+	filtered := filterDetectedStorageDevices(devices)
+
+	require.Len(t, filtered, 1)
+	require.Equal(t, "sdb", filtered[0].DeviceName)
+	require.Equal(t, validUUID, filtered[0].ScrutinyUUID)
+}
