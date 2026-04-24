@@ -59,7 +59,7 @@ Scrutiny uses `smartctl --scan` to detect devices/drives.
     - While some RAID controllers support passing through the underlying SMART data to `smartctl` others do not.
     - In some cases `--scan` does not correctly detect the device type, returning [incomplete SMART data](https://github.com/AnalogJ/scrutiny/issues/45).
     Scrutiny supports overriding detected device type via the config file: see [example.collector.yaml](https://github.com/AnalogJ/scrutiny/blob/master/example.collector.yaml)
-- If you use docker, you **must** pass though the RAID virtual disk to the container using `--device` (see below)
+- If you use docker, you **must** pass through the RAID virtual disk to the container using `--device` (see below)
     - This device may be in `/dev/*` or `/dev/bus/*`.
     - If you're unsure, run `smartctl --scan` on your host, and pass all listed devices to the container.
 
