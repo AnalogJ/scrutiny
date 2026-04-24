@@ -9,14 +9,6 @@ export class DeviceTitlePipe implements PipeTransform {
     static deviceTitleForType(device: DeviceModel, titleType: string): string {
         const titleParts = []
         switch(titleType){
-            case 'name':
-                titleParts.push(`/dev/${device.device_name}`)
-                if (device.device_type && device.device_type !== 'scsi' && device.device_type !== 'ata'){
-                    titleParts.push(device.device_type)
-                }
-                titleParts.push(device.model_name)
-
-                break;
             case 'serial_id':
                 if(!device.device_serial_id) return ''
                 titleParts.push(`/by-id/${device.device_serial_id}`)
@@ -31,6 +23,20 @@ export class DeviceTitlePipe implements PipeTransform {
                 } else if(device.device_label){
                     titleParts.push(`/by-label/${device.device_label}`)
                 }
+                break;
+            case 'friendly_name':
+                if(device.friendly_name !== ''){
+                    titleParts.push(device.friendly_name)
+                } else {
+                    titleParts.push(`/dev/${device.device_name}`)
+                }
+                break;
+            default:
+                titleParts.push(`/dev/${device.device_name}`)
+                if (device.device_type && device.device_type !== 'scsi' && device.device_type !== 'ata'){
+                    titleParts.push(device.device_type)
+                }
+                titleParts.push(device.model_name)
                 break;
         }
         return titleParts.join(' - ')
