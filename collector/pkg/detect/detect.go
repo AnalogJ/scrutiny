@@ -106,6 +106,8 @@ func (d *Detect) SmartCtlInfo(device *models.Device) error {
 	}
 
 	device.ScrutinyUUID = GenerateScrutinyUUID(device.ModelName, device.SerialNumber, device.WWN)
+	d.Logger.Debugf("Generated ScrutinyUUID (Model='%s', Serial='%s', WWN='%s'): %s",
+		device.ModelName, device.SerialNumber, device.WWN, device.ScrutinyUUID)
 
 	return nil
 }
