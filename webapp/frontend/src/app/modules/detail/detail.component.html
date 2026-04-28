@@ -68,6 +68,16 @@
                         <div class="text-secondary text-md">Status</div>
                     </div>
 
+                    <div *ngIf="device?.friendly_name" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{device?.friendly_name}}</div>
+                        <div class="text-secondary text-md">Friendly Name</div>
+                    </div>
+
+                    <div *ngIf="device?.friendly_name" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>/dev/{{device?.device_name}}</div>
+                        <div class="text-secondary text-md">Name</div>
+                    </div>
+
                     <div *ngIf="device?.host_id" class="my-2 col-span-2 lt-md:col-span-1">
                         <div>{{device?.host_id}}</div>
                         <div class="text-secondary text-md">Host ID</div>
