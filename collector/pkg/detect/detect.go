@@ -84,7 +84,6 @@ func (d *Detect) SmartCtlInfo(device *models.Device) error {
 	device.RotationSpeed = availableDeviceInfo.RotationRate
 	device.Capacity = availableDeviceInfo.Capacity()
 	device.FormFactor = availableDeviceInfo.FormFactor.Name
-	device.DeviceType = availableDeviceInfo.Device.Type
 	device.DeviceProtocol = availableDeviceInfo.Device.Protocol
 	if len(availableDeviceInfo.Vendor) > 0 {
 		device.Manufacturer = availableDeviceInfo.Vendor
