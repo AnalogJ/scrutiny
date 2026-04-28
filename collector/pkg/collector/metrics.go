@@ -69,12 +69,15 @@ func (mc *MetricsCollector) Run() error {
 	for _, device := range rawDetectedStorageDevices {
 		if device.ScrutinyUUID.IsNil() {
 			mc.logger.Errorf("Device %s has no scrutiny UUID; skipping (no data association possible).", device.DeviceName)
+			mc.logger.Debugf("Raw detected device: model=%q serial=%q wwn=%q ScrutinyUUID=%s",
+				device.ModelName, device.SerialNumber, device.WWN, device.ScrutinyUUID)
 			continue
 		}
 		detectedStorageDevices = append(detectedStorageDevices, device)
 	}
 
-	mc.logger.Infoln("Sending detected devices to API, for filtering & validation")
+	mc.logger.Infof("Sending %d/%d detected devices to API for filtering & validation",
+		len(detectedStorageDevices), len(rawDetectedStorageDevices))
 	jsonObj, _ := json.Marshal(detectedStorageDevices)
 	mc.logger.Debugf("Detected devices: %v", string(jsonObj))
 	err = mc.postJson(apiEndpoint.String(), models.DeviceWrapper{
