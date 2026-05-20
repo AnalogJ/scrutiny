@@ -73,6 +73,16 @@ Scrutiny will supports overriding the detected device type via the config file.
 
 [example.collector.yaml](https://github.com/AnalogJ/scrutiny/blob/master/example.collector.yaml)
 
+To restrict collection to only specific devices, set `allow_listed_devices` to
+the full device paths reported by `smartctl --scan`. If this setting is omitted
+or empty, Scrutiny collects every detected device.
+
+```yaml
+allow_listed_devices:
+  - /dev/sda
+  - /dev/sdb
+```
+
 ### RAID Controllers (Megaraid/3ware/HBA/Adaptec/HPE/etc)
 Smartctl has support for a large number of [RAID controllers](https://www.smartmontools.org/wiki/Supported_RAID-Controllers), however this 
 support is not automatic, and may require some additional device type hinting. You can provide this information to the Scrutiny collector
