@@ -396,4 +396,72 @@ func TestDetect_SmartCtlInfo(t *testing.T) {
 		assert.Equal(t, someDeviceType, someDevice.DeviceType)
 		assert.Equal(t, someCapacity, someDevice.Capacity)
 	})
+
+	t.Run("should report smart support from object", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+
+		const (
+			someArgs       = "--info --json"
+			someDeviceName = "sata1"
+		)
+
+		fakeConfig := mock_config.NewMockInterface(ctrl)
+		fakeConfig.EXPECT().
+			GetCommandMetricsInfoArgs("/dev/" + someDeviceName).
+			Return(someArgs)
+		fakeConfig.EXPECT().
+			GetString("commands.metrics_smartctl_bin").
+			Return("smartctl")
+
+		someLogger := logrus.WithFields(logrus.Fields{})
+
+		smartctlInfoResults := `{
+			"device": {
+				"name": "/dev/sata1",
+				"info_name": "/dev/sata1 [SAT]",
+				"type": "sat",
+				"protocol": "ATA"
+			},
+			"model_name": "WD Red SA500 2.5 4TB",
+			"serial_number": "2433274A1T13",
+			"firmware_version": "540400WD",
+			"user_capacity": {
+				"blocks": 7814037168,
+				"bytes": 4000787030016
+			},
+			"interface_speed": {
+				"current": {
+					"string": "6.0 Gb/s"
+				}
+			},
+			"wwn": {
+				"naa": 5,
+				"oui": 6980,
+				"id": 19953498261
+			},
+			"smart_support": {
+				"available": true,
+				"enabled": true
+			}
+		}`
+
+		fakeShell := mock_shell.NewMockInterface(ctrl)
+		fakeShell.EXPECT().
+			Command(someLogger, "smartctl", append(strings.Split(someArgs, " "), "/dev/"+someDeviceName), "", gomock.Any()).
+			Return(smartctlInfoResults, nil)
+
+		d := detect.Detect{
+			Logger: someLogger,
+			Shell:  fakeShell,
+			Config: fakeConfig,
+		}
+
+		someDevice := &models.Device{
+			DeviceName: someDeviceName,
+		}
+
+		require.NoError(t, d.SmartCtlInfo(someDevice))
+
+		assert.True(t, someDevice.SmartSupport)
+	})
 }
