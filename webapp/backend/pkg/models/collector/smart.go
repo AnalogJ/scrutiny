@@ -250,6 +250,8 @@ type SmartSupport struct {
 }
 
 func (s *SmartSupport) UnmarshalJSON(data []byte) error {
+	// Older smartctl versions report smart_support as a boolean, while newer
+	// versions report separate available/enabled fields.
 	var supported bool
 	if err := json.Unmarshal(data, &supported); err == nil {
 		s.Available = supported

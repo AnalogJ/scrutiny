@@ -357,9 +357,11 @@ func TestDetect_SmartCtlInfo(t *testing.T) {
 			someCapacity       int64 = 3840755982336
 		)
 
+		fullDeviceName := detect.DevicePrefix() + someDeviceName
+
 		fakeConfig := mock_config.NewMockInterface(ctrl)
 		fakeConfig.EXPECT().
-			GetCommandMetricsInfoArgs("/dev/" + someDeviceName).
+			GetCommandMetricsInfoArgs(fullDeviceName).
 			Return(someArgs)
 		fakeConfig.EXPECT().
 			GetString("commands.metrics_smartctl_bin").
@@ -372,7 +374,7 @@ func TestDetect_SmartCtlInfo(t *testing.T) {
 
 		fakeShell := mock_shell.NewMockInterface(ctrl)
 		fakeShell.EXPECT().
-			Command(someLogger, "smartctl", append(strings.Split(someArgs, " "), "/dev/"+someDeviceName), "", gomock.Any()).
+			Command(someLogger, "smartctl", append(strings.Split(someArgs, " "), fullDeviceName), "", gomock.Any()).
 			Return(string(smartctlInfoResults), err)
 
 		d := detect.Detect{
@@ -397,71 +399,60 @@ func TestDetect_SmartCtlInfo(t *testing.T) {
 		assert.Equal(t, someCapacity, someDevice.Capacity)
 	})
 
-	t.Run("should report smart support from object", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
+	for _, tt := range []struct {
+		name     string
+		filename string
+	}{
+		{
+			name:     "should report smart support from legacy boolean",
+			filename: "smartctl_info_sata_smart_support_bool.json",
+		},
+		{
+			name:     "should report smart support from object",
+			filename: "smartctl_info_sata_smart_support_object.json",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
 
-		const (
-			someArgs       = "--info --json"
-			someDeviceName = "sata1"
-		)
+			const (
+				someArgs       = "--info --json"
+				someDeviceName = "sata1"
+			)
 
-		fakeConfig := mock_config.NewMockInterface(ctrl)
-		fakeConfig.EXPECT().
-			GetCommandMetricsInfoArgs("/dev/" + someDeviceName).
-			Return(someArgs)
-		fakeConfig.EXPECT().
-			GetString("commands.metrics_smartctl_bin").
-			Return("smartctl")
+			fullDeviceName := detect.DevicePrefix() + someDeviceName
 
-		someLogger := logrus.WithFields(logrus.Fields{})
+			fakeConfig := mock_config.NewMockInterface(ctrl)
+			fakeConfig.EXPECT().
+				GetCommandMetricsInfoArgs(fullDeviceName).
+				Return(someArgs)
+			fakeConfig.EXPECT().
+				GetString("commands.metrics_smartctl_bin").
+				Return("smartctl")
 
-		smartctlInfoResults := `{
-			"device": {
-				"name": "/dev/sata1",
-				"info_name": "/dev/sata1 [SAT]",
-				"type": "sat",
-				"protocol": "ATA"
-			},
-			"model_name": "WD Red SA500 2.5 4TB",
-			"serial_number": "2433274A1T13",
-			"firmware_version": "540400WD",
-			"user_capacity": {
-				"blocks": 7814037168,
-				"bytes": 4000787030016
-			},
-			"interface_speed": {
-				"current": {
-					"string": "6.0 Gb/s"
-				}
-			},
-			"wwn": {
-				"naa": 5,
-				"oui": 6980,
-				"id": 19953498261
-			},
-			"smart_support": {
-				"available": true,
-				"enabled": true
+			someLogger := logrus.WithFields(logrus.Fields{})
+
+			smartctlInfoResults, err := os.ReadFile("testdata/" + tt.filename)
+			require.NoError(t, err)
+
+			fakeShell := mock_shell.NewMockInterface(ctrl)
+			fakeShell.EXPECT().
+				Command(someLogger, "smartctl", append(strings.Split(someArgs, " "), fullDeviceName), "", gomock.Any()).
+				Return(string(smartctlInfoResults), nil)
+
+			d := detect.Detect{
+				Logger: someLogger,
+				Shell:  fakeShell,
+				Config: fakeConfig,
 			}
-		}`
 
-		fakeShell := mock_shell.NewMockInterface(ctrl)
-		fakeShell.EXPECT().
-			Command(someLogger, "smartctl", append(strings.Split(someArgs, " "), "/dev/"+someDeviceName), "", gomock.Any()).
-			Return(smartctlInfoResults, nil)
+			someDevice := &models.Device{
+				DeviceName: someDeviceName,
+			}
 
-		d := detect.Detect{
-			Logger: someLogger,
-			Shell:  fakeShell,
-			Config: fakeConfig,
-		}
+			require.NoError(t, d.SmartCtlInfo(someDevice))
 
-		someDevice := &models.Device{
-			DeviceName: someDeviceName,
-		}
-
-		require.NoError(t, d.SmartCtlInfo(someDevice))
-
-		assert.True(t, someDevice.SmartSupport)
-	})
+			assert.True(t, someDevice.SmartSupport)
+		})
+	}
 }
