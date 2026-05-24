@@ -1,5 +1,7 @@
 package collector
 
+import "encoding/json"
+
 type SmartInfo struct {
 	JSONFormatVersion []int `json:"json_format_version"`
 	Smartctl          struct {
@@ -67,6 +69,7 @@ type SmartInfo struct {
 	SmartStatus struct {
 		Passed bool `json:"passed"`
 	} `json:"smart_status"`
+	SmartSupport SmartSupport `json:"smart_support"`
 
 	PowerOnTime struct {
 		Hours int64 `json:"hours"`
@@ -239,6 +242,38 @@ type SmartInfo struct {
 	ScsiVersion         string              `json:"scsi_version"`
 	ScsiGrownDefectList int64               `json:"scsi_grown_defect_list"`
 	ScsiErrorCounterLog ScsiErrorCounterLog `json:"scsi_error_counter_log"`
+}
+
+type SmartSupport struct {
+	Available bool `json:"available"`
+	Enabled   bool `json:"enabled"`
+}
+
+func (s *SmartSupport) UnmarshalJSON(data []byte) error {
+	// smartctl changed smart_support from a legacy boolean to an object with
+	// separate available/enabled fields. Accept both shapes so collectors keep
+	// reporting support correctly across smartctl versions.
+	var supported bool
+	if err := json.Unmarshal(data, &supported); err == nil {
+		s.Available = supported
+		s.Enabled = supported
+		return nil
+	}
+
+	var support struct {
+		Available bool `json:"available"`
+		Enabled   bool `json:"enabled"`
+	}
+	if err := json.Unmarshal(data, &support); err != nil {
+		return err
+	}
+	s.Available = support.Available
+	s.Enabled = support.Enabled
+	return nil
+}
+
+func (s SmartSupport) Supported() bool {
+	return s.Available && s.Enabled
 }
 
 // Capacity finds the total capacity of the device in bytes, or 0 if unknown.
