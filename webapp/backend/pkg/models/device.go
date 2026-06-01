@@ -27,6 +27,7 @@ type Device struct {
 	DeviceUUID     string `json:"device_uuid"`
 	DeviceSerialID string `json:"device_serial_id"`
 	DeviceLabel    string `json:"device_label"`
+	FriendlyName   string `json:"friendly_name"`
 
 	Manufacturer   string `json:"manufacturer"`
 	ModelName      string `json:"model_name"`

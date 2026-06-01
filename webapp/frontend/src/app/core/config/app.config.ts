@@ -4,7 +4,7 @@ import {Layout} from 'app/layout/layout.types';
 export type Theme = 'light' | 'dark' | 'system';
 
 // Device title to display on the dashboard
-export type DashboardDisplay = 'name' | 'serial_id' | 'uuid' | 'label'
+export type DashboardDisplay = 'name' | 'serial_id' | 'uuid' | 'label' | 'friendly_name'
 
 export type DashboardSort = 'status' | 'title' | 'age'
 
@@ -54,7 +54,7 @@ export interface AppConfig {
     line_stroke?: LineStroke;
 
     // Settings from Scrutiny API
-    
+
     collector?: {
         discard_sct_temp_history?: boolean
     }
@@ -80,7 +80,7 @@ export const appConfig: AppConfig = {
     theme: 'light',
     layout: 'material',
 
-    dashboard_display: 'name',
+    dashboard_display: 'friendly_name',
     dashboard_sort: 'status',
 
     temperature_unit: 'celsius',
@@ -88,7 +88,7 @@ export const appConfig: AppConfig = {
     powered_on_hours_unit: 'humanize',
 
     line_stroke: 'smooth',
-    
+
     collector: {
         discard_sct_temp_history : false,
     },

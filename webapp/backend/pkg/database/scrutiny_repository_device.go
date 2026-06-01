@@ -3,6 +3,8 @@ package database
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
@@ -15,6 +17,12 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Device
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (sr *scrutinyRepository) GetDeviceFriendlyName(scrutiny_uuid uuid.UUID) string {
+	var envuuid = strings.Replace(scrutiny_uuid.String(), "-", "_", -1)
+	var env = "FRIENDLY_NAME_" + envuuid
+	return os.Getenv(env)
+}
 
 // insert device into DB (and update specified columns if device is already registered)
 // update device fields that may change: (DeviceType, HostID)
@@ -35,6 +43,11 @@ func (sr *scrutinyRepository) GetDevices(ctx context.Context) ([]models.Device, 
 	if err := sr.gormClient.WithContext(ctx).Find(&devices).Error; err != nil {
 		return nil, fmt.Errorf("could not get device summary from DB: %v", err)
 	}
+
+	for i := range devices {
+		devices[i].FriendlyName = sr.GetDeviceFriendlyName(devices[i].ScrutinyUUID)
+	}
+
 	return devices, nil
 }
 
@@ -61,6 +74,7 @@ func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, scrutiny_u
 	}
 
 	device.DeviceStatus = pkg.DeviceStatusSet(device.DeviceStatus, status)
+	device.FriendlyName = sr.GetDeviceFriendlyName(device.ScrutinyUUID)
 	return device, sr.gormClient.Model(&device).Updates(device).Error
 }
 
@@ -73,6 +87,7 @@ func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, scrutiny_uui
 		return models.Device{}, err
 	}
 
+	device.FriendlyName = sr.GetDeviceFriendlyName(device.ScrutinyUUID)
 	return device, nil
 }
 
