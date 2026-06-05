@@ -14,4 +14,4 @@ EOF
 fi
 
 echo "starting influxdb"
-influxd run
+exec influxd run
