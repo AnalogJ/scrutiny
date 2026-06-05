@@ -2,8 +2,10 @@ package detect
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/analogj/scrutiny/collector/pkg/common/shell"
@@ -62,6 +64,17 @@ func (d *Detect) SmartCtlInfo(device *models.Device) error {
 	args = append(args, fullDeviceName)
 
 	availableDeviceInfoJson, err := d.Shell.Command(d.Logger, d.Config.GetString("commands.metrics_smartctl_bin"), args, "", os.Environ())
+	var exitErr *exec.ExitError
+	if errors.As(err, &exitErr) {
+		exitCode := exitErr.ExitCode()
+		if exitCode&0xBF == 0 {
+			d.Logger.Warnf("Successfully retrieved device information for %s, but received exit code %d, which is a non-fatal exit code. Continuing.", device.DeviceName, exitCode)
+		} else {
+			d.Logger.Errorf("Could not retrieve device information for %s: %v", device.DeviceName, err)
+			return err
+		}
+	}
+
 	if err != nil {
 		d.Logger.Errorf("Could not retrieve device information for %s: %v", device.DeviceName, err)
 		return err
