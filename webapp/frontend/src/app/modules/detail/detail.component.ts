@@ -131,7 +131,46 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
      * After view init
      */
     ngAfterViewInit(): void {
-        // Make the data source sortable
+        // The matColumnDef ids in the template (id, name, ideal, failure, ...) don't
+        // line up with the field names on SmartAttributeModel (attribute_id,
+        // failure_rate, ...) and several visible columns are derived through
+        // getters that pull from `metadata`. MatSort's default accessor falls back
+        // to a plain `row[columnId]` lookup, which silently returns undefined for
+        // those columns and disables sorting for them. Closes #656.
+        this.smartAttributeDataSource.sortingDataAccessor = (
+            attribute: SmartAttributeModel,
+            sortHeaderId: string,
+        ): string | number => {
+            switch (sortHeaderId) {
+                case 'id':
+                    // attribute_id is typed `number | string`; coerce to number so
+                    // numeric IDs sort numerically rather than lexicographically.
+                    return Number(attribute.attribute_id);
+                case 'name':
+                    return this.getAttributeName(attribute);
+                case 'value':
+                    return this.getAttributeValue(attribute);
+                case 'worst': {
+                    const worst = this.getAttributeWorst(attribute);
+                    return typeof worst === 'number' ? worst : '';
+                }
+                case 'thresh': {
+                    const thresh = this.getAttributeThreshold(attribute);
+                    return typeof thresh === 'number' ? thresh : '';
+                }
+                case 'ideal':
+                    return this.getAttributeIdeal(attribute) ?? '';
+                case 'failure':
+                    return attribute.failure_rate ?? 0;
+                // `status` is read straight off the model (number); `history` is a
+                // sparkline with no meaningful scalar to sort against, but exposing
+                // the latest observed value still gives users a deterministic order.
+                case 'history':
+                    return this.getAttributeValue(attribute);
+                default:
+                    return (attribute as Record<string, any>)[sortHeaderId];
+            }
+        };
         this.smartAttributeDataSource.sort = this.smartAttributeTableMatSort;
     }
 
