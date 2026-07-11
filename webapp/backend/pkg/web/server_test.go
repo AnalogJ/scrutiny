@@ -224,6 +224,76 @@ func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 	//assert
 }
 
+// smartctl can exit non-zero because it could not read the device (eg. the
+// device is in standby, or could not be opened). In that case the JSON payload
+// is largely uninitialized and must not be persisted (see issue #944).
+func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute_SkipsUnreadableDevice() {
+	//setup
+	parentPath, _ := os.MkdirTemp("", "")
+	defer os.RemoveAll(parentPath)
+	mockCtrl := gomock.NewController(suite.T())
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
+	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
+	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.scheme").Return("http").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.metrics.repeat_notifications").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.collector.discard_sct_temp_history").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.notify_level", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.status_filter_attributes", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.status_threshold", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
+
+	ae := web.AppEngine{
+		Config: fakeConfig,
+	}
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
+	devicesfile, err := os.Open("testdata/register-devices-single-req.json")
+	require.NoError(suite.T(), err)
+
+	// smart-fail.json has exit_status 2 (smartctl could not open the device)
+	failfile := helperReadSmartDataFileFixTimestamp(suite.T(), "../models/testdata/smart-fail.json")
+
+	//test
+	wr := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", suite.Basepath+"/api/devices/register", devicesfile)
+	router.ServeHTTP(wr, req)
+	require.Equal(suite.T(), 200, wr.Code)
+
+	mr := httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/9a4d34b5-b2ee-51ef-8506-90eea09be417/smart", failfile)
+	router.ServeHTTP(mr, req)
+	require.Equal(suite.T(), 200, mr.Code)
+
+	//assert: the unreadable payload must not have been persisted
+	dr := httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", suite.Basepath+"/api/device/9a4d34b5-b2ee-51ef-8506-90eea09be417/details", nil)
+	router.ServeHTTP(dr, req)
+	require.Equal(suite.T(), 200, dr.Code)
+
+	var detailsResponse struct {
+		Data struct {
+			SmartResults []interface{} `json:"smart_results"`
+		} `json:"data"`
+	}
+	require.NoError(suite.T(), json.Unmarshal(dr.Body.Bytes(), &detailsResponse))
+	require.Empty(suite.T(), detailsResponse.Data.SmartResults)
+}
+
 func (suite *ServerTestSuite) TestPopulateMultiple() {
 	//setup
 	parentPath, _ := os.MkdirTemp("", "")

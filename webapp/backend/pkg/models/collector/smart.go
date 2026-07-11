@@ -287,6 +287,44 @@ func (s *SmartInfo) Capacity() int64 {
 	return 0
 }
 
+// smartctl reports its result as an exit status bitmask (see smartmontools'
+// smartctl.h). The individual bits below indicate why smartctl set a non-zero
+// exit status:
+//
+//	bit 0 (0x01): the command line did not parse
+//	bit 1 (0x02): the device could not be opened, or is in a low-power/standby mode
+//	bit 2 (0x04): a SMART or ATA command to the device failed, or a checksum
+//	              error was found in a SMART data structure
+//
+// The remaining bits (3-7) report genuine health findings (SMART "FAILING"
+// status, pre-fail attributes, logged errors, etc.) whose data we still want
+// to keep, so they are intentionally not part of the mask below.
+const (
+	smartctlExitStatusCommandLineDidNotParse = 1 << 0 // 0x01
+	smartctlExitStatusDeviceOpenFailed       = 1 << 1 // 0x02
+)
+
+// smartctlExitStatusDataUnavailableMask covers the exit status bits that mean
+// smartctl could not actually read usable data off the device. When either is
+// set the JSON payload is largely uninitialized (empty model/serial, no
+// attributes, and a zero-value smart_status that looks like a SMART failure),
+// so it must not be persisted.
+//
+// Note that bit 2 (0x04) is deliberately excluded: RAID/megaraid passthrough
+// frequently sets it (smartctl cannot read some log pages through the
+// controller) while still returning a complete, valid identity + attribute set
+// - see testdata/smart-megaraid0.json (exit_status 4). Dropping that data would
+// regress monitoring for those drives.
+const smartctlExitStatusDataUnavailableMask = smartctlExitStatusCommandLineDidNotParse | smartctlExitStatusDeviceOpenFailed
+
+// HasInvalidData reports whether smartctl signalled, via its exit status
+// bitmask, that it could not read usable SMART data from the device. Callers
+// should skip persisting such payloads to avoid polluting the database with
+// uninitialized values (which otherwise get stored as a bogus SMART failure).
+func (s *SmartInfo) HasInvalidData() bool {
+	return s.Smartctl.ExitStatus&smartctlExitStatusDataUnavailableMask != 0
+}
+
 type UserCapacity struct {
 	Blocks int64 `json:"blocks"`
 	Bytes  int64 `json:"bytes"`

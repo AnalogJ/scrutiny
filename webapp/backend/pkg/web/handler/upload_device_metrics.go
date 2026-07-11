@@ -38,6 +38,15 @@ func UploadDeviceMetrics(c *gin.Context) {
 		return
 	}
 
+	// smartctl could not read usable data off the device (eg. the device could
+	// not be opened or is in standby). The payload is largely uninitialized and
+	// would otherwise be stored as a bogus SMART failure, so skip persisting it.
+	if collectorSmartData.HasInvalidData() {
+		logger.Warnf("smartctl reported it could not read the device (exit status %d); skipping metrics to avoid storing invalid data", collectorSmartData.Smartctl.ExitStatus)
+		c.JSON(http.StatusOK, gin.H{"success": true})
+		return
+	}
+
 	//update the device information if necessary
 	updatedDevice, err := deviceRepo.UpdateDevice(c, scrutiny_uuid, collectorSmartData)
 	if err != nil {
