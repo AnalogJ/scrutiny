@@ -31,8 +31,7 @@ const NotifyFailureTypeEmailTest = "EmailTest"
 const NotifyFailureTypeBothFailure = "SmartFailure" //SmartFailure always takes precedence when Scrutiny & Smart failed.
 const NotifyFailureTypeSmartFailure = "SmartFailure"
 const NotifyFailureTypeScrutinyFailure = "ScrutinyFailure"
-const NotifyFailureTypeCollectorScanError = "CollectorScanError"
-const NotifyFailureTypeCollectorDeviceError = "CollectorDeviceError"
+const NotifyFailureTypeCollectorError = "CollectorError"
 
 // ShouldNotify check if the error Message should be filtered (level mismatch or filtered_attributes)
 func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs measurements.Smart, scrutiny_uuid uuid.UUID, statusThreshold pkg.MetricsStatusThreshold, statusFilterAttributes pkg.MetricsStatusFilterAttributes, repeatNotifications bool, c *gin.Context, deviceRepo database.DeviceRepo) bool {
@@ -214,17 +213,55 @@ func (p *Payload) GenerateMessage() string {
 	return strings.Join(messageParts, "\n")
 }
 
-func NewError(logger logrus.FieldLogger, appconfig config.Interface, device models.Device, failureType string, errMsg string) Notify {
+// NewCollectorError builds a notification for a collector failure. device may be zero-valued, since
+// a `smartctl --scan` failure is not specific to any one device.
+func NewCollectorError(logger logrus.FieldLogger, appconfig config.Interface, device models.Device, errorMessage string) Notify {
 	payload := NewPayload(device, false)
-	payload.FailureType = failureType
-	payload.Subject = "Collector Error"
-	payload.Message = fmt.Sprintf("%s\n\nError: %s", payload.GenerateMessage(), errMsg)
+	payload.FailureType = NotifyFailureTypeCollectorError
+	payload.Subject = payload.GenerateCollectorErrorSubject()
+	payload.Message = payload.GenerateCollectorErrorMessage(errorMessage)
 
 	return Notify{
 		Logger:  logger,
 		Config:  appconfig,
 		Payload: payload,
 	}
+}
+
+func (p *Payload) GenerateCollectorErrorSubject() string {
+	target := p.DeviceName
+	if len(target) == 0 {
+		target = "device scan"
+	}
+	if len(p.HostId) > 0 {
+		return fmt.Sprintf("Scrutiny collector error on [host]device: [%s]%s", p.HostId, target)
+	}
+	return fmt.Sprintf("Scrutiny collector error on device: %s", target)
+}
+
+func (p *Payload) GenerateCollectorErrorMessage(errorMessage string) string {
+	messageParts := []string{"Scrutiny collector error notification"}
+
+	if len(p.HostId) > 0 {
+		messageParts = append(messageParts, fmt.Sprintf("Host Id: %s", p.HostId))
+	}
+	if len(p.DeviceName) > 0 {
+		messageParts = append(messageParts, fmt.Sprintf("Device Name: %s", p.DeviceName))
+	}
+	if len(p.DeviceSerial) > 0 {
+		messageParts = append(messageParts, fmt.Sprintf("Device Serial: %s", p.DeviceSerial))
+	}
+	if len(p.DeviceType) > 0 {
+		messageParts = append(messageParts, fmt.Sprintf("Device Type: %s", p.DeviceType))
+	}
+
+	messageParts = append(messageParts,
+		fmt.Sprintf("Error: %s", errorMessage),
+		"",
+		fmt.Sprintf("Date: %s", p.Date),
+	)
+
+	return strings.Join(messageParts, "\n")
 }
 
 func New(logger logrus.FieldLogger, appconfig config.Interface, device models.Device, test bool) Notify {

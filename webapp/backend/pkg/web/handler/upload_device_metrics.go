@@ -38,6 +38,24 @@ func UploadDeviceMetrics(c *gin.Context) {
 		return
 	}
 
+	//smartctl still emits json when it fails, but the contents are incomplete and would be stored as
+	//a set of zero values. Reject it rather than corrupting the device history.
+	if collectorSmartData.Smartctl.ExitStatus.IsFatal() {
+		exitStatusError := fmt.Sprintf("smartctl exited with status %d: %s",
+			int(collectorSmartData.Smartctl.ExitStatus), collectorSmartData.Smartctl.ExitStatus)
+		logger.Errorf("Refusing to store SMART data for %s: %s", scrutiny_uuid, exitStatusError)
+
+		notifyCollectorError(c, logger, appConfig, deviceRepo, collector.CollectorError{
+			Error:        exitStatusError,
+			ScrutinyUUID: scrutiny_uuid.String(),
+			DeviceName:   collectorSmartData.Device.Name,
+			DeviceType:   collectorSmartData.Device.Type,
+		})
+
+		c.JSON(http.StatusBadRequest, gin.H{"success": false})
+		return
+	}
+
 	//update the device information if necessary
 	updatedDevice, err := deviceRepo.UpdateDevice(c, scrutiny_uuid, collectorSmartData)
 	if err != nil {
