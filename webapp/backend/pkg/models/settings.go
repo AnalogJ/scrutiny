@@ -26,5 +26,6 @@ type Settings struct {
 		StatusFilterAttributes int  `json:"status_filter_attributes" mapstructure:"status_filter_attributes"`
 		StatusThreshold        int  `json:"status_threshold" mapstructure:"status_threshold"`
 		RepeatNotifications    bool `json:"repeat_notifications" mapstructure:"repeat_notifications"`
+		NotifyCollectorErrors  bool `json:"notify_collector_errors" mapstructure:"notify_collector_errors"`
 	} `json:"metrics" mapstructure:"metrics"`
 }

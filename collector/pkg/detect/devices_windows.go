@@ -15,17 +15,16 @@ func (d *Detect) Scan() ([]models.Device, error) {
 	return d.SmartctlScan()
 }
 
-func (d *Detect) Info(detectedDevices []models.Device) ([]models.Device, error) {
+func (d *Detect) Info(detectedDevices []models.Device) ([]models.Device, []DeviceInfoError) {
 	//inflate device info for detected devices.
-	var firstErr error
+	infoErrors := []DeviceInfoError{}
 	for ndx := range detectedDevices {
-		err := d.SmartCtlInfo(&detectedDevices[ndx])
-		if err != nil && firstErr == nil {
-			firstErr = err
+		if err := d.SmartCtlInfo(&detectedDevices[ndx]); err != nil {
+			infoErrors = append(infoErrors, DeviceInfoError{Device: detectedDevices[ndx], Err: err})
 		}
 	}
 
-	return detectedDevices, firstErr
+	return detectedDevices, infoErrors
 }
 
 // WWN values NVMe and SCSI

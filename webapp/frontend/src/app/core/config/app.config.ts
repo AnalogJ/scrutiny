@@ -64,6 +64,7 @@ export interface AppConfig {
         status_filter_attributes?: MetricsStatusFilterAttributes
         status_threshold?: MetricsStatusThreshold
         repeat_notifications?: boolean
+        notify_collector_errors?: boolean
     }
 
 }
@@ -97,7 +98,8 @@ export const appConfig: AppConfig = {
         notify_level: MetricsNotifyLevel.Fail,
         status_filter_attributes: MetricsStatusFilterAttributes.All,
         status_threshold: MetricsStatusThreshold.Both,
-        repeat_notifications: true
+        repeat_notifications: true,
+        notify_collector_errors: true
     }
 };
 

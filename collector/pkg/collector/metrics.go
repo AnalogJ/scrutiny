@@ -62,20 +62,13 @@ func (mc *MetricsCollector) Run() error {
 	}
 	scannedDevices, err := deviceDetector.Scan()
 	if err != nil {
-		mc.reportScanError(err)
+		mc.ReportError(models.Device{}, err)
 		return err
 	}
 
-	rawDetectedStorageDevices, err := deviceDetector.Info(scannedDevices)
-	if err != nil {
-		mc.logger.Errorf("An error occurred while retrieving device info: %v", err)
-		// report errors for devices that failed to get info (no ScrutinyUUID)
-		for _, device := range rawDetectedStorageDevices {
-			if device.ScrutinyUUID.IsNil() {
-				mc.reportDeviceError(device, err)
-			}
-		}
-		// continue with devices that succeeded
+	rawDetectedStorageDevices, infoErrors := deviceDetector.Info(scannedDevices)
+	for _, infoError := range infoErrors {
+		mc.ReportError(infoError.Device, infoError.Err)
 	}
 
 	// Ignore any device without a Scrutiny UUID. This should never happen...
@@ -149,6 +142,8 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 	}
 	mc.logger.Infof("Collecting smartctl results for %s\n", deviceName)
 
+	device := models.Device{ScrutinyUUID: scrutiny_uuid, DeviceName: deviceName, DeviceType: deviceType}
+
 	fullDeviceName := fmt.Sprintf("%s%s", detect.DevicePrefix(), deviceName)
 	args := strings.Split(mc.config.GetCommandMetricsSmartArgs(fullDeviceName), " ")
 	//only include the device type if its a non-standard one, or the user set it in the config file.
@@ -162,45 +157,45 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 	result, err := mc.shell.Command(mc.logger, mc.config.GetString("commands.metrics_smartctl_bin"), args, "", os.Environ())
 	resultBytes := []byte(result)
 	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			exitStatus := models.NewSmartctlExitStatus(exitError.ExitCode())
-			mc.logger.Errorf("smartctl returned an error code (%d) while processing %s\n", exitError.ExitCode(), deviceName)
-			mc.LogSmartctlExitCode(exitStatus)
-
-			// check for fatal errors that mean we should not publish
-			if exitStatus.HasFailCmd() || exitStatus.HasFailSmart() {
-				mc.logger.Errorf("Fatal smartctl error for %s, not publishing results\n", deviceName)
-				mc.reportDeviceError(models.Device{ScrutinyUUID: scrutiny_uuid, DeviceName: deviceName}, err)
-				return
-			}
-
-			if exitStatus.HasFailDev() {
-				// if the only issue is FailDev and we passed "-n standby", the drive is just in standby — not a real error
-				hasStandbyArg := false
-				for i, arg := range args {
-					if arg == "-n" && i+1 < len(args) && args[i+1] == "standby" {
-						hasStandbyArg = true
-						break
-					}
-				}
-				if !hasStandbyArg {
-					mc.logger.Errorf("Fatal smartctl error (device open failed) for %s, not publishing results\n", deviceName)
-					mc.reportDeviceError(models.Device{ScrutinyUUID: scrutiny_uuid, DeviceName: deviceName}, err)
-					return
-				}
-			}
-
-			mc.Publish(scrutiny_uuid, resultBytes)
-		} else {
+		exitError, isExitError := err.(*exec.ExitError)
+		if !isExitError {
 			mc.logger.Errorf("error while attempting to execute smartctl: %s\n", deviceName)
 			mc.logger.Errorf("ERROR MESSAGE: %v", err)
 			mc.logger.Errorf("IGNORING RESULT: %v", result)
+			mc.ReportError(device, err)
+			return
 		}
-		return
-	} else {
-		//successful run, pass the results directly to webapp backend for parsing and processing.
-		mc.Publish(scrutiny_uuid, resultBytes)
+
+		exitStatus := collector.SmartctlExitStatus(exitError.ExitCode())
+		mc.logger.Errorf("smartctl returned an error code (%d) while processing %s\n", exitError.ExitCode(), deviceName)
+		mc.LogSmartctlExitStatus(exitStatus)
+
+		if exitStatus.IsFatal() {
+			if exitStatus == collector.SmartctlExitStatusFailDev && hasPowerModeCheck(args) {
+				mc.logger.Infof("%s is in a low power mode, skipping collection\n", deviceName)
+				return
+			}
+
+			mc.logger.Errorf("smartctl output for %s is incomplete, not publishing results\n", deviceName)
+			mc.ReportError(device, fmt.Errorf("smartctl exited with status %d: %s", exitError.ExitCode(), exitStatus))
+			return
+		}
+		// the remaining exit status bits describe problems with the disk rather than with smartctl,
+		// so the results are still worth publishing.
 	}
+
+	mc.Publish(scrutiny_uuid, resultBytes)
+}
+
+// smartctl exits with FAILDEV when `-n`/`--nocheck` was given and the device is in a low power mode.
+// That is the behaviour the flag was asked for, not a failure worth reporting.
+func hasPowerModeCheck(args []string) bool {
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "--nocheck") || (strings.HasPrefix(arg, "-n") && !strings.HasPrefix(arg, "--")) {
+			return true
+		}
+	}
+	return false
 }
 
 func (mc *MetricsCollector) Publish(scrutinyUuid uuid.UUID, payload []byte) error {
@@ -219,55 +214,25 @@ func (mc *MetricsCollector) Publish(scrutinyUuid uuid.UUID, payload []byte) erro
 	return nil
 }
 
-func (mc *MetricsCollector) reportScanError(scanErr error) {
-	mc.logger.Debugf("Reporting scan error to API: %v", scanErr)
+// ReportError tells the API server that the collector could not gather data, so that it can notify
+// the user. device may be empty when the failure was not specific to one device.
+func (mc *MetricsCollector) ReportError(device models.Device, collectorErr error) {
+	payload := collector.CollectorError{
+		HostId:     mc.config.GetString("host.id"),
+		DeviceName: device.DeviceName,
+		DeviceType: device.DeviceType,
+		Error:      collectorErr.Error(),
+	}
+	if !device.ScrutinyUUID.IsNil() {
+		payload.ScrutinyUUID = device.ScrutinyUUID.String()
+	}
+	mc.logger.Debugf("Reporting collector error to API: %v", payload)
 
 	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
-	apiEndpoint, _ = apiEndpoint.Parse("api/collector_scan_error")
+	apiEndpoint, _ = apiEndpoint.Parse("api/collector/error")
 
-	payload := collector.CollectorError{
-		Error:  scanErr.Error(),
-		HostId: mc.config.GetString("host.id"),
+	response := models.DeviceWrapper{}
+	if err := mc.postJson(apiEndpoint.String(), payload, &response); err != nil {
+		mc.logger.Errorf("An error occurred while reporting a collector error to the API: %v", err)
 	}
-	requestBody, err := json.Marshal(payload)
-	if err != nil {
-		mc.logger.Errorf("An error occurred while marshalling scan error payload: %v", err)
-		return
-	}
-
-	resp, err := httpClient.Post(apiEndpoint.String(), "application/json", bytes.NewBuffer(requestBody))
-	if err != nil {
-		mc.logger.Errorf("An error occurred while reporting scan error to API: %v", err)
-		return
-	}
-	defer resp.Body.Close()
-}
-
-func (mc *MetricsCollector) reportDeviceError(device models.Device, deviceErr error) {
-	scrutinyUuid := device.ScrutinyUUID
-	if scrutinyUuid.IsNil() {
-		scrutinyUuid = detect.GenerateScrutinyUUID("", "", device.DeviceName)
-	}
-
-	mc.logger.Debugf("Reporting device error for %s (%s) to API: %v", device.DeviceName, scrutinyUuid, deviceErr)
-
-	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
-	apiEndpoint, _ = apiEndpoint.Parse(fmt.Sprintf("api/device/%s/collector_error", scrutinyUuid.String()))
-
-	payload := collector.CollectorError{
-		Error:  deviceErr.Error(),
-		HostId: mc.config.GetString("host.id"),
-	}
-	requestBody, err := json.Marshal(payload)
-	if err != nil {
-		mc.logger.Errorf("An error occurred while marshalling device error payload: %v", err)
-		return
-	}
-
-	resp, err := httpClient.Post(apiEndpoint.String(), "application/json", bytes.NewBuffer(requestBody))
-	if err != nil {
-		mc.logger.Errorf("An error occurred while reporting device error to API: %v", err)
-		return
-	}
-	defer resp.Body.Close()
 }
