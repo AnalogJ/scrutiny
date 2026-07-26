@@ -169,9 +169,5 @@ func (dv *Device) UpdateFromCollectorSmartInfo(info collector.SmartInfo) error {
 	dv.Firmware = info.FirmwareVersion
 	dv.DeviceProtocol = info.Device.Protocol
 
-	if !info.SmartStatus.Passed {
-		dv.DeviceStatus = pkg.DeviceStatusSet(dv.DeviceStatus, pkg.DeviceStatusFailedSmart)
-	}
-
 	return nil
 }

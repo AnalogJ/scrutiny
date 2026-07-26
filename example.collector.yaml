@@ -65,6 +65,13 @@ devices:
 #      metrics_smart_args: '--xall --json -T permissive' # used to retrieve smart data for each device.
 
 
+# To collect metrics for only specific devices from `smartctl --scan`, list their
+# device paths here. When omitted or empty, Scrutiny collects every detected device.
+#allow_listed_devices:
+#  - /dev/sda
+#  - /dev/sdb
+
+
 #log:
 #  file: '' #absolute or relative paths allowed, eg. web.log
 #  level: INFO

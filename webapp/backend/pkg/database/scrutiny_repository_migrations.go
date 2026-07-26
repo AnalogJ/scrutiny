@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/analogj/scrutiny/collector/pkg/detect"
@@ -429,6 +430,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 		{
 			ID: "m20260216155600", // add ScrutinyUUID as primary key
 			Migrate: func(tx *gorm.DB) error {
+				wwnToUUID := make(map[string]string)
 				devices := []m20260216155600.Device{}
 				if err := tx.Find(&devices).Error; err != nil {
 					return err
@@ -436,7 +438,23 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				sr.logger.Debug("Generating Scrutiny UUIDs")
 				for i := range devices {
 					device := &devices[i]
-					device.ScrutinyUUID = detect.GenerateScrutinyUUID(device.ModelName, device.SerialNumber, device.WWN)
+					newWWN := device.WWN
+
+					// Fix disks with old serial-based fallback WWN so UUID will be accurate.
+					if len(device.WWN) > 0 && device.WWN == strings.ToLower(device.SerialNumber) {
+						newWWN = ""
+					}
+
+					// Generate UUID with temporary WWN
+					device.ScrutinyUUID = detect.GenerateScrutinyUUID(device.ModelName, device.SerialNumber, newWWN)
+
+					// Add UUID to map with old WWN before we lose it
+					wwnToUUID[device.WWN] = device.ScrutinyUUID.String()
+
+					// Finally reset old fallback WWNs
+					if len(newWWN) == 0 {
+						device.WWN = ""
+					}
 				}
 
 				// sqlite doesn't support altering columns
@@ -459,12 +477,7 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 					return err
 				}
 
-				//
-				wwnToUUID := make(map[string]string)
-				for _, device := range devices {
-					wwnToUUID[device.WWN] = device.ScrutinyUUID.String()
-				}
-
+				// Migrate WWN -> UUID in influxdb
 				err := m20260216155600_ChangeInfluxDBTags(sr, ctx, wwnToUUID)
 				if ignorePastRetentionPolicyError(err) != nil {
 					return err

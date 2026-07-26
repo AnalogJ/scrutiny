@@ -17,7 +17,6 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/gofrs/uuid/v5"
-	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 )
 
@@ -79,12 +78,20 @@ func (mc *MetricsCollector) Run() error {
 		// continue with devices that succeeded
 	}
 
-	// Remove any device without a scrutiny UUID, but this should never happen...
-	detectedStorageDevices := lo.Filter(rawDetectedStorageDevices, func(device models.Device, _ int) bool {
-		return device.ScrutinyUUID.IsNil()
-	})
+	// Ignore any device without a Scrutiny UUID. This should never happen...
+	detectedStorageDevices := make([]models.Device, 0, len(rawDetectedStorageDevices))
+	for _, device := range rawDetectedStorageDevices {
+		if device.ScrutinyUUID.IsNil() {
+			mc.logger.Errorf("Device %s has no scrutiny UUID; skipping (no data association possible).", device.DeviceName)
+			mc.logger.Debugf("Raw detected device: model=%q serial=%q wwn=%q ScrutinyUUID=%s",
+				device.ModelName, device.SerialNumber, device.WWN, device.ScrutinyUUID)
+			continue
+		}
+		detectedStorageDevices = append(detectedStorageDevices, device)
+	}
 
-	mc.logger.Infoln("Sending detected devices to API, for filtering & validation")
+	mc.logger.Infof("Sending %d/%d detected devices to API for filtering & validation",
+		len(detectedStorageDevices), len(rawDetectedStorageDevices))
 	jsonObj, _ := json.Marshal(detectedStorageDevices)
 	mc.logger.Debugf("Detected devices: %v", string(jsonObj))
 	err = mc.postJson(apiEndpoint.String(), models.DeviceWrapper{
@@ -134,8 +141,10 @@ func (mc *MetricsCollector) Validate() error {
 // func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
 func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, deviceType string) {
 	//defer wg.Done()
+	// Run() filters out devices with nil ScrutinyUUIDs before calling Collect, so this should never
+	// happen; guarded here in case Collect is called from elsewhere in the future.
 	if scrutiny_uuid.IsNil() {
-		mc.logger.Errorf("no scrutiny UUID was created for %s. Skipping collection for this device (no data association possible).\n", deviceName)
+		mc.logger.Errorf("Device %s has no scrutiny UUID; skipping collection (no data association possible).", deviceName)
 		return
 	}
 	mc.logger.Infof("Collecting smartctl results for %s\n", deviceName)

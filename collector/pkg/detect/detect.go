@@ -84,6 +84,7 @@ func (d *Detect) SmartCtlInfo(device *models.Device) error {
 	device.RotationSpeed = availableDeviceInfo.RotationRate
 	device.Capacity = availableDeviceInfo.Capacity()
 	device.FormFactor = availableDeviceInfo.FormFactor.Name
+	device.SmartSupport = availableDeviceInfo.SmartSupport.Supported()
 	device.DeviceType = availableDeviceInfo.Device.Type
 	device.DeviceProtocol = availableDeviceInfo.Device.Protocol
 	if len(availableDeviceInfo.Vendor) > 0 {
@@ -106,6 +107,8 @@ func (d *Detect) SmartCtlInfo(device *models.Device) error {
 	}
 
 	device.ScrutinyUUID = GenerateScrutinyUUID(device.ModelName, device.SerialNumber, device.WWN)
+	d.Logger.Debugf("Generated ScrutinyUUID (Model='%s', Serial='%s', WWN='%s'): %s",
+		device.ModelName, device.SerialNumber, device.WWN, device.ScrutinyUUID)
 
 	return nil
 }

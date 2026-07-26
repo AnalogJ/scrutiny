@@ -54,14 +54,18 @@ func (sr *scrutinyRepository) UpdateDevice(ctx context.Context, scrutiny_uuid uu
 }
 
 // Update Device Status
+// The provided status reflects the latest full SMART analysis and replaces the previous value
+// outright, so a device that recovers (clean SMART data) is reset from failed back to passing.
 func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, scrutiny_uuid uuid.UUID, status pkg.DeviceStatus) (models.Device, error) {
 	var device models.Device
 	if err := sr.gormClient.WithContext(ctx).Where("scrutiny_uuid = ?", scrutiny_uuid.String()).First(&device).Error; err != nil {
 		return device, fmt.Errorf("could not get device from DB: %v", err)
 	}
 
-	device.DeviceStatus = pkg.DeviceStatusSet(device.DeviceStatus, status)
-	return device, sr.gormClient.Model(&device).Updates(device).Error
+	device.DeviceStatus = status
+	// Use an explicit column update rather than Updates(device): GORM skips zero-valued struct
+	// fields, so a passing (zero) status would otherwise never overwrite a stored failed status.
+	return device, sr.gormClient.Model(&device).Where("scrutiny_uuid = ?", scrutiny_uuid.String()).Update("device_status", status).Error
 }
 
 func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, scrutiny_uuid uuid.UUID) (models.Device, error) {

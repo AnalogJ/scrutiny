@@ -24,8 +24,11 @@
                         "tsConfig": "tsconfig.app.json",
                         "aot": true,
                         "assets": [
-                            "src/favicon-16x16.png",
-                            "src/favicon-32x32.png",
+                            {
+                                "glob": "*.{png,ico,json,xml}",
+                                "input": "src",
+                                "output": "."
+                            },
                             "src/assets"
                         ],
                         "stylePreprocessorOptions": {
@@ -96,8 +99,11 @@
                         "tsConfig": "tsconfig.spec.json",
                         "karmaConfig": "karma.conf.js",
                         "assets": [
-                            "src/favicon-16x16.png",
-                            "src/favicon-32x32.png",
+                            {
+                                "glob": "*.{png,ico,json,xml}",
+                                "input": "src",
+                                "output": "."
+                            },
                             "src/assets"
                         ],
                         "stylePreprocessorOptions": {

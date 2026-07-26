@@ -577,3 +577,91 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	require.Equal(suite.T(), deviceUUID, deviceSummary.Data.Summary[deviceUUIDString].Device.ScrutinyUUID)
 	require.Equal(suite.T(), pkg.DeviceStatusPassed, deviceSummary.Data.Summary[deviceUUIDString].Device.DeviceStatus)
 }
+
+// TestGetDevicesSummaryRoute_DeviceStatusResetsToPassing is a regression test: a device that was
+// previously recorded as failed must be reset back to passing once it reports clean SMART data again.
+func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_DeviceStatusResetsToPassing() {
+	//setup
+	parentPath, _ := os.MkdirTemp("", "")
+	defer os.RemoveAll(parentPath)
+	mockCtrl := gomock.NewController(suite.T())
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
+	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
+	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.scheme").Return("http").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.metrics.repeat_notifications").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.collector.discard_sct_temp_history").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{})
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.notify_level", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.status_filter_attributes", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.status_threshold", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
+
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
+
+	ae := web.AppEngine{
+		Config: fakeConfig,
+	}
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
+	devicesfile, err := os.Open("testdata/register-devices-req.json")
+	require.NoError(suite.T(), err)
+
+	// smart-fail2.json reports a failing device, smart-ata.json reports the same (ATA) device passing.
+	failfile := helperReadSmartDataFileFixTimestamp(suite.T(), "../models/testdata/smart-fail2.json")
+	passfile := helperReadSmartDataFileFixTimestamp(suite.T(), "../models/testdata/smart-ata.json")
+
+	deviceUUIDString := "3ea22b35-682b-49fb-a655-abffed108e48"
+
+	//test - register devices
+	wr := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", suite.Basepath+"/api/devices/register", devicesfile)
+	router.ServeHTTP(wr, req)
+	require.Equal(suite.T(), 200, wr.Code)
+
+	//test - upload failing SMART data
+	fr := httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/"+deviceUUIDString+"/smart", failfile)
+	router.ServeHTTP(fr, req)
+	require.Equal(suite.T(), 200, fr.Code)
+
+	//assert - device is now failed
+	failSummary := helperGetDeviceSummary(suite.T(), router, suite.Basepath)
+	require.Equal(suite.T(), pkg.DeviceStatusFailedScrutiny|pkg.DeviceStatusFailedSmart, failSummary.Data.Summary[deviceUUIDString].Device.DeviceStatus)
+
+	//test - upload clean SMART data for the same device
+	pr := httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/"+deviceUUIDString+"/smart", passfile)
+	router.ServeHTTP(pr, req)
+	require.Equal(suite.T(), 200, pr.Code)
+
+	//assert - device status is reset back to passing
+	passSummary := helperGetDeviceSummary(suite.T(), router, suite.Basepath)
+	require.Equal(suite.T(), pkg.DeviceStatusPassed, passSummary.Data.Summary[deviceUUIDString].Device.DeviceStatus)
+}
+
+func helperGetDeviceSummary(t *testing.T, router http.Handler, basepath string) models.DeviceSummaryWrapper {
+	t.Helper()
+	sr := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", basepath+"/api/summary", nil)
+	router.ServeHTTP(sr, req)
+	require.Equal(t, 200, sr.Code)
+
+	var deviceSummary models.DeviceSummaryWrapper
+	err := json.Unmarshal(sr.Body.Bytes(), &deviceSummary)
+	require.NoError(t, err)
+	return deviceSummary
+}

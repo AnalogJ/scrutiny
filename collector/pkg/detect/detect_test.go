@@ -357,9 +357,11 @@ func TestDetect_SmartCtlInfo(t *testing.T) {
 			someCapacity       int64 = 3840755982336
 		)
 
+		fullDeviceName := detect.DevicePrefix() + someDeviceName
+
 		fakeConfig := mock_config.NewMockInterface(ctrl)
 		fakeConfig.EXPECT().
-			GetCommandMetricsInfoArgs("/dev/" + someDeviceName).
+			GetCommandMetricsInfoArgs(fullDeviceName).
 			Return(someArgs)
 		fakeConfig.EXPECT().
 			GetString("commands.metrics_smartctl_bin").
@@ -372,7 +374,7 @@ func TestDetect_SmartCtlInfo(t *testing.T) {
 
 		fakeShell := mock_shell.NewMockInterface(ctrl)
 		fakeShell.EXPECT().
-			Command(someLogger, "smartctl", append(strings.Split(someArgs, " "), "/dev/"+someDeviceName), "", gomock.Any()).
+			Command(someLogger, "smartctl", append(strings.Split(someArgs, " "), fullDeviceName), "", gomock.Any()).
 			Return(string(smartctlInfoResults), err)
 
 		d := detect.Detect{
@@ -396,4 +398,61 @@ func TestDetect_SmartCtlInfo(t *testing.T) {
 		assert.Equal(t, someDeviceType, someDevice.DeviceType)
 		assert.Equal(t, someCapacity, someDevice.Capacity)
 	})
+
+	for _, tt := range []struct {
+		name     string
+		filename string
+	}{
+		{
+			name:     "should report smart support from legacy boolean",
+			filename: "smartctl_info_sata_smart_support_bool.json",
+		},
+		{
+			name:     "should report smart support from object",
+			filename: "smartctl_info_sata_smart_support_object.json",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+
+			const (
+				someArgs       = "--info --json"
+				someDeviceName = "sata1"
+			)
+
+			fullDeviceName := detect.DevicePrefix() + someDeviceName
+
+			fakeConfig := mock_config.NewMockInterface(ctrl)
+			fakeConfig.EXPECT().
+				GetCommandMetricsInfoArgs(fullDeviceName).
+				Return(someArgs)
+			fakeConfig.EXPECT().
+				GetString("commands.metrics_smartctl_bin").
+				Return("smartctl")
+
+			someLogger := logrus.WithFields(logrus.Fields{})
+
+			smartctlInfoResults, err := os.ReadFile("testdata/" + tt.filename)
+			require.NoError(t, err)
+
+			fakeShell := mock_shell.NewMockInterface(ctrl)
+			fakeShell.EXPECT().
+				Command(someLogger, "smartctl", append(strings.Split(someArgs, " "), fullDeviceName), "", gomock.Any()).
+				Return(string(smartctlInfoResults), nil)
+
+			d := detect.Detect{
+				Logger: someLogger,
+				Shell:  fakeShell,
+				Config: fakeConfig,
+			}
+
+			someDevice := &models.Device{
+				DeviceName: someDeviceName,
+			}
+
+			require.NoError(t, d.SmartCtlInfo(someDevice))
+
+			assert.True(t, someDevice.SmartSupport)
+		})
+	}
 }
