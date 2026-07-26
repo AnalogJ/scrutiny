@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-if [[ -z "${CI}" ]]; then
+if [[ -n "${SCRUTINY_VERSION}" ]]; then
+    # The release workflow runs from master via workflow_dispatch, so there is no tag in
+    # GITHUB_REF_NAME to pick up. It passes the version it just bumped instead.
+    echo "using the version supplied in SCRUTINY_VERSION"
+    VERSION_INFO="${SCRUTINY_VERSION}"
+elif [[ -z "${CI}" ]]; then
     echo "running locally (not in Github Actions). generating version file from git client"
     GIT_TAG=`git describe --tags`
     GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
