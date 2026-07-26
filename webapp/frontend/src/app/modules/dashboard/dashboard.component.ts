@@ -218,6 +218,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                 theme: 'dark',
                 shared: true,
                 intersect: false,
+                // the shared tooltip grows a row per device, and apexcharts only keeps the top half of
+                // it inside the chart. Pinning it to a corner anchors it instead.
+                fixed: {
+                    enabled: true,
+                    position: 'topLeft'
+                },
                 x    : {
                     format: 'MMM dd, yyyy HH:mm:ss'
                 },
