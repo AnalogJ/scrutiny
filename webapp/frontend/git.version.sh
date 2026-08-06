@@ -1,28 +1,25 @@
 #!/usr/bin/env bash
 
-if [[ -n "${SCRUTINY_VERSION}" ]]; then
-    # The release workflow runs from master via workflow_dispatch, so there is no tag in
-    # GITHUB_REF_NAME to pick up. It passes the version it just bumped instead.
-    echo "using the version supplied in SCRUTINY_VERSION"
-    VERSION_INFO="${SCRUTINY_VERSION}"
-elif [[ -z "${CI}" ]]; then
-    echo "running locally (not in Github Actions). generating version file from git client"
-    GIT_TAG=`git describe --tags`
-    GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
+SEMVER_TAG_REGEX='^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'
 
-    if [[ "$GIT_BRANCH" == "master" ]]; then
-        VERSION_INFO="${GIT_TAG}"
-    else
-        VERSION_INFO="${GIT_BRANCH}#${GIT_TAG}"
-    fi
+GIT_TAG="$(git describe --tags --exact-match 2>/dev/null)"
+
+if [[ "${GIT_TAG}" =~ ${SEMVER_TAG_REGEX} ]]; then
+    echo "generating version file from the checked out release tag"
+    VERSION_INFO="${GIT_TAG}"
 else
-    echo "running in Github Actions, generating version file from environmental variables"
-    # https://docs.github.com/en/actions/learn-github-actions/environment-variables
-    VERSION_INFO="${GITHUB_REF_NAME}"
-
-    if [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
-            VERSION_INFO="${VERSION_INFO}#${GITHUB_SHA::7}"
+    if [[ -n "${GIT_TAG}" ]]; then
+        echo "ignoring tag ${GIT_TAG}, it is not a release version"
     fi
+
+    GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+    if [[ "${GIT_BRANCH}" == "HEAD" ]]; then
+        # detached at an untagged commit, so git has no name for it
+        GIT_BRANCH="${GITHUB_REF_NAME:-detached}"
+    fi
+
+    echo "no release tag on the checked out commit, generating version file from the branch"
+    VERSION_INFO="${GIT_BRANCH}#$(git rev-parse --short=7 HEAD)"
 fi
 
 echo "writing version file (version: ${VERSION_INFO})"
