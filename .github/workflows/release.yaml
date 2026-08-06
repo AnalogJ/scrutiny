@@ -59,6 +59,22 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
         with:
           version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
+      - name: Checkout release tag
+        shell: bash
+        run: |
+          RELEASE_TAG="v${{ steps.bump_version.outputs.release_version }}"
+          if ! git rev-parse -q --verify "refs/tags/${RELEASE_TAG}" > /dev/null; then
+            # action-bumpr-go declares its output as `version` but emits `release_version`,
+            # and it does so over the deprecated ::set-output. Fall back to the tag that
+            # releasr created if that ever stops arriving.
+            RELEASE_TAG="$(git tag --points-at HEAD | head -n 1)"
+          fi
+          if [[ ! "${RELEASE_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "could not determine the release tag (got '${RELEASE_TAG}')"
+            exit 1
+          fi
+          echo "checking out ${RELEASE_TAG}"
+          git checkout --detach "refs/tags/${RELEASE_TAG}"
       - name: Upload workspace
         uses: actions/upload-artifact@v4
         with:
@@ -120,14 +136,8 @@ jobs:
           name: workspace
       - name: "Generate frontend version information"
         run: |
-          SCRUTINY_VERSION="v$(sed -n 's/^const VERSION = "\(.*\)"$/\1/p' "${{ github.event.inputs.version_metadata_path }}")"
-          if [[ ! "${SCRUTINY_VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
-            echo "could not read the release version from ${{ github.event.inputs.version_metadata_path }} (got '${SCRUTINY_VERSION}')"
-            exit 1
-          fi
-          export SCRUTINY_VERSION
+          apt-get update && apt-get install -y git
           cd webapp/frontend && chmod +x git.version.sh && ./git.version.sh
-        shell: bash
       - name: Build Frontend
         run: |
           apt-get update && apt-get install -y make
