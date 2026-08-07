@@ -125,14 +125,14 @@ binary-frontend-test-coverage:
 .PHONY: docker-collector
 docker-collector:
 	@echo "building collector docker image"
-	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile.collector -t ghcr.io/analogj/scrutiny-dev:collector .
+	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile.collector -t ghcr.io/kaysond/scrutiny-dev:collector .
 
 .PHONY: docker-web
 docker-web:
 	@echo "building web docker image"
-	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile.web -t ghcr.io/analogj/scrutiny-dev:web .
+	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile.web -t ghcr.io/kaysond/scrutiny-dev:web .
 
 .PHONY: docker-omnibus
 docker-omnibus:
 	@echo "building omnibus docker image"
-	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile -t ghcr.io/analogj/scrutiny-dev:omnibus .
+	docker build $(DOCKER_TARGETARCH_BUILD_ARG) -f docker/Dockerfile -t ghcr.io/kaysond/scrutiny-dev:omnibus .
