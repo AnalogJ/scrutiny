@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SEMVER_TAG_REGEX='^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'
+SEMVER_TAG_REGEX='^v[0-9]+\.[0-9]+\.[0-9]+$'
 
 GIT_TAG="$(git describe --tags --exact-match 2>/dev/null)"
 
