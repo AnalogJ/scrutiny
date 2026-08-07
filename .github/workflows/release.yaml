@@ -61,7 +61,16 @@ jobs:
           version_metadata_path: ${{ github.event.inputs.version_metadata_path }}
       - name: Checkout release tag
         shell: bash
+        env:
+          # the packagr container's base image has no en_US.UTF-8 locale generated, and the
+          # runner injects LANG/LC_ALL=en_US.UTF-8 into every step regardless
+          LANG: C.UTF-8
+          LC_ALL: C.UTF-8
         run: |
+          # releasr and bumpr talk to the repo through go-git, which skips this check; this is the
+          # first step in the job to shell out to the real git CLI, so it's the first to hit it.
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
           RELEASE_TAG="v${{ steps.bump_version.outputs.release_version }}"
           if ! git rev-parse -q --verify "refs/tags/${RELEASE_TAG}" > /dev/null; then
             # action-bumpr-go declares its output as `version` but emits `release_version`,
