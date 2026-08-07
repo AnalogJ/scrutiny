@@ -69,7 +69,7 @@ jobs:
             # releasr created if that ever stops arriving.
             RELEASE_TAG="$(git tag --points-at HEAD | head -n 1)"
           fi
-          if [[ ! "${RELEASE_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+          if [[ ! "${RELEASE_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "could not determine the release tag (got '${RELEASE_TAG}')"
             exit 1
           fi
