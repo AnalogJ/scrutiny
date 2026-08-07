@@ -13,6 +13,8 @@ RUN make binary-frontend
 
 ######## Build the backend
 FROM golang:1.25-trixie as backendbuild
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 COPY --link Makefile /go/src/github.com/analogj/scrutiny/
@@ -21,7 +23,10 @@ COPY --link collector /go/src/github.com/analogj/scrutiny/collector
 COPY --link webapp/backend /go/src/github.com/analogj/scrutiny/webapp/backend
 
 RUN apt-get update && apt-get install -y file && rm -rf /var/lib/apt/lists/*
-RUN make binary-clean binary-all WEB_BINARY_NAME=scrutiny
+# this stage isn't pinned to --platform=$BUILDPLATFORM, so buildx already runs it
+# natively/emulated per target platform; GOOS/GOARCH here only feed the version
+# banner's ldflags (main.goos/main.goarch), not cross-compilation
+RUN make binary-clean binary-all WEB_BINARY_NAME=scrutiny GOOS=$TARGETOS GOARCH=$TARGETARCH
 
 
 ######## Combine build artifacts in runtime image
