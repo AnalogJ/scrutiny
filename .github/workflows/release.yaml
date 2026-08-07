@@ -144,8 +144,14 @@ jobs:
         with:
           name: workspace
       - name: "Generate frontend version information"
+        env:
+          # the node:lts-slim image has no en_US.UTF-8 locale generated, and the
+          # runner injects LANG/LC_ALL=en_US.UTF-8 into every step regardless
+          LANG: C.UTF-8
+          LC_ALL: C.UTF-8
         run: |
           apt-get update && apt-get install -y git
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
           cd webapp/frontend && chmod +x git.version.sh && ./git.version.sh
       - name: Build Frontend
         run: |
