@@ -14,6 +14,8 @@ RUN make binary-frontend
 
 ######## Build the backend
 FROM golang:1.25-trixie as backendbuild
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 COPY --link Makefile /go/src/github.com/analogj/scrutiny/
@@ -24,7 +26,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive \
     apt-get install -y --no-install-recommends \
     file \
     && rm -rf /var/lib/apt/lists/*
-RUN make binary-clean binary-all WEB_BINARY_NAME=scrutiny
+# this stage isn't pinned to --platform=$BUILDPLATFORM, so buildx already runs it
+# natively/emulated per target platform; GOOS/GOARCH here only feed the version
+# banner's ldflags (main.goos/main.goarch), not cross-compilation. Both binary
+# names are pinned too, since the Makefile appends -$(GOOS)-$(GOARCH) to whichever
+# one isn't already overridden on the command line, which would break the COPY
+# --from=backendbuild steps below
+RUN make binary-clean binary-all WEB_BINARY_NAME=scrutiny COLLECTOR_BINARY_NAME=scrutiny-collector-metrics GOOS=$TARGETOS GOARCH=$TARGETARCH
 
 
 ######## Build smartmontools from source
