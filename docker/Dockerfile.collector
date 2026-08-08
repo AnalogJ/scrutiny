@@ -5,6 +5,8 @@
 
 ########
 FROM golang:1.25-trixie AS backendbuild
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 
@@ -14,7 +16,12 @@ COPY --link collector /go/src/github.com/analogj/scrutiny/collector
 COPY --link webapp/backend /go/src/github.com/analogj/scrutiny/webapp/backend
 
 RUN apt-get update && apt-get install -y file && rm -rf /var/lib/apt/lists/*
-RUN make binary-clean binary-collector
+# this stage isn't pinned to --platform=$BUILDPLATFORM, so buildx already runs it
+# natively/emulated per target platform; GOOS/GOARCH here only feed the version
+# banner's ldflags (main.goos/main.goarch), not cross-compilation. The binary name
+# is pinned too, since the Makefile would otherwise append -$(GOOS)-$(GOARCH) to
+# it, breaking the COPY --from=backendbuild step below
+RUN make binary-clean binary-collector COLLECTOR_BINARY_NAME=scrutiny-collector-metrics GOOS=$TARGETOS GOARCH=$TARGETARCH
 
 ######## Build smartmontools from source
 FROM debian:trixie-slim AS smartmontoolsbuild
