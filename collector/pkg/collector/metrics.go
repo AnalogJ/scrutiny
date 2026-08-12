@@ -15,6 +15,7 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/detect"
 	"github.com/analogj/scrutiny/collector/pkg/errors"
 	"github.com/analogj/scrutiny/collector/pkg/models"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/gofrs/uuid/v5"
 	"github.com/sirupsen/logrus"
 )
@@ -59,9 +60,15 @@ func (mc *MetricsCollector) Run() error {
 		Logger: mc.logger,
 		Config: mc.config,
 	}
-	rawDetectedStorageDevices, err := deviceDetector.Start()
+	scannedDevices, err := deviceDetector.Scan()
 	if err != nil {
+		mc.ReportError(models.Device{}, err)
 		return err
+	}
+
+	rawDetectedStorageDevices, infoErrors := deviceDetector.Info(scannedDevices)
+	for _, infoError := range infoErrors {
+		mc.ReportError(infoError.Device, infoError.Err)
 	}
 
 	// Ignore any device without a Scrutiny UUID. This should never happen...
@@ -135,6 +142,8 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 	}
 	mc.logger.Infof("Collecting smartctl results for %s\n", deviceName)
 
+	device := models.Device{ScrutinyUUID: scrutiny_uuid, DeviceName: deviceName, DeviceType: deviceType}
+
 	fullDeviceName := fmt.Sprintf("%s%s", detect.DevicePrefix(), deviceName)
 	args := strings.Split(mc.config.GetCommandMetricsSmartArgs(fullDeviceName), " ")
 	//only include the device type if its a non-standard one. In some cases ata drives are detected as scsi in docker, and metadata is lost.
@@ -146,21 +155,45 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 	result, err := mc.shell.Command(mc.logger, mc.config.GetString("commands.metrics_smartctl_bin"), args, "", os.Environ())
 	resultBytes := []byte(result)
 	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			// smartctl command exited with an error, we should still push the data to the API server
-			mc.logger.Errorf("smartctl returned an error code (%d) while processing %s\n", exitError.ExitCode(), deviceName)
-			mc.LogSmartctlExitCode(exitError.ExitCode())
-			mc.Publish(scrutiny_uuid, resultBytes)
-		} else {
+		exitError, isExitError := err.(*exec.ExitError)
+		if !isExitError {
 			mc.logger.Errorf("error while attempting to execute smartctl: %s\n", deviceName)
 			mc.logger.Errorf("ERROR MESSAGE: %v", err)
 			mc.logger.Errorf("IGNORING RESULT: %v", result)
+			mc.ReportError(device, err)
+			return
 		}
-		return
-	} else {
-		//successful run, pass the results directly to webapp backend for parsing and processing.
-		mc.Publish(scrutiny_uuid, resultBytes)
+
+		exitStatus := collector.SmartctlExitStatus(exitError.ExitCode())
+		mc.logger.Errorf("smartctl returned an error code (%d) while processing %s\n", exitError.ExitCode(), deviceName)
+		mc.LogSmartctlExitStatus(exitStatus)
+
+		if exitStatus.IsFatal() {
+			if exitStatus == collector.SmartctlExitStatusFailDev && hasPowerModeCheck(args) {
+				mc.logger.Infof("%s is in a low power mode, skipping collection\n", deviceName)
+				return
+			}
+
+			mc.logger.Errorf("smartctl output for %s is incomplete, not publishing results\n", deviceName)
+			mc.ReportError(device, fmt.Errorf("smartctl exited with status %d: %s", exitError.ExitCode(), exitStatus))
+			return
+		}
+		// the remaining exit status bits describe problems with the disk rather than with smartctl,
+		// so the results are still worth publishing.
 	}
+
+	mc.Publish(scrutiny_uuid, resultBytes)
+}
+
+// smartctl exits with FAILDEV when `-n`/`--nocheck` was given and the device is in a low power mode.
+// That is the behaviour the flag was asked for, not a failure worth reporting.
+func hasPowerModeCheck(args []string) bool {
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "--nocheck") || (strings.HasPrefix(arg, "-n") && !strings.HasPrefix(arg, "--")) {
+			return true
+		}
+	}
+	return false
 }
 
 func (mc *MetricsCollector) Publish(scrutinyUuid uuid.UUID, payload []byte) error {
@@ -177,4 +210,27 @@ func (mc *MetricsCollector) Publish(scrutinyUuid uuid.UUID, payload []byte) erro
 	defer resp.Body.Close()
 
 	return nil
+}
+
+// ReportError tells the API server that the collector could not gather data, so that it can notify
+// the user. device may be empty when the failure was not specific to one device.
+func (mc *MetricsCollector) ReportError(device models.Device, collectorErr error) {
+	payload := collector.CollectorError{
+		HostId:     mc.config.GetString("host.id"),
+		DeviceName: device.DeviceName,
+		DeviceType: device.DeviceType,
+		Error:      collectorErr.Error(),
+	}
+	if !device.ScrutinyUUID.IsNil() {
+		payload.ScrutinyUUID = device.ScrutinyUUID.String()
+	}
+	mc.logger.Debugf("Reporting collector error to API: %v", payload)
+
+	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
+	apiEndpoint, _ = apiEndpoint.Parse("api/collector/error")
+
+	response := models.DeviceWrapper{}
+	if err := mc.postJson(apiEndpoint.String(), payload, &response); err != nil {
+		mc.logger.Errorf("An error occurred while reporting a collector error to the API: %v", err)
+	}
 }

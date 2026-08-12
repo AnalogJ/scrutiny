@@ -486,6 +486,21 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				return nil
 			},
 		},
+		{
+			ID: "m20260725120000", // add notify_collector_errors setting.
+			Migrate: func(tx *gorm.DB) error {
+				//add notify_collector_errors setting default.
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "metrics.notify_collector_errors",
+						SettingKeyDescription: "Whether to send a notification when the collector cannot gather data (true | false)",
+						SettingDataType:       "bool",
+						SettingValueBool:      true,
+					},
+				}
+				return tx.Create(&defaultSettings).Error
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {
