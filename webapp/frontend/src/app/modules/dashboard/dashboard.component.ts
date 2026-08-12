@@ -2,6 +2,8 @@ import {
     AfterViewInit,
     ChangeDetectionStrategy,
     Component,
+    ElementRef,
+    NgZone,
     OnDestroy,
     OnInit,
     ViewChild,
@@ -19,6 +21,30 @@ import {Router} from '@angular/router';
 import {TemperaturePipe} from 'app/shared/temperature.pipe';
 import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
 import {DeviceSummaryModel} from 'app/core/models/device-summary-model';
+
+export interface Box {
+    top: number;
+    left: number;
+    bottom: number;
+    right: number;
+}
+
+/**
+ * How far a tooltip has to move to sit inside the viewport. apexcharts positions the shared tooltip
+ * against the plot area and only keeps its top half inside, so once there is a row per drive it is
+ * taller than the plot area and hangs off the bottom of the card.
+ */
+export function tooltipViewportOffset(box: Box, viewport: { width: number; height: number },
+                                      margin: number = 8): { dx: number; dy: number } {
+    // pull it back from the far edges first, then off the near ones, so a tooltip too big to fit
+    // lands against the top left rather than being pushed further off screen
+    let dx = Math.min(0, viewport.width - margin - box.right);
+    let dy = Math.min(0, viewport.height - margin - box.bottom);
+    dx += Math.max(0, margin - (box.left + dx));
+    dy += Math.max(0, margin - (box.top + dy));
+
+    return {dx, dy};
+}
 
 @Component({
     selector       : 'example',
@@ -38,6 +64,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
 
     // Private
     private _unsubscribeAll: Subject<void>;
+    private _tooltipObserver: MutationObserver;
     @ViewChild('tempChart', { static: false }) tempChart: ChartComponent;
 
     /**
@@ -53,6 +80,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         private _configService: ScrutinyConfigService,
         public dialog: MatDialog,
         private router: Router,
+        private _elementRef: ElementRef,
+        private _ngZone: NgZone,
     )
     {
         // Set the private defaults
@@ -117,13 +146,31 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
      * After view init
      */
     ngAfterViewInit(): void
-    {}
+    {
+        this._ngZone.runOutsideAngular(() => {
+            this._tooltipObserver = new MutationObserver((mutations) => {
+                for (const mutation of mutations) {
+                    const target = mutation.target as HTMLElement;
+                    if (target.classList.contains('apexcharts-tooltip')) {
+                        this.nudgeTooltipIntoView(target);
+                    }
+                }
+            });
+            this._tooltipObserver.observe(this._elementRef.nativeElement, {
+                attributes: true,
+                attributeFilter: ['style'],
+                subtree: true
+            });
+        });
+    }
 
     /**
      * On destroy
      */
     ngOnDestroy(): void
     {
+        this._tooltipObserver?.disconnect();
+
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next();
         this._unsubscribeAll.complete();
@@ -132,6 +179,36 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
     // -----------------------------------------------------------------------------------------------------
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
+    private nudgeTooltipIntoView(tooltip: HTMLElement): void {
+        const origin = (tooltip.offsetParent as HTMLElement)?.getBoundingClientRect();
+        if (!origin || !tooltip.style.left || !tooltip.style.top) {
+            return;
+        }
+
+        // .apexcharts-tooltip animates every move (`transition: .15s ease all`), so reading it back
+        // with getBoundingClientRect() gives a position it is still travelling away from and the
+        // correction below never settles. Measure where apexcharts asked for it to go instead.
+        const left = parseFloat(tooltip.style.left);
+        const top = parseFloat(tooltip.style.top);
+
+        const {dx, dy} = tooltipViewportOffset(
+            {
+                left: origin.left + left,
+                top: origin.top + top,
+                right: origin.left + left + tooltip.offsetWidth,
+                bottom: origin.top + top + tooltip.offsetHeight
+            },
+            {width: document.documentElement.clientWidth, height: document.documentElement.clientHeight}
+        );
+
+        if (dx === 0 && dy === 0) {
+            return;
+        }
+
+        tooltip.style.left = `${left + dx}px`;
+        tooltip.style.top = `${top + dy}px`;
+    }
+
     private refreshComponent(): void {
 
         const currentUrl = this.router.url;

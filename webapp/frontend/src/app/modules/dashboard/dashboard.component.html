@@ -78,7 +78,8 @@
 
             <!-- Drive Temperatures -->
             <div class="flex flex-auto w-full min-w-80 h-90 p-4">
-                <div class="flex flex-col flex-auto bg-card shadow-md rounded overflow-hidden">
+                <!-- deliberately not overflow-hidden: that clips the tooltip once it outgrows the chart -->
+                <div class="flex flex-col flex-auto bg-card shadow-md rounded">
                     <div class="flex flex-col p-6 pr-4 pb-4">
                         <div class="flex items-center justify-between">
                             <div class="flex flex-col">
