@@ -80,7 +80,7 @@
         "follow-redirects": "^1.16.0",
         "http-proxy-middleware": "^2.0.9",
         "immutable": "^4.3.9",
-        "js-yaml": "^3.15.0",
+        "js-yaml": "^3.15.1",
         "micromatch": "^4.0.8",
         "minimatch@^3.0.0": "^3.1.5",
         "minimatch@^5.0.0": "^5.1.9",
