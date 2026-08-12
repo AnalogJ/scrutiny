@@ -1,3 +1,5 @@
+/// <reference types="jasmine" />
+
 import {DetailExportService} from './detail-export.service';
 import {jsPDF} from 'jspdf';
 import {DeviceModel} from 'app/core/models/device-model';
