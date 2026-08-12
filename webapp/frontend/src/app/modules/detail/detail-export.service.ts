@@ -23,7 +23,7 @@ interface DriveReport {
 export class DetailExportService {
     async exportLogoPdf(report: DriveReport, exportedAt: Date = new Date()): Promise<void> {
         const logo = await this.loadLogo();
-        const document = new jsPDF({unit: 'mm', format: 'a4'});
+        const document = this.createDocument();
 
         // Mirror the web layout: a primary-color backdrop with a raised, rounded
         // header container and the drive-details heading below the logo bar.
@@ -47,6 +47,10 @@ export class DetailExportService {
         this.drawDeviceSummary(document, report);
         this.drawSmartAttributes(document, report);
         document.save(this.buildFilename(report.driveName, exportedAt));
+    }
+
+    private createDocument(): jsPDF {
+        return new jsPDF({unit: 'mm', format: 'a4'});
     }
 
     private drawSmartAttributes(document: jsPDF, report: DriveReport): void {

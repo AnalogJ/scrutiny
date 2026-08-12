@@ -7,12 +7,14 @@ describe('DetailExportService', () => {
     it('downloads a one-page PDF containing the Scrutiny logo', async () => {
         const service = new DetailExportService();
         const logo = 'data:image/png;base64,logo';
+        const document = new jsPDF({unit: 'mm', format: 'a4'});
         spyOn<any>(service, 'loadLogo').and.resolveTo(logo);
-        const addImage = spyOn(jsPDF.prototype, 'addImage').and.callFake(() => jsPDF.prototype);
-        const setFillColor = spyOn(jsPDF.prototype, 'setFillColor').and.callFake(() => jsPDF.prototype);
-        const roundedRect = spyOn(jsPDF.prototype, 'roundedRect').and.callFake(() => jsPDF.prototype);
-        const text = spyOn(jsPDF.prototype, 'text').and.callFake(() => jsPDF.prototype);
-        const save = spyOn(jsPDF.prototype, 'save');
+        spyOn<any>(service, 'createDocument').and.returnValue(document);
+        const addImage = spyOn(document, 'addImage').and.callFake(() => document);
+        const setFillColor = spyOn(document, 'setFillColor').and.callThrough();
+        const roundedRect = spyOn(document, 'roundedRect').and.callThrough();
+        const text = spyOn(document, 'text').and.callThrough();
+        const save = spyOn(document, 'save');
 
         await service.exportLogoPdf({
             driveName: 'WDC WD140EDFZ-11A0VA0',
@@ -107,10 +109,12 @@ describe('DetailExportService', () => {
 
     it('uses protocol-specific columns for SCSI attributes', async () => {
         const service = new DetailExportService();
+        const document = new jsPDF({unit: 'mm', format: 'a4'});
         spyOn<any>(service, 'loadLogo').and.resolveTo('data:image/png;base64,logo');
-        const text = spyOn(jsPDF.prototype, 'text').and.callFake(() => jsPDF.prototype);
-        spyOn(jsPDF.prototype, 'addImage').and.callFake(() => jsPDF.prototype);
-        spyOn(jsPDF.prototype, 'save');
+        spyOn<any>(service, 'createDocument').and.returnValue(document);
+        const text = spyOn(document, 'text').and.callThrough();
+        spyOn(document, 'addImage').and.callFake(() => document);
+        spyOn(document, 'save');
 
         await service.exportLogoPdf({
             driveName: 'SCSI Drive',
