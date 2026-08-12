@@ -17,6 +17,7 @@ import {SmartModel} from 'app/core/models/measurements/smart-model';
 import {SmartAttributeModel} from 'app/core/models/measurements/smart-attribute-model';
 import {AttributeMetadataModel} from 'app/core/models/thresholds/attribute-metadata-model';
 import {DeviceStatusPipe} from 'app/shared/device-status.pipe';
+import {DetailExportService} from './detail-export.service';
 
 // from Constants.go - these must match
 const AttributeStatusPassed = 0
@@ -50,6 +51,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
      */
     constructor(
         private _detailService: DetailService,
+        private _detailExportService: DetailExportService,
         public dialog: MatDialog,
         private _configService: ScrutinyConfigService,
         @Inject(LOCALE_ID) public locale: string
@@ -89,6 +91,22 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     private systemPrefersDark: boolean;
 
     readonly humanizeDuration = humanizeDuration;
+
+    exportPdf(): void {
+        const deviceName = this.device.device_name.startsWith('/dev/')
+            ? this.device.device_name
+            : `/dev/${this.device.device_name}`;
+        void this._detailExportService.exportLogoPdf(
+            {
+                driveName: this.device.model_name,
+                driveTitle: `${deviceName} - ${this.device.model_name}`,
+                device: this.device,
+                latestSmart: this.smart_results[0],
+                metadata: this.metadata,
+                config: this.config,
+            },
+        );
+    }
 
     deviceStatusForModelWithThreshold = DeviceStatusPipe.deviceStatusForModelWithThreshold
     // -----------------------------------------------------------------------------------------------------

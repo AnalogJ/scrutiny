@@ -18,11 +18,6 @@
                                   [svgIcon]="'archive'"></mat-icon>
                                 <span class="ml-2">Archived</span>
                     </button>
-                    <button matTooltip="not yet implemented" class="ml-2 xs:hidden" mat-stroked-button>
-                        <mat-icon class="icon-size-20"
-                                  [svgIcon]="'save'"></mat-icon>
-                        <span class="ml-2">Export</span>
-                    </button>
                     <button class="ml-2 xs:hidden"
                             (click)="openDialog()"
                             mat-stroked-button>
@@ -43,12 +38,6 @@
                                           [color]="showArchived ? 'primary' : null"
                                           [svgIcon]="'archive'"></mat-icon>
                                 <span class="ml-2">Archived</span>
-                            </button>
-                            <button mat-menu-item
-                                    matTooltip="not yet implemented">
-                                <mat-icon class="icon-size-20"
-                                          [svgIcon]="'save'"></mat-icon>
-                                <span class="ml-2">Export</span>
                             </button>
                             <button mat-menu-item (click)="openDialog()">
                                 <mat-icon class="icon-size-20 rotate-90 mirror"

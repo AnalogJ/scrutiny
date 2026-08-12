@@ -1,6 +1,7 @@
 {
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Run Scrutiny",
             "type": "go",
@@ -32,6 +33,50 @@
                 "COLLECTOR_DEBUG": "true"
             },
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Run Scrutiny for Dummy Data",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/webapp/backend/cmd/scrutiny/scrutiny.go",
+            "args": ["start", "--config", "./scrutiny.yaml"],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "DEBUG": "true"
+            },
+            "console": "integratedTerminal",
+            "preLaunchTask": "Build Frontend",
+            "presentation": {
+                "hidden": true
+            }
+        },
+        {
+            "name": "Load Dummy Data",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/webapp/backend/pkg/models/testdata/helper.go",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "Dummy data loaded",
+                "uriFormat": "http://localhost:8080/web/"
+            },
+            "presentation": {
+                "hidden": true
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Run Scrutiny with Dummy Data",
+            "configurations": [
+                "Run Scrutiny for Dummy Data",
+                "Load Dummy Data"
+            ],
+            "stopAll": true
         }
     ]
 }

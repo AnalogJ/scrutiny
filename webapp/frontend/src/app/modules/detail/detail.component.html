@@ -10,7 +10,7 @@
             <!-- Action buttons -->
             <div class="flex items-center">
                 <button class="xs:hidden"
-                        matTooltip="not yet implemented"
+                        (click)="exportPdf()"
                         mat-stroked-button>
                     <mat-icon class="icon-size-20"
                               [svgIcon]="'save'"></mat-icon>
@@ -32,7 +32,7 @@
                     </button>
                     <mat-menu #actionsMenu="matMenu">
                         <button mat-menu-item
-                                matTooltip="not yet implemented">
+                                (click)="exportPdf()">
                             <mat-icon class="icon-size-20"
                                       [svgIcon]="'save'"></mat-icon>
                             <span class="ml-2">Export</span>
