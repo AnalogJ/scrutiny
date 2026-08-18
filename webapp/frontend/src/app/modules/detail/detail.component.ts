@@ -1,5 +1,15 @@
 import humanizeDuration from 'humanize-duration';
-import {AfterViewInit, Component, Inject, LOCALE_ID, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    Inject,
+    LOCALE_ID,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+} from '@angular/core';
 import {ApexOptions} from 'ng-apexcharts';
 import {AppConfig} from 'app/core/config/app.config';
 import {DetailService} from './detail.service';
@@ -17,6 +27,8 @@ import {SmartModel} from 'app/core/models/measurements/smart-model';
 import {SmartAttributeModel} from 'app/core/models/measurements/smart-attribute-model';
 import {AttributeMetadataModel} from 'app/core/models/thresholds/attribute-metadata-model';
 import {DeviceStatusPipe} from 'app/shared/device-status.pipe';
+import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
+import {DetailHtmlExportService} from './detail-html-export.service';
 
 // from Constants.go - these must match
 const AttributeStatusPassed = 0
@@ -52,7 +64,9 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
         private _detailService: DetailService,
         public dialog: MatDialog,
         private _configService: ScrutinyConfigService,
-        @Inject(LOCALE_ID) public locale: string
+        @Inject(LOCALE_ID) public locale: string,
+        private readonly changeDetector: ChangeDetectorRef,
+        private readonly htmlExportService: DetailHtmlExportService,
     ) {
         // Set the private defaults
         this._unsubscribeAll = new Subject();
@@ -83,6 +97,9 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @ViewChild('smartAttributeTable', {read: MatSort})
     smartAttributeTableMatSort: MatSort;
+
+    @ViewChild('reportContent', {read: ElementRef})
+    reportContent: ElementRef<HTMLElement>;
 
     // Private
     private _unsubscribeAll: Subject<void>;
@@ -476,6 +493,30 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     toggleOnlyCritical(): void {
         this.onlyCritical = !this.onlyCritical
         this.smartAttributeDataSource.data = this._generateSmartAttributeTableDataSource(this.smart_results);
+    }
+
+    async exportHtmlReport(): Promise<void> {
+        const restoreCriticalOnly = this.onlyCritical;
+        if (restoreCriticalOnly) {
+            this.onlyCritical = false;
+            this.smartAttributeDataSource.data = this._generateSmartAttributeTableDataSource(this.smart_results);
+            this.changeDetector.detectChanges();
+        }
+
+        try {
+            const driveTitle = DeviceTitlePipe.deviceTitleWithFallback(this.device, this.config.dashboard_display);
+            await this.htmlExportService.exportReport(
+                this.reportContent.nativeElement,
+                this.device.model_name,
+                `Drive Details - ${driveTitle}`,
+            );
+        } finally {
+            if (restoreCriticalOnly) {
+                this.onlyCritical = true;
+                this.smartAttributeDataSource.data = this._generateSmartAttributeTableDataSource(this.smart_results);
+                this.changeDetector.detectChanges();
+            }
+        }
     }
 
     openDialog(): void {
