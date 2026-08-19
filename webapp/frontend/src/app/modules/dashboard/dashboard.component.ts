@@ -251,6 +251,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
         return deviceSummaries
     }
 
+    isDeviceVisible(deviceSummary: DeviceSummaryModel): boolean {
+        return this.showArchived || !deviceSummary.device.archived
+    }
+
+    hostGroupHasVisibleDevices(hostGroupScrutinyUUIDs: string[]): boolean {
+        return this.deviceSummariesForHostGroup(hostGroupScrutinyUUIDs).some(deviceSummary => this.isDeviceVisible(deviceSummary))
+    }
+
     openDialog(): void {
         const dialogRef = this.dialog.open(DashboardSettingsComponent, {width: '600px',});
 

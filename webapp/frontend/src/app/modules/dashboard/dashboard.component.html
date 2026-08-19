@@ -62,10 +62,10 @@
 
 
             <div class="flex flex-wrap w-full" *ngFor="let hostId of hostGroups | keyvalue">
-                <h3 class="ml-4" *ngIf="hostId.key">{{ hostId.key }}</h3>
+                <h3 class="ml-4" *ngIf="hostId.key && hostGroupHasVisibleDevices(hostId.value)">{{ hostId.key }}</h3>
                 <div class="flex flex-wrap w-full">
                     <ng-container *ngFor="let deviceSummary of (deviceSummariesForHostGroup(hostId.value) | deviceSort:config.dashboard_sort:config.dashboard_display )">
-                        <app-dashboard-device *ngIf="showArchived || !deviceSummary.device.archived"
+                        <app-dashboard-device *ngIf="isDeviceVisible(deviceSummary)"
                                               (deviceArchived)="onDeviceArchived($event)"
                                               (deviceUnarchived)="onDeviceUnarchived($event)"
                                               (deviceDeleted)="onDeviceDeleted($event)"
