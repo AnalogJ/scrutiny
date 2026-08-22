@@ -2,6 +2,12 @@ import {Pipe, PipeTransform} from '@angular/core';
 import {MetricsStatusThreshold} from '../core/config/app.config';
 import {DeviceModel} from '../core/models/device-model';
 
+// Device status is a bitfield (see constants.go). Bits 1 and 2 are the failure sources;
+// bits 4 and 8 record that a user-configured override decided the verdict and are
+// deliberately *not* failure bits.
+const DeviceStatusFailedOverride = 4
+const DeviceStatusPassedOverride = 8
+
 const DEVICE_STATUS_NAMES: { [key: number]: string } = {
     0: 'passed',
     1: 'failed',
@@ -38,9 +44,14 @@ export class DeviceStatusPipe implements PipeTransform {
         if (includeReason) {
             statusNameLookup = DEVICE_STATUS_NAMES_WITH_REASON
         }
-        // determine the device status, by comparing it against the allowed threshold
+        // determine the device status, by comparing it against the allowed threshold.
+        // The override bits are masked out first: they explain *why* a status was reached
+        // and are not themselves failures, so leaving them in would push the value outside
+        // the lookup table and render "undefined".
         // tslint:disable-next-line:no-bitwise
-        const deviceStatus = deviceModel.device_status & threshold
+        const failureBits = deviceModel.device_status & ~(DeviceStatusFailedOverride | DeviceStatusPassedOverride)
+        // tslint:disable-next-line:no-bitwise
+        const deviceStatus = failureBits & threshold
         return statusNameLookup[deviceStatus]
     }
 
@@ -68,4 +79,11 @@ export class DeviceStatusPipe implements PipeTransform {
         return DeviceStatusPipe.deviceStatusForModelWithThreshold(deviceModel, hasSmartResults, threshold, includeReason)
     }
 
+}
+
+// True when a user-configured override decided this device's status, so the UI can explain
+// an otherwise surprising pass or fail.
+export function deviceStatusHasOverride(deviceStatus: number): boolean {
+    // tslint:disable-next-line:no-bitwise
+    return (deviceStatus & (DeviceStatusFailedOverride | DeviceStatusPassedOverride)) !== 0
 }

@@ -198,5 +198,9 @@ func (c *configuration) ValidateConfig() error {
 		}
 	}
 
+	if err := validateDeviceOverrides(c); err != nil {
+		return err
+	}
+
 	return nil
 }
