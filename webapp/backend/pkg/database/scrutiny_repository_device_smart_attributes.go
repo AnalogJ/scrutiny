@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	"github.com/gofrs/uuid/v5"
@@ -18,8 +20,15 @@ import (
 // SMART
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 func (sr *scrutinyRepository) SaveSmartAttributes(ctx context.Context, scrutiny_uuid uuid.UUID, collectorSmartData collector.SmartInfo) (measurements.Smart, error) {
+	overrides, err := sr.attributeOverridesFor(scrutiny_uuid)
+	if err != nil {
+		// A misconfigured override must not silently drop a device's metrics.
+		sr.logger.Errorln("Could not parse configured attribute overrides", err)
+		return measurements.Smart{}, err
+	}
+
 	deviceSmartData := measurements.Smart{}
-	err := deviceSmartData.FromCollectorSmartInfo(scrutiny_uuid, collectorSmartData)
+	err = deviceSmartData.FromCollectorSmartInfo(scrutiny_uuid, collectorSmartData, overrides)
 	if err != nil {
 		sr.logger.Errorln("Could not process SMART metrics", err)
 		return measurements.Smart{}, err
@@ -206,4 +215,21 @@ func (sr *scrutinyRepository) generateSmartAttributesSubquery(scrutiny_uuid uuid
 	partialQueryStr = append(partialQueryStr, "|> schema.fieldsAsCols()")
 
 	return strings.Join(partialQueryStr, "\n")
+}
+
+// attributeOverridesFor returns the user-configured attribute overrides for a device, if any.
+func (sr *scrutinyRepository) attributeOverridesFor(scrutiny_uuid uuid.UUID) (pkg.AttributeOverrideSet, error) {
+	deviceOverrides, err := config.DeviceAttributeOverrides(sr.appConfig)
+	if err != nil {
+		return nil, err
+	}
+	if len(deviceOverrides) == 0 {
+		return nil, nil
+	}
+
+	overrides := deviceOverrides[strings.ToLower(scrutiny_uuid.String())]
+	if len(overrides) > 0 {
+		sr.logger.Debugf("Applying %d attribute override(s) to device %s", len(overrides), scrutiny_uuid)
+	}
+	return overrides, nil
 }

@@ -58,6 +58,51 @@ log:
   level: INFO
 
 
+######################################################################
+# Device Attribute Overrides
+#
+# Scrutiny grades most attributes against observed failure rates collected from a large
+# fleet of drives. Those rates do not always match your hardware -- a counter can be
+# elevated for reasons unrelated to drive health (a marginal SATA cable, a controller
+# reset, a vendor-specific encoding), leaving a healthy drive permanently flagged.
+#
+# An override replaces Scrutiny's analysis for one attribute on one device. When an
+# override matches, the observed failure-rate buckets are not consulted at all -- your
+# thresholds are the only thing that decides the attribute's status.
+#
+# A threshold is crossed when the value is strictly *worse* than it. For most attributes
+# worse means larger, but for attributes whose ideal is "high" (NVMe available_spare, for
+# example) worse means smaller; Scrutiny picks the right direction per attribute.
+#
+# Overrides never suppress the drive's own SMART verdict: if the drive reports an
+# attribute as failing, it stays failed.
+#
+# `scrutiny_uuid` is shown on the device detail page (and in /api/summary).
+# `attribute_id` is the ATA attribute number as a string ("5", "199"), or the NVMe/SCSI
+# attribute name ("media_errors", "scsi_grown_defect_list").
+######################################################################
+
+#devices:
+#  - scrutiny_uuid: 106089ed-2273-54e0-b498-ec4bdfc8ca6c
+#    attribute_overrides:
+#      # Warn once CRC errors start climbing, but do not fail this drive until they are
+#      # genuinely high -- a static count usually means one past cable/link event.
+#      - protocol: ATA          # ATA, NVMe or SCSI
+#        attribute_id: "199"
+#        warn_threshold: 100
+#        fail_threshold: 500
+#      # Only fail on Command Timeout once it is unmistakably bad.
+#      - protocol: ATA
+#        attribute_id: "188"
+#        fail_threshold: 1000
+#  - scrutiny_uuid: 8301e652-2817-5df7-8bd4-49fe76de25b0
+#    attribute_overrides:
+#      - protocol: NVMe
+#        attribute_id: media_errors
+#        warn_threshold: 0
+#        fail_threshold: 10
+
+
 # Notification "urls" look like the following. For more information about service specific configuration see
 # Shoutrrr's documentation: https://shoutrrr.nickfedor.com/services/overview/
 #
