@@ -205,7 +205,7 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_MetricsStatusThresho
 		DeviceStatus:   pkg.DeviceStatusSet(pkg.DeviceStatusFailedSmart, pkg.DeviceStatusFailedScrutiny),
 	}
 	smartAttrs := measurements.Smart{Attributes: map[string]measurements.SmartAttribute{
-		"critical_warning": (&measurements.SmartNvmeAttribute{AttributeId: "critical_warning", Value: 1, Threshold: 0}).PopulateAttributeStatus(),
+		"critical_warning": (&measurements.SmartNvmeAttribute{AttributeId: "critical_warning", Value: 1, Threshold: 0}).PopulateAttributeStatus(nil),
 	}}
 	statusThreshold := pkg.MetricsStatusThresholdSmart
 	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesCritical
