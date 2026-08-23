@@ -149,3 +149,57 @@ devices:
 		})
 	}
 }
+
+// A device entry that lists no overrides is skipped rather than producing an empty set, so
+// lookups for that device stay cheap and unambiguous.
+func TestDeviceAttributeOverrides_DeviceWithNoOverridesIsSkipped(t *testing.T) {
+	c := configFromYaml(t, `
+devices:
+  - scrutiny_uuid: 106089ed-2273-54e0-b498-ec4bdfc8ca6c
+    attribute_overrides: []
+  - scrutiny_uuid: 8301e652-2817-5df7-8bd4-49fe76de25b0
+    attribute_overrides:
+      - protocol: ATA
+        attribute_id: "199"
+        fail_threshold: 500
+`)
+	overrides, err := DeviceAttributeOverrides(c)
+	require.NoError(t, err)
+	require.Len(t, overrides, 1)
+	require.NotContains(t, overrides, "106089ed-2273-54e0-b498-ec4bdfc8ca6c")
+	require.Contains(t, overrides, "8301e652-2817-5df7-8bd4-49fe76de25b0")
+}
+
+// Two entries for the same device are merged rather than one silently winning.
+func TestDeviceAttributeOverrides_DuplicateDeviceEntriesMerge(t *testing.T) {
+	c := configFromYaml(t, `
+devices:
+  - scrutiny_uuid: 106089ed-2273-54e0-b498-ec4bdfc8ca6c
+    attribute_overrides:
+      - protocol: ATA
+        attribute_id: "199"
+        fail_threshold: 500
+  - scrutiny_uuid: 106089ED-2273-54E0-B498-EC4BDFC8CA6C
+    attribute_overrides:
+      - protocol: ATA
+        attribute_id: "188"
+        fail_threshold: 1000
+`)
+	overrides, err := DeviceAttributeOverrides(c)
+	require.NoError(t, err)
+	require.Len(t, overrides["106089ed-2273-54e0-b498-ec4bdfc8ca6c"], 2)
+}
+
+// `devices` given as something other than a list must produce a clear configuration error
+// rather than a panic or a silently empty override set.
+func TestDeviceAttributeOverrides_MalformedDevicesBlock(t *testing.T) {
+	c := configFromYaml(t, "devices: \"not a list\"\n")
+
+	overrides, err := DeviceAttributeOverrides(c)
+	require.Error(t, err)
+	require.Nil(t, overrides)
+	require.Contains(t, strings.ToLower(err.Error()), "devices")
+
+	// and the same failure must surface from startup validation
+	require.Error(t, c.ValidateConfig())
+}
