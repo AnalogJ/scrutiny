@@ -164,6 +164,18 @@ func (c *configuration) GetDeviceOverrides() []models.ScanOverride {
 	return c.deviceOverrides
 }
 
+// HasDeviceTypeOverride reports whether the user pinned a device type for this
+// device in the config file, as opposed to it coming from `smartctl --scan`.
+func HasDeviceTypeOverride(c Interface, deviceName string) bool {
+	for _, deviceOverride := range c.GetDeviceOverrides() {
+		if strings.EqualFold(deviceName, deviceOverride.Device) {
+			return len(deviceOverride.DeviceType) > 0
+		}
+	}
+
+	return false
+}
+
 func (c *configuration) GetCommandMetricsInfoArgs(deviceName string) string {
 	overrides := c.GetDeviceOverrides()
 

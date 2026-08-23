@@ -545,3 +545,103 @@ func TestDetect_SmartCtlInfo(t *testing.T) {
 		})
 	}
 }
+
+func TestDetect_SmartCtlInfo_DeviceType(t *testing.T) {
+	for _, tt := range []struct {
+		name         string
+		deviceType   string
+		overrides    []models.ScanOverride
+		expectedArgs []string
+	}{
+		{
+			name:         "should pass a scanned non-standard type through",
+			deviceType:   "sat",
+			overrides:    []models.ScanOverride{},
+			expectedArgs: []string{"--info", "--json", "--device", "sat"},
+		},
+		{
+			name:         "should drop a scanned scsi type",
+			deviceType:   "scsi",
+			overrides:    []models.ScanOverride{},
+			expectedArgs: []string{"--info", "--json"},
+		},
+		{
+			name:       "should keep a configured scsi type",
+			deviceType: "scsi",
+			overrides: []models.ScanOverride{
+				{Device: detect.DevicePrefix() + "sda", DeviceType: []string{"scsi"}},
+			},
+			expectedArgs: []string{"--info", "--json", "--device", "scsi"},
+		},
+		{
+			name:       "should keep a configured ata type",
+			deviceType: "ata",
+			overrides: []models.ScanOverride{
+				{Device: detect.DevicePrefix() + "sda", DeviceType: []string{"ata"}},
+			},
+			expectedArgs: []string{"--info", "--json", "--device", "ata"},
+		},
+		{
+			name:       "should drop a scanned scsi type when another device is configured",
+			deviceType: "scsi",
+			overrides: []models.ScanOverride{
+				{Device: detect.DevicePrefix() + "sdb", DeviceType: []string{"scsi"}},
+			},
+			expectedArgs: []string{"--info", "--json"},
+		},
+		{
+			name:       "should drop a scanned scsi type when the override sets no type",
+			deviceType: "scsi",
+			overrides: []models.ScanOverride{
+				{Device: detect.DevicePrefix() + "sda"},
+			},
+			expectedArgs: []string{"--info", "--json"},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+
+			const (
+				someArgs       = "--info --json"
+				someDeviceName = "sda"
+			)
+
+			fullDeviceName := detect.DevicePrefix() + someDeviceName
+
+			fakeConfig := mock_config.NewMockInterface(ctrl)
+			fakeConfig.EXPECT().
+				GetCommandMetricsInfoArgs(fullDeviceName).
+				Return(someArgs)
+			fakeConfig.EXPECT().
+				GetString("commands.metrics_smartctl_bin").
+				Return("smartctl")
+			fakeConfig.EXPECT().
+				GetDeviceOverrides().
+				Return(tt.overrides).
+				AnyTimes()
+
+			someLogger := logrus.WithFields(logrus.Fields{})
+
+			smartctlInfoResults, err := os.ReadFile("testdata/smartctl_info_sata_smart_support_bool.json")
+			require.NoError(t, err)
+
+			fakeShell := mock_shell.NewMockInterface(ctrl)
+			fakeShell.EXPECT().
+				Command(someLogger, "smartctl", append(tt.expectedArgs, fullDeviceName), "", gomock.Any()).
+				Return(string(smartctlInfoResults), nil)
+
+			d := detect.Detect{
+				Logger: someLogger,
+				Shell:  fakeShell,
+				Config: fakeConfig,
+			}
+
+			someDevice := &models.Device{
+				DeviceName: someDeviceName,
+				DeviceType: tt.deviceType,
+			}
+
+			require.NoError(t, d.SmartCtlInfo(someDevice))
+		})
+	}
+}
