@@ -214,3 +214,58 @@ func TestSmart_FromCollectorSmartInfo_Overrides(t *testing.T) {
 		})
 	}
 }
+
+// SCSI attributes carry an Ideal in ScsiMetadata just like the other protocols, so overrides
+// resolve their comparison direction the same way.
+func TestSmartScsiAttribute_PopulateAttributeStatus_Override(t *testing.T) {
+	tests := []struct {
+		name     string
+		attr     measurements.SmartScsiAttribute
+		override *pkg.AttributeOverride
+		expected pkg.AttributeStatus
+	}{
+		{
+			// Documents existing upstream behaviour rather than endorsing it: the non-override
+			// path looks SCSI attributes up in thresholds.NmveMetadata, so a SCSI-only id such
+			// as scsi_grown_defect_list matches nothing and the recommended-threshold check is
+			// skipped entirely -- even with a value past its threshold. Left as-is here to keep
+			// this change focused; the override path below uses ScsiMetadata, which is correct.
+			name:     "no override, value past its threshold is not flagged (upstream metadata mismatch)",
+			attr:     measurements.SmartScsiAttribute{AttributeId: "scsi_grown_defect_list", Value: 5, Threshold: 0},
+			override: nil,
+			expected: pkg.AttributeStatusPassed,
+		},
+		{
+			name:     "override passes when the value is within it",
+			attr:     measurements.SmartScsiAttribute{AttributeId: "scsi_grown_defect_list", Value: 5, Threshold: 0},
+			override: &pkg.AttributeOverride{FailThreshold: i64(10)},
+			expected: pkg.AttributeStatusPassedOverride,
+		},
+		{
+			name:     "override fails when the value exceeds it",
+			attr:     measurements.SmartScsiAttribute{AttributeId: "scsi_grown_defect_list", Value: 5, Threshold: 0},
+			override: &pkg.AttributeOverride{FailThreshold: i64(3)},
+			expected: pkg.AttributeStatusFailedScrutiny | pkg.AttributeStatusFailedOverride,
+		},
+		{
+			name:     "override warns between the thresholds",
+			attr:     measurements.SmartScsiAttribute{AttributeId: "read_total_uncorrected_errors", Value: 7, Threshold: -1},
+			override: &pkg.AttributeOverride{WarnThreshold: i64(5), FailThreshold: i64(50)},
+			expected: pkg.AttributeStatusWarningScrutiny | pkg.AttributeStatusWarningOverride,
+		},
+		{
+			name:     "an unknown attribute id defaults to ideal-low",
+			attr:     measurements.SmartScsiAttribute{AttributeId: "not_a_real_scsi_attribute", Value: 9, Threshold: -1},
+			override: &pkg.AttributeOverride{FailThreshold: i64(4)},
+			expected: pkg.AttributeStatusFailedScrutiny | pkg.AttributeStatusFailedOverride,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			attr := tc.attr
+			result := attr.PopulateAttributeStatus(tc.override)
+			require.Equal(t, tc.expected, result.Status, "status mismatch (reason: %q)", result.StatusReason)
+		})
+	}
+}
