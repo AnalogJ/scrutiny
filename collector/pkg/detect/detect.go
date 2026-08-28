@@ -55,10 +55,10 @@ func (d *Detect) SmartctlScan() ([]models.Device, error) {
 func (d *Detect) SmartCtlInfo(device *models.Device) error {
 	fullDeviceName := fmt.Sprintf("%s%s", DevicePrefix(), device.DeviceName)
 	args := strings.Split(d.Config.GetCommandMetricsInfoArgs(fullDeviceName), " ")
-	//only include the device type if its a non-standard one, or the user pinned it in the config file.
+	//only include the device type if its a non-standard one, or the user set it in the config file.
 	//In some cases ata drives are detected as scsi in docker, and metadata is lost, so a scanned scsi/ata type is dropped.
 	if len(device.DeviceType) > 0 &&
-		((device.DeviceType != "scsi" && device.DeviceType != "ata") || config.HasDeviceTypeOverride(d.Config, fullDeviceName)) {
+		((device.DeviceType != "scsi" && device.DeviceType != "ata") || d.Config.HasDeviceTypeOverride(fullDeviceName)) {
 		args = append(args, "--device", device.DeviceType)
 	}
 	args = append(args, fullDeviceName)

@@ -8,7 +8,6 @@ import (
 	mock_shell "github.com/analogj/scrutiny/collector/pkg/common/shell/mock"
 	mock_config "github.com/analogj/scrutiny/collector/pkg/config/mock"
 	"github.com/analogj/scrutiny/collector/pkg/detect"
-	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/gofrs/uuid/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
@@ -46,64 +45,40 @@ func TestApiEndpointParse_WithBasepathWithTrailingSlash(t *testing.T) {
 	require.Equal(t, "http://localhost:8080/d/e", url2.String())
 }
 
-func TestMetricsCollector_Collect_DeviceType(t *testing.T) {
+func TestMetricsCollector_Collect_ConfiguredDeviceType(t *testing.T) {
 	for _, tt := range []struct {
-		name         string
-		deviceType   string
-		overrides    []models.ScanOverride
-		expectedArgs []string
+		name                  string
+		deviceType            string
+		hasDeviceTypeOverride bool
+		expectedArgs          []string
 	}{
-		{
-			name:         "should drop a scanned scsi type",
-			deviceType:   "scsi",
-			overrides:    []models.ScanOverride{},
-			expectedArgs: []string{"--xall", "--json"},
-		},
-		{
-			name:       "should keep a configured scsi type",
-			deviceType: "scsi",
-			overrides: []models.ScanOverride{
-				{Device: detect.DevicePrefix() + "sda", DeviceType: []string{"scsi"}},
-			},
-			expectedArgs: []string{"--xall", "--json", "--device", "scsi"},
-		},
+		{"should drop a scanned scsi type", "scsi", false, []string{"--xall", "--json"}},
+		{"should keep a configured scsi type", "scsi", true, []string{"--xall", "--json", "--device", "scsi"}},
+		{"should keep a scanned non-standard type", "megaraid,14", false, []string{"--xall", "--json", "--device", "megaraid,14"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 
-			const (
-				someArgs       = "--xall --json"
-				someDeviceName = "sda"
-			)
+			const someDeviceName = "sda"
 
 			fullDeviceName := detect.DevicePrefix() + someDeviceName
 
 			fakeConfig := mock_config.NewMockInterface(ctrl)
-			fakeConfig.EXPECT().
-				GetCommandMetricsSmartArgs(fullDeviceName).
-				Return(someArgs)
-			fakeConfig.EXPECT().
-				GetString("commands.metrics_smartctl_bin").
-				Return("smartctl")
-			fakeConfig.EXPECT().
-				GetDeviceOverrides().
-				Return(tt.overrides).
-				AnyTimes()
+			fakeConfig.EXPECT().GetCommandMetricsSmartArgs(fullDeviceName).Return("--xall --json")
+			fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").Return("smartctl")
+			//only consulted for a scsi/ata type; the argv below is what the test pins
+			fakeConfig.EXPECT().HasDeviceTypeOverride(fullDeviceName).AnyTimes().Return(tt.hasDeviceTypeOverride)
 
 			someLogger := logrus.WithFields(logrus.Fields{})
 
 			fakeShell := mock_shell.NewMockInterface(ctrl)
 			fakeShell.EXPECT().
 				Command(someLogger, "smartctl", append(tt.expectedArgs, fullDeviceName), "", gomock.Any()).
-				Return("", errors.New("smartctl unavailable in test"))
-
-			apiEndpoint, err := url.Parse("http://localhost:8080/")
-			require.NoError(t, err)
+				Return("", errors.New("smartctl is not available in tests"))
 
 			mc := MetricsCollector{
 				config:        fakeConfig,
 				BaseCollector: BaseCollector{logger: someLogger},
-				apiEndpoint:   apiEndpoint,
 				shell:         fakeShell,
 			}
 

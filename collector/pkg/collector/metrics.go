@@ -137,10 +137,10 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 
 	fullDeviceName := fmt.Sprintf("%s%s", detect.DevicePrefix(), deviceName)
 	args := strings.Split(mc.config.GetCommandMetricsSmartArgs(fullDeviceName), " ")
-	//only include the device type if its a non-standard one, or the user pinned it in the config file.
+	//only include the device type if its a non-standard one, or the user set it in the config file.
 	//In some cases ata drives are detected as scsi in docker, and metadata is lost, so a scanned scsi/ata type is dropped.
 	if len(deviceType) > 0 &&
-		((deviceType != "scsi" && deviceType != "ata") || config.HasDeviceTypeOverride(mc.config, fullDeviceName)) {
+		((deviceType != "scsi" && deviceType != "ata") || mc.config.HasDeviceTypeOverride(fullDeviceName)) {
 		args = append(args, "--device", deviceType)
 	}
 	args = append(args, fullDeviceName)
