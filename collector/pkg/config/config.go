@@ -203,7 +203,8 @@ func (c *configuration) IsAllowlistedDevice(deviceName string) bool {
 	}
 
 	for _, item := range allowList {
-		if item == deviceName {
+		// matched case-insensitively, like the device overrides
+		if strings.EqualFold(item, deviceName) {
 			return true
 		}
 	}
