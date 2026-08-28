@@ -278,7 +278,7 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 				ErrorInterval:     []float64{0.05113785787727033, 0.05823122757702782},
 			},
 			{ //TODO: using fake data from attribute 11. Not enough data, but critical and correlated with failure.
-				Low:               0,
+				Low:               1,
 				High:              80,
 				AnnualFailureRate: 0.5555555555555556,
 				ErrorInterval:     []float64{0.014065448880161053, 3.095357439410498},
@@ -300,7 +300,7 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 				ErrorInterval:     []float64{0.03357701137320878, 0.06297433993055492},
 			},
 			{
-				Low:               0,
+				Low:               1,
 				High:              80,
 				AnnualFailureRate: 0.5555555555555556,
 				ErrorInterval:     []float64{0.014065448880161053, 3.095357439410498},
@@ -1103,7 +1103,7 @@ var AtaMetadata = map[int]AtaAttributeMetadata{
 				ErrorInterval:     []float64{0.026159385510707116, 0.03136793218577656},
 			},
 			{
-				Low:               0,
+				Low:               1,
 				High:              2,
 				AnnualFailureRate: 0.8135764944275583,
 				ErrorInterval:     []float64{0.40613445471964466, 1.4557130815309443},
