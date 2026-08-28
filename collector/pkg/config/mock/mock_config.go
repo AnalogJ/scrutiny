@@ -161,6 +161,20 @@ func (mr *MockInterfaceMockRecorder) GetStringSlice(key interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStringSlice", reflect.TypeOf((*MockInterface)(nil).GetStringSlice), key)
 }
 
+// HasDeviceTypeOverride mocks base method.
+func (m *MockInterface) HasDeviceTypeOverride(deviceName string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HasDeviceTypeOverride", deviceName)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// HasDeviceTypeOverride indicates an expected call of HasDeviceTypeOverride.
+func (mr *MockInterfaceMockRecorder) HasDeviceTypeOverride(deviceName interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HasDeviceTypeOverride", reflect.TypeOf((*MockInterface)(nil).HasDeviceTypeOverride), deviceName)
+}
+
 // Init mocks base method.
 func (m *MockInterface) Init() error {
 	m.ctrl.T.Helper()
