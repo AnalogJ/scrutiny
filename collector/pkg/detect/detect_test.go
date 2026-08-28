@@ -246,6 +246,46 @@ func TestDetect_TransformDetectedDevices_Simple(t *testing.T) {
 	require.Equal(t, "sat+megaraid", transformedDevices[0].DeviceType)
 }
 
+func TestDetect_TransformDetectedDevices_PreservesOverrideDeviceFileCase(t *testing.T) {
+	// setup
+	mockCtrl := gomock.NewController(t)
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
+	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").AnyTimes().Return("smartctl")
+	fakeConfig.EXPECT().GetString("commands.metrics_scan_args").AnyTimes().Return("--scan --json")
+	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{
+		{Device: "/dev/disk/by-id/ata-Samsung_SSD_850_EVO_1TB_S2RFNX0J", DeviceType: []string{"sat"}},
+		{Device: "/dev/SDA", DeviceType: []string{"sat+megaraid"}},
+	})
+	fakeConfig.EXPECT().IsAllowlistedDevice(gomock.Any()).AnyTimes().Return(true)
+	detectedDevices := models.Scan{
+		Devices: []models.ScanDevice{
+			{
+				Name:     "/dev/sda",
+				InfoName: "/dev/sda",
+				Protocol: "ata",
+				Type:     "ata",
+			},
+		},
+	}
+
+	d := detect.Detect{
+		Config: fakeConfig,
+	}
+
+	// test
+	transformedDevices := d.TransformDetectedDevices(detectedDevices)
+
+	// assert
+	deviceTypes := map[string]string{}
+	for _, transformedDevice := range transformedDevices {
+		deviceTypes[transformedDevice.DeviceName] = transformedDevice.DeviceType
+	}
+	require.Equal(t, 2, len(transformedDevices))
+	require.Equal(t, "sat", deviceTypes["disk/by-id/ata-Samsung_SSD_850_EVO_1TB_S2RFNX0J"])
+	require.Equal(t, "sat+megaraid", deviceTypes["sda"])
+}
+
 // test https://github.com/AnalogJ/scrutiny/issues/255#issuecomment-1164024126
 func TestDetect_TransformDetectedDevices_WithoutDeviceTypeOverride(t *testing.T) {
 	// setup

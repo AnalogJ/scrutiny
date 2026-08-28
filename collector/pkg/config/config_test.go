@@ -158,6 +158,15 @@ func TestConfiguration_DeviceAllowList(t *testing.T) {
 		require.False(t, testConfig.IsAllowlistedDevice("/dev/sdc"), "/dev/sda should not be allow listed")
 	})
 
+	t.Run("case insensitive", func(t *testing.T) {
+		testConfig, err := config.Create()
+		require.NoError(t, err)
+
+		require.NoError(t, testConfig.ReadConfig(path.Join("testdata", "allow_listed_devices_present.yaml")))
+
+		require.True(t, testConfig.IsAllowlistedDevice("/dev/SDA"), "/dev/SDA should be allow listed")
+	})
+
 	t.Run("missing", func(t *testing.T) {
 		testConfig, err := config.Create()
 		require.NoError(t, err)
