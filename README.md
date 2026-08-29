@@ -128,7 +128,7 @@ docker run --restart unless-stopped \
   ghcr.io/analogj/scrutiny:latest-collector
 ```
 
-### Hub rootless installation using Podman Quadlets
+## Hub rootless installation using Podman Quadlets
 
 See [docs/INSTALL_ROOTLESS_PODMAN.md](docs/INSTALL_ROOTLESS_PODMAN.md) for instructions.
 
