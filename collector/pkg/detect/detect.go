@@ -85,7 +85,12 @@ func (d *Detect) SmartCtlInfo(device *models.Device) error {
 	device.Capacity = availableDeviceInfo.Capacity()
 	device.FormFactor = availableDeviceInfo.FormFactor.Name
 	device.SmartSupport = availableDeviceInfo.SmartSupport.Supported()
-	device.DeviceType = availableDeviceInfo.Device.Type
+	// only fill in the type when nothing else supplied one: smartctl reports the
+	// transport it resolved to (eg. "sat"), not the addressing path we passed in
+	// (eg. "aacraid,0,0,1"), so overwriting here breaks collection on RAID members.
+	if len(device.DeviceType) == 0 {
+		device.DeviceType = availableDeviceInfo.Device.Type
+	}
 	device.DeviceProtocol = availableDeviceInfo.Device.Protocol
 	if len(availableDeviceInfo.Vendor) > 0 {
 		device.Manufacturer = availableDeviceInfo.Vendor
