@@ -141,6 +141,7 @@ func TestConfiguration_OverrideDeviceCommands_MetricsInfoArgs(t *testing.T) {
 
 	//assert
 	require.Equal(t, "--info --json -T permissive", testConfig.GetCommandMetricsInfoArgs("/dev/sda"))
+	require.Equal(t, "--info --json -T permissive", testConfig.GetCommandMetricsInfoArgs("/dev/SDA"))
 	require.Equal(t, "--info --json", testConfig.GetCommandMetricsInfoArgs("/dev/sdb"))
 	//require.Equal(t, []models.ScanOverride{{Device: "/dev/sda", DeviceType: nil, Commands: {MetricsInfoArgs: "--info --json -T "}}}, scanOverrides)
 }
@@ -178,4 +179,33 @@ func TestConfiguration_DeviceAllowList(t *testing.T) {
 		require.True(t, testConfig.IsAllowlistedDevice("/dev/sda"), "/dev/sda should be allow listed")
 		require.True(t, testConfig.IsAllowlistedDevice("/dev/sdc"), "/dev/sda should be allow listed")
 	})
+}
+
+func TestConfiguration_HasDeviceTypeOverride(t *testing.T) {
+	t.Parallel()
+
+	//setup
+	testConfig, _ := config.Create()
+
+	//test
+	err := testConfig.ReadConfig(path.Join("testdata", "simple_device.yaml"))
+	require.NoError(t, err, "should correctly load simple device config")
+
+	//assert
+	require.True(t, testConfig.HasDeviceTypeOverride("/dev/SDA"), "should match a configured device case-insensitively")
+	require.False(t, testConfig.HasDeviceTypeOverride("/dev/sdb"), "should not match an unconfigured device")
+}
+
+func TestConfiguration_HasDeviceTypeOverride_WithoutDeviceType(t *testing.T) {
+	t.Parallel()
+
+	//setup
+	testConfig, _ := config.Create()
+
+	//test
+	err := testConfig.ReadConfig(path.Join("testdata", "ignore_device.yaml"))
+	require.NoError(t, err, "should correctly load ignore device config")
+
+	//assert
+	require.False(t, testConfig.HasDeviceTypeOverride("/dev/sda"), "should not match a device configured without a type")
 }

@@ -23,6 +23,7 @@ type Interface interface {
 	UnmarshalKey(key string, rawVal interface{}, decoderOpts ...viper.DecoderConfigOption) error
 
 	GetDeviceOverrides() []models.ScanOverride
+	HasDeviceTypeOverride(deviceName string) bool
 	GetCommandMetricsInfoArgs(deviceName string) string
 	GetCommandMetricsSmartArgs(deviceName string) string
 
