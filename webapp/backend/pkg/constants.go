@@ -65,3 +65,17 @@ const (
 	//shortcut
 	MetricsStatusThresholdBoth MetricsStatusThreshold = 3
 )
+
+// Attribute/Device status flags set when a user-configured override decided the result.
+// They are additive to the existing flags so the frontend can show *why* an attribute is
+// passing or failing, rather than silently changing the verdict.
+const (
+	AttributeStatusPassedOverride  AttributeStatus = 8
+	AttributeStatusWarningOverride AttributeStatus = 16
+	AttributeStatusFailedOverride  AttributeStatus = 32
+)
+
+const (
+	DeviceStatusFailedOverride DeviceStatus = 4
+	DeviceStatusPassedOverride DeviceStatus = 8
+)

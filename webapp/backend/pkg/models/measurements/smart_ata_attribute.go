@@ -93,7 +93,7 @@ func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
 
 // populate attribute status, using SMART Thresholds & Observed Metadata
 // Chainable
-func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
+func (sa *SmartAtaAttribute) PopulateAttributeStatus(override *pkg.AttributeOverride) *SmartAtaAttribute {
 	if strings.ToUpper(sa.WhenFailed) == pkg.AttributeWhenFailedFailingNow {
 		//this attribute has previously failed
 		sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedSmart)
@@ -106,11 +106,42 @@ func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
 		sa.StatusReason += "Attribute has previously failed manufacturer SMART threshold"
 	}
 
-	if smartMetadata, ok := thresholds.AtaMetadata[sa.AttributeId]; ok {
+	smartMetadata, hasMetadata := thresholds.AtaMetadata[sa.AttributeId]
+
+	// A user override replaces the observed-threshold analysis entirely. The SMART-derived
+	// flags set above are left alone: an override tunes Scrutiny's heuristics, it does not
+	// suppress the drive reporting itself as failing.
+	if override != nil {
+		value := sa.RawValue
+		idealLow := true
+		if hasMetadata {
+			value = sa.observedValue(smartMetadata)
+			idealLow = idealIsLow(smartMetadata.Ideal)
+		}
+		status, reason := evaluateAttributeOverride(value, idealLow, override)
+		sa.Status = pkg.AttributeStatusSet(sa.Status, status)
+		sa.StatusReason += reason
+		return sa
+	}
+
+	if hasMetadata {
 		sa.ValidateThreshold(smartMetadata)
 	}
 
 	return sa
+}
+
+// observedValue returns the value this attribute is analyzed against: normalized, transformed
+// or raw, depending on the attribute's DisplayType.
+func (sa *SmartAtaAttribute) observedValue(smartMetadata thresholds.AtaAttributeMetadata) int64 {
+	switch smartMetadata.DisplayType {
+	case thresholds.AtaSmartAttributeDisplayTypeNormalized:
+		return sa.Value
+	case thresholds.AtaSmartAttributeDisplayTypeTransformed:
+		return sa.TransformedValue
+	default:
+		return sa.RawValue
+	}
 }
 
 // compare the attribute (raw, normalized, transformed) value to observed thresholds, and update status if necessary
@@ -125,14 +156,7 @@ func (sa *SmartAtaAttribute) ValidateThreshold(smartMetadata thresholds.AtaAttri
 	// 		- if failure rate is above 10 but below 20 - set to warn
 
 	//update the smart attribute status based on Observed thresholds.
-	var value int64
-	if smartMetadata.DisplayType == thresholds.AtaSmartAttributeDisplayTypeNormalized {
-		value = int64(sa.Value)
-	} else if smartMetadata.DisplayType == thresholds.AtaSmartAttributeDisplayTypeTransformed {
-		value = sa.TransformedValue
-	} else {
-		value = sa.RawValue
-	}
+	value := sa.observedValue(smartMetadata)
 
 	for _, obsThresh := range smartMetadata.ObservedThresholds {
 

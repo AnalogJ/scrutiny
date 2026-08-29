@@ -330,7 +330,7 @@ func TestFromCollectorSmartInfo(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -363,7 +363,7 @@ func TestFromCollectorSmartInfo_Fail_Smart(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -388,7 +388,7 @@ func TestFromCollectorSmartInfo_Fail_ScrutinySmart(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -413,7 +413,7 @@ func TestFromCollectorSmartInfo_Fail_ScrutinyNonCriticalFailed(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -447,7 +447,7 @@ func TestFromCollectorSmartInfo_NVMe_Fail_Scrutiny(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -479,7 +479,7 @@ func TestFromCollectorSmartInfo_Nvme(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -507,7 +507,7 @@ func TestFromCollectorSmartInfo_Scsi(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
