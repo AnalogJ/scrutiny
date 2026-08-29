@@ -1,16 +1,16 @@
-<div class="flex flex-col flex-auto w-full p-8 xs:p-2">
+<div #reportContent data-report-root class="flex flex-col flex-auto w-full p-8 xs:p-2">
 
-    <div class="flex flex-wrap w-full">
+    <div class="flex flex-wrap w-full" data-report-layout>
 
-        <div class="flex items-center justify-between w-full my-4 px-4 xs:pr-0">
+        <div class="flex items-center justify-between w-full my-4 px-4 xs:pr-0" data-report-heading>
             <div class="mr-6">
                 <h2 class="m-0">Drive Details - {{device | deviceTitle:config.dashboard_display}} </h2>
                 <div class="text-secondary tracking-tight">Dive into S.M.A.R.T data</div>
             </div>
             <!-- Action buttons -->
-            <div class="flex items-center">
+            <div class="flex items-center" data-report-exclude>
                 <button class="xs:hidden"
-                        matTooltip="not yet implemented"
+                        (click)="exportHtmlReport()"
                         mat-stroked-button>
                     <mat-icon class="icon-size-20"
                               [svgIcon]="'save'"></mat-icon>
@@ -32,7 +32,7 @@
                     </button>
                     <mat-menu #actionsMenu="matMenu">
                         <button mat-menu-item
-                                matTooltip="not yet implemented">
+                                (click)="exportHtmlReport()">
                             <mat-icon class="icon-size-20"
                                       [svgIcon]="'save'"></mat-icon>
                             <span class="ml-2">Export</span>
@@ -50,7 +50,7 @@
 
 
         <!-- Card -->
-        <div class="flex flex-auto w-1/4 p-4 lt-md:w-full">
+        <div class="flex flex-auto w-1/4 p-4 lt-md:w-full" data-report-summary>
             <treo-card class="flex flex-auto p-4 flex-col flex-auto filter-list">
                 <div class="flex flex-col grid grid-cols-2">
                     <div *ngIf="device" class="my-2 col-span-2 lt-md:col-span-1">
@@ -138,11 +138,11 @@
             </treo-card>
         </div>
         <!-- S.M.A.R.T. Data table -->
-        <div class="flex flex-auto w-3/4 p-4 lt-md:w-full">
+        <div class="flex flex-auto w-3/4 p-4 lt-md:w-full" data-report-table>
             <div class="flex flex-col flex-auto w-full bg-card shadow-md rounded ">
                 <div class="p-6">
                     <div class="font-bold text-md text-secondary uppercase tracking-wider">S.M.A.R.T {{device?.device_protocol}} Attributes</div>
-                    <div class="text-sm text-hint font-medium">{{this.smartAttributeDataSource.data.length}} visible, {{getHiddenAttributes()}} hidden</div>
+                    <div class="text-sm text-hint font-medium" data-report-exclude>{{this.smartAttributeDataSource.data.length}} visible, {{getHiddenAttributes()}} hidden</div>
                 </div>
                 <div class="overflow-auto">
                     <table class="w-full bg-transparent"
@@ -308,6 +308,7 @@
                         <!-- History -->
                         <ng-container matColumnDef="history">
                             <th class="bg-cool-gray-50 dark:bg-cool-gray-700 border-t"
+                                data-report-exclude
                                 mat-header-cell
                                 mat-sort-header
                                 *matHeaderCellDef>
@@ -316,6 +317,7 @@
                                 </span>
                             </th>
                             <td mat-cell
+                                data-report-exclude
                                 *matCellDef="let attribute">
 
                                 <span class="font-medium whitespace-no-wrap">
@@ -419,8 +421,9 @@
                             [class.attribute-expanded-row]="expandedAttribute === row"
                             (click)="expandedAttribute = expandedAttribute === row ? null : row"
                             *matRowDef="let row; columns: smartAttributeTableColumns;"></tr>
-                        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="attribute-detail-row"></tr>
+                        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="attribute-detail-row" data-report-exclude></tr>
                         <tr class="h-16"
+                            data-report-exclude
                             mat-footer-row
                             *matFooterRowDef="['recentOrdersTableFooter']"></tr>
                     </table>
