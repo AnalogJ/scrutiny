@@ -11,7 +11,6 @@
 [![codecov](https://codecov.io/gh/AnalogJ/scrutiny/branch/master/graph/badge.svg)](https://codecov.io/gh/AnalogJ/scrutiny)
 [![GitHub license](https://img.shields.io/github/license/AnalogJ/scrutiny.svg?style=flat-square)](https://github.com/AnalogJ/scrutiny/blob/master/LICENSE)
 [![Godoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/analogj/scrutiny)
-[![Go Report Card](https://goreportcard.com/badge/github.com/AnalogJ/scrutiny?style=flat-square)](https://goreportcard.com/report/github.com/AnalogJ/scrutiny)
 [![GitHub release](http://img.shields.io/github/release/AnalogJ/scrutiny.svg?style=flat-square)](https://github.com/AnalogJ/scrutiny/releases)
 
 WebUI for smartd S.M.A.R.T monitoring
