@@ -5,12 +5,12 @@ import "encoding/json"
 type SmartInfo struct {
 	JSONFormatVersion []int `json:"json_format_version"`
 	Smartctl          struct {
-		Version      []int    `json:"version"`
-		SvnRevision  string   `json:"svn_revision"`
-		PlatformInfo string   `json:"platform_info"`
-		BuildInfo    string   `json:"build_info"`
-		Argv         []string `json:"argv"`
-		ExitStatus   int      `json:"exit_status"`
+		Version      []int              `json:"version"`
+		SvnRevision  string             `json:"svn_revision"`
+		PlatformInfo string             `json:"platform_info"`
+		BuildInfo    string             `json:"build_info"`
+		Argv         []string           `json:"argv"`
+		ExitStatus   SmartctlExitStatus `json:"exit_status"`
 		Messages     []struct {
 			String   string `json:"string"`
 			Severity string `json:"severity"`

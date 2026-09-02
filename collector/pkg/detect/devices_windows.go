@@ -9,20 +9,22 @@ func DevicePrefix() string {
 	return ""
 }
 
-func (d *Detect) Start() ([]models.Device, error) {
+func (d *Detect) Scan() ([]models.Device, error) {
 	d.Shell = shell.Create()
 	// call the base/common functionality to get a list of devices
-	detectedDevices, err := d.SmartctlScan()
-	if err != nil {
-		return nil, err
-	}
+	return d.SmartctlScan()
+}
 
+func (d *Detect) Info(detectedDevices []models.Device) ([]models.Device, []DeviceInfoError) {
 	//inflate device info for detected devices.
-	for ndx, _ := range detectedDevices {
-		d.SmartCtlInfo(&detectedDevices[ndx]) //ignore errors.
+	infoErrors := []DeviceInfoError{}
+	for ndx := range detectedDevices {
+		if err := d.SmartCtlInfo(&detectedDevices[ndx]); err != nil {
+			infoErrors = append(infoErrors, DeviceInfoError{Device: detectedDevices[ndx], Err: err})
+		}
 	}
 
-	return detectedDevices, nil
+	return detectedDevices, infoErrors
 }
 
 // WWN values NVMe and SCSI
