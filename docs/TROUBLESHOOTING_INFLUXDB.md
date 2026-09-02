@@ -1,5 +1,10 @@
 # InfluxDB Troubleshooting
 
+> [!IMPORTANT]
+> `latest-` tags can update your image without warning. It is a best practice to pin a specific version, eg. `v0.9.3-omnibus`.
+> For a list of all image tags see
+> [scrutiny package versions](https://github.com/AnalogJ/scrutiny/pkgs/container/scrutiny/versions?filters%5Bversion_type%5D=tagged)
+
 ## Why??
 
 Scrutiny has many features, but the relevant one to this conversation is the "S.M.A.R.T metric tracking for historical
@@ -47,7 +52,7 @@ https://docs.influxdata.com/influxdb/v2/install/
 
 To ensure that all data is correctly stored, you must also persist the InfluxDB database directory
 
-- If you're using the Official Scrutiny Omnibus image (`ghcr.io/analogj/scrutiny:master-omnibus`), the path is `/opt/scrutiny/influxdb`
+- If you're using the Official Scrutiny Omnibus image (`ghcr.io/analogj/scrutiny:latest-omnibus`), the path is `/opt/scrutiny/influxdb`
 - If you're deploying in Hub/Spoke mode with the InfluxDB maintained image (`influxdb:2.8`), the path is `/var/lib/influxdb2`
 
 If you attempt to restart Scrutiny but you forgot to persist the InfluxDB directory, you will get an error message like follows:
@@ -112,7 +117,7 @@ this usually related to either:
 - Updated versions of the [LSIO Scrutiny images are broken](https://github.com/linuxserver/docker-scrutiny/issues/22),
   as they have not installed InfluxDB which is a required dependency of Scrutiny v0.4.x
   - You can revert to an earlier version of the LSIO image (`lscr.io/linuxserver/scrutiny:060ac7b8-ls34`), or just
-    change to the official Scrutiny image (`ghcr.io/analogj/scrutiny:master-omnibus`)
+    change to the official Scrutiny image (`ghcr.io/analogj/scrutiny:latest-omnibus`)
 
 Here's a couple of confirmed working docker-compose files that you may want to look at:
 

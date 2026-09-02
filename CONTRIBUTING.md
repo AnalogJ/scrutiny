@@ -306,13 +306,13 @@ docker cp scrutiny:/tmp/web.log web.log
 # Docker Development
 
 ```
-docker build -f docker/Dockerfile . -t ghcr.io/analogj/scrutiny:master-omnibus
+docker build -f docker/Dockerfile . -t ghcr.io/analogj/scrutiny:dev-omnibus
 docker run -it --rm -p 8080:8080 \
 -v /run/udev:/run/udev:ro \
 --cap-add SYS_RAWIO \
 --device=/dev/sda \
 --device=/dev/sdb \
-ghcr.io/analogj/scrutiny:master-omnibus
+ghcr.io/analogj/scrutiny:dev-omnibus
 /opt/scrutiny/bin/scrutiny-collector-metrics run
 ```
 

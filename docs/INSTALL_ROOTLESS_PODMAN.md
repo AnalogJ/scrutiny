@@ -117,6 +117,7 @@ Requires=influxdb.service
 
 [Container]
 ContainerName=scrutiny-web
+# best practice: pin to a specific release instead of latest
 Image=ghcr.io/analogj/scrutiny:latest-web
 AutoUpdate=registry
 Timezone=local
