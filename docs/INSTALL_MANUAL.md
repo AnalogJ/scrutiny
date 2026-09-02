@@ -148,9 +148,9 @@ Optional, but recommended: Before continuing it's recommended you compare the sh
 
 `echo "SHA_GOES_HERE /tmp/scrutiny-collector-metrics" | sha256sum -c`
 
-example for the v0.8.6 release:
+example for the v0.9.3 release:
 
-`echo "4c163645ce24e5487f4684a25ec73485d77a82a57f084808ff5aad0c11499ad2 /tmp/scrutiny-collector-metrics" | sha256sum -c`
+`echo "7be2294470a087083bab66c1fea8e1b4c278920b5c46ab80ed2c0cc8c4c0a2c3 /tmp/scrutiny-collector-metrics" | sha256sum -c`
 
 followed by:
 

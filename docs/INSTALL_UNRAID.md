@@ -19,7 +19,12 @@ To install, simply click 'Install'; the configuration parameters should not need
 
 As a docker image can be created using various OS bases, the image choice is entirely the users choice. Recommendations of a specific image from a specific maintainer is beyond the scope of this guide. However, to provide some context given the number of questions posed regarding the various versions available:
 
-- **ghcr.io/analogj/scrutiny:master-omnibus**
+> [!IMPORTANT]
+> `latest-` tags can update your image without warning. It is a best practice to pin a specific version, eg. `v0.9.3-omnibus`.
+> For a list of all image tags see
+> [scrutiny package versions](https://github.com/AnalogJ/scrutiny/pkgs/container/scrutiny/versions?filters%5Bversion_type%5D=tagged)
+
+- **ghcr.io/analogj/scrutiny:latest-omnibus**
     - `Image maintained directly by the application author`
     - `Debian based docker image`
 - **linuxserver/scrutiny**

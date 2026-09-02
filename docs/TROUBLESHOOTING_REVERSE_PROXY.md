@@ -80,7 +80,8 @@ You may also configure these values using the following environmental variables 
     services:
       scrutiny:
         container_name: scrutiny
-        image: ghcr.io/analogj/scrutiny:master-omnibus
+        # best practice: pin to a specific release instead of latest
+        image: ghcr.io/analogj/scrutiny:latest-omnibus
         cap_add:
           - SYS_RAWIO
         ports:
@@ -114,7 +115,8 @@ version: '3.5'
 services:
   scrutiny:
     container_name: scrutiny
-    image: ghcr.io/analogj/scrutiny:master-omnibus
+    # best practice: pin to a specific release instead of latest
+    image: ghcr.io/analogj/scrutiny:latest-omnibus
     cap_add:
       - SYS_RAWIO
       - SYS_ADMIN
