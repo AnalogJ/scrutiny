@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
@@ -166,12 +167,20 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 			return
 		}
 
+		// a process killed by a signal has no exit status to interpret; ExitCode() reports -1,
+		// which would otherwise decode as every failure bit being set.
+		if exitError.ExitCode() < 0 {
+			mc.logger.Errorf("smartctl was terminated before it could finish processing %s: %v", deviceName, exitError)
+			mc.ReportError(device, exitError)
+			return
+		}
+
 		exitStatus := collector.SmartctlExitStatus(exitError.ExitCode())
 		mc.logger.Errorf("smartctl returned an error code (%d) while processing %s\n", exitError.ExitCode(), deviceName)
 		mc.LogSmartctlExitStatus(exitStatus)
 
 		if exitStatus.IsFatal() {
-			if exitStatus == collector.SmartctlExitStatusFailDev && hasPowerModeCheck(args) {
+			if isLowPowerExit(resultBytes) {
 				mc.logger.Infof("%s is in a low power mode, skipping collection\n", deviceName)
 				return
 			}
@@ -187,15 +196,15 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 	mc.Publish(scrutiny_uuid, resultBytes)
 }
 
-// smartctl exits with FAILDEV when `-n`/`--nocheck` was given and the device is in a low power mode.
-// That is the behaviour the flag was asked for, not a failure worth reporting.
-func hasPowerModeCheck(args []string) bool {
-	for _, arg := range args {
-		if strings.HasPrefix(arg, "--nocheck") || (strings.HasPrefix(arg, "-n") && !strings.HasPrefix(arg, "--")) {
-			return true
-		}
+// isLowPowerExit checks smartctl's own output rather than the configured arguments: `-n`/`--nocheck`
+// being present says nothing about whether this particular device was asleep, and a device that has
+// genuinely gone away shares the same exit status.
+func isLowPowerExit(result []byte) bool {
+	var smartData collector.SmartInfo
+	if err := json.Unmarshal(result, &smartData); err != nil {
+		return false
 	}
-	return false
+	return smartData.IsLowPowerExit()
 }
 
 func (mc *MetricsCollector) Publish(scrutinyUuid uuid.UUID, payload []byte) error {
@@ -210,6 +219,12 @@ func (mc *MetricsCollector) Publish(scrutinyUuid uuid.UUID, payload []byte) erro
 		return err
 	}
 	defer resp.Body.Close()
+
+	//the server rejects results it cannot store, and the collector would otherwise report success
+	if resp.StatusCode != http.StatusOK {
+		mc.logger.Errorf("The API server rejected the SMART data for device (%s): %s", scrutinyUuid, resp.Status)
+		return errors.ApiServerCommunicationError(fmt.Sprintf("The API server rejected the SMART data for device (%s)", scrutinyUuid))
+	}
 
 	return nil
 }

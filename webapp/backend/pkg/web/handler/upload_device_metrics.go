@@ -38,6 +38,15 @@ func UploadDeviceMetrics(c *gin.Context) {
 		return
 	}
 
+	//an older collector still uploads a result it gathered with `-n`/`--nocheck` against a sleeping
+	//drive. There is nothing to store, but it is the behaviour the flag was asked for, so accept the
+	//upload quietly rather than reporting it as a collector failure.
+	if collectorSmartData.IsLowPowerExit() {
+		logger.Infof("Device %s is in a low power mode, no SMART data to store", scrutiny_uuid)
+		c.JSON(http.StatusOK, gin.H{"success": true})
+		return
+	}
+
 	//smartctl still emits json when it fails, but the contents are incomplete and would be stored as
 	//a set of zero values. Reject it rather than corrupting the device history.
 	if collectorSmartData.Smartctl.ExitStatus.IsFatal() {
@@ -89,6 +98,10 @@ func UploadDeviceMetrics(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
 		return
 	}
+
+	//this device is reporting again, so a future collector failure is news rather than a repeat
+	c.MustGet("COLLECTOR_ERROR_TRACKER").(*notify.CollectorErrorTracker).
+		ResolveCollectorError(updatedDevice.HostId, updatedDevice.DeviceName)
 
 	//check for error
 	if notify.ShouldNotify(

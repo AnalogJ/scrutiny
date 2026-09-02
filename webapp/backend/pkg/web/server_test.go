@@ -81,6 +81,25 @@ func helperReadSmartDataFileWithExitStatus(t *testing.T, smartDataFilepath strin
 	return bytes.NewReader(updatedSmartDataBytes)
 }
 
+// smartctl exits early, without results, when `-n`/`--nocheck` finds the drive in a low power mode.
+func helperReadSmartDataFileLowPowerExit(t *testing.T, smartDataFilepath string) io.Reader {
+	metricsFileData, err := os.ReadFile(smartDataFilepath)
+	require.NoError(t, err)
+
+	var smartData collector.SmartInfo
+	require.NoError(t, json.Unmarshal(metricsFileData, &smartData))
+	smartData.LocalTime.TimeT = time.Now().Unix()
+	smartData.Smartctl.ExitStatus = collector.SmartctlExitStatusFailDev
+	smartData.Smartctl.Messages = append(smartData.Smartctl.Messages, struct {
+		String   string `json:"string"`
+		Severity string `json:"severity"`
+	}{String: "Device is in STANDBY mode, exit(2)", Severity: "information"})
+	updatedSmartDataBytes, err := json.Marshal(smartData)
+	require.NoError(t, err)
+
+	return bytes.NewReader(updatedSmartDataBytes)
+}
+
 // Define the suite, and absorb the built-in basic suite
 // functionality from testify - including a T() method which
 // returns the current testing context
@@ -775,6 +794,7 @@ func (suite *ServerTestSuite) TestCollectorErrorRoute() {
 	fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetBool("user.metrics.notify_collector_errors").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.metrics.repeat_notifications").Return(false).AnyTimes()
 	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
 		// when running test suite in github actions, we run an influxdb service as a sidecar.
 		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
@@ -782,7 +802,7 @@ func (suite *ServerTestSuite) TestCollectorErrorRoute() {
 		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
 	}
 
-	notified := make(chan notify.Payload, 1)
+	notified := make(chan notify.Payload, 2)
 	webhookServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var payload notify.Payload
 		require.NoError(suite.T(), json.NewDecoder(r.Body).Decode(&payload))
@@ -818,4 +838,94 @@ func (suite *ServerTestSuite) TestCollectorErrorRoute() {
 	case <-time.After(10 * time.Second):
 		suite.T().Fatal("timed out waiting for the collector error notification")
 	}
+
+	//test - the same failure on the next collector run
+	rr := httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/collector/error", bytes.NewReader(errorPayload))
+	router.ServeHTTP(rr, req)
+
+	//assert - a device that is broken rather than failing does not notify on every run
+	require.Equal(suite.T(), 200, rr.Code)
+	require.Empty(suite.T(), notified)
+}
+
+func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute_AcceptsLowPowerExit() {
+	//setup
+	parentPath, _ := os.MkdirTemp("", "")
+	defer os.RemoveAll(parentPath)
+	mockCtrl := gomock.NewController(suite.T())
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
+	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
+	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.scheme").Return("http").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.metrics.repeat_notifications").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.metrics.notify_collector_errors").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.collector.discard_sct_temp_history").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.notify_level", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.status_filter_attributes", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.status_threshold", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
+
+	notified := make(chan notify.Payload, 1)
+	webhookServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var payload notify.Payload
+		require.NoError(suite.T(), json.NewDecoder(r.Body).Decode(&payload))
+		notified <- payload
+	}))
+	defer webhookServer.Close()
+	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{webhookServer.URL})
+
+	ae := web.AppEngine{
+		Config: fakeConfig,
+	}
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
+	devicesfile, err := os.Open("testdata/register-devices-req.json")
+	require.NoError(suite.T(), err)
+
+	deviceUUIDString := "3ea22b35-682b-49fb-a655-abffed108e48"
+	goodfile := helperReadSmartDataFileFixTimestamp(suite.T(), "../models/testdata/smart-ata.json")
+	// an older collector, running with `-n standby`, uploading a drive that was asleep
+	standbyfile := helperReadSmartDataFileLowPowerExit(suite.T(), "../models/testdata/smart-ata.json")
+
+	//test - register devices
+	wr := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", suite.Basepath+"/api/devices/register", devicesfile)
+	router.ServeHTTP(wr, req)
+	require.Equal(suite.T(), 200, wr.Code)
+
+	//test - upload valid SMART data
+	gr := httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/"+deviceUUIDString+"/smart", goodfile)
+	router.ServeHTTP(gr, req)
+	require.Equal(suite.T(), 200, gr.Code)
+
+	before := helperGetDeviceSummary(suite.T(), router, suite.Basepath).Data.Summary[deviceUUIDString]
+	require.NotNil(suite.T(), before.SmartResults)
+
+	//test - upload the results smartctl produced for a sleeping drive
+	sr := httptest.NewRecorder()
+	req, _ = http.NewRequest("POST", suite.Basepath+"/api/device/"+deviceUUIDString+"/smart", standbyfile)
+	router.ServeHTTP(sr, req)
+
+	//assert - accepted without storing anything, and without reporting a collector failure
+	require.Equal(suite.T(), 200, sr.Code)
+	require.Empty(suite.T(), notified)
+	after := helperGetDeviceSummary(suite.T(), router, suite.Basepath).Data.Summary[deviceUUIDString]
+	require.Equal(suite.T(), before.SmartResults, after.SmartResults)
+	require.Equal(suite.T(), before.Device.DeviceStatus, after.Device.DeviceStatus)
 }

@@ -13,7 +13,8 @@ const (
 	// SmartctlExitStatusFailDev - the device could not be opened, did not return an IDENTIFY DEVICE
 	// structure, or is in a low power mode and `-n` asked smartctl to exit.
 	SmartctlExitStatusFailDev
-	// SmartctlExitStatusFailSmart - a SMART command failed, or a SMART data structure had a bad checksum.
+	// SmartctlExitStatusFailSmart - a SMART command failed, or a SMART data structure had a bad
+	// checksum. The rest of the report is still populated.
 	SmartctlExitStatusFailSmart
 	// SmartctlExitStatusFailStatus - the SMART status check returned "DISK FAILING".
 	SmartctlExitStatusFailStatus
@@ -29,7 +30,9 @@ const (
 
 // SmartctlExitStatusFatal covers the bits that mean smartctl could not produce usable output. The
 // remaining bits describe problems with the disk itself, which is exactly the data worth keeping.
-const SmartctlExitStatusFatal = SmartctlExitStatusFailCmd | SmartctlExitStatusFailDev | SmartctlExitStatusFailSmart
+// FAILSMART is deliberately not fatal: a single failed SMART command or a bad checksum still leaves
+// a complete report, and megaraid/SAT bridges routinely exit with it while reporting every attribute.
+const SmartctlExitStatusFatal = SmartctlExitStatusFailCmd | SmartctlExitStatusFailDev
 
 var smartctlExitStatusDescriptions = []struct {
 	flag        SmartctlExitStatus
@@ -67,4 +70,26 @@ func (s SmartctlExitStatus) Descriptions() []string {
 
 func (s SmartctlExitStatus) String() string {
 	return strings.Join(s.Descriptions(), "; ")
+}
+
+// lowPowerExitMessage is the message smartctl emits, at information severity, when `-n`/`--nocheck`
+// found the device in a low power mode and it exited early instead of spinning the drive up:
+// "Device is in STANDBY mode, exit(2)". It is the only way to tell that apart from a real device
+// open failure, since both use the FAILDEV/FAILPOWER bit.
+// https://github.com/smartmontools/smartmontools/blob/RELEASE_7_5/smartmontools/ataprint.cpp#L3442-L3450
+const lowPowerExitMessage = "mode, exit("
+
+// IsLowPowerExit reports whether smartctl exited early because the device was in a low power mode
+// and `-n`/`--nocheck` asked it not to wake it up. That is the behaviour the flag was asked for, so
+// the missing results are expected rather than a failure worth reporting.
+func (si *SmartInfo) IsLowPowerExit() bool {
+	if si.Smartctl.ExitStatus != SmartctlExitStatusFailDev {
+		return false
+	}
+	for _, message := range si.Smartctl.Messages {
+		if strings.Contains(message.String, lowPowerExitMessage) {
+			return true
+		}
+	}
+	return false
 }

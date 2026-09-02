@@ -41,6 +41,19 @@ func notifyCollectorError(c *gin.Context, logger *logrus.Entry, appConfig config
 		return
 	}
 
+	//a device that is broken rather than failing reports the same error on every collector run, so
+	//only notify again once the error changes, unless the user asked for repeat notifications.
+	tracker := c.MustGet("COLLECTOR_ERROR_TRACKER").(*notify.CollectorErrorTracker)
+	if !tracker.ShouldNotifyCollectorError(
+		errorPayload.HostId,
+		errorPayload.DeviceName,
+		errorPayload.Error,
+		appConfig.GetBool(fmt.Sprintf("%s.metrics.repeat_notifications", config.DB_USER_SETTINGS_SUBKEY)),
+	) {
+		logger.Debugf("Collector error for %q is unchanged since the last notification, skipping", errorPayload.DeviceName)
+		return
+	}
+
 	device := models.Device{
 		HostId:     errorPayload.HostId,
 		DeviceName: errorPayload.DeviceName,
