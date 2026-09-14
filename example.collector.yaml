@@ -90,6 +90,13 @@ devices:
 #  metrics_smart_args: '--xall --json' # used to retrieve smart data for each device.
 #  metrics_smartctl_wait: 0 # time to wait in seconds between each disk's check
 
+# schedule used when the collector is started with `scrutiny-collector-metrics run --cron`.
+# These settings are ignored without `--cron`.
+#cron:
+#  schedule: '0 0 * * *' # standard 5 field cron expression, or a descriptor like '@daily' or '@every 6h'
+#  run_startup: false # also collect metrics once when the collector starts
+#  run_startup_sleep: 1 # seconds to wait before the startup run
+
 
 ########################################################################################################################
 # FEATURES COMING SOON
