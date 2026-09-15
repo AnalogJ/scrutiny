@@ -125,7 +125,7 @@ func NewSmartFromInfluxDB(attrs map[string]interface{}) (*Smart, error) {
 }
 
 // Parse Collector SMART data results and create Smart object (and associated SmartAtaAttribute entries)
-func (sm *Smart) FromCollectorSmartInfo(scrutiny_uuid uuid.UUID, info collector.SmartInfo) error {
+func (sm *Smart) FromCollectorSmartInfo(scrutiny_uuid uuid.UUID, info collector.SmartInfo, overrides pkg.AttributeOverrideSet) error {
 	sm.ScrutinyUUID = scrutiny_uuid
 	sm.Date = time.Unix(info.LocalTime.TimeT, 0)
 
@@ -142,18 +142,18 @@ func (sm *Smart) FromCollectorSmartInfo(scrutiny_uuid uuid.UUID, info collector.
 	sm.Attributes = map[string]SmartAttribute{}
 	switch sm.DeviceProtocol {
 	case pkg.DeviceProtocolAta:
-		sm.ProcessAtaSmartInfo(info.AtaSmartAttributes.Table)
+		sm.ProcessAtaSmartInfo(info.AtaSmartAttributes.Table, overrides)
 	case pkg.DeviceProtocolNvme:
-		sm.ProcessNvmeSmartInfo(info.NvmeSmartHealthInformationLog)
+		sm.ProcessNvmeSmartInfo(info.NvmeSmartHealthInformationLog, overrides)
 	case pkg.DeviceProtocolScsi:
-		sm.ProcessScsiSmartInfo(info.ScsiGrownDefectList, info.ScsiErrorCounterLog)
+		sm.ProcessScsiSmartInfo(info.ScsiGrownDefectList, info.ScsiErrorCounterLog, overrides)
 	}
 
 	return nil
 }
 
 // generate SmartAtaAttribute entries from Scrutiny Collector Smart data.
-func (sm *Smart) ProcessAtaSmartInfo(tableItems []collector.AtaSmartAttributesTableItem) {
+func (sm *Smart) ProcessAtaSmartInfo(tableItems []collector.AtaSmartAttributesTableItem, overrides pkg.AttributeOverrideSet) {
 	for _, collectorAttr := range tableItems {
 		attrModel := SmartAtaAttribute{
 			AttributeId: collectorAttr.ID,
@@ -171,67 +171,97 @@ func (sm *Smart) ProcessAtaSmartInfo(tableItems []collector.AtaSmartAttributesTa
 				attrModel.TransformedValue = smartMetadata.Transform(attrModel.Value, attrModel.RawValue, attrModel.RawString)
 			}
 		}
-		attrModel.PopulateAttributeStatus()
-		sm.Attributes[strconv.Itoa(collectorAttr.ID)] = &attrModel
+		attributeId := strconv.Itoa(collectorAttr.ID)
+		attrModel.PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolAta, attributeId))
+		sm.Attributes[attributeId] = &attrModel
 
-		if pkg.AttributeStatusHas(attrModel.Status, pkg.AttributeStatusFailedScrutiny) {
-			sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
-		}
+		sm.applyAttributeStatusToDevice(attrModel.Status)
 	}
+
+	sm.finalizeDeviceStatus()
 }
 
 // generate SmartNvmeAttribute entries from Scrutiny Collector Smart data.
-func (sm *Smart) ProcessNvmeSmartInfo(nvmeSmartHealthInformationLog collector.NvmeSmartHealthInformationLog) {
+func (sm *Smart) ProcessNvmeSmartInfo(nvmeSmartHealthInformationLog collector.NvmeSmartHealthInformationLog, overrides pkg.AttributeOverrideSet) {
 
 	sm.Attributes = map[string]SmartAttribute{
-		"critical_warning":     (&SmartNvmeAttribute{AttributeId: "critical_warning", Value: nvmeSmartHealthInformationLog.CriticalWarning, Threshold: 0}).PopulateAttributeStatus(),
-		"temperature":          (&SmartNvmeAttribute{AttributeId: "temperature", Value: nvmeSmartHealthInformationLog.Temperature, Threshold: -1}).PopulateAttributeStatus(),
-		"available_spare":      (&SmartNvmeAttribute{AttributeId: "available_spare", Value: nvmeSmartHealthInformationLog.AvailableSpare, Threshold: nvmeSmartHealthInformationLog.AvailableSpareThreshold}).PopulateAttributeStatus(),
-		"percentage_used":      (&SmartNvmeAttribute{AttributeId: "percentage_used", Value: nvmeSmartHealthInformationLog.PercentageUsed, Threshold: 100}).PopulateAttributeStatus(),
-		"data_units_read":      (&SmartNvmeAttribute{AttributeId: "data_units_read", Value: nvmeSmartHealthInformationLog.DataUnitsRead, Threshold: -1}).PopulateAttributeStatus(),
-		"data_units_written":   (&SmartNvmeAttribute{AttributeId: "data_units_written", Value: nvmeSmartHealthInformationLog.DataUnitsWritten, Threshold: -1}).PopulateAttributeStatus(),
-		"host_reads":           (&SmartNvmeAttribute{AttributeId: "host_reads", Value: nvmeSmartHealthInformationLog.HostReads, Threshold: -1}).PopulateAttributeStatus(),
-		"host_writes":          (&SmartNvmeAttribute{AttributeId: "host_writes", Value: nvmeSmartHealthInformationLog.HostWrites, Threshold: -1}).PopulateAttributeStatus(),
-		"controller_busy_time": (&SmartNvmeAttribute{AttributeId: "controller_busy_time", Value: nvmeSmartHealthInformationLog.ControllerBusyTime, Threshold: -1}).PopulateAttributeStatus(),
-		"power_cycles":         (&SmartNvmeAttribute{AttributeId: "power_cycles", Value: nvmeSmartHealthInformationLog.PowerCycles, Threshold: -1}).PopulateAttributeStatus(),
-		"power_on_hours":       (&SmartNvmeAttribute{AttributeId: "power_on_hours", Value: nvmeSmartHealthInformationLog.PowerOnHours, Threshold: -1}).PopulateAttributeStatus(),
-		"unsafe_shutdowns":     (&SmartNvmeAttribute{AttributeId: "unsafe_shutdowns", Value: nvmeSmartHealthInformationLog.UnsafeShutdowns, Threshold: -1}).PopulateAttributeStatus(),
-		"media_errors":         (&SmartNvmeAttribute{AttributeId: "media_errors", Value: nvmeSmartHealthInformationLog.MediaErrors, Threshold: 0}).PopulateAttributeStatus(),
-		"num_err_log_entries":  (&SmartNvmeAttribute{AttributeId: "num_err_log_entries", Value: nvmeSmartHealthInformationLog.NumErrLogEntries, Threshold: -1}).PopulateAttributeStatus(),
-		"warning_temp_time":    (&SmartNvmeAttribute{AttributeId: "warning_temp_time", Value: nvmeSmartHealthInformationLog.WarningTempTime, Threshold: -1}).PopulateAttributeStatus(),
-		"critical_comp_time":   (&SmartNvmeAttribute{AttributeId: "critical_comp_time", Value: nvmeSmartHealthInformationLog.CriticalCompTime, Threshold: -1}).PopulateAttributeStatus(),
+		"critical_warning":     (&SmartNvmeAttribute{AttributeId: "critical_warning", Value: nvmeSmartHealthInformationLog.CriticalWarning, Threshold: 0}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "critical_warning")),
+		"temperature":          (&SmartNvmeAttribute{AttributeId: "temperature", Value: nvmeSmartHealthInformationLog.Temperature, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "temperature")),
+		"available_spare":      (&SmartNvmeAttribute{AttributeId: "available_spare", Value: nvmeSmartHealthInformationLog.AvailableSpare, Threshold: nvmeSmartHealthInformationLog.AvailableSpareThreshold}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "available_spare")),
+		"percentage_used":      (&SmartNvmeAttribute{AttributeId: "percentage_used", Value: nvmeSmartHealthInformationLog.PercentageUsed, Threshold: 100}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "percentage_used")),
+		"data_units_read":      (&SmartNvmeAttribute{AttributeId: "data_units_read", Value: nvmeSmartHealthInformationLog.DataUnitsRead, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "data_units_read")),
+		"data_units_written":   (&SmartNvmeAttribute{AttributeId: "data_units_written", Value: nvmeSmartHealthInformationLog.DataUnitsWritten, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "data_units_written")),
+		"host_reads":           (&SmartNvmeAttribute{AttributeId: "host_reads", Value: nvmeSmartHealthInformationLog.HostReads, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "host_reads")),
+		"host_writes":          (&SmartNvmeAttribute{AttributeId: "host_writes", Value: nvmeSmartHealthInformationLog.HostWrites, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "host_writes")),
+		"controller_busy_time": (&SmartNvmeAttribute{AttributeId: "controller_busy_time", Value: nvmeSmartHealthInformationLog.ControllerBusyTime, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "controller_busy_time")),
+		"power_cycles":         (&SmartNvmeAttribute{AttributeId: "power_cycles", Value: nvmeSmartHealthInformationLog.PowerCycles, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "power_cycles")),
+		"power_on_hours":       (&SmartNvmeAttribute{AttributeId: "power_on_hours", Value: nvmeSmartHealthInformationLog.PowerOnHours, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "power_on_hours")),
+		"unsafe_shutdowns":     (&SmartNvmeAttribute{AttributeId: "unsafe_shutdowns", Value: nvmeSmartHealthInformationLog.UnsafeShutdowns, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "unsafe_shutdowns")),
+		"media_errors":         (&SmartNvmeAttribute{AttributeId: "media_errors", Value: nvmeSmartHealthInformationLog.MediaErrors, Threshold: 0}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "media_errors")),
+		"num_err_log_entries":  (&SmartNvmeAttribute{AttributeId: "num_err_log_entries", Value: nvmeSmartHealthInformationLog.NumErrLogEntries, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "num_err_log_entries")),
+		"warning_temp_time":    (&SmartNvmeAttribute{AttributeId: "warning_temp_time", Value: nvmeSmartHealthInformationLog.WarningTempTime, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "warning_temp_time")),
+		"critical_comp_time":   (&SmartNvmeAttribute{AttributeId: "critical_comp_time", Value: nvmeSmartHealthInformationLog.CriticalCompTime, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolNvme, "critical_comp_time")),
 	}
 
 	//find analyzed attribute status
 	for _, val := range sm.Attributes {
-		if pkg.AttributeStatusHas(val.GetStatus(), pkg.AttributeStatusFailedScrutiny) {
-			sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
-		}
+		sm.applyAttributeStatusToDevice(val.GetStatus())
 	}
+
+	sm.finalizeDeviceStatus()
 }
 
 // generate SmartScsiAttribute entries from Scrutiny Collector Smart data.
-func (sm *Smart) ProcessScsiSmartInfo(defectGrownList int64, scsiErrorCounterLog collector.ScsiErrorCounterLog) {
+func (sm *Smart) ProcessScsiSmartInfo(defectGrownList int64, scsiErrorCounterLog collector.ScsiErrorCounterLog, overrides pkg.AttributeOverrideSet) {
 	sm.Attributes = map[string]SmartAttribute{
-		"scsi_grown_defect_list":                     (&SmartScsiAttribute{AttributeId: "scsi_grown_defect_list", Value: defectGrownList, Threshold: 0}).PopulateAttributeStatus(),
-		"read_errors_corrected_by_eccfast":           (&SmartScsiAttribute{AttributeId: "read_errors_corrected_by_eccfast", Value: scsiErrorCounterLog.Read.ErrorsCorrectedByEccfast, Threshold: -1}).PopulateAttributeStatus(),
-		"read_errors_corrected_by_eccdelayed":        (&SmartScsiAttribute{AttributeId: "read_errors_corrected_by_eccdelayed", Value: scsiErrorCounterLog.Read.ErrorsCorrectedByEccdelayed, Threshold: -1}).PopulateAttributeStatus(),
-		"read_errors_corrected_by_rereads_rewrites":  (&SmartScsiAttribute{AttributeId: "read_errors_corrected_by_rereads_rewrites", Value: scsiErrorCounterLog.Read.ErrorsCorrectedByRereadsRewrites, Threshold: 0}).PopulateAttributeStatus(),
-		"read_total_errors_corrected":                (&SmartScsiAttribute{AttributeId: "read_total_errors_corrected", Value: scsiErrorCounterLog.Read.TotalErrorsCorrected, Threshold: -1}).PopulateAttributeStatus(),
-		"read_correction_algorithm_invocations":      (&SmartScsiAttribute{AttributeId: "read_correction_algorithm_invocations", Value: scsiErrorCounterLog.Read.CorrectionAlgorithmInvocations, Threshold: -1}).PopulateAttributeStatus(),
-		"read_total_uncorrected_errors":              (&SmartScsiAttribute{AttributeId: "read_total_uncorrected_errors", Value: scsiErrorCounterLog.Read.TotalUncorrectedErrors, Threshold: 0}).PopulateAttributeStatus(),
-		"write_errors_corrected_by_eccfast":          (&SmartScsiAttribute{AttributeId: "write_errors_corrected_by_eccfast", Value: scsiErrorCounterLog.Write.ErrorsCorrectedByEccfast, Threshold: -1}).PopulateAttributeStatus(),
-		"write_errors_corrected_by_eccdelayed":       (&SmartScsiAttribute{AttributeId: "write_errors_corrected_by_eccdelayed", Value: scsiErrorCounterLog.Write.ErrorsCorrectedByEccdelayed, Threshold: -1}).PopulateAttributeStatus(),
-		"write_errors_corrected_by_rereads_rewrites": (&SmartScsiAttribute{AttributeId: "write_errors_corrected_by_rereads_rewrites", Value: scsiErrorCounterLog.Write.ErrorsCorrectedByRereadsRewrites, Threshold: 0}).PopulateAttributeStatus(),
-		"write_total_errors_corrected":               (&SmartScsiAttribute{AttributeId: "write_total_errors_corrected", Value: scsiErrorCounterLog.Write.TotalErrorsCorrected, Threshold: -1}).PopulateAttributeStatus(),
-		"write_correction_algorithm_invocations":     (&SmartScsiAttribute{AttributeId: "write_correction_algorithm_invocations", Value: scsiErrorCounterLog.Write.CorrectionAlgorithmInvocations, Threshold: -1}).PopulateAttributeStatus(),
-		"write_total_uncorrected_errors":             (&SmartScsiAttribute{AttributeId: "write_total_uncorrected_errors", Value: scsiErrorCounterLog.Write.TotalUncorrectedErrors, Threshold: 0}).PopulateAttributeStatus(),
+		"scsi_grown_defect_list":                     (&SmartScsiAttribute{AttributeId: "scsi_grown_defect_list", Value: defectGrownList, Threshold: 0}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolScsi, "scsi_grown_defect_list")),
+		"read_errors_corrected_by_eccfast":           (&SmartScsiAttribute{AttributeId: "read_errors_corrected_by_eccfast", Value: scsiErrorCounterLog.Read.ErrorsCorrectedByEccfast, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolScsi, "read_errors_corrected_by_eccfast")),
+		"read_errors_corrected_by_eccdelayed":        (&SmartScsiAttribute{AttributeId: "read_errors_corrected_by_eccdelayed", Value: scsiErrorCounterLog.Read.ErrorsCorrectedByEccdelayed, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolScsi, "read_errors_corrected_by_eccdelayed")),
+		"read_errors_corrected_by_rereads_rewrites":  (&SmartScsiAttribute{AttributeId: "read_errors_corrected_by_rereads_rewrites", Value: scsiErrorCounterLog.Read.ErrorsCorrectedByRereadsRewrites, Threshold: 0}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolScsi, "read_errors_corrected_by_rereads_rewrites")),
+		"read_total_errors_corrected":                (&SmartScsiAttribute{AttributeId: "read_total_errors_corrected", Value: scsiErrorCounterLog.Read.TotalErrorsCorrected, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolScsi, "read_total_errors_corrected")),
+		"read_correction_algorithm_invocations":      (&SmartScsiAttribute{AttributeId: "read_correction_algorithm_invocations", Value: scsiErrorCounterLog.Read.CorrectionAlgorithmInvocations, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolScsi, "read_correction_algorithm_invocations")),
+		"read_total_uncorrected_errors":              (&SmartScsiAttribute{AttributeId: "read_total_uncorrected_errors", Value: scsiErrorCounterLog.Read.TotalUncorrectedErrors, Threshold: 0}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolScsi, "read_total_uncorrected_errors")),
+		"write_errors_corrected_by_eccfast":          (&SmartScsiAttribute{AttributeId: "write_errors_corrected_by_eccfast", Value: scsiErrorCounterLog.Write.ErrorsCorrectedByEccfast, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolScsi, "write_errors_corrected_by_eccfast")),
+		"write_errors_corrected_by_eccdelayed":       (&SmartScsiAttribute{AttributeId: "write_errors_corrected_by_eccdelayed", Value: scsiErrorCounterLog.Write.ErrorsCorrectedByEccdelayed, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolScsi, "write_errors_corrected_by_eccdelayed")),
+		"write_errors_corrected_by_rereads_rewrites": (&SmartScsiAttribute{AttributeId: "write_errors_corrected_by_rereads_rewrites", Value: scsiErrorCounterLog.Write.ErrorsCorrectedByRereadsRewrites, Threshold: 0}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolScsi, "write_errors_corrected_by_rereads_rewrites")),
+		"write_total_errors_corrected":               (&SmartScsiAttribute{AttributeId: "write_total_errors_corrected", Value: scsiErrorCounterLog.Write.TotalErrorsCorrected, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolScsi, "write_total_errors_corrected")),
+		"write_correction_algorithm_invocations":     (&SmartScsiAttribute{AttributeId: "write_correction_algorithm_invocations", Value: scsiErrorCounterLog.Write.CorrectionAlgorithmInvocations, Threshold: -1}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolScsi, "write_correction_algorithm_invocations")),
+		"write_total_uncorrected_errors":             (&SmartScsiAttribute{AttributeId: "write_total_uncorrected_errors", Value: scsiErrorCounterLog.Write.TotalUncorrectedErrors, Threshold: 0}).PopulateAttributeStatus(overrides.Find(pkg.DeviceProtocolScsi, "write_total_uncorrected_errors")),
 	}
 
 	//find analyzed attribute status
 	for _, val := range sm.Attributes {
-		if pkg.AttributeStatusHas(val.GetStatus(), pkg.AttributeStatusFailedScrutiny) {
-			sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
-		}
+		sm.applyAttributeStatusToDevice(val.GetStatus())
+	}
+
+	sm.finalizeDeviceStatus()
+}
+
+// applyAttributeStatusToDevice rolls a single attribute's status up into the device status,
+// recording when an override was responsible for the verdict so the frontend can show it.
+//
+// DeviceStatusPassedOverride means "an override decided at least one attribute's status and
+// the device is not failing" -- it does not attempt to prove the device *would* have failed
+// without the override. finalizeDeviceStatus enforces the "not failing" half.
+func (sm *Smart) applyAttributeStatusToDevice(attributeStatus pkg.AttributeStatus) {
+	if pkg.AttributeStatusHas(attributeStatus, pkg.AttributeStatusFailedScrutiny) {
+		sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedScrutiny)
+	}
+	if pkg.AttributeStatusHas(attributeStatus, pkg.AttributeStatusFailedOverride) {
+		sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusFailedOverride)
+	}
+	if pkg.AttributeStatusHas(attributeStatus, pkg.AttributeStatusPassedOverride) {
+		sm.Status = pkg.DeviceStatusSet(sm.Status, pkg.DeviceStatusPassedOverride)
+	}
+}
+
+// finalizeDeviceStatus resolves flags that only make sense once every attribute has been seen.
+// A device that is failing is not "passing because of an override", even if an override cleared
+// some other attribute, so the passed-override flag is dropped in that case.
+func (sm *Smart) finalizeDeviceStatus() {
+	failing := pkg.DeviceStatusHas(sm.Status, pkg.DeviceStatusFailedSmart) ||
+		pkg.DeviceStatusHas(sm.Status, pkg.DeviceStatusFailedScrutiny)
+	if failing {
+		sm.Status = pkg.DeviceStatusClear(sm.Status, pkg.DeviceStatusPassedOverride)
 	}
 }

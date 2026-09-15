@@ -133,5 +133,9 @@ func (c *configuration) ValidateConfig() error {
 		return errors.ConfigValidationError("`notify.level` configuration option is deprecated. Replaced by option in Dashboard Settings page")
 	}
 
+	if err := validateDeviceOverrides(c); err != nil {
+		return err
+	}
+
 	return nil
 }

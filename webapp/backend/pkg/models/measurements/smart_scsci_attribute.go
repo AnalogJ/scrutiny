@@ -69,7 +69,21 @@ func (sa *SmartScsiAttribute) Inflate(key string, val interface{}) {
 
 // populate attribute status, using SMART Thresholds & Observed Metadata
 // Chainable
-func (sa *SmartScsiAttribute) PopulateAttributeStatus() *SmartScsiAttribute {
+func (sa *SmartScsiAttribute) PopulateAttributeStatus(override *pkg.AttributeOverride) *SmartScsiAttribute {
+
+	// NOTE: the legacy path below looks this attribute up in NmveMetadata rather than
+	// ScsiMetadata -- an existing upstream mismatch, left alone here to keep this change
+	// focused. The override path uses ScsiMetadata, which is the correct table.
+	if override != nil {
+		idealLow := true
+		if smartMetadata, ok := thresholds.ScsiMetadata[sa.AttributeId]; ok {
+			idealLow = idealIsLow(smartMetadata.Ideal)
+		}
+		status, reason := evaluateAttributeOverride(sa.Value, idealLow, override)
+		sa.Status = pkg.AttributeStatusSet(sa.Status, status)
+		sa.StatusReason += reason
+		return sa
+	}
 
 	//-1 is a special number meaning no threshold.
 	if sa.Threshold != -1 {
