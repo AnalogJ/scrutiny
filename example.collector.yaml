@@ -63,6 +63,21 @@ devices:
 #    commands:
 #      metrics_info_args: '--info --json -T permissive' # used to determine device unique ID & register device with Scrutiny
 #      metrics_smart_args: '--xall --json -T permissive' # used to retrieve smart data for each device.
+#
+#  # example to show how to stop notifying about smartctl failures for one device, overriding the
+#  # top level notify_on_smartctl_error below. Useful for a device that is expected to fail, eg. an
+#  # enclosure that never answers `smartctl --info`.
+#  - device: /dev/sda
+#    notify_on_smartctl_error: false
+
+
+# When smartctl fails in a way that leaves no usable data - the device scan fails, or a device
+# cannot be opened or identified - the collector reports it so that the webapp can notify you.
+# Set this to false to stop reporting those failures.
+#
+# This applies to `smartctl --scan` and to any device without its own
+# `notify_on_smartctl_error` in the `devices` block above, which takes priority where present.
+#notify_on_smartctl_error: true
 
 
 # To collect metrics for only specific devices from `smartctl --scan`, list their

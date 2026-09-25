@@ -44,6 +44,8 @@ func (c *configuration) Init() error {
 
 	c.SetDefault("api.endpoint", "http://localhost:8080")
 
+	c.SetDefault("notify_on_smartctl_error", true)
+
 	c.SetDefault("commands.metrics_smartctl_bin", "smartctl")
 	c.SetDefault("commands.metrics_scan_args", "--scan --json")
 	c.SetDefault("commands.metrics_info_args", "--info --json")
@@ -197,6 +199,18 @@ func (c *configuration) GetCommandMetricsSmartArgs(deviceName string) string {
 	}
 
 	return c.GetString("commands.metrics_smart_args")
+}
+
+// GetNotifyOnSmartctlError reports whether a smartctl failure for this device should be sent to the
+// webapp to notify about. A device with its own setting wins; everything else, including the
+// `smartctl --scan` that finds the devices in the first place, falls back to the top level one.
+// deviceName is empty for the scan itself.
+func (c *configuration) GetNotifyOnSmartctlError(deviceName string) bool {
+	if deviceOverride, found := c.getDeviceOverride(deviceName); found && deviceOverride.NotifyOnSmartctlError != nil {
+		return *deviceOverride.NotifyOnSmartctlError
+	}
+
+	return c.GetBool("notify_on_smartctl_error")
 }
 
 func (c *configuration) IsAllowlistedDevice(deviceName string) bool {

@@ -161,6 +161,20 @@ func (mr *MockInterfaceMockRecorder) GetStringSlice(key interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStringSlice", reflect.TypeOf((*MockInterface)(nil).GetStringSlice), key)
 }
 
+// GetNotifyOnSmartctlError mocks base method.
+func (m *MockInterface) GetNotifyOnSmartctlError(deviceName string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNotifyOnSmartctlError", deviceName)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// GetNotifyOnSmartctlError indicates an expected call of GetNotifyOnSmartctlError.
+func (mr *MockInterfaceMockRecorder) GetNotifyOnSmartctlError(deviceName interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNotifyOnSmartctlError", reflect.TypeOf((*MockInterface)(nil).GetNotifyOnSmartctlError), deviceName)
+}
+
 // HasDeviceTypeOverride mocks base method.
 func (m *MockInterface) HasDeviceTypeOverride(deviceName string) bool {
 	m.ctrl.T.Helper()
