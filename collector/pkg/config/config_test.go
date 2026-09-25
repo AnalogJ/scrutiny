@@ -209,3 +209,31 @@ func TestConfiguration_HasDeviceTypeOverride_WithoutDeviceType(t *testing.T) {
 	//assert
 	require.False(t, testConfig.HasDeviceTypeOverride("/dev/sda"), "should not match a device configured without a type")
 }
+
+func TestConfiguration_GetNotifyOnSmartctlError_Default(t *testing.T) {
+	t.Parallel()
+
+	testConfig, _ := config.Create()
+	require.NoError(t, testConfig.Init())
+
+	//opt-out, so a config that says nothing notifies
+	require.True(t, testConfig.GetNotifyOnSmartctlError(""))
+	require.True(t, testConfig.GetNotifyOnSmartctlError("/dev/sda"))
+}
+
+func TestConfiguration_GetNotifyOnSmartctlError(t *testing.T) {
+	t.Parallel()
+
+	testConfig, _ := config.Create()
+	require.NoError(t, testConfig.Init())
+	require.NoError(t, testConfig.ReadConfig("testdata/collector_notify_on_smartctl_error.yaml"))
+
+	//the device setting wins where it is present, in either direction
+	require.False(t, testConfig.GetNotifyOnSmartctlError("/dev/sda"))
+	require.True(t, testConfig.GetNotifyOnSmartctlError("/dev/sdb"))
+	//a device listed without the setting falls back to the top level one
+	require.False(t, testConfig.GetNotifyOnSmartctlError("/dev/sdc"))
+	//so does a device that is not listed at all, and the scan itself
+	require.False(t, testConfig.GetNotifyOnSmartctlError("/dev/sdz"))
+	require.False(t, testConfig.GetNotifyOnSmartctlError(""))
+}

@@ -1,0 +1,14 @@
+version: 1
+
+notify:
+  on_smartctl_error: false
+
+devices:
+  - device: /dev/sda
+    notify:
+      on_smartctl_error: false
+  - device: /dev/sdb
+    notify:
+      on_smartctl_error: true
+  - device: /dev/sdc
+    type: 'sat'

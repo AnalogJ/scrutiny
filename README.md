@@ -195,6 +195,25 @@ Check the `notify.urls` section of [example.scrutiny.yml](example.scrutiny.yaml)
 
 For more information and troubleshooting, see the [TROUBLESHOOTING_NOTIFICATIONS.md](./docs/TROUBLESHOOTING_NOTIFICATIONS.md) file
 
+### Collector Errors
+
+Scrutiny will also notify you if the collector is unable to run `smartctl` successfully, preventing it from reporting data.
+This is on by default and can be configured in `collector.yaml`
+
+```yaml
+# applies to `smartctl --scan` and any device without its own setting below
+notify:
+  on_smartctl_error: true
+
+devices:
+  # device-specific settings take priority over the global one above
+  - device: /dev/sda
+    notify:
+      on_smartctl_error: false
+```
+
+A drive that `-n`/`--nocheck` found in a low power mode is not a failure, and is never reported.
+
 ### Testing Notifications
 
 You can test that your notifications are configured correctly by posting an empty payload to the notifications health check API.

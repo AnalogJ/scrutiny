@@ -19,6 +19,12 @@ type Detect struct {
 	Shell  shell.Interface
 }
 
+// DeviceInfoError records why smartctl could not describe a device that the scan found.
+type DeviceInfoError struct {
+	Device models.Device
+	Err    error
+}
+
 //private/common functions
 
 // This function calls smartctl --scan which can be used to detect storage devices.
