@@ -180,6 +180,11 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 		mc.LogSmartctlExitStatus(exitStatus)
 
 		if exitStatus.IsFatal() {
+			if exitStatus == collector.SmartctlExitStatusFailDev && hasPowerModeCheck(args) {
+				mc.logger.Infof("%s is in a low power mode, skipping collection\n", deviceName)
+				return
+			}
+
 			mc.logger.Errorf("smartctl output for %s is incomplete, not publishing results\n", deviceName)
 			mc.ReportError(device, fmt.Errorf("smartctl exited with status %d: %s", exitError.ExitCode(), exitStatus))
 			return
@@ -189,6 +194,19 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 	}
 
 	mc.Publish(scrutiny_uuid, resultBytes)
+}
+
+// hasPowerModeCheck reports whether smartctl was asked not to wake a sleeping device.
+//
+// A device that has genuinely gone away exits with the same status and is indistinguishable here;
+// that is left to a separate check for devices that stopped sending updates.
+func hasPowerModeCheck(args []string) bool {
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "--nocheck") || (strings.HasPrefix(arg, "-n") && !strings.HasPrefix(arg, "--")) {
+			return true
+		}
+	}
+	return false
 }
 
 func (mc *MetricsCollector) Publish(scrutinyUuid uuid.UUID, payload []byte) error {
