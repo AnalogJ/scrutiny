@@ -19,8 +19,8 @@ type SmartScsiAttribute struct {
 	FailureRate      float64             `json:"failure_rate,omitempty"`
 }
 
-func (sa *SmartScsiAttribute) GetTransformedValue() int64 {
-	return sa.TransformedValue
+func (sa *SmartScsiAttribute) GetComparableValue() int64 {
+	return sa.Value
 }
 
 func (sa *SmartScsiAttribute) GetStatus() pkg.AttributeStatus {
