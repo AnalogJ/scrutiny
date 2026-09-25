@@ -101,7 +101,8 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 	var lastPoints []measurements.Smart
 	var err error
 	if !repeatNotifications {
-		lastPoints, err = deviceRepo.GetSmartAttributeHistory(c, scrutiny_uuid, database.DURATION_KEY_FOREVER, 1, 1, failingAttributes)
+		// no aggregation, so offset 1 is the upload before the one being evaluated rather than the previous day
+		lastPoints, err = deviceRepo.GetSmartAttributeHistory(c, scrutiny_uuid, database.DURATION_KEY_FOREVER, 0, 1, 1, failingAttributes)
 		if err == nil || len(lastPoints) < 1 {
 			logger.Warningln("Could not get the most recent data points from the database. This is expected to happen only if this is the very first submission of data for the device.")
 		}

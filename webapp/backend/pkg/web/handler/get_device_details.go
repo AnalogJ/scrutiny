@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
@@ -31,7 +32,8 @@ func GetDeviceDetails(c *gin.Context) {
 		durationKey = "forever"
 	}
 
-	smartResults, err := deviceRepo.GetSmartAttributeHistory(c, scrutiny_uuid, durationKey, 0, 0, nil)
+	// one point per day keeps the details page fast when the collector runs more often than daily
+	smartResults, err := deviceRepo.GetSmartAttributeHistory(c, scrutiny_uuid, durationKey, 24*time.Hour, 0, 0, nil)
 	if err != nil {
 		logger.Errorln("An error occurred while retrieving device smart results", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
