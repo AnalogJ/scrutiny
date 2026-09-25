@@ -15,6 +15,7 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/detect"
 	"github.com/analogj/scrutiny/collector/pkg/errors"
 	"github.com/analogj/scrutiny/collector/pkg/models"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/gofrs/uuid/v5"
 	"github.com/sirupsen/logrus"
 )
@@ -151,7 +152,7 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 		if exitError, ok := err.(*exec.ExitError); ok {
 			// smartctl command exited with an error, we should still push the data to the API server
 			mc.logger.Errorf("smartctl returned an error code (%d) while processing %s\n", exitError.ExitCode(), deviceName)
-			mc.LogSmartctlExitCode(exitError.ExitCode())
+			mc.LogSmartctlExitStatus(collector.SmartctlExitStatus(exitError.ExitCode()))
 			mc.Publish(scrutiny_uuid, resultBytes)
 		} else {
 			mc.logger.Errorf("error while attempting to execute smartctl: %s\n", deviceName)
