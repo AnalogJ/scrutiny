@@ -26,6 +26,7 @@ type Interface interface {
 	HasDeviceTypeOverride(deviceName string) bool
 	GetCommandMetricsInfoArgs(deviceName string) string
 	GetCommandMetricsSmartArgs(deviceName string) string
+	GetNotifyOnSmartctlError(deviceName string) bool
 
 	IsAllowlistedDevice(deviceName string) bool
 }

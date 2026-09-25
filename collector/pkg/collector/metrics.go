@@ -60,9 +60,15 @@ func (mc *MetricsCollector) Run() error {
 		Logger: mc.logger,
 		Config: mc.config,
 	}
-	rawDetectedStorageDevices, err := deviceDetector.Start()
+	scannedDevices, err := deviceDetector.Scan()
 	if err != nil {
+		mc.ReportError(models.Device{}, err)
 		return err
+	}
+
+	rawDetectedStorageDevices, infoErrors := deviceDetector.Info(scannedDevices)
+	for _, infoError := range infoErrors {
+		mc.ReportError(infoError.Device, infoError.Err)
 	}
 
 	// Ignore any device without a Scrutiny UUID. This should never happen...
@@ -136,6 +142,8 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 	}
 	mc.logger.Infof("Collecting smartctl results for %s\n", deviceName)
 
+	device := models.Device{ScrutinyUUID: scrutiny_uuid, DeviceName: deviceName, DeviceType: deviceType}
+
 	fullDeviceName := fmt.Sprintf("%s%s", detect.DevicePrefix(), deviceName)
 	args := strings.Split(mc.config.GetCommandMetricsSmartArgs(fullDeviceName), " ")
 	//only include the device type if its a non-standard one, or the user set it in the config file.
@@ -158,6 +166,7 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 			mc.logger.Errorf("error while attempting to execute smartctl: %s\n", deviceName)
 			mc.logger.Errorf("ERROR MESSAGE: %v", err)
 			mc.logger.Errorf("IGNORING RESULT: %v", result)
+			mc.ReportError(device, err)
 		}
 		return
 	} else {
@@ -180,4 +189,37 @@ func (mc *MetricsCollector) Publish(scrutinyUuid uuid.UUID, payload []byte) erro
 	defer resp.Body.Close()
 
 	return nil
+}
+
+// ReportError tells the API server that the collector could not gather data, so that it can notify
+// the user. device may be empty when the failure was not specific to one device.
+func (mc *MetricsCollector) ReportError(device models.Device, collectorErr error) {
+	//the device name is empty for a `smartctl --scan` failure, which falls back to the top level setting
+	configDeviceName := ""
+	if len(device.DeviceName) > 0 {
+		configDeviceName = fmt.Sprintf("%s%s", detect.DevicePrefix(), device.DeviceName)
+	}
+	if !mc.config.GetNotifyOnSmartctlError(configDeviceName) {
+		mc.logger.Debugf("notify_on_smartctl_error is disabled for %q, not reporting: %v", device.DeviceName, collectorErr)
+		return
+	}
+
+	payload := collector.CollectorError{
+		HostId:     mc.config.GetString("host.id"),
+		DeviceName: device.DeviceName,
+		DeviceType: device.DeviceType,
+		Error:      collectorErr.Error(),
+	}
+	if !device.ScrutinyUUID.IsNil() {
+		payload.ScrutinyUUID = device.ScrutinyUUID.String()
+	}
+	mc.logger.Debugf("Reporting collector error to API: %v", payload)
+
+	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
+	apiEndpoint, _ = apiEndpoint.Parse("api/collector/error")
+
+	response := models.DeviceWrapper{}
+	if err := mc.postJson(apiEndpoint.String(), payload, &response); err != nil {
+		mc.logger.Errorf("An error occurred while reporting a collector error to the API: %v", err)
+	}
 }
