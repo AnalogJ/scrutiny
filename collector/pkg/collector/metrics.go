@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
@@ -157,22 +158,37 @@ func (mc *MetricsCollector) Collect(scrutiny_uuid uuid.UUID, deviceName string, 
 	result, err := mc.shell.Command(mc.logger, mc.config.GetString("commands.metrics_smartctl_bin"), args, "", os.Environ())
 	resultBytes := []byte(result)
 	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			// smartctl command exited with an error, we should still push the data to the API server
-			mc.logger.Errorf("smartctl returned an error code (%d) while processing %s\n", exitError.ExitCode(), deviceName)
-			mc.LogSmartctlExitStatus(collector.SmartctlExitStatus(exitError.ExitCode()))
-			mc.Publish(scrutiny_uuid, resultBytes)
-		} else {
+		exitError, isExitError := err.(*exec.ExitError)
+		if !isExitError {
 			mc.logger.Errorf("error while attempting to execute smartctl: %s\n", deviceName)
 			mc.logger.Errorf("ERROR MESSAGE: %v", err)
 			mc.logger.Errorf("IGNORING RESULT: %v", result)
 			mc.ReportError(device, err)
+			return
 		}
-		return
-	} else {
-		//successful run, pass the results directly to webapp backend for parsing and processing.
-		mc.Publish(scrutiny_uuid, resultBytes)
+
+		// a process killed by a signal has no exit status to interpret; ExitCode() reports -1,
+		// which would otherwise decode as every failure bit being set.
+		if exitError.ExitCode() < 0 {
+			mc.logger.Errorf("smartctl was terminated before it could finish processing %s: %v", deviceName, exitError)
+			mc.ReportError(device, exitError)
+			return
+		}
+
+		exitStatus := collector.SmartctlExitStatus(exitError.ExitCode())
+		mc.logger.Errorf("smartctl returned an error code (%d) while processing %s\n", exitError.ExitCode(), deviceName)
+		mc.LogSmartctlExitStatus(exitStatus)
+
+		if exitStatus.IsFatal() {
+			mc.logger.Errorf("smartctl output for %s is incomplete, not publishing results\n", deviceName)
+			mc.ReportError(device, fmt.Errorf("smartctl exited with status %d: %s", exitError.ExitCode(), exitStatus))
+			return
+		}
+		// the remaining exit status bits describe problems with the disk rather than with smartctl,
+		// so the results are still worth publishing.
 	}
+
+	mc.Publish(scrutiny_uuid, resultBytes)
 }
 
 func (mc *MetricsCollector) Publish(scrutinyUuid uuid.UUID, payload []byte) error {
@@ -187,6 +203,12 @@ func (mc *MetricsCollector) Publish(scrutinyUuid uuid.UUID, payload []byte) erro
 		return err
 	}
 	defer resp.Body.Close()
+
+	//a non-200 would otherwise be reported as a successful publish
+	if resp.StatusCode != http.StatusOK {
+		mc.logger.Errorf("The API server rejected the SMART data for device (%s): %s", scrutinyUuid, resp.Status)
+		return errors.ApiServerCommunicationError(fmt.Sprintf("The API server rejected the SMART data for device (%s)", scrutinyUuid))
+	}
 
 	return nil
 }

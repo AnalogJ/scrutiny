@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os/exec"
 	"testing"
 
 	mock_shell "github.com/analogj/scrutiny/collector/pkg/common/shell/mock"
@@ -139,4 +140,43 @@ func TestMetricsCollector_ReportError_NotifyDisabled(t *testing.T) {
 
 	//nothing reaches the api server, so the user is not notified
 	require.Empty(t, reported)
+}
+
+func TestMetricsCollector_Collect_SignalledSmartctl(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	const someDeviceName = "sda"
+	fullDeviceName := detect.DevicePrefix() + someDeviceName
+
+	fakeConfig := mock_config.NewMockInterface(ctrl)
+	fakeConfig.EXPECT().GetCommandMetricsSmartArgs(fullDeviceName).Return("--xall --json")
+	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").Return("smartctl")
+	fakeConfig.EXPECT().HasDeviceTypeOverride(fullDeviceName).AnyTimes().Return(false)
+	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("testhost")
+	fakeConfig.EXPECT().GetNotifyOnSmartctlError(fullDeviceName).AnyTimes().Return(true)
+
+	someLogger := logrus.WithFields(logrus.Fields{})
+
+	//a process that never produced an exit status - killed by a signal, say - reports exit code -1,
+	//which would otherwise decode as every smartctl failure bit being set
+	signalled := &exec.ExitError{}
+	require.Equal(t, -1, signalled.ExitCode())
+
+	fakeShell := mock_shell.NewMockInterface(ctrl)
+	fakeShell.EXPECT().
+		Command(someLogger, "smartctl", []string{"--xall", "--json", fullDeviceName}, "", gomock.Any()).
+		Return("", signalled)
+
+	apiEndpoint, reported := helperCollectorErrorApi(t)
+
+	mc := MetricsCollector{
+		config:        fakeConfig,
+		BaseCollector: BaseCollector{logger: someLogger},
+		apiEndpoint:   apiEndpoint,
+		shell:         fakeShell,
+	}
+
+	mc.Collect(uuid.Must(uuid.NewV4()), someDeviceName, "")
+
+	require.Equal(t, someDeviceName, (<-reported).DeviceName)
 }
