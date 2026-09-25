@@ -44,6 +44,8 @@ func (c *configuration) Init() error {
 
 	c.SetDefault("api.endpoint", "http://localhost:8080")
 
+	c.SetDefault("notify.on_smartctl_error", true)
+
 	c.SetDefault("commands.metrics_smartctl_bin", "smartctl")
 	c.SetDefault("commands.metrics_scan_args", "--scan --json")
 	c.SetDefault("commands.metrics_info_args", "--info --json")
@@ -197,6 +199,15 @@ func (c *configuration) GetCommandMetricsSmartArgs(deviceName string) string {
 	}
 
 	return c.GetString("commands.metrics_smart_args")
+}
+
+// device-specific settings should win in case a single drive has an issue
+func (c *configuration) GetNotifyOnSmartctlError(deviceName string) bool {
+	if deviceOverride, found := c.getDeviceOverride(deviceName); found && deviceOverride.Notify.OnSmartctlError != nil {
+		return *deviceOverride.Notify.OnSmartctlError
+	}
+
+	return c.GetBool("notify.on_smartctl_error")
 }
 
 func (c *configuration) IsAllowlistedDevice(deviceName string) bool {

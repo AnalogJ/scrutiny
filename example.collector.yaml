@@ -8,7 +8,6 @@
 # lowercased automatically. As such, Configuration keys are case-insensitive,
 # and should be lowercase in this file to be consistent with usage.
 
-
 ######################################################################
 # Version
 #
@@ -19,8 +18,7 @@ version: 1
 # The host id is a label used for identifying groups of disks running on the same host
 # Primiarly used for hub/spoke deployments (can be left empty if using all-in-one image).
 host:
-  id: ""
-
+  id: ''
 
 # This block allows you to override/customize the settings for devices detected by
 # Scrutiny via `smartctl --scan`
@@ -63,14 +61,26 @@ devices:
 #    commands:
 #      metrics_info_args: '--info --json -T permissive' # used to determine device unique ID & register device with Scrutiny
 #      metrics_smart_args: '--xall --json -T permissive' # used to retrieve smart data for each device.
+#
+#  # example to show how to stop notifying about smartctl failures for one particular device.
+#  # This overrides the top level notify.on_smartctl_error below.
+#  - device: /dev/sda
+#    notify:
+#      on_smartctl_error: false
 
+#
+# This setting allows you to disable notifications for problems with smartctl
+# (i.e. issues running the command). It does not impact notifications for drive failures.
+# This top level setting applies to `smartctl --scan` and any device that does not have
+# the corresponding field set in its entry in devices (see above).
+#notify:
+#  on_smartctl_error: true
 
 # To collect metrics for only specific devices from `smartctl --scan`, list their
 # device paths here. When omitted or empty, Scrutiny collects every detected device.
 #allow_listed_devices:
 #  - /dev/sda
 #  - /dev/sdb
-
 
 #log:
 #  file: '' #absolute or relative paths allowed, eg. web.log
@@ -89,7 +99,6 @@ devices:
 #  metrics_info_args: '--info --json' # used to determine device unique ID & register device with Scrutiny
 #  metrics_smart_args: '--xall --json' # used to retrieve smart data for each device.
 #  metrics_smartctl_wait: 0 # time to wait in seconds between each disk's check
-
 
 ########################################################################################################################
 # FEATURES COMING SOON

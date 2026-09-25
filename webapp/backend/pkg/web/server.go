@@ -41,6 +41,7 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 			api.POST("/devices/register", handler.RegisterDevices)                //used by Collector to register new devices and retrieve filtered list
 			api.GET("/summary", handler.GetDevicesSummary)                        //used by Dashboard
 			api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory)        //used by Dashboard (Temperature history dropdown)
+			api.POST("/collector/error", handler.CollectorError)                  //used by Collector to report that it could not gather data
 			api.POST("/device/:scrutiny_uuid/smart", handler.UploadDeviceMetrics) //used by Collector to upload data
 			api.POST("/device/:scrutiny_uuid/selftest", handler.UploadDeviceSelfTests)
 			api.GET("/device/:scrutiny_uuid/details", handler.GetDeviceDetails)   //used by Details

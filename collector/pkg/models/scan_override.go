@@ -8,4 +8,8 @@ type ScanOverride struct {
 		MetricsInfoArgs  string `mapstructure:"metrics_info_args"`
 		MetricsSmartArgs string `mapstructure:"metrics_smart_args"`
 	} `mapstructure:"commands"`
+	Notify struct {
+		// nil means "not set for this device", so the top level setting applies
+		OnSmartctlError *bool `mapstructure:"on_smartctl_error"`
+	} `mapstructure:"notify"`
 }
