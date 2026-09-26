@@ -209,7 +209,7 @@ func TestShouldNotify_NoRepeat_DatabaseFailure(t *testing.T) {
 	scrutinyUUID := uuid.Must(uuid.NewV4())
 	mockCtrl := gomock.NewController(t)
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
-	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, scrutinyUUID, database.DURATION_KEY_FOREVER, 1, 1, []string{"5"}).Return([]measurements.Smart{}, errors.New("")).Times(1)
+	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, scrutinyUUID, database.DURATION_KEY_FOREVER, time.Duration(0), 1, 1, []string{"5"}).Return([]measurements.Smart{}, errors.New("")).Times(1)
 
 	//assert
 	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, scrutinyUUID, statusThreshold, notifyFilterAttributes, false, &gin.Context{}, fakeDatabase))
@@ -231,7 +231,7 @@ func TestShouldNotify_NoRepeat_NoDatabaseData(t *testing.T) {
 	scrutinyUUID := uuid.Must(uuid.NewV4())
 	mockCtrl := gomock.NewController(t)
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
-	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, scrutinyUUID, database.DURATION_KEY_FOREVER, 1, 1, []string{"5"}).Return([]measurements.Smart{}, nil).Times(1)
+	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, scrutinyUUID, database.DURATION_KEY_FOREVER, time.Duration(0), 1, 1, []string{"5"}).Return([]measurements.Smart{}, nil).Times(1)
 
 	//assert
 	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, scrutinyUUID, statusThreshold, notifyFilterAttributes, false, &gin.Context{}, fakeDatabase))
@@ -253,7 +253,7 @@ func TestShouldNotify_NoRepeat(t *testing.T) {
 	scrutinyUUID := uuid.Must(uuid.NewV4())
 	mockCtrl := gomock.NewController(t)
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
-	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, scrutinyUUID, database.DURATION_KEY_FOREVER, 1, 1, []string{"5"}).Return([]measurements.Smart{smartAttrs}, nil).Times(1)
+	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, scrutinyUUID, database.DURATION_KEY_FOREVER, time.Duration(0), 1, 1, []string{"5"}).Return([]measurements.Smart{smartAttrs}, nil).Times(1)
 
 	//assert
 	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, scrutinyUUID, statusThreshold, notifyFilterAttributes, false, &gin.Context{}, fakeDatabase))

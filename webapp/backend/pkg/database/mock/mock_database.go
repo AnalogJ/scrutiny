@@ -12,6 +12,7 @@ package mock_database
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	pkg "github.com/analogj/scrutiny/webapp/backend/pkg"
 	models "github.com/analogj/scrutiny/webapp/backend/pkg/models"
@@ -104,18 +105,18 @@ func (mr *MockDeviceRepoMockRecorder) GetDevices(ctx any) *gomock.Call {
 }
 
 // GetSmartAttributeHistory mocks base method.
-func (m *MockDeviceRepo) GetSmartAttributeHistory(ctx context.Context, scrutiny_uuid uuid.UUID, durationKey string, selectEntries, selectEntriesOffset int, attributes []string) ([]measurements.Smart, error) {
+func (m *MockDeviceRepo) GetSmartAttributeHistory(ctx context.Context, scrutiny_uuid uuid.UUID, durationKey string, aggregationWindow time.Duration, selectEntries, selectEntriesOffset int, attributes []string) ([]measurements.Smart, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSmartAttributeHistory", ctx, scrutiny_uuid, durationKey, selectEntries, selectEntriesOffset, attributes)
+	ret := m.ctrl.Call(m, "GetSmartAttributeHistory", ctx, scrutiny_uuid, durationKey, aggregationWindow, selectEntries, selectEntriesOffset, attributes)
 	ret0, _ := ret[0].([]measurements.Smart)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetSmartAttributeHistory indicates an expected call of GetSmartAttributeHistory.
-func (mr *MockDeviceRepoMockRecorder) GetSmartAttributeHistory(ctx, scrutiny_uuid, durationKey, selectEntries, selectEntriesOffset, attributes any) *gomock.Call {
+func (mr *MockDeviceRepoMockRecorder) GetSmartAttributeHistory(ctx, scrutiny_uuid, durationKey, aggregationWindow, selectEntries, selectEntriesOffset, attributes any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSmartAttributeHistory", reflect.TypeOf((*MockDeviceRepo)(nil).GetSmartAttributeHistory), ctx, scrutiny_uuid, durationKey, selectEntries, selectEntriesOffset, attributes)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSmartAttributeHistory", reflect.TypeOf((*MockDeviceRepo)(nil).GetSmartAttributeHistory), ctx, scrutiny_uuid, durationKey, aggregationWindow, selectEntries, selectEntriesOffset, attributes)
 }
 
 // GetSmartTemperatureHistory mocks base method.
