@@ -6,5 +6,6 @@ type SmartAttribute interface {
 	Flatten() (fields map[string]interface{})
 	Inflate(key string, val interface{})
 	GetStatus() pkg.AttributeStatus
-	GetTransformedValue() int64
+	// GetComparableValue returns the value the attribute's status is derived from, so changes between submissions can be detected
+	GetComparableValue() int64
 }

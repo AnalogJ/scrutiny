@@ -19,8 +19,8 @@ type SmartNvmeAttribute struct {
 	FailureRate      float64             `json:"failure_rate,omitempty"`
 }
 
-func (sa *SmartNvmeAttribute) GetTransformedValue() int64 {
-	return sa.TransformedValue
+func (sa *SmartNvmeAttribute) GetComparableValue() int64 {
+	return sa.Value
 }
 
 func (sa *SmartNvmeAttribute) GetStatus() pkg.AttributeStatus {

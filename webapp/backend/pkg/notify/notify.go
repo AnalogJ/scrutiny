@@ -102,7 +102,7 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 	var err error
 	if !repeatNotifications {
 		lastPoints, err = deviceRepo.GetSmartAttributeHistory(c, scrutiny_uuid, database.DURATION_KEY_FOREVER, 1, 1, failingAttributes)
-		if err == nil || len(lastPoints) < 1 {
+		if err != nil || len(lastPoints) < 1 {
 			logger.Warningln("Could not get the most recent data points from the database. This is expected to happen only if this is the very first submission of data for the device.")
 		}
 	}
@@ -114,7 +114,7 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 			}
 			// This is checked again here to avoid repeating the entire for loop in the check above.
 			// Probably unnoticeably worse performance, but cleaner code.
-			if err != nil || len(lastPoints) < 1 || lastPoints[0].Attributes[attrId].GetTransformedValue() != smartAttrs.Attributes[attrId].GetTransformedValue() {
+			if err != nil || len(lastPoints) < 1 || lastPoints[0].Attributes[attrId].GetComparableValue() != smartAttrs.Attributes[attrId].GetComparableValue() {
 				return true
 			}
 		}

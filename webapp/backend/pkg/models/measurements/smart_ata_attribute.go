@@ -25,8 +25,21 @@ type SmartAtaAttribute struct {
 	FailureRate      float64             `json:"failure_rate,omitempty"`
 }
 
-func (sa *SmartAtaAttribute) GetTransformedValue() int64 {
-	return sa.TransformedValue
+func (sa *SmartAtaAttribute) GetComparableValue() int64 {
+	// attributes without metadata have an empty DisplayType, which selects the raw value
+	return sa.valueForDisplayType(thresholds.AtaMetadata[sa.AttributeId].DisplayType)
+}
+
+// valueForDisplayType selects the value observed thresholds are defined against
+func (sa *SmartAtaAttribute) valueForDisplayType(displayType string) int64 {
+	switch displayType {
+	case thresholds.AtaSmartAttributeDisplayTypeNormalized:
+		return sa.Value
+	case thresholds.AtaSmartAttributeDisplayTypeTransformed:
+		return sa.TransformedValue
+	default:
+		return sa.RawValue
+	}
 }
 
 func (sa *SmartAtaAttribute) GetStatus() pkg.AttributeStatus {
@@ -125,14 +138,7 @@ func (sa *SmartAtaAttribute) ValidateThreshold(smartMetadata thresholds.AtaAttri
 	// 		- if failure rate is above 10 but below 20 - set to warn
 
 	//update the smart attribute status based on Observed thresholds.
-	var value int64
-	if smartMetadata.DisplayType == thresholds.AtaSmartAttributeDisplayTypeNormalized {
-		value = int64(sa.Value)
-	} else if smartMetadata.DisplayType == thresholds.AtaSmartAttributeDisplayTypeTransformed {
-		value = sa.TransformedValue
-	} else {
-		value = sa.RawValue
-	}
+	value := sa.valueForDisplayType(smartMetadata.DisplayType)
 
 	for _, obsThresh := range smartMetadata.ObservedThresholds {
 
