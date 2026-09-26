@@ -15,7 +15,7 @@ import (
 
 type Smart struct {
 	Date           time.Time `json:"date"`
-	DeviceWWN      string    `json:"device_wwn`     // deprecated
+	DeviceWWN      string    `json:"device_wwn"`    // deprecated
 	ScrutinyUUID   uuid.UUID `json:"scrutiny_uuid"` //(tag)
 	DeviceProtocol string    `json:"device_protocol"`
 
