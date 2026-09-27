@@ -197,6 +197,7 @@ func (sr *scrutinyRepository) generateSmartAttributesSubquery(scrutiny_uuid uuid
 	}
 
 	if aggregationWindow > 0 {
+		// use int64 seconds to avoid format discrepancies between go and flux
 		partialQueryStr = append(partialQueryStr, fmt.Sprintf(`|> aggregateWindow(every: %ds, fn: last, createEmpty: false)`, int64(aggregationWindow.Seconds())))
 	}
 
