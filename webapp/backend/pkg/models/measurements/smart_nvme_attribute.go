@@ -69,17 +69,30 @@ func (sa *SmartNvmeAttribute) Inflate(key string, val interface{}) {
 
 // populate attribute status, using SMART Thresholds & Observed Metadata
 // Chainable
-func (sa *SmartNvmeAttribute) PopulateAttributeStatus() *SmartNvmeAttribute {
+func (sa *SmartNvmeAttribute) PopulateAttributeStatus(override *pkg.AttributeOverride) *SmartNvmeAttribute {
+
+	smartMetadata, hasMetadata := thresholds.NmveMetadata[sa.AttributeId]
+
+	// A user override replaces the recommended-threshold comparison entirely, including the
+	// -1 "no threshold" sentinel.
+	if override != nil {
+		idealLow := true
+		if hasMetadata {
+			idealLow = idealIsLow(smartMetadata.Ideal)
+		}
+		status, reason := evaluateAttributeOverride(sa.Value, idealLow, override)
+		sa.Status = pkg.AttributeStatusSet(sa.Status, status)
+		sa.StatusReason += reason
+		return sa
+	}
 
 	//-1 is a special number meaning no threshold.
-	if sa.Threshold != -1 {
-		if smartMetadata, ok := thresholds.NmveMetadata[sa.AttributeId]; ok {
-			//check what the ideal is. Ideal tells us if we our recorded value needs to be above, or below the threshold
-			if (smartMetadata.Ideal == "low" && sa.Value > sa.Threshold) ||
-				(smartMetadata.Ideal == "high" && sa.Value < sa.Threshold) {
-				sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedScrutiny)
-				sa.StatusReason += "Attribute is failing recommended SMART threshold"
-			}
+	if sa.Threshold != -1 && hasMetadata {
+		//check what the ideal is. Ideal tells us if we our recorded value needs to be above, or below the threshold
+		if (smartMetadata.Ideal == "low" && sa.Value > sa.Threshold) ||
+			(smartMetadata.Ideal == "high" && sa.Value < sa.Threshold) {
+			sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedScrutiny)
+			sa.StatusReason += "Attribute is failing recommended SMART threshold"
 		}
 	}
 	//TODO: eventually figure out the critical_warning bits and determine correct error messages here.

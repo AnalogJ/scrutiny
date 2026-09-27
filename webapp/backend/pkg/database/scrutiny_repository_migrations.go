@@ -691,7 +691,7 @@ func m20201107210306_FromPreInfluxDBSmartResultsCreatePostInfluxDBSmartResults(d
 			})
 		}
 
-		postDeviceSmartData.ProcessAtaSmartInfo(preAtaSmartAttributesTable)
+		postDeviceSmartData.ProcessAtaSmartInfo(preAtaSmartAttributesTable, nil)
 
 	} else if preDevice.IsNvme() {
 		//info collector.SmartInfo
@@ -736,7 +736,7 @@ func m20201107210306_FromPreInfluxDBSmartResultsCreatePostInfluxDBSmartResults(d
 			}
 		}
 
-		postDeviceSmartData.ProcessNvmeSmartInfo(postNvmeSmartHealthInformation)
+		postDeviceSmartData.ProcessNvmeSmartInfo(postNvmeSmartHealthInformation, nil)
 
 	} else if preDevice.IsScsi() {
 		//info collector.SmartInfo
@@ -792,7 +792,7 @@ func m20201107210306_FromPreInfluxDBSmartResultsCreatePostInfluxDBSmartResults(d
 				postScsiErrorCounterLog.Write.TotalUncorrectedErrors = int64(preScsiAttribute.Value)
 			}
 		}
-		postDeviceSmartData.ProcessScsiSmartInfo(postScsiGrownDefectList, postScsiErrorCounterLog)
+		postDeviceSmartData.ProcessScsiSmartInfo(postScsiGrownDefectList, postScsiErrorCounterLog, nil)
 	} else {
 		return fmt.Errorf("unknown device protocol: %s", preDevice.DeviceProtocol), postDeviceSmartData
 	}
