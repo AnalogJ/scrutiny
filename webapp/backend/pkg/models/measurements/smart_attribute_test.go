@@ -61,3 +61,40 @@ func TestSmartScsiAttribute_GetComparableValue(t *testing.T) {
 	attr := measurements.SmartScsiAttribute{AttributeId: "scsi_grown_defect_list", Value: 12}
 	require.Equal(t, int64(12), attr.GetComparableValue())
 }
+
+func TestSmartScsiAttribute_PopulateAttributeStatus(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name     string
+		attr     measurements.SmartScsiAttribute
+		expected pkg.AttributeStatus
+	}{
+		{
+			name:     "zero uncorrected errors passes",
+			attr:     measurements.SmartScsiAttribute{AttributeId: "read_total_uncorrected_errors", Value: 0, Threshold: 10},
+			expected: pkg.AttributeStatusPassed,
+		},
+		{
+			name:     "uncorrected errors at the threshold warn",
+			attr:     measurements.SmartScsiAttribute{AttributeId: "read_total_uncorrected_errors", Value: 10, Threshold: 10},
+			expected: pkg.AttributeStatusWarningScrutiny,
+		},
+		{
+			name:     "uncorrected errors above the threshold fail",
+			attr:     measurements.SmartScsiAttribute{AttributeId: "write_total_uncorrected_errors", Value: 11, Threshold: 10},
+			expected: pkg.AttributeStatusFailedScrutiny,
+		},
+		{
+			name:     "no threshold never fails",
+			attr:     measurements.SmartScsiAttribute{AttributeId: "read_errors_corrected_by_rereads_rewrites", Value: 5000, Threshold: -1},
+			expected: pkg.AttributeStatusPassed,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			require.Equal(t, tc.expected, tc.attr.PopulateAttributeStatus().Status)
+		})
+	}
+}
