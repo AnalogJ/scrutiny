@@ -19,7 +19,11 @@ type SmartNvmeAttribute struct {
 	FailureRate      float64             `json:"failure_rate,omitempty"`
 }
 
+// currently all attributes use Value, but just in case...
 func (sa *SmartNvmeAttribute) GetComparableValue() int64 {
+	if thresholds.NmveMetadata[sa.AttributeId].DisplayTransformed {
+		return sa.TransformedValue
+	}
 	return sa.Value
 }
 
