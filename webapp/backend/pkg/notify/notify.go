@@ -44,15 +44,16 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 	// setup constants for comparison
 	var requiredDeviceStatus pkg.DeviceStatus
 	var requiredAttrStatus pkg.AttributeStatus
-	if statusThreshold == pkg.MetricsStatusThresholdBoth {
+	switch statusThreshold {
+	case pkg.MetricsStatusThresholdBoth:
 		// either scrutiny or smart failures should trigger an email
 		requiredDeviceStatus = pkg.DeviceStatusSet(pkg.DeviceStatusFailedSmart, pkg.DeviceStatusFailedScrutiny)
 		requiredAttrStatus = pkg.AttributeStatusSet(pkg.AttributeStatusFailedSmart, pkg.AttributeStatusFailedScrutiny)
-	} else if statusThreshold == pkg.MetricsStatusThresholdSmart {
+	case pkg.MetricsStatusThresholdSmart:
 		//only smart failures
 		requiredDeviceStatus = pkg.DeviceStatusFailedSmart
 		requiredAttrStatus = pkg.AttributeStatusFailedSmart
-	} else {
+	default:
 		requiredDeviceStatus = pkg.DeviceStatusFailedScrutiny
 		requiredAttrStatus = pkg.AttributeStatusFailedScrutiny
 	}
