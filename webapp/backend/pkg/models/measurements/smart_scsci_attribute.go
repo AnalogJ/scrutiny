@@ -77,13 +77,16 @@ func (sa *SmartScsiAttribute) PopulateAttributeStatus() *SmartScsiAttribute {
 
 	//-1 is a special number meaning no threshold.
 	if sa.Threshold != -1 {
-		if smartMetadata, ok := thresholds.NmveMetadata[sa.AttributeId]; ok {
+		if smartMetadata, ok := thresholds.ScsiMetadata[sa.AttributeId]; ok {
 			//check what the ideal is. Ideal tells us if we our recorded value needs to be above, or below the threshold
 			value := sa.GetComparableValue()
 			if (smartMetadata.Ideal == "low" && value > sa.Threshold) ||
 				(smartMetadata.Ideal == "high" && value < sa.Threshold) {
 				sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedScrutiny)
-				sa.StatusReason = "Attribute is failing recommended SMART threshold"
+				sa.StatusReason = "Attribute is much larger than zero"
+			} else if smartMetadata.Ideal == "low" && value > 0 {
+				sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusWarningScrutiny)
+				sa.StatusReason = "Attribute is non-zero"
 			}
 		}
 	}
