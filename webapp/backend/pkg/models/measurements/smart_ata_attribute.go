@@ -25,8 +25,29 @@ type SmartAtaAttribute struct {
 	FailureRate      float64             `json:"failure_rate,omitempty"`
 }
 
-func (sa *SmartAtaAttribute) GetTransformedValue() int64 {
-	return sa.TransformedValue
+// we want ValidateThreshold() here and ShouldNotify() in notify.go to use
+// the same values for comparison so all the logic goes here
+func (sa *SmartAtaAttribute) GetComparableValue() int64 {
+	// PopulateAttributeStatus() below will immediately set the attr as failing
+	// if the normalized value is violating the manufacturer threshold, so
+	// we must short circuit to using that for comparison
+	if sa.isFailingNow() {
+		return sa.Value
+	}
+
+	switch thresholds.AtaMetadata[sa.AttributeId].DisplayType {
+	case thresholds.AtaSmartAttributeDisplayTypeNormalized:
+		return sa.Value
+	case thresholds.AtaSmartAttributeDisplayTypeTransformed:
+		return sa.TransformedValue
+	// empty DisplayType gives us nothing to go on
+	default:
+		return sa.RawValue
+	}
+}
+
+func (sa *SmartAtaAttribute) isFailingNow() bool {
+	return strings.ToUpper(sa.WhenFailed) == pkg.AttributeWhenFailedFailingNow
 }
 
 func (sa *SmartAtaAttribute) GetStatus() pkg.AttributeStatus {
@@ -94,7 +115,7 @@ func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
 // populate attribute status, using SMART Thresholds & Observed Metadata
 // Chainable
 func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
-	if strings.ToUpper(sa.WhenFailed) == pkg.AttributeWhenFailedFailingNow {
+	if sa.isFailingNow() {
 		//this attribute has previously failed
 		sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedSmart)
 		sa.StatusReason += "Attribute is failing manufacturer SMART threshold"
@@ -106,15 +127,18 @@ func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
 		sa.StatusReason += "Attribute has previously failed manufacturer SMART threshold"
 	}
 
-	if smartMetadata, ok := thresholds.AtaMetadata[sa.AttributeId]; ok {
-		sa.ValidateThreshold(smartMetadata)
-	}
+	sa.ValidateThreshold()
 
 	return sa
 }
 
 // compare the attribute (raw, normalized, transformed) value to observed thresholds, and update status if necessary
-func (sa *SmartAtaAttribute) ValidateThreshold(smartMetadata thresholds.AtaAttributeMetadata) {
+func (sa *SmartAtaAttribute) ValidateThreshold() {
+	smartMetadata, ok := thresholds.AtaMetadata[sa.AttributeId]
+	if !ok {
+		return
+	}
+
 	//TODO: multiple rules
 	// try to predict the failure rates for observed thresholds that have 0 failure rate and error bars.
 	// - if the attribute is critical
@@ -125,14 +149,7 @@ func (sa *SmartAtaAttribute) ValidateThreshold(smartMetadata thresholds.AtaAttri
 	// 		- if failure rate is above 10 but below 20 - set to warn
 
 	//update the smart attribute status based on Observed thresholds.
-	var value int64
-	if smartMetadata.DisplayType == thresholds.AtaSmartAttributeDisplayTypeNormalized {
-		value = int64(sa.Value)
-	} else if smartMetadata.DisplayType == thresholds.AtaSmartAttributeDisplayTypeTransformed {
-		value = sa.TransformedValue
-	} else {
-		value = sa.RawValue
-	}
+	value := sa.GetComparableValue()
 
 	for _, obsThresh := range smartMetadata.ObservedThresholds {
 
