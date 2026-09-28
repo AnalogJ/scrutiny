@@ -19,7 +19,11 @@ type SmartScsiAttribute struct {
 	FailureRate      float64             `json:"failure_rate,omitempty"`
 }
 
+// currently all attributes use Value, but just in case...
 func (sa *SmartScsiAttribute) GetComparableValue() int64 {
+	if thresholds.ScsiMetadata[sa.AttributeId].DisplayTransformed {
+		return sa.TransformedValue
+	}
 	return sa.Value
 }
 
