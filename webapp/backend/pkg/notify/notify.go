@@ -102,7 +102,7 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 	var err error
 	if !repeatNotifications {
 		lastPoints, err = deviceRepo.GetSmartAttributeHistory(c, scrutiny_uuid, database.DURATION_KEY_FOREVER, 0, 1, 1, failingAttributes)
-		if err == nil || len(lastPoints) < 1 {
+		if err != nil || len(lastPoints) < 1 {
 			logger.Warningln("Could not get the most recent data points from the database. This is expected to happen only if this is the very first submission of data for the device.")
 		}
 	}
