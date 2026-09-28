@@ -87,6 +87,9 @@ func (sa *SmartNvmeAttribute) PopulateAttributeStatus() *SmartNvmeAttribute {
 			}
 		}
 	}
+	if sa.AttributeId == "critical_warning" && sa.Value != 0 {
+		sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedSmart)
+	}
 	//TODO: eventually figure out the critical_warning bits and determine correct error messages here.
 
 	return sa

@@ -193,6 +193,26 @@ func TestShouldNotify_MetricsStatusFilterAttributesCritical_MetricsStatusThresho
 	//assert
 	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, scrutinyUUID, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
 }
+func TestShouldNotify_MetricsStatusFilterAttributesCritical_MetricsStatusThresholdSmart_NvmeCriticalWarning(t *testing.T) {
+	t.Parallel()
+	//setup
+	device := models.Device{
+		DeviceProtocol: pkg.DeviceProtocolNvme,
+		DeviceStatus:   pkg.DeviceStatusSet(pkg.DeviceStatusFailedSmart, pkg.DeviceStatusFailedScrutiny),
+	}
+	smartAttrs := measurements.Smart{Attributes: map[string]measurements.SmartAttribute{
+		"critical_warning": (&measurements.SmartNvmeAttribute{AttributeId: "critical_warning", Value: 1, Threshold: 0}).PopulateAttributeStatus(),
+	}}
+	statusThreshold := pkg.MetricsStatusThresholdSmart
+	notifyFilterAttributes := pkg.MetricsStatusFilterAttributesCritical
+	scrutinyUUID := uuid.Must(uuid.NewV4())
+	mockCtrl := gomock.NewController(t)
+	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
+
+	//assert
+	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, scrutinyUUID, statusThreshold, notifyFilterAttributes, true, &gin.Context{}, fakeDatabase))
+}
+
 func TestShouldNotify_NoRepeat_DatabaseFailure(t *testing.T) {
 	t.Parallel()
 	//setup
