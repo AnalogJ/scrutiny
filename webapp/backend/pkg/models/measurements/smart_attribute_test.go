@@ -56,6 +56,38 @@ func TestSmartNvmeAttribute_GetComparableValue(t *testing.T) {
 	require.Equal(t, int64(5), attr.GetComparableValue())
 }
 
+func TestSmartNvmeAttribute_PopulateAttributeStatus(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name     string
+		attr     measurements.SmartNvmeAttribute
+		expected pkg.AttributeStatus
+	}{
+		{
+			name:     "zero critical warning passes",
+			attr:     measurements.SmartNvmeAttribute{AttributeId: "critical_warning", Value: 0, Threshold: 0},
+			expected: pkg.AttributeStatusPassed,
+		},
+		{
+			name:     "non-zero critical warning is both a scrutiny and a SMART failure",
+			attr:     measurements.SmartNvmeAttribute{AttributeId: "critical_warning", Value: 4, Threshold: 0},
+			expected: pkg.AttributeStatusSet(pkg.AttributeStatusFailedScrutiny, pkg.AttributeStatusFailedSmart),
+		},
+		{
+			name:     "other attributes failing their threshold are only a scrutiny failure",
+			attr:     measurements.SmartNvmeAttribute{AttributeId: "media_errors", Value: 3, Threshold: 0},
+			expected: pkg.AttributeStatusFailedScrutiny,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			require.Equal(t, tc.expected, tc.attr.PopulateAttributeStatus().Status)
+		})
+	}
+}
+
 func TestSmartScsiAttribute_GetComparableValue(t *testing.T) {
 	t.Parallel()
 	attr := measurements.SmartScsiAttribute{AttributeId: "scsi_grown_defect_list", Value: 12}
