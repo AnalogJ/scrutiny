@@ -115,7 +115,7 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 			}
 			// This is checked again here to avoid repeating the entire for loop in the check above.
 			// Probably unnoticeably worse performance, but cleaner code.
-			if err != nil || len(lastPoints) < 1 || lastPoints[0].Attributes[attrId].GetTransformedValue() != smartAttrs.Attributes[attrId].GetTransformedValue() {
+			if err != nil || len(lastPoints) < 1 || lastPoints[0].Attributes[attrId].GetComparableValue() != smartAttrs.Attributes[attrId].GetComparableValue() {
 				return true
 			}
 		}

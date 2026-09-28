@@ -10,7 +10,6 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"github.com/gofrs/uuid/v5"
 	"github.com/stretchr/testify/require"
 )
@@ -550,7 +549,7 @@ func TestSmartAtaAttribute_ValidateThreshold_BucketBoundaries(t *testing.T) {
 				RawValue:         testCase.rawValue,
 				TransformedValue: testCase.transformedValue,
 			}
-			attribute.ValidateThreshold(thresholds.AtaMetadata[testCase.attributeId])
+			attribute.ValidateThreshold()
 
 			//assert
 			require.Equal(t, testCase.expectedStatus, attribute.Status)
