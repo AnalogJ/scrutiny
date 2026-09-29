@@ -394,6 +394,8 @@ func TestFromCollectorSmartInfo_Fail_ScrutinySmart(t *testing.T) {
 	require.Equal(t, smartUUID, smartMdl.ScrutinyUUID)
 	require.Equal(t, pkg.DeviceStatusFailedScrutiny|pkg.DeviceStatusFailedSmart, smartMdl.Status)
 	require.Equal(t, 17, len(smartMdl.Attributes))
+	require.True(t, pkg.AttributeStatusHas(smartMdl.Attributes["5"].GetStatus(), pkg.AttributeStatusFailedSmart))
+	require.Equal(t, int64(1), smartMdl.Attributes["5"].GetComparableValue())
 }
 
 func TestFromCollectorSmartInfo_Fail_ScrutinyNonCriticalFailed(t *testing.T) {
