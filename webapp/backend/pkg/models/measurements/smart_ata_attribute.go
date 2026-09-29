@@ -47,7 +47,7 @@ func (sa *SmartAtaAttribute) GetComparableValue() int64 {
 }
 
 func (sa *SmartAtaAttribute) isFailingNow() bool {
-	return strings.ToUpper(sa.WhenFailed) == pkg.AttributeWhenFailedFailingNow
+	return strings.EqualFold(sa.WhenFailed, pkg.AttributeWhenFailedFailingNow)
 }
 
 func (sa *SmartAtaAttribute) GetStatus() pkg.AttributeStatus {
@@ -122,7 +122,7 @@ func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
 		//if the Smart Status is failed, we should exit early, no need to look at thresholds.
 		return sa
 
-	} else if strings.ToUpper(sa.WhenFailed) == pkg.AttributeWhenFailedInThePast {
+	} else if strings.EqualFold(sa.WhenFailed, pkg.AttributeWhenFailedInThePast) {
 		sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusWarningScrutiny)
 		sa.StatusReason += "Attribute has previously failed manufacturer SMART threshold"
 	}

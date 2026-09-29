@@ -16,8 +16,11 @@ const (
 	AttributeStatusFailedScrutiny  AttributeStatus = 4
 )
 
-const AttributeWhenFailedFailingNow = "FAILING_NOW"
-const AttributeWhenFailedInThePast = "IN_THE_PAST"
+// these need to match smartctl output
+// see https://github.com/smartmontools/smartmontools/blob/249b38c426330f5d267c8a9895d1ede591ee8519/smartmontools/ataprint.cpp#L1260-L1265 (7.1)
+// and https://github.com/smartmontools/smartmontools/blob/f276b249fdc84019403491303479485030ac7c80/smartmontools/ataprint.cpp#L1332-L1337 (7.5)
+const AttributeWhenFailedFailingNow = "now"
+const AttributeWhenFailedInThePast = "past"
 
 func AttributeStatusSet(b, flag AttributeStatus) AttributeStatus    { return b | flag }
 func AttributeStatusClear(b, flag AttributeStatus) AttributeStatus  { return b &^ flag }

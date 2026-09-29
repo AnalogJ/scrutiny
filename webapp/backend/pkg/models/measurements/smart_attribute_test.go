@@ -38,7 +38,7 @@ func TestSmartAtaAttribute_GetComparableValue(t *testing.T) {
 		},
 		{
 			name:     "manufacturer SMART failure uses the normalized Value regardless of display type",
-			attr:     measurements.SmartAtaAttribute{AttributeId: 5, Value: 5, Threshold: 10, RawValue: 200, WhenFailed: pkg.AttributeWhenFailedFailingNow},
+			attr:     measurements.SmartAtaAttribute{AttributeId: 5, Value: 5, Threshold: 10, RawValue: 200, WhenFailed: "now"},
 			expected: 5,
 		},
 	}
@@ -127,6 +127,31 @@ func TestSmartScsiAttribute_PopulateAttributeStatus(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			require.Equal(t, tc.expected, tc.attr.PopulateAttributeStatus().Status)
+		})
+	}
+}
+
+func TestSmartAtaAttribute_PopulateAttributeStatus_WhenFailed(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		whenFailed      string
+		failedSmart     bool
+		warningScrutiny bool
+	}{
+		{whenFailed: "now", failedSmart: true},
+		{whenFailed: "past", warningScrutiny: true},
+		{whenFailed: ""},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.whenFailed, func(t *testing.T) {
+			// attr 5 with raw 0 passes Scrutiny's observed thresholds, so only when_failed affects the status
+			attr := measurements.SmartAtaAttribute{AttributeId: 5, Value: 5, Threshold: 10, RawValue: 0, WhenFailed: tc.whenFailed}
+			attr.PopulateAttributeStatus()
+
+			require.Equal(t, tc.failedSmart, pkg.AttributeStatusHas(attr.Status, pkg.AttributeStatusFailedSmart))
+			require.Equal(t, tc.warningScrutiny, pkg.AttributeStatusHas(attr.Status, pkg.AttributeStatusWarningScrutiny))
 		})
 	}
 }
