@@ -31,6 +31,8 @@ export const sdd = {
             'temp': 34,
             'power_on_hours': 43549,
             'power_cycle_count': 0,
+            'total_bytes_read': 176987332000000,
+            'total_bytes_written': 86472611000000,
             'attrs': {
                 'read_correction_algorithm_invocations': {
                     'attribute_id': 'read_correction_algorithm_invocations',

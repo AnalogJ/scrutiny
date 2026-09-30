@@ -3,6 +3,7 @@ package measurements
 import (
 	"fmt"
 	"log"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -23,6 +24,9 @@ type Smart struct {
 	Temp            int64 `json:"temp"`
 	PowerOnHours    int64 `json:"power_on_hours"`
 	PowerCycleCount int64 `json:"power_cycle_count"`
+	// nil when the device doesn't report a unit-safe source for these totals
+	TotalBytesRead    *int64 `json:"total_bytes_read,omitempty"`
+	TotalBytesWritten *int64 `json:"total_bytes_written,omitempty"`
 
 	//Attributes (fields)
 	Attributes map[string]SmartAttribute `json:"attrs"`
@@ -41,6 +45,12 @@ func (sm *Smart) Flatten() (tags map[string]string, fields map[string]interface{
 		"temp":              sm.Temp,
 		"power_on_hours":    sm.PowerOnHours,
 		"power_cycle_count": sm.PowerCycleCount,
+	}
+	if sm.TotalBytesRead != nil {
+		fields["total_bytes_read"] = *sm.TotalBytesRead
+	}
+	if sm.TotalBytesWritten != nil {
+		fields["total_bytes_written"] = *sm.TotalBytesWritten
 	}
 
 	for _, attr := range sm.Attributes {
@@ -93,6 +103,20 @@ func NewSmartFromInfluxDB(attrs map[string]interface{}) (*Smart, error) {
 			} else {
 				log.Printf("unable to parse power_cycle_count information: %v", val)
 			}
+		case "total_bytes_read":
+			totalRead, totalReadOk := val.(int64)
+			if totalReadOk {
+				sm.TotalBytesRead = &totalRead
+			} else {
+				log.Printf("unable to parse total_bytes_read information: %v", val)
+			}
+		case "total_bytes_written":
+			totalWritten, totalWrittenOk := val.(int64)
+			if totalWrittenOk {
+				sm.TotalBytesWritten = &totalWritten
+			} else {
+				log.Printf("unable to parse total_bytes_written information: %v", val)
+			}
 		default:
 			// this key is unknown.
 			if !strings.HasPrefix(key, "attr.") {
@@ -143,13 +167,58 @@ func (sm *Smart) FromCollectorSmartInfo(scrutiny_uuid uuid.UUID, info collector.
 	switch sm.DeviceProtocol {
 	case pkg.DeviceProtocolAta:
 		sm.ProcessAtaSmartInfo(info.AtaSmartAttributes.Table)
+		sm.TotalBytesRead = ataDeviceStatisticBytes(info, ataStatLogicalSectorsRead)
+		sm.TotalBytesWritten = ataDeviceStatisticBytes(info, ataStatLogicalSectorsWritten)
 	case pkg.DeviceProtocolNvme:
 		sm.ProcessNvmeSmartInfo(info.NvmeSmartHealthInformationLog)
+		read := info.NvmeSmartHealthInformationLog.DataUnitsRead * nvmeDataUnitBytes
+		written := info.NvmeSmartHealthInformationLog.DataUnitsWritten * nvmeDataUnitBytes
+		sm.TotalBytesRead, sm.TotalBytesWritten = &read, &written
 	case pkg.DeviceProtocolScsi:
 		sm.ProcessScsiSmartInfo(info.ScsiGrownDefectList, info.ScsiErrorCounterLog)
+		sm.TotalBytesRead = scsiGigabytesToBytes(info.ScsiErrorCounterLog.Read.GigabytesProcessed)
+		sm.TotalBytesWritten = scsiGigabytesToBytes(info.ScsiErrorCounterLog.Write.GigabytesProcessed)
 	}
 
 	return nil
+}
+
+// Offsets into ATA Device Statistics (log 0x04) page 1, "General Statistics".
+// Unlike attributes 241/242, these are defined by ACS in logical sectors.
+const (
+	ataStatLogicalSectorsWritten = 0x18
+	ataStatLogicalSectorsRead    = 0x28
+)
+
+// NVMe data units are 1000 units of 512 bytes.
+const nvmeDataUnitBytes = 1000 * 512
+
+func ataDeviceStatisticBytes(info collector.SmartInfo, offset int) *int64 {
+	if info.LogicalBlockSize <= 0 {
+		return nil
+	}
+	for _, page := range info.AtaDeviceStatistics.Pages {
+		if page.Number != 1 {
+			continue
+		}
+		for _, stat := range page.Table {
+			if stat.Offset == offset && stat.Flags.Valid {
+				bytes := stat.Value * int64(info.LogicalBlockSize)
+				return &bytes
+			}
+		}
+	}
+	return nil
+}
+
+// smartctl reports SCSI gigabytes processed as a decimal string in units of 10^9 bytes.
+func scsiGigabytesToBytes(gigabytes string) *int64 {
+	gb, err := strconv.ParseFloat(gigabytes, 64)
+	if err != nil {
+		return nil
+	}
+	bytes := int64(math.Round(gb * 1e9))
+	return &bytes
 }
 
 // generate SmartAtaAttribute entries from Scrutiny Collector Smart data.

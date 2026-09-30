@@ -130,6 +130,14 @@
                         <div matTooltip="{{humanizeDuration(smart_results[0]?.power_on_hours * 60 * 60 * 1000, { conjunction: ' and ', serialComma: false })}}">{{ smart_results[0]?.power_on_hours | deviceHours:config.powered_on_hours_unit:{ round: true, largest: 1, units: ['y', 'd', 'h'] } }}</div>
                         <div class="text-secondary text-md">Powered On</div>
                     </div>
+                    <div *ngIf="smart_results[0]?.total_bytes_read != null" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{ smart_results[0].total_bytes_read | fileSize:config.file_size_si_units }}</div>
+                        <div class="text-secondary text-md">Total Reads</div>
+                    </div>
+                    <div *ngIf="smart_results[0]?.total_bytes_written != null" class="my-2 col-span-2 lt-md:col-span-1">
+                        <div>{{ smart_results[0].total_bytes_written | fileSize:config.file_size_si_units }}</div>
+                        <div class="text-secondary text-md">Total Writes</div>
+                    </div>
                     <div class="my-2 col-span-2 lt-md:col-span-1">
                         <div>{{smart_results[0]?.temp | temperature:config.temperature_unit:true}}</div>
                         <div class="text-secondary text-md">Temperature</div>

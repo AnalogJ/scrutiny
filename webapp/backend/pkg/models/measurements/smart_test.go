@@ -37,6 +37,24 @@ func TestSmart_Flatten(t *testing.T) {
 	require.Equal(t, map[string]interface{}{"power_cycle_count": int64(10), "power_on_hours": int64(10), "temp": int64(50)}, fields)
 }
 
+func TestSmart_Flatten_TotalBytes(t *testing.T) {
+	//setup
+	read, written := int64(1000), int64(2000)
+	smart := measurements.Smart{
+		ScrutinyUUID:      uuid.Must(uuid.NewV4()),
+		DeviceProtocol:    pkg.DeviceProtocolAta,
+		TotalBytesRead:    &read,
+		TotalBytesWritten: &written,
+	}
+
+	//test
+	_, fields := smart.Flatten()
+
+	//assert
+	require.Equal(t, int64(1000), fields["total_bytes_read"])
+	require.Equal(t, int64(2000), fields["total_bytes_written"])
+}
+
 func TestSmart_Flatten_ATA(t *testing.T) {
 	//setup
 	timeNow := time.Now()
@@ -206,6 +224,8 @@ func TestNewSmartFromInfluxDB_ATA(t *testing.T) {
 		"power_cycle_count":        int64(10),
 		"power_on_hours":           int64(10),
 		"temp":                     int64(50),
+		"total_bytes_read":         int64(1000),
+		"total_bytes_written":      int64(2000),
 	}
 
 	//test
@@ -213,13 +233,16 @@ func TestNewSmartFromInfluxDB_ATA(t *testing.T) {
 
 	//assert
 	require.NoError(t, err)
+	read, written := int64(1000), int64(2000)
 	require.Equal(t, &measurements.Smart{
-		Date:            timeNow,
-		ScrutinyUUID:    smartUUID,
-		DeviceProtocol:  "ATA",
-		Temp:            50,
-		PowerOnHours:    10,
-		PowerCycleCount: 10,
+		Date:              timeNow,
+		ScrutinyUUID:      smartUUID,
+		DeviceProtocol:    "ATA",
+		Temp:              50,
+		PowerOnHours:      10,
+		PowerCycleCount:   10,
+		TotalBytesRead:    &read,
+		TotalBytesWritten: &written,
 		Attributes: map[string]measurements.SmartAttribute{
 			"1": &measurements.SmartAtaAttribute{
 				AttributeId: 1,
@@ -344,6 +367,39 @@ func TestFromCollectorSmartInfo(t *testing.T) {
 	//ensure that Scrutiny warning for a non critical attribute does not set device status to failed.
 	require.Equal(t, pkg.AttributeStatusWarningScrutiny, smartMdl.Attributes["3"].GetStatus())
 
+	//no device statistics log, so totals are unknown
+	require.Nil(t, smartMdl.TotalBytesRead)
+	require.Nil(t, smartMdl.TotalBytesWritten)
+}
+
+func TestFromCollectorSmartInfo_AtaDeviceStatistics(t *testing.T) {
+	//setup
+	smartDataFile, err := os.Open("../testdata/smart-ata-full.json")
+	require.NoError(t, err)
+	defer smartDataFile.Close()
+
+	var smartJson collector.SmartInfo
+
+	smartDataBytes, err := io.ReadAll(smartDataFile)
+	require.NoError(t, err)
+	err = json.Unmarshal(smartDataBytes, &smartJson)
+	require.NoError(t, err)
+
+	//test
+	smartMdl := measurements.Smart{}
+	err = smartMdl.FromCollectorSmartInfo(uuid.Must(uuid.NewV4()), smartJson)
+
+	//assert
+	require.NoError(t, err)
+	require.Equal(t, int64(34909544344*512), *smartMdl.TotalBytesRead)
+	require.Equal(t, int64(64777770148*512), *smartMdl.TotalBytesWritten)
+
+	//an unknown logical block size makes the totals unknown
+	smartJson.LogicalBlockSize = 0
+	err = smartMdl.FromCollectorSmartInfo(uuid.Must(uuid.NewV4()), smartJson)
+	require.NoError(t, err)
+	require.Nil(t, smartMdl.TotalBytesRead)
+	require.Nil(t, smartMdl.TotalBytesWritten)
 }
 
 func TestFromCollectorSmartInfo_Fail_Smart(t *testing.T) {
@@ -490,6 +546,9 @@ func TestFromCollectorSmartInfo_Nvme(t *testing.T) {
 
 	require.Equal(t, int64(111303174), smartMdl.Attributes["host_reads"].(*measurements.SmartNvmeAttribute).Value)
 	require.Equal(t, int64(83170961), smartMdl.Attributes["host_writes"].(*measurements.SmartNvmeAttribute).Value)
+
+	require.Equal(t, int64(9511859*1000*512), *smartMdl.TotalBytesRead)
+	require.Equal(t, int64(7773431*1000*512), *smartMdl.TotalBytesWritten)
 }
 
 func TestFromCollectorSmartInfo_Scsi(t *testing.T) {
@@ -519,6 +578,10 @@ func TestFromCollectorSmartInfo_Scsi(t *testing.T) {
 	require.Equal(t, int64(56), smartMdl.Attributes["scsi_grown_defect_list"].(*measurements.SmartScsiAttribute).Value)
 	require.Equal(t, pkg.AttributeStatusFailedScrutiny, smartMdl.Attributes["scsi_grown_defect_list"].GetStatus())
 	require.Equal(t, int64(300357663), smartMdl.Attributes["read_errors_corrected_by_eccfast"].(*measurements.SmartScsiAttribute).Value) //total_errors_corrected
+
+	//gigabytes_processed "176987.332" and "86472.611"
+	require.Equal(t, int64(176987332000000), *smartMdl.TotalBytesRead)
+	require.Equal(t, int64(86472611000000), *smartMdl.TotalBytesWritten)
 }
 
 func TestSmartAtaAttribute_ValidateThreshold_BucketBoundaries(t *testing.T) {
