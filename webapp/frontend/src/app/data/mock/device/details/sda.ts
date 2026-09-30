@@ -32,6 +32,8 @@ export const sda = {
             'temp': 36,
             'power_on_hours': 2401,
             'power_cycle_count': 266,
+            'total_bytes_read': 4870071808000,
+            'total_bytes_written': 3979996672000,
             'attrs': {
                 'available_spare': {
                     'attribute_id': 'available_spare',

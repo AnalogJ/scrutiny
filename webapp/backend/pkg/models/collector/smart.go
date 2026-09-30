@@ -137,6 +137,18 @@ type SmartInfo struct {
 		Revision int                           `json:"revision"`
 		Table    []AtaSmartAttributesTableItem `json:"table"`
 	} `json:"ata_smart_attributes"`
+	AtaDeviceStatistics struct {
+		Pages []struct {
+			Number int `json:"number"`
+			Table  []struct {
+				Offset int   `json:"offset"`
+				Value  int64 `json:"value"`
+				Flags  struct {
+					Valid bool `json:"valid"`
+				} `json:"flags"`
+			} `json:"table"`
+		} `json:"pages"`
+	} `json:"ata_device_statistics"`
 	AtaSmartErrorLog struct {
 		Summary struct {
 			Revision    int `json:"revision"`
