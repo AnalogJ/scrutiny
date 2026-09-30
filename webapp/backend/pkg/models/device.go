@@ -44,6 +44,8 @@ type Device struct {
 	// User provided metadata
 	Label  string `json:"label"`
 	HostId string `json:"host_id"`
+	// from the `devices` config, so not stored
+	FriendlyName string `json:"friendly_name,omitempty" gorm:"-"`
 
 	// Data set by Scrutiny
 	DeviceStatus pkg.DeviceStatus `json:"device_status"`
