@@ -16,7 +16,7 @@ Data is provided to this script using the following environmental variables:
 ```
 SCRUTINY_SUBJECT - 	eg. "Scrutiny SMART error (%s) detected on device: %s"
 SCRUTINY_DATE 
-SCRUTINY_FAILURE_TYPE - EmailTest, SmartFail, ScrutinyFail
+SCRUTINY_FAILURE_TYPE - EmailTest, SmartFailure, ScrutinyFailure, CollectorError, MissedUpload
 SCRUTINY_DEVICE_NAME - eg. /dev/sda
 SCRUTINY_DEVICE_TYPE - ATA/SCSI/NVMe
 SCRUTINY_DEVICE_SERIAL - eg. WDDJ324KSO
