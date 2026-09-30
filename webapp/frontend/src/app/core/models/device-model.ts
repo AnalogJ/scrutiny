@@ -23,6 +23,7 @@ export interface DeviceModel {
 
     label: string;
     host_id: string;
+    friendly_name?: string;
 
     device_status: number;
 }
