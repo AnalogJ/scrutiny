@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/thresholds"
 	"github.com/gin-gonic/gin"
@@ -13,6 +14,7 @@ import (
 
 func GetDeviceDetails(c *gin.Context) {
 	logger := c.MustGet("LOGGER").(*logrus.Entry)
+	appConfig := c.MustGet("CONFIG").(config.Interface)
 	deviceRepo := c.MustGet("DEVICE_REPOSITORY").(database.DeviceRepo)
 	scrutiny_uuid, err := uuid.FromString(c.Param("scrutiny_uuid"))
 	if err != nil {
@@ -26,6 +28,7 @@ func GetDeviceDetails(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
 		return
 	}
+	device.FriendlyName = config.GetFriendlyNames(appConfig)[scrutiny_uuid]
 
 	durationKey, exists := c.GetQuery("duration_key")
 	if !exists {

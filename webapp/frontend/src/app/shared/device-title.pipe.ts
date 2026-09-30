@@ -7,6 +7,8 @@ import {DeviceModel} from 'app/core/models/device-model';
 export class DeviceTitlePipe implements PipeTransform {
 
     static deviceTitleForType(device: DeviceModel, titleType: string): string {
+        // set in scrutiny.yaml, so it wins over the dashboard display setting
+        if (device.friendly_name) return device.friendly_name
         const titleParts = []
         switch(titleType){
             case 'name':
