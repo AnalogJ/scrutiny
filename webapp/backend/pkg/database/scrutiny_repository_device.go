@@ -68,6 +68,10 @@ func (sr *scrutinyRepository) UpdateDeviceStatus(ctx context.Context, scrutiny_u
 	return device, sr.gormClient.Model(&device).Where("scrutiny_uuid = ?", scrutiny_uuid.String()).Update("device_status", status).Error
 }
 
+func (sr *scrutinyRepository) UpdateDeviceEstimatedUploadPeriod(ctx context.Context, scrutiny_uuid uuid.UUID, period time.Duration) error {
+	return sr.gormClient.WithContext(ctx).Model(&models.Device{}).Where("scrutiny_uuid = ?", scrutiny_uuid.String()).Update("estimated_upload_period", period).Error
+}
+
 func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, scrutiny_uuid uuid.UUID) (models.Device, error) {
 	var device models.Device
 

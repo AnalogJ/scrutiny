@@ -9,6 +9,7 @@ import (
 	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/notify"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/handler"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/middleware"
 	"github.com/gin-gonic/gin"
@@ -24,8 +25,14 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 	r := gin.New()
 
 	r.Use(middleware.LoggerMiddleware(logger))
-	r.Use(middleware.RepositoryMiddleware(ae.Config, logger))
+	deviceRepo := middleware.NewRepository(ae.Config, logger)
+	r.Use(middleware.RepositoryMiddleware(deviceRepo))
 	r.Use(middleware.ConfigMiddleware(ae.Config))
+	missedUploadTracker := notify.NewMissedUploadTracker(logger, ae.Config, deviceRepo)
+	r.Use(func(c *gin.Context) {
+		c.Set("MISSED_UPLOAD_TRACKER", missedUploadTracker)
+		c.Next()
+	})
 	r.Use(gin.Recovery())
 
 	basePath := ae.Config.GetString("web.listen.basepath")

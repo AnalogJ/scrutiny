@@ -24,6 +24,7 @@ type DeviceRepo interface {
 	GetDeviceDetails(ctx context.Context, scrutiny_uuid uuid.UUID) (models.Device, error)
 	UpdateDeviceArchived(ctx context.Context, scrutiny_uuid uuid.UUID, archived bool) error
 	DeleteDevice(ctx context.Context, scrutiny_uuid uuid.UUID) error
+	UpdateDeviceEstimatedUploadPeriod(ctx context.Context, scrutiny_uuid uuid.UUID, period time.Duration) error
 
 	SaveSmartAttributes(ctx context.Context, scrutiny_uuid uuid.UUID, collectorSmartData collector.SmartInfo) (measurements.Smart, error)
 	GetSmartAttributeHistory(ctx context.Context, scrutiny_uuid uuid.UUID, durationKey string, aggregationWindow time.Duration, selectEntries int, selectEntriesOffset int, attributes []string) ([]measurements.Smart, error)
