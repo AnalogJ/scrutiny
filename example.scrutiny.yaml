@@ -57,6 +57,16 @@ log:
   file: '' #absolute or relative paths allowed, eg. web.log
   level: INFO
 
+# Per-device settings. A device's scrutiny_uuid is the last part of its details page URL (/web/device/<scrutiny_uuid>).
+#devices:
+#  - scrutiny_uuid: 9a4d34b5-b2ee-51ef-8506-90eea09be417
+#    notifications:
+#      # notify when the device's next upload is more than 10% later than upload_period. On for all devices by default.
+#      on_missed_upload: true
+#      # optional time between the collector's uploads, eg. 24h or 1h30m. Unset or 0 (default) estimates it from the
+#      # device's last 3 uploads, once the 2 intervals between them are within 10% of each other.
+#      upload_period: 24h
+
 
 # Notification "urls" look like the following. For more information about service specific configuration see
 # Shoutrrr's documentation: https://shoutrrr.nickfedor.com/services/overview/

@@ -48,6 +48,9 @@ type Device struct {
 	// Data set by Scrutiny
 	DeviceStatus pkg.DeviceStatus `json:"device_status"`
 	ScrutinyUUID uuid.UUID        `json:"scrutiny_uuid" gorm:"primaryKey;uniqueIndex"`
+
+	// time between uploads as estimated by the missed upload tracker, 0 if unknown
+	EstimatedUploadPeriod time.Duration `json:"-" gorm:"not null;default:0"`
 }
 
 func (dv *Device) IsAta() bool {

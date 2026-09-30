@@ -8,8 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func RepositoryMiddleware(appConfig config.Interface, globalLogger logrus.FieldLogger) gin.HandlerFunc {
-
+func NewRepository(appConfig config.Interface, globalLogger logrus.FieldLogger) database.DeviceRepo {
 	deviceRepo, err := database.NewScrutinyRepository(appConfig, globalLogger)
 	if err != nil {
 		panic(err)
@@ -23,6 +22,10 @@ func RepositoryMiddleware(appConfig config.Interface, globalLogger logrus.FieldL
 
 	//settings.UpdateSettingEntries()
 
+	return deviceRepo
+}
+
+func RepositoryMiddleware(deviceRepo database.DeviceRepo) gin.HandlerFunc {
 	//TODO: determine where we can call defer deviceRepo.Close()
 	return func(c *gin.Context) {
 		c.Set("DEVICE_REPOSITORY", deviceRepo)
