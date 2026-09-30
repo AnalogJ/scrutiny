@@ -18,6 +18,7 @@ const DB_USER_SETTINGS_SUBKEY = "user"
 // DeviceConfig is an entry in the `devices` list
 type DeviceConfig struct {
 	ScrutinyUUID  string `mapstructure:"scrutiny_uuid"`
+	FriendlyName  string `mapstructure:"friendly_name"`
 	Notifications struct {
 		// nil means not set, which defaults to true. A pointer is needed because viper defaults are
 		// per key and can't reach into list elements, so a bool couldn't tell unset from false.
@@ -31,6 +32,19 @@ func (c *configuration) GetDevices() ([]DeviceConfig, error) {
 	var devices []DeviceConfig
 	err := c.UnmarshalKey("devices", &devices)
 	return devices, err
+}
+
+// GetFriendlyNames maps scrutiny UUIDs to the `friendly_name` set in `devices`
+func GetFriendlyNames(c Interface) map[uuid.UUID]string {
+	friendlyNames := map[uuid.UUID]string{}
+	// ValidateConfig already rejected invalid devices
+	devices, _ := c.GetDevices()
+	for _, device := range devices {
+		if len(device.FriendlyName) > 0 {
+			friendlyNames[uuid.FromStringOrNil(device.ScrutinyUUID)] = device.FriendlyName
+		}
+	}
+	return friendlyNames
 }
 
 // When initializing this class the following methods must be called:
