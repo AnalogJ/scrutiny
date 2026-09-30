@@ -239,7 +239,12 @@ func (p *Payload) GenerateCollectorErrorSubject() string {
 }
 
 func (p *Payload) GenerateCollectorErrorMessage(errorMessage string) string {
-	messageParts := []string{"Scrutiny collector error notification"}
+	return p.generateDeviceMessage("Scrutiny collector error notification", fmt.Sprintf("Error: %s", errorMessage))
+}
+
+// generateDeviceMessage lists the device fields that are set, then the details and the date
+func (p *Payload) generateDeviceMessage(title string, details ...string) string {
+	messageParts := []string{title}
 
 	if len(p.HostId) > 0 {
 		messageParts = append(messageParts, fmt.Sprintf("Host Id: %s", p.HostId))
@@ -254,11 +259,8 @@ func (p *Payload) GenerateCollectorErrorMessage(errorMessage string) string {
 		messageParts = append(messageParts, fmt.Sprintf("Device Type: %s", p.DeviceType))
 	}
 
-	messageParts = append(messageParts,
-		fmt.Sprintf("Error: %s", errorMessage),
-		"",
-		fmt.Sprintf("Date: %s", p.Date),
-	)
+	messageParts = append(messageParts, details...)
+	messageParts = append(messageParts, "", fmt.Sprintf("Date: %s", p.Date))
 
 	return strings.Join(messageParts, "\n")
 }
