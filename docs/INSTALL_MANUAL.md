@@ -8,6 +8,50 @@ Scrutiny is made up of three components: an influxdb Database, a collector and a
 
 > Note: the `/opt/scrutiny` directory is not hardcoded, you can use any directory name/path.
 
+## Debian/Ubuntu packages
+
+On Debian, Ubuntu and their derivatives you can install the webapp and the collector from the `.deb` files attached to
+each [Github release](https://github.com/analogj/scrutiny/releases) instead of following the Webapp/API and Collector
+sections below. Packages are available for `amd64`, `arm64`, `armhf` and `armel`.
+
+```sh
+# webapp/api, on the host that serves the dashboard
+wget https://github.com/AnalogJ/scrutiny/releases/latest/download/scrutiny-web_amd64.deb
+sudo apt install ./scrutiny-web_amd64.deb
+
+# collector, on every host with drives to monitor
+wget https://github.com/AnalogJ/scrutiny/releases/latest/download/scrutiny-collector_amd64.deb
+sudo apt install ./scrutiny-collector_amd64.deb
+```
+
+`scrutiny-web` installs:
+
+- the binary at `/usr/bin/scrutiny-web` (see `man scrutiny-web`) and the frontend at `/usr/share/scrutiny/web`
+- a config file at `/etc/scrutiny/scrutiny.yaml`, with the database at `/var/lib/scrutiny/scrutiny.db`
+- `scrutiny-web.service`, which is enabled and started on install
+
+The webapp still needs InfluxDB (see [below](#influxdb)). It connects to InfluxDB on `localhost:8086` by default. If
+InfluxDB runs elsewhere, edit `/etc/scrutiny/scrutiny.yaml` and run `sudo systemctl restart scrutiny-web`.
+
+`scrutiny-collector` depends on `smartmontools` 7.5 or newer, so your distribution must provide that version. It installs:
+
+- the binary at `/usr/bin/scrutiny-collector-metrics` (see `man scrutiny-collector-metrics`)
+- a config file at `/etc/scrutiny/collector.yml`, which sends data to `http://localhost:8080`
+- `scrutiny-collector.service` and an hourly `scrutiny-collector.timer`, which is enabled and started on install
+
+If the webapp runs on another host, set `api.endpoint` in `/etc/scrutiny/collector.yml`. To populate the dashboard
+without waiting for the timer, run the collector once:
+
+```sh
+sudo systemctl start scrutiny-collector.service
+```
+
+Nightly builds of both packages are attached as artifacts to the `Nightly` workflow runs.
+
+To build the packages yourself, run `make package-deb-collector package-deb-web`. `package-deb-web` uses the frontend
+in `dist/` and builds it first if `dist/` doesn't exist. To cross-compile, set `GOARCH`, and also `GOARM=5` or `GOARM=7`
+for 32-bit arm. The build is reproducible: building the same commit produces byte-identical `.deb` files.
+
 ## InfluxDB
 
 Please follow the official InfluxDB installation guide. Note, you'll need to install v2.8.0+. 
@@ -104,37 +148,6 @@ The webapp listens for traffic on `http://0.0.0.0:8080` by default.
 
 
 ## Collector
-
-### Debian/Ubuntu package
-
-On Debian, Ubuntu and their derivatives you can install the collector from the `.deb` attached to each
-[Github release](https://github.com/analogj/scrutiny/releases) instead of following the rest of this section.
-Packages are available for `amd64`, `arm64`, `armhf` and `armel`. The package depends on `smartmontools` 7.5 or newer,
-so your distribution must provide that version.
-
-```sh
-wget https://github.com/AnalogJ/scrutiny/releases/latest/download/scrutiny-collector_amd64.deb
-sudo apt install ./scrutiny-collector_amd64.deb
-```
-
-The package installs:
-
-- the collector binary at `/usr/bin/scrutiny-collector-metrics` (see `man scrutiny-collector-metrics`)
-- a commented config file at `/etc/scrutiny/collector.yml`
-- `scrutiny-collector.service` and an hourly `scrutiny-collector.timer`
-
-Edit `/etc/scrutiny/collector.yml` to point `api.endpoint` at your webapp, then enable the timer:
-
-```sh
-sudo systemctl enable --now scrutiny-collector.timer
-# optionally, run the collector once now to populate the dashboard
-sudo systemctl start scrutiny-collector.service
-```
-
-Nightly builds of the package are attached as artifacts to the `Docker - Nightly` workflow runs.
-
-To build the package yourself, run `make package-deb` (set `GOARCH`, and `GOARM=5` or `GOARM=7` for 32-bit arm, to
-cross-compile). The build is reproducible: building the same commit produces a byte-identical `.deb`.
 
 ### Dependencies
 

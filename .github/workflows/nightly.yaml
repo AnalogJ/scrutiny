@@ -1,4 +1,4 @@
-name: Docker - Nightly
+name: Nightly
 on:
   workflow_dispatch:
   # Note: this only runs on the default branch
@@ -102,8 +102,39 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  build_frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    container: node:lts-slim
+    permissions:
+      contents: read
+    steps:
+      - name: Git
+        run: |
+          apt-get update && apt-get install -y git make
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Build Frontend
+        env:
+          # the node:lts-slim image has no en_US.UTF-8 locale generated, and the
+          # runner injects LANG/LC_ALL=en_US.UTF-8 into every step regardless
+          LANG: C.UTF-8
+          LC_ALL: C.UTF-8
+        run: |
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+          (cd webapp/frontend && ./git.version.sh)
+          make binary-frontend
+          tar -czf scrutiny-web-frontend.tar.gz dist
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: scrutiny-web-frontend
+          path: scrutiny-web-frontend.tar.gz
+          retention-days: 1
+
   build_deb:
-    name: Build Debian package (${{ matrix.cfg.arch }})
+    name: Build Debian packages (${{ matrix.cfg.arch }})
+    needs: build_frontend
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -120,15 +151,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+      - name: Download frontend
+        uses: actions/download-artifact@v7
+        with:
+          name: scrutiny-web-frontend
       - uses: actions/setup-go@v6
         with:
           go-version: '1.25'
-      - name: Build Debian package
+      - name: Build Debian packages
         run: |
-          make package-deb NIGHTLY=1
+          tar -xzf scrutiny-web-frontend.tar.gz
+          make package-deb-collector package-deb-web NIGHTLY=1
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: scrutiny-collector-nightly-${{ matrix.cfg.arch }}
-          path: scrutiny-collector_${{ matrix.cfg.arch }}.deb
+          name: scrutiny-nightly-deb-${{ matrix.cfg.arch }}
+          path: |
+            scrutiny-collector_${{ matrix.cfg.arch }}.deb
+            scrutiny-web_${{ matrix.cfg.arch }}.deb
           if-no-files-found: error

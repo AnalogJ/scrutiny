@@ -1,0 +1,12 @@
+Package: scrutiny-web
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: Jason Kulatunga <jason@thesparktree.com>
+Installed-Size: @INSTALLED_SIZE@
+Recommends: influxdb2
+Section: admin
+Priority: optional
+Homepage: https://github.com/AnalogJ/scrutiny
+Description: S.M.A.R.T. monitoring web UI and API for Scrutiny
+ Receives S.M.A.R.T. metrics from Scrutiny collectors, stores them in InfluxDB
+ and serves the dashboard. Runs as the scrutiny-web systemd service.

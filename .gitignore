@@ -70,3 +70,4 @@ coverage.txt
 web.log
 /build/
 /scrutiny-collector_*.deb
+/scrutiny-web_*.deb

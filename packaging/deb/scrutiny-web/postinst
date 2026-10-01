@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = configure ] && command -v systemctl > /dev/null; then
+	if [ -d /run/systemd/system ]; then
+		systemctl daemon-reload
+	fi
+	# first install only, so an admin's disable survives upgrades
+	if [ -z "$2" ]; then
+		systemctl enable scrutiny-web.service
+		if [ -d /run/systemd/system ]; then
+			systemctl start scrutiny-web.service
+		fi
+	elif [ -d /run/systemd/system ]; then
+		systemctl try-restart scrutiny-web.service
+	fi
+fi
