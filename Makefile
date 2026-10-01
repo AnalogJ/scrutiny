@@ -97,6 +97,70 @@ ifneq ($(OS),Windows_NT)
 endif
 
 ########################################################################################################################
+# Debian package
+########################################################################################################################
+
+SCRUTINY_VERSION = $(shell sed -n 's/^const VERSION = "\(.*\)"/\1/p' webapp/backend/pkg/version/version.go)
+# NIGHTLY builds sort after the last release and before the next one
+DEB_VERSION = $(SCRUTINY_VERSION)$(if $(NIGHTLY),+git$(shell git log -1 --format=%cd --date=format:%Y%m%d).$(shell git rev-parse --short=7 HEAD))
+DEB_GOARCH = $(or $(GOARCH),$(shell go env GOARCH))
+DEB_ARCH = $(if $(filter arm,$(DEB_GOARCH)),$(if $(filter 7,$(GOARM)),armhf,$(if $(filter 5,$(GOARM)),armel,$(error GOARM must be 5 (armel) or 7 (armhf)))),$(DEB_GOARCH))
+# PKG is set per package target
+DEB_ROOT = build/deb/$(PKG)_$(DEB_ARCH)
+# reproducible: static, no local paths or VCS state embedded
+DEB_GO_BUILD = $(MAKE) STATIC=1 GOOS=linux GOARCH=$(DEB_GOARCH) GOFLAGS="-trimpath -buildvcs=false"
+
+define deb-start
+	rm -rf $(DEB_ROOT)
+	mkdir -p $(DEB_ROOT)/usr/bin $(DEB_ROOT)/usr/share/man/man8 $(DEB_ROOT)/etc/scrutiny $(DEB_ROOT)/DEBIAN
+endef
+
+define deb-finish
+	install -Dm644 LICENSE $(DEB_ROOT)/usr/share/doc/$(PKG)/copyright
+	cp $(addprefix packaging/deb/$(PKG)/,conffiles postinst prerm postrm) $(DEB_ROOT)/DEBIAN/
+	INSTALLED_SIZE=$$(find $(DEB_ROOT) -path $(DEB_ROOT)/DEBIAN -prune -o -type f -printf '%s\n' | awk '{ kb += int(($$1 + 1023) / 1024) } END { print kb }')
+	sed -e 's/@VERSION@/$(DEB_VERSION)/' -e 's/@ARCH@/$(DEB_ARCH)/' -e "s/@INSTALLED_SIZE@/$$INSTALLED_SIZE/" \
+		packaging/deb/$(PKG)/control > $(DEB_ROOT)/DEBIAN/control
+	# keep the umask and checkout modes out of the package
+	chmod -R u=rwX,go=rX $(DEB_ROOT)
+	dpkg-deb --root-owner-group -Zxz --build $(DEB_ROOT) $(PKG)_$(DEB_ARCH).deb
+endef
+
+package-deb-collector package-deb-web: export SOURCE_DATE_EPOCH ?= $(shell git log -1 --format=%ct)
+
+.PHONY: package-deb-collector
+package-deb-collector: PKG = scrutiny-collector
+package-deb-collector:
+	$(deb-start)
+	$(DEB_GO_BUILD) binary-collector COLLECTOR_BINARY_NAME=$(DEB_ROOT)/usr/bin/scrutiny-collector-metrics
+	install -Dm644 -t $(DEB_ROOT)/usr/lib/systemd/system packaging/systemd/scrutiny-collector.service packaging/systemd/scrutiny-collector.timer
+	sed -e 's/^#api:$$/api:/' -e "s|^#  endpoint: 'http://localhost:8080'$$|  endpoint: 'http://localhost:8080'|" \
+		example.collector.yaml > $(DEB_ROOT)/etc/scrutiny/collector.yml
+	grep -qx "  endpoint: 'http://localhost:8080'" $(DEB_ROOT)/etc/scrutiny/collector.yml
+	gzip -9n < docs/man/scrutiny-collector-metrics.8 > $(DEB_ROOT)/usr/share/man/man8/scrutiny-collector-metrics.8.gz
+	$(deb-finish)
+
+.PHONY: package-deb-web
+package-deb-web: PKG = scrutiny-web
+package-deb-web: dist
+	$(deb-start)
+	$(DEB_GO_BUILD) binary-web WEB_BINARY_NAME=$(DEB_ROOT)/usr/bin/scrutiny-web
+	install -Dm644 -t $(DEB_ROOT)/usr/lib/systemd/system packaging/systemd/scrutiny-web.service
+	mkdir -p $(DEB_ROOT)/usr/share/scrutiny
+	cp -r dist $(DEB_ROOT)/usr/share/scrutiny/web
+	sed -e 's#location: /opt/scrutiny/config/scrutiny.db#location: /var/lib/scrutiny/scrutiny.db#' \
+		-e 's#path: /opt/scrutiny/web#path: /usr/share/scrutiny/web#' \
+		example.scrutiny.yaml > $(DEB_ROOT)/etc/scrutiny/scrutiny.yaml
+	grep -q 'location: /var/lib/scrutiny/scrutiny.db' $(DEB_ROOT)/etc/scrutiny/scrutiny.yaml
+	grep -q 'path: /usr/share/scrutiny/web' $(DEB_ROOT)/etc/scrutiny/scrutiny.yaml
+	gzip -9n < docs/man/scrutiny-web.8 > $(DEB_ROOT)/usr/share/man/man8/scrutiny-web.8.gz
+	$(deb-finish)
+
+# reuses an existing frontend build, e.g. one extracted from CI
+dist:
+	$(MAKE) binary-frontend
+
+########################################################################################################################
 # Binary
 ########################################################################################################################
 

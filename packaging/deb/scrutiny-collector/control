@@ -1,0 +1,12 @@
+Package: scrutiny-collector
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: Jason Kulatunga <jason@thesparktree.com>
+Installed-Size: @INSTALLED_SIZE@
+Depends: smartmontools (>= 7.5)
+Section: admin
+Priority: optional
+Homepage: https://github.com/AnalogJ/scrutiny
+Description: S.M.A.R.T. metrics collector for Scrutiny
+ Runs smartctl against the local drives and sends the results to a Scrutiny
+ web/API server. A systemd timer runs the collector hourly once enabled.
