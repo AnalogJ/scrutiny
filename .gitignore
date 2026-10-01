@@ -68,3 +68,5 @@ coverage.txt
 /influxdb
 .angular
 web.log
+/build/
+/scrutiny-collector_*.deb

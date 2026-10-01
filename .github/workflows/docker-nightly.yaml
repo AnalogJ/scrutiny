@@ -101,3 +101,34 @@ jobs:
           labels: ${{ steps.meta_web.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  build_deb:
+    name: Build Debian package (${{ matrix.cfg.arch }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        cfg:
+          - { arch: amd64, goarch: amd64 }
+          - { arch: armel, goarch: arm,   goarm: 5 }
+          - { arch: armhf, goarch: arm,   goarm: 7 }
+          - { arch: arm64, goarch: arm64 }
+    env:
+      GOARCH: ${{ matrix.cfg.goarch }}
+      GOARM: ${{ matrix.cfg.goarm }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+      - name: Build Debian package
+        run: |
+          make package-deb NIGHTLY=1
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: scrutiny-collector-nightly-${{ matrix.cfg.arch }}
+          path: scrutiny-collector_${{ matrix.cfg.arch }}.deb
+          if-no-files-found: error

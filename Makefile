@@ -97,6 +97,39 @@ ifneq ($(OS),Windows_NT)
 endif
 
 ########################################################################################################################
+# Debian package
+########################################################################################################################
+
+SCRUTINY_VERSION = $(shell sed -n 's/^const VERSION = "\(.*\)"/\1/p' webapp/backend/pkg/version/version.go)
+# NIGHTLY builds sort after the last release and before the next one
+DEB_VERSION = $(SCRUTINY_VERSION)$(if $(NIGHTLY),+git$(shell git log -1 --format=%cd --date=format:%Y%m%d).$(shell git rev-parse --short=7 HEAD))
+DEB_GOARCH = $(or $(GOARCH),$(shell go env GOARCH))
+DEB_ARCH = $(if $(filter arm,$(DEB_GOARCH)),$(if $(filter 7,$(GOARM)),armhf,$(if $(filter 5,$(GOARM)),armel,$(error GOARM must be 5 (armel) or 7 (armhf)))),$(DEB_GOARCH))
+DEB_ROOT = build/deb/$(DEB_ARCH)
+DEB_FILE = scrutiny-collector_$(DEB_ARCH).deb
+
+.PHONY: package-deb
+package-deb: export SOURCE_DATE_EPOCH ?= $(shell git log -1 --format=%ct)
+package-deb:
+	umask 022
+	rm -rf $(DEB_ROOT)
+	mkdir -p $(DEB_ROOT)/usr/bin $(DEB_ROOT)/usr/share/man/man8 $(DEB_ROOT)/DEBIAN
+	# reproducible: static, no local paths or VCS state embedded
+	$(MAKE) binary-collector STATIC=1 GOOS=linux GOARCH=$(DEB_GOARCH) GOFLAGS="-trimpath -buildvcs=false" \
+		COLLECTOR_BINARY_NAME=$(DEB_ROOT)/usr/bin/scrutiny-collector-metrics
+	chmod 755 $(DEB_ROOT)/usr/bin/scrutiny-collector-metrics
+	install -Dm644 -t $(DEB_ROOT)/usr/lib/systemd/system packaging/systemd/scrutiny-collector.service packaging/systemd/scrutiny-collector.timer
+	install -Dm644 example.collector.yaml $(DEB_ROOT)/etc/scrutiny/collector.yml
+	install -Dm644 LICENSE $(DEB_ROOT)/usr/share/doc/scrutiny-collector/copyright
+	gzip -9n < docs/man/scrutiny-collector-metrics.8 > $(DEB_ROOT)/usr/share/man/man8/scrutiny-collector-metrics.8.gz
+	install -m644 -t $(DEB_ROOT)/DEBIAN packaging/deb/conffiles
+	install -m755 -t $(DEB_ROOT)/DEBIAN packaging/deb/postinst packaging/deb/prerm packaging/deb/postrm
+	INSTALLED_SIZE=$$(find $(DEB_ROOT) -path $(DEB_ROOT)/DEBIAN -prune -o -type f -printf '%s\n' | awk '{ kb += int(($$1 + 1023) / 1024) } END { print kb }')
+	sed -e 's/@VERSION@/$(DEB_VERSION)/' -e 's/@ARCH@/$(DEB_ARCH)/' -e "s/@INSTALLED_SIZE@/$$INSTALLED_SIZE/" \
+		packaging/deb/control > $(DEB_ROOT)/DEBIAN/control
+	dpkg-deb --root-owner-group -Zxz --build $(DEB_ROOT) $(DEB_FILE)
+
+########################################################################################################################
 # Binary
 ########################################################################################################################
 

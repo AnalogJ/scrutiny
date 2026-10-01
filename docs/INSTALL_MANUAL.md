@@ -105,6 +105,37 @@ The webapp listens for traffic on `http://0.0.0.0:8080` by default.
 
 ## Collector
 
+### Debian/Ubuntu package
+
+On Debian, Ubuntu and their derivatives you can install the collector from the `.deb` attached to each
+[Github release](https://github.com/analogj/scrutiny/releases) instead of following the rest of this section.
+Packages are available for `amd64`, `arm64`, `armhf` and `armel`. The package depends on `smartmontools` 7.5 or newer,
+so your distribution must provide that version.
+
+```sh
+wget https://github.com/AnalogJ/scrutiny/releases/latest/download/scrutiny-collector_amd64.deb
+sudo apt install ./scrutiny-collector_amd64.deb
+```
+
+The package installs:
+
+- the collector binary at `/usr/bin/scrutiny-collector-metrics` (see `man scrutiny-collector-metrics`)
+- a commented config file at `/etc/scrutiny/collector.yml`
+- `scrutiny-collector.service` and an hourly `scrutiny-collector.timer`
+
+Edit `/etc/scrutiny/collector.yml` to point `api.endpoint` at your webapp, then enable the timer:
+
+```sh
+sudo systemctl enable --now scrutiny-collector.timer
+# optionally, run the collector once now to populate the dashboard
+sudo systemctl start scrutiny-collector.service
+```
+
+Nightly builds of the package are attached as artifacts to the `Docker - Nightly` workflow runs.
+
+To build the package yourself, run `make package-deb` (set `GOARCH`, and `GOARM=5` or `GOARM=7` for 32-bit arm, to
+cross-compile). The build is reproducible: building the same commit produces a byte-identical `.deb`.
+
 ### Dependencies
 
 Unlike the webapp, the collector does have some dependencies:
