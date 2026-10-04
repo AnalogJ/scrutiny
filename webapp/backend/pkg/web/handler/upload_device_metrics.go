@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
@@ -20,6 +21,7 @@ func UploadDeviceMetrics(c *gin.Context) {
 	appConfig := c.MustGet("CONFIG").(config.Interface)
 	//influxWriteDb := c.MustGet("INFLUXDB_WRITE").(*api.WriteAPIBlocking)
 	deviceRepo := c.MustGet("DEVICE_REPOSITORY").(database.DeviceRepo)
+	missedUploadTracker := c.MustGet("MISSED_UPLOAD_TRACKER").(*notify.MissedUploadTracker)
 
 	//appConfig := c.MustGet("CONFIG").(config.Interface)
 
@@ -71,6 +73,8 @@ func UploadDeviceMetrics(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
 		return
 	}
+
+	missedUploadTracker.RecordUpload(updatedDevice, time.Now())
 
 	//check for error
 	if notify.ShouldNotify(

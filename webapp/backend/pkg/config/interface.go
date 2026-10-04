@@ -26,4 +26,6 @@ type Interface interface {
 	GetString(key string) string
 	GetStringSlice(key string) []string
 	UnmarshalKey(key string, rawVal interface{}, decoderOpts ...viper.DecoderConfigOption) error
+
+	GetDevices() ([]DeviceConfig, error)
 }

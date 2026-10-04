@@ -32,6 +32,7 @@ const NotifyFailureTypeBothFailure = "SmartFailure" //SmartFailure always takes 
 const NotifyFailureTypeSmartFailure = "SmartFailure"
 const NotifyFailureTypeScrutinyFailure = "ScrutinyFailure"
 const NotifyFailureTypeCollectorError = "CollectorError"
+const NotifyFailureTypeMissedUpload = "MissedUpload"
 
 // ShouldNotify check if the error Message should be filtered (level mismatch or filtered_attributes)
 func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs measurements.Smart, scrutiny_uuid uuid.UUID, statusThreshold pkg.MetricsStatusThreshold, statusFilterAttributes pkg.MetricsStatusFilterAttributes, repeatNotifications bool, c *gin.Context, deviceRepo database.DeviceRepo) bool {
@@ -239,7 +240,12 @@ func (p *Payload) GenerateCollectorErrorSubject() string {
 }
 
 func (p *Payload) GenerateCollectorErrorMessage(errorMessage string) string {
-	messageParts := []string{"Scrutiny collector error notification"}
+	return p.generateDeviceMessage("Scrutiny collector error notification", fmt.Sprintf("Error: %s", errorMessage))
+}
+
+// generateDeviceMessage lists the device fields that are set, then the details and the date
+func (p *Payload) generateDeviceMessage(title string, details ...string) string {
+	messageParts := []string{title}
 
 	if len(p.HostId) > 0 {
 		messageParts = append(messageParts, fmt.Sprintf("Host Id: %s", p.HostId))
@@ -254,11 +260,8 @@ func (p *Payload) GenerateCollectorErrorMessage(errorMessage string) string {
 		messageParts = append(messageParts, fmt.Sprintf("Device Type: %s", p.DeviceType))
 	}
 
-	messageParts = append(messageParts,
-		fmt.Sprintf("Error: %s", errorMessage),
-		"",
-		fmt.Sprintf("Date: %s", p.Date),
-	)
+	messageParts = append(messageParts, details...)
+	messageParts = append(messageParts, "", fmt.Sprintf("Date: %s", p.Date))
 
 	return strings.Join(messageParts, "\n")
 }
