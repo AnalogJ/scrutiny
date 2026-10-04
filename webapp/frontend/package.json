@@ -89,7 +89,7 @@
         "on-headers": "^1.1.0",
         "path-to-regexp": "^0.1.13",
         "picomatch": "^2.3.2",
-        "piscina": "^5.3.0",
+        "piscina": "^5.3.2",
         "postcss": "^8.5.10",
         "qs": "^6.14.2",
         "semver": "^7.8.5",
