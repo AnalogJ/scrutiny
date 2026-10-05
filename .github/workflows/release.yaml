@@ -164,11 +164,53 @@ jobs:
           name: scrutiny-web-frontend.zip
           path: scrutiny-web-frontend.tar.gz
 
+  build_deb:
+    name: Build Debian packages (${{ matrix.cfg.arch }})
+    needs:
+      - release
+      - build_frontend
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cfg:
+          - { arch: amd64, goarch: amd64 }
+          - { arch: armel, goarch: arm,   goarm: 5 }
+          - { arch: armhf, goarch: arm,   goarm: 7 }
+          - { arch: arm64, goarch: arm64 }
+    env:
+      GOARCH: ${{ matrix.cfg.goarch }}
+      GOARM: ${{ matrix.cfg.goarm }}
+    steps:
+      - name: Download workspace
+        uses: actions/download-artifact@v7
+        with:
+          name: workspace
+      - name: Download frontend
+        uses: actions/download-artifact@v7
+        with:
+          name: scrutiny-web-frontend.zip
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+      - name: Build Debian packages
+        run: |
+          tar -xzf scrutiny-web-frontend.tar.gz
+          make package-deb-collector package-deb-web
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: scrutiny-deb-${{ matrix.cfg.arch }}.zip
+          path: |
+            scrutiny-collector_${{ matrix.cfg.arch }}.deb
+            scrutiny-web_${{ matrix.cfg.arch }}.deb
+          if-no-files-found: error
+
   release-publish:
     name: Publish Release
-    needs: 
+    needs:
       - build
       - build_frontend
+      - build_deb
     runs-on: ubuntu-latest
     steps:
       - name: Download workspace
@@ -207,6 +249,14 @@ jobs:
             scrutiny-collector-metrics-linux-arm64
             scrutiny-collector-metrics-windows-amd64.exe
             scrutiny-collector-metrics-windows-arm64.exe
+            scrutiny-collector_amd64.deb
+            scrutiny-collector_arm64.deb
+            scrutiny-collector_armel.deb
+            scrutiny-collector_armhf.deb
+            scrutiny-web_amd64.deb
+            scrutiny-web_arm64.deb
+            scrutiny-web_armel.deb
+            scrutiny-web_armhf.deb
             scrutiny-web-frontend.tar.gz
             scrutiny-web-darwin-amd64
             scrutiny-web-darwin-arm64
