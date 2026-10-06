@@ -1,0 +1,5 @@
+version: 1
+cron:
+  schedule: '*/30 * * * *'
+  run_startup: true
+  run_startup_sleep: 5
