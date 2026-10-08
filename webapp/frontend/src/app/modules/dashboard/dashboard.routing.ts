@@ -6,6 +6,9 @@ export const dashboardRoutes: Route[] = [
     {
         path     : '',
         component: DashboardComponent,
+        // re-fetch the summary when a settings change reloads the dashboard, since
+        // its temp_history follows the configured chart duration
+        runGuardsAndResolvers: 'always',
         resolve  : {
             sales: DashboardResolver
         }
