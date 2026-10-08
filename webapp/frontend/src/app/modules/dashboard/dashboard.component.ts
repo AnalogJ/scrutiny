@@ -83,6 +83,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                     console.log(`Configuration updated: ${newConfig} vs ${oldConfig}`)
                     // Store the config
                     this.config = config;
+                    this.tempDurationKey = config.dashboard_temperature_duration || 'week';
 
                     if(oldConfig){
                         console.log('reloading component...')

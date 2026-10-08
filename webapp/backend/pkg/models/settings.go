@@ -8,14 +8,15 @@ package models
 //}
 
 type Settings struct {
-	Theme              string `json:"theme" mapstructure:"theme"`
-	Layout             string `json:"layout" mapstructure:"layout"`
-	DashboardDisplay   string `json:"dashboard_display" mapstructure:"dashboard_display"`
-	DashboardSort      string `json:"dashboard_sort" mapstructure:"dashboard_sort"`
-	TemperatureUnit    string `json:"temperature_unit" mapstructure:"temperature_unit"`
-	FileSizeSIUnits    bool   `json:"file_size_si_units" mapstructure:"file_size_si_units"`
-	LineStroke         string `json:"line_stroke" mapstructure:"line_stroke"`
-	PoweredOnHoursUnit string `json:"powered_on_hours_unit" mapstructure:"powered_on_hours_unit"`
+	Theme                        string `json:"theme" mapstructure:"theme"`
+	Layout                       string `json:"layout" mapstructure:"layout"`
+	DashboardDisplay             string `json:"dashboard_display" mapstructure:"dashboard_display"`
+	DashboardSort                string `json:"dashboard_sort" mapstructure:"dashboard_sort"`
+	TemperatureUnit              string `json:"temperature_unit" mapstructure:"temperature_unit"`
+	FileSizeSIUnits              bool   `json:"file_size_si_units" mapstructure:"file_size_si_units"`
+	LineStroke                   string `json:"line_stroke" mapstructure:"line_stroke"`
+	DashboardTemperatureDuration string `json:"dashboard_temperature_duration" mapstructure:"dashboard_temperature_duration"`
+	PoweredOnHoursUnit           string `json:"powered_on_hours_unit" mapstructure:"powered_on_hours_unit"`
 
 	Collector struct {
 		DiscardSCTTempHistory bool `json:"discard_sct_temp_history" mapstructure:"discard_sct_temp_history"`
