@@ -500,6 +500,21 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 				return tx.AutoMigrate(m20261021150000.Device{})
 			},
 		},
+		{
+			ID: "m20261025120000", // add dashboard_temperature_duration setting.
+			Migrate: func(tx *gorm.DB) error {
+				//add dashboard_temperature_duration setting default.
+				var defaultSettings = []m20220716214900.Setting{
+					{
+						SettingKeyName:        "dashboard_temperature_duration",
+						SettingKeyDescription: "Default duration of the dashboard temperature chart ('day' | 'week' | 'month' | 'year' | 'forever')",
+						SettingDataType:       "string",
+						SettingValueString:    DURATION_KEY_WEEK,
+					},
+				}
+				return tx.Create(&defaultSettings).Error
+			},
+		},
 	})
 
 	if err := m.Migrate(); err != nil {

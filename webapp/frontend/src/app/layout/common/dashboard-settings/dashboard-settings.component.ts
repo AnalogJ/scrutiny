@@ -7,6 +7,7 @@ import {
     MetricsStatusThreshold,
     TemperatureUnit,
     LineStroke,
+    TemperatureDuration,
     Theme,
     DevicePoweredOnUnit
 } from 'app/core/config/app.config';
@@ -27,6 +28,7 @@ export class DashboardSettingsComponent implements OnInit {
     fileSizeSIUnits: boolean;
     poweredOnHoursUnit: string;
     lineStroke: string;
+    temperatureDuration: string;
     theme: string;
     discardSCTTempHistory: boolean;
     statusThreshold: number;
@@ -56,6 +58,7 @@ export class DashboardSettingsComponent implements OnInit {
                 this.fileSizeSIUnits = config.file_size_si_units;
                 this.poweredOnHoursUnit = config.powered_on_hours_unit;
                 this.lineStroke = config.line_stroke;
+                this.temperatureDuration = config.dashboard_temperature_duration;
                 this.theme = config.theme;
 
                 this.discardSCTTempHistory = config.collector.discard_sct_temp_history;
@@ -76,6 +79,7 @@ export class DashboardSettingsComponent implements OnInit {
             file_size_si_units: this.fileSizeSIUnits,
             powered_on_hours_unit: this.poweredOnHoursUnit as DevicePoweredOnUnit,
             line_stroke: this.lineStroke as LineStroke,
+            dashboard_temperature_duration: this.temperatureDuration as TemperatureDuration,
             theme: this.theme as Theme,
             collector: {
                 discard_sct_temp_history: this.discardSCTTempHistory
