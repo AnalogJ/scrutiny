@@ -18,8 +18,6 @@ jobs:
         image: [latest-omnibus, latest-collector, latest-web]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
       - name: Scan image
         id: scan
         # Pinned by SHA: third-party scanner with access to the security-events token.
