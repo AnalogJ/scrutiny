@@ -214,6 +214,25 @@ devices:
 
 A drive that `-n`/`--nocheck` found in a low power mode is not a failure, and is never reported.
 
+### Missed Uploads
+
+Scrutiny will also notify you when a device stops uploading data. This is on for every device, and can be configured
+per device in the `devices` section of `scrutiny.yaml`. A device's `scrutiny_uuid` is the last part of its details page URL.
+
+```yaml
+devices:
+  - scrutiny_uuid: 9a4d34b5-b2ee-51ef-8506-90eea09be417
+    notifications:
+      on_missed_upload: true # optional, default true
+      upload_period: 24h     # optional, default 0 (estimate)
+```
+
+A notification is sent when the next upload is more than 10% later than `upload_period`. When `upload_period` is 0,
+Scrutiny uses the average time between the device's last 3 uploads. If those intervals differ by more than 10%, it logs
+a warning and waits for them to settle before notifying. Upload times are kept in memory, so this starts over when
+Scrutiny restarts. Drives that `-n`/`--nocheck` skips in a low power mode don't upload, so set `on_missed_upload: false`
+for them.
+
 ### Testing Notifications
 
 You can test that your notifications are configured correctly by posting an empty payload to the notifications health check API.

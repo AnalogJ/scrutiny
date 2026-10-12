@@ -1,15 +1,36 @@
 package config
 
 import (
-	"github.com/analogj/go-util/utils"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
-	"github.com/spf13/viper"
+	"fmt"
 	"log"
 	"os"
 	"strings"
+	"time"
+
+	"github.com/analogj/go-util/utils"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
+	"github.com/gofrs/uuid/v5"
+	"github.com/spf13/viper"
 )
 
 const DB_USER_SETTINGS_SUBKEY = "user"
+
+// DeviceConfig is an entry in the `devices` list
+type DeviceConfig struct {
+	ScrutinyUUID  string `mapstructure:"scrutiny_uuid"`
+	Notifications struct {
+		// nil means not set, which defaults to true
+		OnMissedUpload *bool `mapstructure:"on_missed_upload"`
+		// 0 means estimate it from the device's uploads
+		UploadPeriod time.Duration `mapstructure:"upload_period"`
+	} `mapstructure:"notifications"`
+}
+
+func (c *configuration) GetDevices() ([]DeviceConfig, error) {
+	var devices []DeviceConfig
+	err := c.UnmarshalKey("devices", &devices)
+	return devices, err
+}
 
 // When initializing this class the following methods must be called:
 // Config.New
@@ -131,6 +152,19 @@ func (c *configuration) ValidateConfig() error {
 	}
 	if c.IsSet("notify.level") {
 		return errors.ConfigValidationError("`notify.level` configuration option is deprecated. Replaced by option in Dashboard Settings page")
+	}
+
+	devices, err := c.GetDevices()
+	if err != nil {
+		return errors.ConfigValidationError(fmt.Sprintf("`devices` is invalid: %v", err))
+	}
+	for _, device := range devices {
+		if _, err := uuid.FromString(device.ScrutinyUUID); err != nil {
+			return errors.ConfigValidationError(fmt.Sprintf("`scrutiny_uuid` %q is invalid: %v", device.ScrutinyUUID, err))
+		}
+		if device.Notifications.UploadPeriod < 0 {
+			return errors.ConfigValidationError(fmt.Sprintf("`upload_period` of device %s is negative", device.ScrutinyUUID))
+		}
 	}
 
 	return nil
