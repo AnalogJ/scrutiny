@@ -1,6 +1,6 @@
 .ONESHELL: # Applies to every targets in the file! .ONESHELL instructs make to invoke a single instance of the shell and provide it with the entire recipe, regardless of how many lines it contains.
 .SHELLFLAGS = -ec
-export GOTOOLCHAIN=go1.25.5
+export GOTOOLCHAIN=go1.26.9
 
 ########################################################################################################################
 # Global Env Settings
@@ -69,7 +69,7 @@ binary-test: binary-dep
 
 .PHONY: lint
 lint:
-	GOTOOLCHAIN=go1.25.5 go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.8.0
+	GOTOOLCHAIN=go1.26.9 go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.14.0
 	golangci-lint run ./...
 
 .PHONY: binary-test-coverage
