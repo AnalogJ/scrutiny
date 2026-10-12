@@ -13,7 +13,7 @@ RUN make binary-frontend
 
 
 ######## Build the backend
-FROM golang:1.25-trixie as backendbuild
+FROM golang:1.27-trixie as backendbuild
 ARG TARGETOS
 ARG TARGETARCH
 
