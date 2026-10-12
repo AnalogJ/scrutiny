@@ -51,7 +51,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.SCRUTINY_GITHUB_TOKEN }} # Leave this line unchanged
       - name: Test
         env:
-          # packagr image pins GOTOOLCHAIN=local; follow go.mod's toolchain line instead.
+          # packagr image pins GOTOOLCHAIN=local; download go.mod's Go version instead.
           GOTOOLCHAIN: auto
         run: |
           make binary-clean binary-test-coverage
