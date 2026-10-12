@@ -2,7 +2,7 @@ module github.com/analogj/scrutiny
 
 go 1.26.0
 
-toolchain go1.26.9
+toolchain go1.27.2
 
 require (
 	github.com/analogj/go-util v0.0.0-20210417161720-39b497cca03b

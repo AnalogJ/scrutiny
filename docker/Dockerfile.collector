@@ -4,7 +4,7 @@
 
 
 ########
-FROM golang:1.26-trixie AS backendbuild
+FROM golang:1.27-trixie AS backendbuild
 ARG TARGETOS
 ARG TARGETARCH
 
