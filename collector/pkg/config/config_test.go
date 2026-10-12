@@ -237,3 +237,49 @@ func TestConfiguration_GetNotifyOnSmartctlError(t *testing.T) {
 	require.False(t, testConfig.GetNotifyOnSmartctlError("/dev/sdz"))
 	require.False(t, testConfig.GetNotifyOnSmartctlError(""))
 }
+
+func TestConfiguration_CronDefaults(t *testing.T) {
+	t.Parallel()
+
+	//setup
+	testConfig, err := config.Create()
+	require.NoError(t, err)
+
+	//assert
+	require.Equal(t, "0 0 * * *", testConfig.GetString("cron.schedule"))
+	require.False(t, testConfig.GetBool("cron.run_startup"))
+	require.Equal(t, 1, testConfig.GetInt("cron.run_startup_sleep"))
+}
+
+func TestConfiguration_CronFromConfigFile(t *testing.T) {
+	t.Parallel()
+
+	//setup
+	testConfig, err := config.Create()
+	require.NoError(t, err)
+
+	//test
+	err = testConfig.ReadConfig(path.Join("testdata", "cron_schedule.yaml"))
+	require.NoError(t, err, "should correctly load cron config")
+
+	//assert
+	require.Equal(t, "*/30 * * * *", testConfig.GetString("cron.schedule"))
+	require.True(t, testConfig.GetBool("cron.run_startup"))
+	require.Equal(t, 5, testConfig.GetInt("cron.run_startup_sleep"))
+}
+
+// COLLECTOR_CRON_SCHEDULE is the variable already used by the docker images
+func TestConfiguration_CronScheduleFromEnv(t *testing.T) {
+	t.Setenv("COLLECTOR_CRON_SCHEDULE", "@every 1h")
+
+	//setup
+	testConfig, err := config.Create()
+	require.NoError(t, err)
+
+	//test
+	err = testConfig.ReadConfig(path.Join("testdata", "cron_schedule.yaml"))
+	require.NoError(t, err, "should correctly load cron config")
+
+	//assert
+	require.Equal(t, "@every 1h", testConfig.GetString("cron.schedule"))
+}
