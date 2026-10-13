@@ -74,6 +74,19 @@
 
         <div class="flex flex-col mt-5 gt-md:flex-row">
             <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
+                <mat-label>Temperature Chart Duration</mat-label>
+                <mat-select [(ngModel)]="temperatureDuration">
+                    <mat-option value="day">Day</mat-option>
+                    <mat-option value="week">Week</mat-option>
+                    <mat-option value="month">Month</mat-option>
+                    <mat-option value="year">Year</mat-option>
+                    <mat-option value="forever">Forever</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <div class="flex flex-col mt-5 gt-md:flex-row">
+            <mat-form-field class="flex-auto gt-xs:pr-3 gt-md:pr-3">
                 <mat-label>Device Status - Thresholds</mat-label>
                 <mat-select [(ngModel)]=statusThreshold>
                     <mat-option [value]=1>Smart</mat-option>

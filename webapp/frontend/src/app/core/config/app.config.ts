@@ -12,6 +12,8 @@ export type TemperatureUnit = 'celsius' | 'fahrenheit'
 
 export type LineStroke = 'smooth' | 'straight' | 'stepline'
 
+export type TemperatureDuration = 'day' | 'week' | 'month' | 'year' | 'forever'
+
 export type DevicePoweredOnUnit = 'humanize' | 'device_hours'
 
 
@@ -53,6 +55,8 @@ export interface AppConfig {
 
     line_stroke?: LineStroke;
 
+    dashboard_temperature_duration?: TemperatureDuration;
+
     // Settings from Scrutiny API
     
     collector?: {
@@ -88,6 +92,8 @@ export const appConfig: AppConfig = {
     powered_on_hours_unit: 'humanize',
 
     line_stroke: 'smooth',
+
+    dashboard_temperature_duration: 'week',
     
     collector: {
         discard_sct_temp_history : false,

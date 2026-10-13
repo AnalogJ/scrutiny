@@ -428,7 +428,14 @@ func (sr *scrutinyRepository) GetSummary(ctx context.Context) (map[uuid.UUID]*mo
 		return nil, err
 	}
 
-	deviceTempHistory, err := sr.GetSmartTemperatureHistory(ctx, DURATION_KEY_FOREVER)
+	// the dashboard chart opens on this duration; other durations come from /api/summary/temp
+	durationKey := sr.appConfig.GetString(fmt.Sprintf("%s.dashboard_temperature_duration", config.DB_USER_SETTINGS_SUBKEY))
+	switch durationKey {
+	case DURATION_KEY_DAY, DURATION_KEY_WEEK, DURATION_KEY_MONTH, DURATION_KEY_YEAR, DURATION_KEY_FOREVER:
+	default:
+		durationKey = DURATION_KEY_WEEK
+	}
+	deviceTempHistory, err := sr.GetSmartTemperatureHistory(ctx, durationKey)
 	if err != nil {
 		sr.logger.Printf("========================>>>>>>>>======================")
 		sr.logger.Printf("========================>>>>>>>>======================")
