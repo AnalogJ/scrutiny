@@ -1,0 +1,76 @@
+.TH SCRUTINY-WEB 8 "" "Scrutiny" "System Administration"
+.SH NAME
+scrutiny-web \- WebUI for smartd S.M.A.R.T monitoring
+.SH SYNOPSIS
+.B scrutiny-web
+.RB [ \-\-help | \-\-version ]
+.br
+.B scrutiny-web start
+.RI [ options ]
+.SH DESCRIPTION
+.B scrutiny-web
+serves the Scrutiny dashboard and the API that
+.BR scrutiny-collector-metrics (8)
+sends S.M.A.R.T. data to. Metrics are stored in InfluxDB and device
+information in a SQLite database.
+.SH COMMANDS
+.TP
+.B start
+Start the scrutiny server.
+.TP
+.BR help ", " h
+Show a list of commands or help for one command.
+.SH GLOBAL OPTIONS
+.TP
+.BR \-\-help ", " \-h
+Show help.
+.TP
+.BR \-\-version ", " \-v
+Print the version.
+.SH START OPTIONS
+.TP
+.BI \-\-config " path"
+Path to the configuration file.
+.TP
+.BI \-\-log\-file " path"
+Path to file for logging. Leave empty to use stdout.
+.TP
+.B \-\-debug
+Enable debug logging.
+.SH ENVIRONMENT
+.TP
+.B SCRUTINY_LOG_FILE
+Same as
+.BR \-\-log\-file .
+.TP
+.BR SCRUTINY_DEBUG ", " DEBUG
+Same as
+.BR \-\-debug .
+.PP
+Any configuration key can also be set as an environment variable prefixed with
+.BR SCRUTINY_ ,
+e.g.
+.B SCRUTINY_WEB_INFLUXDB_HOST
+for
+.IR web.influxdb.host .
+.SH FILES
+.TP
+.I /etc/scrutiny/scrutiny.yaml
+Configuration file used by the packaged
+.B scrutiny-web.service
+systemd unit.
+.TP
+.I /var/lib/scrutiny/scrutiny.db
+SQLite database used by the packaged configuration.
+.TP
+.I /usr/share/scrutiny/web
+Frontend files used by the packaged configuration.
+.TP
+.I /opt/scrutiny/config/scrutiny.yaml
+Configuration file read when
+.B \-\-config
+is not given.
+.SH SEE ALSO
+.BR scrutiny-collector-metrics (8)
+.PP
+https://github.com/AnalogJ/scrutiny
