@@ -114,9 +114,9 @@ func TestSmartInfo_CurrentTemperature(t *testing.T) {
 			expected: 28,
 		},
 		{
-			name:     "invalid top-level temperature falls back to scsi environmental temperature",
+			name:     "top-level temperature of 0 does not fall back to scsi environmental temperature",
 			input:    `{"temperature": {"current": 0}, "scsi_environmental_reports": {"temperature_1": {"parameter_code": 0, "current": 25}}}`,
-			expected: 25,
+			expected: 0,
 		},
 		{
 			name:     "neither available",

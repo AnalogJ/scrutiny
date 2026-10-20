@@ -75,7 +75,9 @@ type SmartInfo struct {
 		Hours int64 `json:"hours"`
 	} `json:"power_on_time"`
 	PowerCycleCount int64 `json:"power_cycle_count"`
-	Temperature     struct {
+	// Pointer so that a null or missing temperature object can be told apart
+	// from a reported value of 0.
+	Temperature *struct {
 		Current int64 `json:"current"`
 	} `json:"temperature"`
 
@@ -309,10 +311,11 @@ func (s *SmartInfo) Capacity() int64 {
 }
 
 // CurrentTemperature returns the drive temperature in Celsius, or 0 if unknown.
-// It prefers smartctl's top-level temperature and falls back to the SCSI
-// Environmental Reporting log, which some SAS drives (e.g. SPC-5) use instead.
+// It uses smartctl's top-level temperature when present, and only falls back to
+// the SCSI Environmental Reporting log when that object is null or missing, which
+// is the case for some SAS drives (e.g. SPC-5).
 func (s *SmartInfo) CurrentTemperature() int64 {
-	if s.Temperature.Current > 0 {
+	if s.Temperature != nil {
 		return s.Temperature.Current
 	}
 	if report, ok := s.ScsiEnvironmentalReports["temperature_1"]; ok && report.Current != nil {
