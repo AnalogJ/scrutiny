@@ -254,6 +254,15 @@ type SmartInfo struct {
 	ScsiVersion         string              `json:"scsi_version"`
 	ScsiGrownDefectList int64               `json:"scsi_grown_defect_list"`
 	ScsiErrorCounterLog ScsiErrorCounterLog `json:"scsi_error_counter_log"`
+	// Keyed by smartctl as "temperature_1", "temperature_2", ...
+	ScsiEnvironmentalReports map[string]ScsiEnvironmentalReport `json:"scsi_environmental_reports"`
+}
+
+// ScsiEnvironmentalReport is an entry from the SCSI Environmental Reporting log page.
+// Current is a pointer so that a missing value can be told apart from 0.
+type ScsiEnvironmentalReport struct {
+	ParameterCode int    `json:"parameter_code"`
+	Current       *int64 `json:"current"`
 }
 
 type SmartSupport struct {
@@ -295,6 +304,19 @@ func (s *SmartInfo) Capacity() int64 {
 		return s.NvmeTotalCapacity
 	case s.UserCapacity.Bytes > 0:
 		return s.UserCapacity.Bytes
+	}
+	return 0
+}
+
+// CurrentTemperature returns the drive temperature in Celsius, or 0 if unknown.
+// It prefers smartctl's top-level temperature and falls back to the SCSI
+// Environmental Reporting log, which some SAS drives (e.g. SPC-5) use instead.
+func (s *SmartInfo) CurrentTemperature() int64 {
+	if s.Temperature.Current > 0 {
+		return s.Temperature.Current
+	}
+	if report, ok := s.ScsiEnvironmentalReports["temperature_1"]; ok && report.Current != nil {
+		return *report.Current
 	}
 	return 0
 }
