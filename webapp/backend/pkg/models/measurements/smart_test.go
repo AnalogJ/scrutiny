@@ -359,6 +359,7 @@ func TestFromCollectorSmartInfo(t *testing.T) {
 	require.Equal(t, smartUUID, smartMdl.ScrutinyUUID)
 	require.Equal(t, pkg.DeviceStatusPassed, smartMdl.Status)
 	require.Equal(t, 18, len(smartMdl.Attributes))
+	require.Equal(t, int64(32), smartMdl.Temp)
 
 	//check that temperature was correctly parsed
 	require.Equal(t, int64(163210330144), smartMdl.Attributes["194"].(*measurements.SmartAtaAttribute).RawValue)
@@ -543,6 +544,7 @@ func TestFromCollectorSmartInfo_Nvme(t *testing.T) {
 	require.Equal(t, smartUUID, smartMdl.ScrutinyUUID)
 	require.Equal(t, pkg.DeviceStatusPassed, smartMdl.Status)
 	require.Equal(t, 16, len(smartMdl.Attributes))
+	require.Equal(t, int64(36), smartMdl.Temp)
 
 	require.Equal(t, int64(111303174), smartMdl.Attributes["host_reads"].(*measurements.SmartNvmeAttribute).Value)
 	require.Equal(t, int64(83170961), smartMdl.Attributes["host_writes"].(*measurements.SmartNvmeAttribute).Value)
@@ -574,6 +576,7 @@ func TestFromCollectorSmartInfo_Scsi(t *testing.T) {
 	require.Equal(t, smartUUID, smartMdl.ScrutinyUUID)
 	require.Equal(t, pkg.DeviceStatusFailedScrutiny, smartMdl.Status)
 	require.Equal(t, 13, len(smartMdl.Attributes))
+	require.Equal(t, int64(34), smartMdl.Temp)
 
 	require.Equal(t, int64(56), smartMdl.Attributes["scsi_grown_defect_list"].(*measurements.SmartScsiAttribute).Value)
 	require.Equal(t, pkg.AttributeStatusFailedScrutiny, smartMdl.Attributes["scsi_grown_defect_list"].GetStatus())
@@ -582,6 +585,34 @@ func TestFromCollectorSmartInfo_Scsi(t *testing.T) {
 	//gigabytes_processed "176987.332" and "86472.611"
 	require.Equal(t, int64(176987332000000), *smartMdl.TotalBytesRead)
 	require.Equal(t, int64(86472611000000), *smartMdl.TotalBytesWritten)
+}
+
+// Some SAS drives (e.g. SPC-5) only report temperature via the Environmental
+// Reporting log page, so smartctl omits the top-level temperature object.
+func TestFromCollectorSmartInfo_Scsi_EnvironmentalTemperature(t *testing.T) {
+	//setup
+	smartDataFile, err := os.Open("../testdata/smart-scsi-environmental-temp.json")
+	require.NoError(t, err)
+	defer smartDataFile.Close()
+
+	var smartJson collector.SmartInfo
+
+	smartDataBytes, err := io.ReadAll(smartDataFile)
+	require.NoError(t, err)
+	err = json.Unmarshal(smartDataBytes, &smartJson)
+	require.NoError(t, err)
+
+	//test
+	smartMdl := measurements.Smart{}
+	smartUUID := uuid.Must(uuid.NewV4())
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+
+	//assert
+	require.NoError(t, err)
+	require.Equal(t, pkg.DeviceProtocolScsi, smartMdl.DeviceProtocol)
+	require.Equal(t, int64(25), smartMdl.Temp)
+	require.Equal(t, int64(43549), smartMdl.PowerOnHours)
+	require.Equal(t, 13, len(smartMdl.Attributes))
 }
 
 func TestSmartAtaAttribute_ValidateThreshold_BucketBoundaries(t *testing.T) {
