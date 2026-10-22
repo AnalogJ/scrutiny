@@ -47,7 +47,7 @@ func NewMissedUploadTracker(logger logrus.FieldLogger, appConfig config.Interfac
 	for _, device := range devices {
 		onMissedUpload := device.Notifications.OnMissedUpload
 		// ValidateConfig already rejected invalid UUIDs
-		tracker.devices[uuid.FromStringOrNil(device.ScrutinyUUID)] = &uploadHistory{
+		tracker.devices[device.ScrutinyUUID] = &uploadHistory{
 			enabled: onMissedUpload == nil || *onMissedUpload,
 			period:  device.Notifications.UploadPeriod,
 		}
