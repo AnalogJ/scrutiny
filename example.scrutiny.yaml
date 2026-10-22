@@ -60,8 +60,6 @@ log:
 # Per-device settings. A device's scrutiny_uuid is the last part of its details page URL (/web/device/<scrutiny_uuid>).
 #devices:
 #  - scrutiny_uuid: 9a4d34b5-b2ee-51ef-8506-90eea09be417
-#    # shown with the host id as the device's title, instead of the Dashboard Settings display name
-#    friendly_name: Backup Disk
 #    notifications:
 #      # send no notifications of any kind for the device
 #      disabled: false

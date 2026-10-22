@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {tap} from 'rxjs/operators';
+import {map, tap} from 'rxjs/operators';
 import {getBasePath} from 'app/app.routing';
 import {DeviceDetailsResponseWrapper} from 'app/core/models/device-details-response-wrapper';
 
@@ -38,6 +38,15 @@ export class DetailService {
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
+
+    /**
+     * Set the device's friendly name, an empty name clears it
+     */
+    setFriendlyName(scrutiny_uuid: string, friendlyName: string): Observable<string> {
+        return this._httpClient.post<{ data: { friendly_name: string } }>(getBasePath() + `/api/device/${scrutiny_uuid}/friendly_name`, {friendly_name: friendlyName}).pipe(
+            map(response => response.data.friendly_name)
+        );
+    }
 
     /**
      * Get data

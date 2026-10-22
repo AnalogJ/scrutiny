@@ -704,6 +704,87 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_DeviceStatusResetsToPas
 	require.Equal(suite.T(), pkg.DeviceStatusPassed, passSummary.Data.Summary[deviceUUIDString].Device.DeviceStatus)
 }
 
+func (suite *ServerTestSuite) TestDeviceFriendlyNameRoute() {
+	//setup
+	parentPath, _ := os.MkdirTemp("", "")
+	defer os.RemoveAll(parentPath)
+	mockCtrl := gomock.NewController(suite.T())
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
+	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
+	fakeConfig.EXPECT().GetDevices().AnyTimes().Return(nil, nil)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
+	fakeConfig.EXPECT().GetBool("notify.on_missed_upload").AnyTimes().Return(true)
+	fakeConfig.EXPECT().GetDuration("notify.upload_period").AnyTimes().Return(time.Duration(0))
+	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.scheme").Return("http").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.metrics.repeat_notifications").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetBool("user.collector.discard_sct_temp_history").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{})
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.notify_level", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.status_filter_attributes", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusFilterAttributesAll))
+	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.status_threshold", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsStatusThresholdBoth))
+
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
+
+	ae := web.AppEngine{
+		Config: fakeConfig,
+	}
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
+	devicesfile, err := os.Open("testdata/register-devices-req.json")
+	require.NoError(suite.T(), err)
+
+	deviceUUIDString := "3ea22b35-682b-49fb-a655-abffed108e48"
+	url := suite.Basepath + "/api/device/" + deviceUUIDString + "/friendly_name"
+	post := func(url string, name string) *httptest.ResponseRecorder {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", url, strings.NewReader(`{"friendly_name": "`+name+`"}`))
+		router.ServeHTTP(w, req)
+		return w
+	}
+
+	//test - register devices
+	wr := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", suite.Basepath+"/api/devices/register", devicesfile)
+	router.ServeHTTP(wr, req)
+	require.Equal(suite.T(), 200, wr.Code)
+
+	friendlyName := func() string {
+		return helperGetDeviceSummary(suite.T(), router, suite.Basepath).Data.Summary[deviceUUIDString].Device.FriendlyName
+	}
+
+	//assert - unset by default
+	require.Empty(suite.T(), friendlyName())
+
+	//test - set (whitespace is trimmed)
+	w := post(url, "  Backup Disk ")
+	require.Equal(suite.T(), 200, w.Code)
+	require.JSONEq(suite.T(), `{"success":true,"data":{"friendly_name":"Backup Disk"}}`, w.Body.String())
+	require.Equal(suite.T(), "Backup Disk", friendlyName())
+
+	//test - empty clears
+	require.Equal(suite.T(), 200, post(url, "").Code)
+	require.Empty(suite.T(), friendlyName())
+
+	//assert - unknown and invalid uuids
+	require.Equal(suite.T(), 404, post(suite.Basepath+"/api/device/00000000-0000-0000-0000-000000000000/friendly_name", "x").Code)
+	require.Equal(suite.T(), 400, post(suite.Basepath+"/api/device/not-a-uuid/friendly_name", "x").Code)
+}
+
 func helperGetDeviceSummary(t *testing.T, router http.Handler, basepath string) models.DeviceSummaryWrapper {
 	t.Helper()
 	sr := httptest.NewRecorder()

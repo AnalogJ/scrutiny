@@ -51,10 +51,11 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 			api.POST("/collector/error", handler.CollectorError)                  //used by Collector to report that it could not gather data
 			api.POST("/device/:scrutiny_uuid/smart", handler.UploadDeviceMetrics) //used by Collector to upload data
 			api.POST("/device/:scrutiny_uuid/selftest", handler.UploadDeviceSelfTests)
-			api.GET("/device/:scrutiny_uuid/details", handler.GetDeviceDetails)   //used by Details
-			api.POST("/device/:scrutiny_uuid/archive", handler.ArchiveDevice)     //used by UI to archive device
-			api.POST("/device/:scrutiny_uuid/unarchive", handler.UnarchiveDevice) //used by UI to unarchive device
-			api.DELETE("/device/:scrutiny_uuid", handler.DeleteDevice)            //used by UI to delete device
+			api.GET("/device/:scrutiny_uuid/details", handler.GetDeviceDetails)             //used by Details
+			api.POST("/device/:scrutiny_uuid/archive", handler.ArchiveDevice)               //used by UI to archive device
+			api.POST("/device/:scrutiny_uuid/unarchive", handler.UnarchiveDevice)           //used by UI to unarchive device
+			api.POST("/device/:scrutiny_uuid/friendly_name", handler.SetDeviceFriendlyName) //used by UI device settings
+			api.DELETE("/device/:scrutiny_uuid", handler.DeleteDevice)                      //used by UI to delete device
 
 			api.GET("/settings", handler.GetSettings)   //used to get settings
 			api.POST("/settings", handler.SaveSettings) //used to save settings

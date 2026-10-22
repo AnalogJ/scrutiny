@@ -72,6 +72,10 @@ func (sr *scrutinyRepository) UpdateDeviceEstimatedUploadPeriod(ctx context.Cont
 	return sr.gormClient.WithContext(ctx).Model(&models.Device{}).Where("scrutiny_uuid = ?", scrutiny_uuid.String()).Update("estimated_upload_period", period).Error
 }
 
+func (sr *scrutinyRepository) UpdateDeviceFriendlyName(ctx context.Context, scrutiny_uuid uuid.UUID, friendlyName string) error {
+	return sr.gormClient.WithContext(ctx).Model(&models.Device{}).Where("scrutiny_uuid = ?", scrutiny_uuid.String()).Update("friendly_name", friendlyName).Error
+}
+
 func (sr *scrutinyRepository) GetDeviceDetails(ctx context.Context, scrutiny_uuid uuid.UUID) (models.Device, error) {
 	var device models.Device
 
