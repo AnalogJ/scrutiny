@@ -13,6 +13,7 @@ import (
 	reflect "reflect"
 
 	config "github.com/analogj/scrutiny/webapp/backend/pkg/config"
+	uuid "github.com/gofrs/uuid/v5"
 	viper "github.com/spf13/viper"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -95,6 +96,20 @@ func (m *MockInterface) GetBool(key string) bool {
 func (mr *MockInterfaceMockRecorder) GetBool(key any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBool", reflect.TypeOf((*MockInterface)(nil).GetBool), key)
+}
+
+// GetDeviceConfig mocks base method.
+func (m *MockInterface) GetDeviceConfig(scrutinyUUID uuid.UUID) *config.DeviceConfig {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDeviceConfig", scrutinyUUID)
+	ret0, _ := ret[0].(*config.DeviceConfig)
+	return ret0
+}
+
+// GetDeviceConfig indicates an expected call of GetDeviceConfig.
+func (mr *MockInterfaceMockRecorder) GetDeviceConfig(scrutinyUUID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDeviceConfig", reflect.TypeOf((*MockInterface)(nil).GetDeviceConfig), scrutinyUUID)
 }
 
 // GetDevices mocks base method.

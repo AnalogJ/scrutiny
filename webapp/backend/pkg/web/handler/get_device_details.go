@@ -28,7 +28,9 @@ func GetDeviceDetails(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false})
 		return
 	}
-	device.FriendlyName = config.GetFriendlyNames(appConfig)[scrutiny_uuid]
+	if deviceConfig := appConfig.GetDeviceConfig(scrutiny_uuid); deviceConfig != nil {
+		device.FriendlyName = deviceConfig.FriendlyName
+	}
 
 	durationKey, exists := c.GetQuery("duration_key")
 	if !exists {

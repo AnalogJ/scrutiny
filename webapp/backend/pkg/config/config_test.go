@@ -45,12 +45,11 @@ devices:
 	require.True(t, devices[0].Notifications.Disabled)
 	require.False(t, devices[1].Notifications.Disabled)
 
-	require.Equal(t, map[uuid.UUID]string{
-		uuid.FromStringOrNil("9a4d34b5-b2ee-51ef-8506-90eea09be417"): "Backup Disk",
-	}, GetFriendlyNames(testConfig))
-	require.Equal(t, map[uuid.UUID]bool{
-		uuid.FromStringOrNil("9a4d34b5-b2ee-51ef-8506-90eea09be417"): true,
-	}, GetNotificationsDisabled(testConfig))
+	found := testConfig.GetDeviceConfig(uuid.FromStringOrNil("9a4d34b5-b2ee-51ef-8506-90eea09be417"))
+	require.NotNil(t, found)
+	require.Equal(t, "Backup Disk", found.FriendlyName)
+	require.True(t, found.Notifications.Disabled)
+	require.Nil(t, testConfig.GetDeviceConfig(uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")))
 }
 
 func Test_ValidateConfig_InvalidDevices(t *testing.T) {

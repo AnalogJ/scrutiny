@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/gofrs/uuid/v5"
 	"github.com/spf13/viper"
 )
 
@@ -28,4 +29,6 @@ type Interface interface {
 	UnmarshalKey(key string, rawVal interface{}, decoderOpts ...viper.DecoderConfigOption) error
 
 	GetDevices() ([]DeviceConfig, error)
+	// GetDeviceConfig returns the `devices` entry for the scrutiny UUID, or nil if there is none
+	GetDeviceConfig(scrutinyUUID uuid.UUID) *DeviceConfig
 }

@@ -36,30 +36,15 @@ func (c *configuration) GetDevices() ([]DeviceConfig, error) {
 	return devices, err
 }
 
-// GetFriendlyNames maps scrutiny UUIDs to the `friendly_name` set in `devices`
-func GetFriendlyNames(c Interface) map[uuid.UUID]string {
-	friendlyNames := map[uuid.UUID]string{}
+func (c *configuration) GetDeviceConfig(scrutinyUUID uuid.UUID) *DeviceConfig {
 	// ValidateConfig already rejected invalid devices
 	devices, _ := c.GetDevices()
-	for _, device := range devices {
-		if len(device.FriendlyName) > 0 {
-			friendlyNames[uuid.FromStringOrNil(device.ScrutinyUUID)] = device.FriendlyName
+	for i := range devices {
+		if uuid.FromStringOrNil(devices[i].ScrutinyUUID) == scrutinyUUID {
+			return &devices[i]
 		}
 	}
-	return friendlyNames
-}
-
-// GetNotificationsDisabled returns the scrutiny UUIDs of devices with `notifications.disabled` set in `devices`
-func GetNotificationsDisabled(c Interface) map[uuid.UUID]bool {
-	disabled := map[uuid.UUID]bool{}
-	// ValidateConfig already rejected invalid devices
-	devices, _ := c.GetDevices()
-	for _, device := range devices {
-		if device.Notifications.Disabled {
-			disabled[uuid.FromStringOrNil(device.ScrutinyUUID)] = true
-		}
-	}
-	return disabled
+	return nil
 }
 
 // When initializing this class the following methods must be called:
