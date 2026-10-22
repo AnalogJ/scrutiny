@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -14,6 +15,7 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/detect"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
 	"github.com/gofrs/uuid/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
@@ -177,4 +179,45 @@ func TestMetricsCollector_Collect_SignalledSmartctl(t *testing.T) {
 	mc.Collect(uuid.Must(uuid.NewV4()), someDeviceName, "")
 
 	require.Equal(t, someDeviceName, (<-reported).DeviceName)
+}
+
+func TestMetricsCollector_CheckVersion(t *testing.T) {
+	for _, tt := range []struct {
+		name         string
+		status       int
+		body         string
+		expectedWarn string
+	}{
+		{"should not warn on a matching version", http.StatusOK, `{"success": true, "version": "` + version.String() + `"}`, ""},
+		{"should warn on a mismatched version", http.StatusOK, `{"success": true, "version": "v0.0.1"}`, "does not match"},
+		{"should warn when the endpoint is missing", http.StatusNotFound, `404 page not found`, "no version endpoint"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				require.Equal(t, "/api/version", r.URL.Path)
+				w.WriteHeader(tt.status)
+				_, _ = w.Write([]byte(tt.body))
+			}))
+			t.Cleanup(server.Close)
+			apiEndpoint, err := url.Parse(server.URL + "/")
+			require.NoError(t, err)
+
+			var logs bytes.Buffer
+			logger := logrus.New()
+			logger.SetOutput(&logs)
+
+			mc := MetricsCollector{
+				BaseCollector: BaseCollector{logger: logrus.NewEntry(logger)},
+				apiEndpoint:   apiEndpoint,
+			}
+			mc.CheckVersion()
+
+			if tt.expectedWarn == "" {
+				require.Empty(t, logs.String())
+			} else {
+				require.Contains(t, logs.String(), "level=warning")
+				require.Contains(t, logs.String(), tt.expectedWarn)
+			}
+		})
+	}
 }
