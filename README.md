@@ -232,6 +232,18 @@ Scrutiny uses the average time between the device's last 3 uploads. If those int
 a warning and waits for them to settle before notifying. Scrutiny saves the estimated period, and uses it again after a restart unless `upload_period` is set. Drives that `-n`/`--nocheck` skips in a low power mode don't upload, so set `on_missed_upload: false`
 for them.
 
+### Disabling Notifications for a Device
+
+Set `notifications.disabled: true` on a device in the `devices` section of `scrutiny.yaml` to stop all of its
+notifications (SMART failures, collector errors and missed uploads). Default `false`.
+
+```yaml
+devices:
+  - scrutiny_uuid: 9a4d34b5-b2ee-51ef-8506-90eea09be417
+    notifications:
+      disabled: true
+```
+
 ### Testing Notifications
 
 You can test that your notifications are configured correctly by posting an empty payload to the notifications health check API.

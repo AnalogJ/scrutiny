@@ -26,6 +26,7 @@ devices:
     notifications:
       on_missed_upload: false
       upload_period: 1h30m
+      disabled: true
   - scrutiny_uuid: ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c
 `)
 	require.NoError(t, err)
@@ -41,10 +42,15 @@ devices:
 	require.Empty(t, devices[1].FriendlyName)
 	require.Nil(t, devices[1].Notifications.OnMissedUpload)
 	require.Zero(t, devices[1].Notifications.UploadPeriod)
+	require.True(t, devices[0].Notifications.Disabled)
+	require.False(t, devices[1].Notifications.Disabled)
 
 	require.Equal(t, map[uuid.UUID]string{
 		uuid.FromStringOrNil("9a4d34b5-b2ee-51ef-8506-90eea09be417"): "Backup Disk",
 	}, GetFriendlyNames(testConfig))
+	require.Equal(t, map[uuid.UUID]bool{
+		uuid.FromStringOrNil("9a4d34b5-b2ee-51ef-8506-90eea09be417"): true,
+	}, GetNotificationsDisabled(testConfig))
 }
 
 func Test_ValidateConfig_InvalidDevices(t *testing.T) {

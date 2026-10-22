@@ -3,10 +3,14 @@ package notify
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	mock_database "github.com/analogj/scrutiny/webapp/backend/pkg/database/mock"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
@@ -490,4 +494,49 @@ Device Serial: FAKEWDDJ324KSO
 Device Type: ATA
 
 Date: %s`, currentTime.Format(time.RFC3339)), payload.Message)
+}
+
+func TestSend_DeviceNotificationsDisabled(t *testing.T) {
+	disabledUUID := uuid.FromStringOrNil("ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c")
+	enabledUUID := uuid.FromStringOrNil("9a4d34b5-b2ee-51ef-8506-90eea09be417")
+
+	var requests atomic.Int32
+	webhook := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+	}))
+	t.Cleanup(webhook.Close)
+
+	appConfig, err := config.Create()
+	require.NoError(t, err)
+	appConfig.Set("notify.urls", []string{webhook.URL})
+	appConfig.Set("devices", []map[string]interface{}{
+		{"scrutiny_uuid": disabledUUID.String(), "notifications": map[string]interface{}{"disabled": true}},
+		{"scrutiny_uuid": enabledUUID.String()},
+	})
+
+	logger := logrus.New()
+	disabled := models.Device{ScrutinyUUID: disabledUUID, DeviceName: "sda"}
+	enabled := models.Device{ScrutinyUUID: enabledUUID, DeviceName: "sdb"}
+
+	for name, notify := range map[string]Notify{
+		"smart":     New(logger, appConfig, disabled, false),
+		"collector": NewCollectorError(logger, appConfig, disabled, "boom"),
+		"missed":    NewMissedUpload(logger, appConfig, disabled, time.Now(), time.Hour),
+		"unknown":   NewCollectorError(logger, appConfig, models.Device{DeviceName: "sdc"}, "boom"),
+	} {
+		t.Run(name+" disabled", func(t *testing.T) {
+			before := requests.Load()
+			require.NoError(t, notify.Send())
+			if name == "unknown" {
+				require.Equal(t, before+1, requests.Load())
+			} else {
+				require.Equal(t, before, requests.Load())
+			}
+		})
+	}
+
+	before := requests.Load()
+	notify := New(logger, appConfig, enabled, false)
+	require.NoError(t, notify.Send())
+	require.Equal(t, before+1, requests.Load())
 }

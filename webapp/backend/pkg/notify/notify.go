@@ -225,6 +225,8 @@ func NewCollectorError(logger logrus.FieldLogger, appconfig config.Interface, de
 		Logger:  logger,
 		Config:  appconfig,
 		Payload: payload,
+
+		ScrutinyUUID: device.ScrutinyUUID,
 	}
 }
 
@@ -271,6 +273,8 @@ func New(logger logrus.FieldLogger, appconfig config.Interface, device models.De
 		Logger:  logger,
 		Config:  appconfig,
 		Payload: NewPayload(device, test),
+
+		ScrutinyUUID: device.ScrutinyUUID,
 	}
 }
 
@@ -278,9 +282,15 @@ type Notify struct {
 	Logger  logrus.FieldLogger
 	Config  config.Interface
 	Payload Payload
+
+	ScrutinyUUID uuid.UUID // nil when the device is unknown
 }
 
 func (n *Notify) Send() error {
+	if n.ScrutinyUUID != uuid.Nil && config.GetNotificationsDisabled(n.Config)[n.ScrutinyUUID] {
+		n.Logger.Infof("Notifications are disabled for device %s. Skipping %s notification.", n.ScrutinyUUID, n.Payload.FailureType)
+		return nil
+	}
 
 	//retrieve list of notification endpoints from config file
 	configUrls := n.Config.GetStringSlice("notify.urls")

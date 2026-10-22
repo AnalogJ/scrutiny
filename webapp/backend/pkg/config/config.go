@@ -25,6 +25,8 @@ type DeviceConfig struct {
 		OnMissedUpload *bool `mapstructure:"on_missed_upload"`
 		// 0 means estimate it from the device's uploads
 		UploadPeriod time.Duration `mapstructure:"upload_period"`
+		// no notifications of any kind are sent for the device
+		Disabled bool `mapstructure:"disabled"`
 	} `mapstructure:"notifications"`
 }
 
@@ -45,6 +47,19 @@ func GetFriendlyNames(c Interface) map[uuid.UUID]string {
 		}
 	}
 	return friendlyNames
+}
+
+// GetNotificationsDisabled returns the scrutiny UUIDs of devices with `notifications.disabled` set in `devices`
+func GetNotificationsDisabled(c Interface) map[uuid.UUID]bool {
+	disabled := map[uuid.UUID]bool{}
+	// ValidateConfig already rejected invalid devices
+	devices, _ := c.GetDevices()
+	for _, device := range devices {
+		if device.Notifications.Disabled {
+			disabled[uuid.FromStringOrNil(device.ScrutinyUUID)] = true
+		}
+	}
+	return disabled
 }
 
 // When initializing this class the following methods must be called:
