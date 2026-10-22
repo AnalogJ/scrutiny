@@ -198,17 +198,20 @@ For more information and troubleshooting, see the [TROUBLESHOOTING_NOTIFICATIONS
 ### Collector Errors
 
 Scrutiny will also notify you if the collector is unable to run `smartctl` successfully, preventing it from reporting data.
-This is on by default and can be configured in `collector.yaml`
+This is on by default. The global setting in `collector.yaml` also covers `smartctl --scan` and devices that failed
+before registering with Scrutiny:
 
 ```yaml
-# applies to `smartctl --scan` and any device without its own setting below
 notify:
   on_smartctl_error: true
+```
 
+To silence one device, set it in the `devices` section of `scrutiny.yaml`, keyed by its `scrutiny_uuid`:
+
+```yaml
 devices:
-  # device-specific settings take priority over the global one above
-  - device: /dev/sda
-    notify:
+  - scrutiny_uuid: 9a4d34b5-b2ee-51ef-8506-90eea09be417
+    notifications:
       on_smartctl_error: false
 ```
 

@@ -23,7 +23,8 @@ type DeviceConfig struct {
 	Notifications struct {
 		// nil means not set, which defaults to true. A pointer is needed because viper defaults are
 		// per key and can't reach into list elements, so a bool couldn't tell unset from false.
-		OnMissedUpload *bool `mapstructure:"on_missed_upload"`
+		OnMissedUpload  *bool `mapstructure:"on_missed_upload"`
+		OnSmartctlError *bool `mapstructure:"on_smartctl_error"`
 		// 0 means estimate it from the device's uploads
 		UploadPeriod time.Duration `mapstructure:"upload_period"`
 		// no notifications of any kind are sent for the device

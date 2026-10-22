@@ -36,6 +36,11 @@ func CollectorError(c *gin.Context) {
 	// a device that failed `smartctl --info` was never registered, so details are only available
 	// when the collector managed to send a UUID
 	if scrutinyUUID, err := uuid.FromString(errorPayload.ScrutinyUUID); err == nil && !scrutinyUUID.IsNil() {
+		if deviceConfig := appConfig.GetDeviceConfig(scrutinyUUID); deviceConfig != nil && deviceConfig.Notifications.OnSmartctlError != nil && !*deviceConfig.Notifications.OnSmartctlError {
+			logger.Debugf("devices[].notifications.on_smartctl_error is disabled for %s, not notifying", scrutinyUUID)
+			c.JSON(http.StatusOK, models.DeviceWrapper{Success: true})
+			return
+		}
 		if storedDevice, err := deviceRepo.GetDeviceDetails(c, scrutinyUUID); err == nil {
 			device = storedDevice
 		} else {

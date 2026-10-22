@@ -25,6 +25,7 @@ devices:
     friendly_name: Backup Disk
     notifications:
       on_missed_upload: false
+      on_smartctl_error: false
       upload_period: 1h30m
       disabled: true
   - scrutiny_uuid: ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c
@@ -37,10 +38,12 @@ devices:
 	require.Equal(t, uuid.FromStringOrNil("9a4d34b5-b2ee-51ef-8506-90eea09be417"), devices[0].ScrutinyUUID)
 	require.Equal(t, "Backup Disk", devices[0].FriendlyName)
 	require.False(t, *devices[0].Notifications.OnMissedUpload)
+	require.False(t, *devices[0].Notifications.OnSmartctlError)
 	require.Equal(t, 90*time.Minute, devices[0].Notifications.UploadPeriod)
 	require.Equal(t, uuid.FromStringOrNil("ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c"), devices[1].ScrutinyUUID)
 	require.Empty(t, devices[1].FriendlyName)
 	require.Nil(t, devices[1].Notifications.OnMissedUpload)
+	require.Nil(t, devices[1].Notifications.OnSmartctlError)
 	require.Zero(t, devices[1].Notifications.UploadPeriod)
 	require.True(t, devices[0].Notifications.Disabled)
 	require.False(t, devices[1].Notifications.Disabled)
@@ -50,6 +53,11 @@ devices:
 	require.Equal(t, "Backup Disk", found.FriendlyName)
 	require.True(t, found.Notifications.Disabled)
 	require.Nil(t, testConfig.GetDeviceConfig(uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")))
+
+	require.False(t, *found.Notifications.OnSmartctlError)
+	other := testConfig.GetDeviceConfig(uuid.FromStringOrNil("ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c"))
+	require.NotNil(t, other)
+	require.Nil(t, other.Notifications.OnSmartctlError)
 }
 
 func Test_ValidateConfig_InvalidDevices(t *testing.T) {

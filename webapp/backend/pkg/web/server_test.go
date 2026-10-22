@@ -752,3 +752,71 @@ func (suite *ServerTestSuite) TestCollectorErrorRoute() {
 		suite.T().Fatal("timed out waiting for the collector error notification")
 	}
 }
+
+func (suite *ServerTestSuite) TestCollectorErrorRoute_DeviceNotifyDisabled() {
+	//setup
+	parentPath, _ := os.MkdirTemp("", "")
+	defer os.RemoveAll(parentPath)
+	mockCtrl := gomock.NewController(suite.T())
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
+	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
+	const disabledUUID = "9a4d34b5-b2ee-51ef-8506-90eea09be417"
+	disabled := false
+	device := config.DeviceConfig{ScrutinyUUID: uuid.FromStringOrNil(disabledUUID)}
+	device.Notifications.OnSmartctlError = &disabled
+	fakeConfig.EXPECT().GetDeviceConfig(uuid.FromStringOrNil(disabledUUID)).AnyTimes().Return(&device)
+	fakeConfig.EXPECT().GetDevices().AnyTimes().Return([]config.DeviceConfig{device}, nil)
+	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
+	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.scheme").Return("http").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
+	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+		// when running test suite in github actions, we run an influxdb service as a sidecar.
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+	} else {
+		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+	}
+
+	notified := make(chan notify.Payload, 1)
+	webhookServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var payload notify.Payload
+		require.NoError(suite.T(), json.NewDecoder(r.Body).Decode(&payload))
+		notified <- payload
+	}))
+	defer webhookServer.Close()
+	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{webhookServer.URL})
+
+	ae := web.AppEngine{
+		Config: fakeConfig,
+	}
+	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
+
+	//test
+	errorPayload, err := json.Marshal(collector.CollectorError{
+		Error:        "smartctl could not open the device",
+		HostId:       "testhost",
+		DeviceName:   "/dev/sdb",
+		ScrutinyUUID: disabledUUID,
+	})
+	require.NoError(suite.T(), err)
+
+	er := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", suite.Basepath+"/api/collector/error", bytes.NewReader(errorPayload))
+	router.ServeHTTP(er, req)
+
+	//assert
+	require.Equal(suite.T(), 200, er.Code)
+	select {
+	case <-notified:
+		suite.T().Fatal("a device with on_smartctl_error disabled should not notify")
+	case <-time.After(500 * time.Millisecond):
+	}
+}
