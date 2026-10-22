@@ -17,6 +17,7 @@ import (
 	"github.com/analogj/scrutiny/collector/pkg/errors"
 	"github.com/analogj/scrutiny/collector/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
 	"github.com/gofrs/uuid/v5"
 	"github.com/sirupsen/logrus"
 )
@@ -51,6 +52,8 @@ func (mc *MetricsCollector) Run() error {
 	if err != nil {
 		return err
 	}
+
+	mc.CheckVersion()
 
 	apiEndpoint, _ := url.Parse(mc.apiEndpoint.String())
 	apiEndpoint, _ = apiEndpoint.Parse("api/devices/register") //this acts like filepath.Join()
@@ -130,6 +133,33 @@ func (mc *MetricsCollector) Validate() error {
 	}
 
 	return nil
+}
+
+// CheckVersion warns when the web API's version differs from the collector's. It never fails the run.
+func (mc *MetricsCollector) CheckVersion() {
+	apiEndpoint, _ := mc.apiEndpoint.Parse("api/version")
+	resp, err := httpClient.Get(apiEndpoint.String())
+	if err != nil {
+		mc.logger.Warnf("Could not check the web API version: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		mc.logger.Warnf("The web API has no version endpoint, so it is older than this collector (%s). Mismatched versions are not supported, please update the web API.", version.String())
+		return
+	}
+
+	var body struct {
+		Version string `json:"version"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		mc.logger.Warnf("Could not check the web API version (HTTP %d): %v", resp.StatusCode, err)
+		return
+	}
+	if body.Version != version.String() {
+		mc.logger.Warnf("The web API version (%s) does not match this collector's version (%s). Mismatched versions are not supported.", body.Version, version.String())
+	}
 }
 
 // func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
