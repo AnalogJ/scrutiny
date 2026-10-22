@@ -154,6 +154,8 @@ func NewMissedUpload(logger logrus.FieldLogger, appconfig config.Interface, devi
 		Logger:  logger,
 		Config:  appconfig,
 		Payload: payload,
+
+		ScrutinyUUID: device.ScrutinyUUID,
 	}
 }
 
