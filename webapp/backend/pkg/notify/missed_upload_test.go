@@ -162,6 +162,31 @@ func TestMissedUploadTracker_SkipsDisabledDevices(t *testing.T) {
 	require.Nil(t, tracker.devices[missedUploadDevice.ScrutinyUUID].timer)
 }
 
+func TestMissedUploadTracker_GlobalSetting(t *testing.T) {
+	deviceRepo := mock_database.NewMockDeviceRepo(gomock.NewController(t))
+	deviceRepo.EXPECT().GetDevices(gomock.Any()).Return(nil, nil)
+	overridden := models.Device{ScrutinyUUID: uuid.FromStringOrNil("9a4d34b5-b2ee-51ef-8506-90eea09be417")}
+	appConfig, err := config.Create()
+	require.NoError(t, err)
+	appConfig.Set("notify.on_missed_upload", false)
+	appConfig.Set("notify.upload_period", "2h")
+	appConfig.Set("devices", []map[string]interface{}{{
+		"scrutiny_uuid": overridden.ScrutinyUUID.String(),
+		// 0 still estimates the period
+		"notifications": map[string]interface{}{"on_missed_upload": true, "upload_period": "0s"},
+	}})
+	logger, _ := logrustest.NewNullLogger()
+	tracker := NewMissedUploadTracker(logger, appConfig, deviceRepo)
+
+	tracker.RecordUpload(missedUploadDevice, time.Now())
+	tracker.RecordUpload(overridden, time.Now())
+	require.Equal(t, uploadHistory{enabled: false, period: 2 * time.Hour}, tracker.defaults)
+	require.False(t, tracker.devices[missedUploadDevice.ScrutinyUUID].enabled)
+	require.Equal(t, 2*time.Hour, tracker.devices[missedUploadDevice.ScrutinyUUID].period)
+	require.True(t, tracker.devices[overridden.ScrutinyUUID].enabled)
+	require.Zero(t, tracker.devices[overridden.ScrutinyUUID].period)
+}
+
 func TestMissedUploadTracker_SavesEstimatedPeriod(t *testing.T) {
 	deviceRepo := mock_database.NewMockDeviceRepo(gomock.NewController(t))
 	deviceRepo.EXPECT().GetDevices(gomock.Any()).Return(nil, nil)
@@ -216,6 +241,20 @@ func TestMissedUploadTracker_LoadsEstimatedPeriods(t *testing.T) {
 	require.NotContains(t, tracker.devices, newDevice(6, 0).ScrutinyUUID)
 	require.Equal(t, 2*time.Hour, tracker.devices[configured.ScrutinyUUID].period)
 	require.Nil(t, tracker.devices[configured.ScrutinyUUID].timer)
+}
+
+func TestMissedUploadTracker_GlobalPeriodOverridesEstimatedPeriods(t *testing.T) {
+	deviceRepo := mock_database.NewMockDeviceRepo(gomock.NewController(t))
+	deviceRepo.EXPECT().GetDevices(gomock.Any()).Return([]models.Device{
+		{ScrutinyUUID: missedUploadDevice.ScrutinyUUID, EstimatedUploadPeriod: time.Hour},
+	}, nil)
+	appConfig, err := config.Create()
+	require.NoError(t, err)
+	appConfig.Set("notify.upload_period", "2h")
+	logger, _ := logrustest.NewNullLogger()
+	tracker := NewMissedUploadTracker(logger, appConfig, deviceRepo)
+
+	require.NotContains(t, tracker.devices, missedUploadDevice.ScrutinyUUID)
 }
 
 func TestMissedUploadTracker_LoadFailureIsLogged(t *testing.T) {

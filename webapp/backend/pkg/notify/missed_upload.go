@@ -18,6 +18,8 @@ type MissedUploadTracker struct {
 	logger     logrus.FieldLogger
 	config     config.Interface
 	deviceRepo database.DeviceRepo
+	// the `notify` settings, for devices that aren't in `devices` and as the defaults for those that are
+	defaults uploadHistory
 	// requests are handled concurrently, so uploads race on the map and on each device's history
 	mu      sync.Mutex
 	devices map[uuid.UUID]*uploadHistory
@@ -38,6 +40,11 @@ func NewMissedUploadTracker(logger logrus.FieldLogger, appConfig config.Interfac
 		config:     appConfig,
 		deviceRepo: deviceRepo,
 		devices:    map[uuid.UUID]*uploadHistory{},
+
+		defaults: uploadHistory{
+			enabled: appConfig.GetBool("notify.on_missed_upload"),
+			period:  appConfig.GetDuration("notify.upload_period"),
+		},
 	}
 
 	devices, err := appConfig.GetDevices()
@@ -45,12 +52,15 @@ func NewMissedUploadTracker(logger logrus.FieldLogger, appConfig config.Interfac
 		logger.Errorf("Could not read `devices`, missed upload notifications are disabled: %v", err)
 	}
 	for _, device := range devices {
-		onMissedUpload := device.Notifications.OnMissedUpload
-		// ValidateConfig already rejected invalid UUIDs
-		tracker.devices[device.ScrutinyUUID] = &uploadHistory{
-			enabled: onMissedUpload == nil || *onMissedUpload,
-			period:  device.Notifications.UploadPeriod,
+		history := tracker.defaults
+		if device.Notifications.OnMissedUpload != nil {
+			history.enabled = *device.Notifications.OnMissedUpload
 		}
+		if device.Notifications.UploadPeriod != nil {
+			history.period = *device.Notifications.UploadPeriod
+		}
+		// ValidateConfig already rejected invalid UUIDs
+		tracker.devices[device.ScrutinyUUID] = &history
 	}
 	tracker.loadEstimatedPeriods()
 	return tracker
@@ -69,7 +79,11 @@ func (t *MissedUploadTracker) loadEstimatedPeriods() {
 		if device.Archived || device.DeletedAt != nil || period <= 0 {
 			continue
 		}
-		if history, found := t.devices[device.ScrutinyUUID]; found && history.period != 0 {
+		history, found := t.devices[device.ScrutinyUUID]
+		if !found {
+			history = &t.defaults
+		}
+		if history.period != 0 {
 			continue
 		}
 		// replays steady uploads that end now
@@ -98,7 +112,8 @@ func (t *MissedUploadTracker) record(device models.Device, uploadedAt time.Time)
 
 	history, found := t.devices[device.ScrutinyUUID]
 	if !found {
-		history = &uploadHistory{enabled: true}
+		defaults := t.defaults
+		history = &defaults
 		t.devices[device.ScrutinyUUID] = history
 	}
 	if !history.enabled {
