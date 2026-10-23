@@ -9,6 +9,7 @@ import (
 
 	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
+	"github.com/go-viper/mapstructure/v2"
 	"github.com/gofrs/uuid/v5"
 	"github.com/spf13/viper"
 )
@@ -17,8 +18,8 @@ const DB_USER_SETTINGS_SUBKEY = "user"
 
 // DeviceConfig is an entry in the `devices` list
 type DeviceConfig struct {
-	ScrutinyUUID  string `mapstructure:"scrutiny_uuid"`
-	FriendlyName  string `mapstructure:"friendly_name"`
+	ScrutinyUUID  uuid.UUID `mapstructure:"scrutiny_uuid"`
+	FriendlyName  string    `mapstructure:"friendly_name"`
 	Notifications struct {
 		// nil means not set, which defaults to true. A pointer is needed because viper defaults are
 		// per key and can't reach into list elements, so a bool couldn't tell unset from false.
@@ -32,34 +33,24 @@ type DeviceConfig struct {
 
 func (c *configuration) GetDevices() ([]DeviceConfig, error) {
 	var devices []DeviceConfig
-	err := c.UnmarshalKey("devices", &devices)
+	// keep viper's default hooks, which parse durations
+	err := c.UnmarshalKey("devices", &devices, viper.DecodeHook(mapstructure.ComposeDecodeHookFunc(
+		mapstructure.TextUnmarshallerHookFunc(),
+		mapstructure.StringToTimeDurationHookFunc(),
+		mapstructure.StringToSliceHookFunc(","),
+	)))
 	return devices, err
 }
 
-// GetFriendlyNames maps scrutiny UUIDs to the `friendly_name` set in `devices`
-func GetFriendlyNames(c Interface) map[uuid.UUID]string {
-	friendlyNames := map[uuid.UUID]string{}
+func (c *configuration) GetDeviceConfig(scrutinyUUID uuid.UUID) *DeviceConfig {
 	// ValidateConfig already rejected invalid devices
 	devices, _ := c.GetDevices()
-	for _, device := range devices {
-		if len(device.FriendlyName) > 0 {
-			friendlyNames[uuid.FromStringOrNil(device.ScrutinyUUID)] = device.FriendlyName
+	for i := range devices {
+		if devices[i].ScrutinyUUID == scrutinyUUID {
+			return &devices[i]
 		}
 	}
-	return friendlyNames
-}
-
-// GetNotificationsDisabled returns the scrutiny UUIDs of devices with `notifications.disabled` set in `devices`
-func GetNotificationsDisabled(c Interface) map[uuid.UUID]bool {
-	disabled := map[uuid.UUID]bool{}
-	// ValidateConfig already rejected invalid devices
-	devices, _ := c.GetDevices()
-	for _, device := range devices {
-		if device.Notifications.Disabled {
-			disabled[uuid.FromStringOrNil(device.ScrutinyUUID)] = true
-		}
-	}
-	return disabled
+	return nil
 }
 
 // When initializing this class the following methods must be called:
@@ -189,8 +180,8 @@ func (c *configuration) ValidateConfig() error {
 		return errors.ConfigValidationError(fmt.Sprintf("`devices` is invalid: %v", err))
 	}
 	for _, device := range devices {
-		if _, err := uuid.FromString(device.ScrutinyUUID); err != nil {
-			return errors.ConfigValidationError(fmt.Sprintf("`scrutiny_uuid` %q is invalid: %v", device.ScrutinyUUID, err))
+		if device.ScrutinyUUID.IsNil() {
+			return errors.ConfigValidationError("`scrutiny_uuid` is missing from a device")
 		}
 		if device.Notifications.UploadPeriod < 0 {
 			return errors.ConfigValidationError(fmt.Sprintf("`upload_period` of device %s is negative", device.ScrutinyUUID))

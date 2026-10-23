@@ -34,23 +34,22 @@ devices:
 	devices, err := testConfig.GetDevices()
 	require.NoError(t, err)
 	require.Len(t, devices, 2)
-	require.Equal(t, "9A4D34B5-B2EE-51EF-8506-90EEA09BE417", devices[0].ScrutinyUUID)
+	require.Equal(t, uuid.FromStringOrNil("9a4d34b5-b2ee-51ef-8506-90eea09be417"), devices[0].ScrutinyUUID)
 	require.Equal(t, "Backup Disk", devices[0].FriendlyName)
 	require.False(t, *devices[0].Notifications.OnMissedUpload)
 	require.Equal(t, 90*time.Minute, devices[0].Notifications.UploadPeriod)
-	require.Equal(t, "ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c", devices[1].ScrutinyUUID)
+	require.Equal(t, uuid.FromStringOrNil("ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c"), devices[1].ScrutinyUUID)
 	require.Empty(t, devices[1].FriendlyName)
 	require.Nil(t, devices[1].Notifications.OnMissedUpload)
 	require.Zero(t, devices[1].Notifications.UploadPeriod)
 	require.True(t, devices[0].Notifications.Disabled)
 	require.False(t, devices[1].Notifications.Disabled)
 
-	require.Equal(t, map[uuid.UUID]string{
-		uuid.FromStringOrNil("9a4d34b5-b2ee-51ef-8506-90eea09be417"): "Backup Disk",
-	}, GetFriendlyNames(testConfig))
-	require.Equal(t, map[uuid.UUID]bool{
-		uuid.FromStringOrNil("9a4d34b5-b2ee-51ef-8506-90eea09be417"): true,
-	}, GetNotificationsDisabled(testConfig))
+	found := testConfig.GetDeviceConfig(uuid.FromStringOrNil("9a4d34b5-b2ee-51ef-8506-90eea09be417"))
+	require.NotNil(t, found)
+	require.Equal(t, "Backup Disk", found.FriendlyName)
+	require.True(t, found.Notifications.Disabled)
+	require.Nil(t, testConfig.GetDeviceConfig(uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")))
 }
 
 func Test_ValidateConfig_InvalidDevices(t *testing.T) {

@@ -287,7 +287,7 @@ type Notify struct {
 }
 
 func (n *Notify) Send() error {
-	if n.ScrutinyUUID != uuid.Nil && config.GetNotificationsDisabled(n.Config)[n.ScrutinyUUID] {
+	if deviceConfig := n.Config.GetDeviceConfig(n.ScrutinyUUID); deviceConfig != nil && deviceConfig.Notifications.Disabled {
 		n.Logger.Infof("Notifications are disabled for device %s. Skipping %s notification.", n.ScrutinyUUID, n.Payload.FailureType)
 		return nil
 	}

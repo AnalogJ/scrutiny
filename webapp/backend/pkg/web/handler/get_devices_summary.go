@@ -21,9 +21,10 @@ func GetDevicesSummary(c *gin.Context) {
 		return
 	}
 
-	friendlyNames := config.GetFriendlyNames(appConfig)
 	for scrutinyUUID, deviceSummary := range summary {
-		deviceSummary.Device.FriendlyName = friendlyNames[scrutinyUUID]
+		if deviceConfig := appConfig.GetDeviceConfig(scrutinyUUID); deviceConfig != nil {
+			deviceSummary.Device.FriendlyName = deviceConfig.FriendlyName
+		}
 	}
 
 	//this must match DeviceSummaryWrapper (webapp/backend/pkg/models/device_summary.go)
