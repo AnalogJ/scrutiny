@@ -60,6 +60,12 @@ devices:
 	require.Nil(t, other.Notifications.OnSmartctlError)
 }
 
+func Test_NotifyDefaults(t *testing.T) {
+	testConfig, err := loadTestConfig(t, ``)
+	require.NoError(t, err)
+	require.True(t, testConfig.GetBool("notify.on_smartctl_error"))
+}
+
 func Test_ValidateConfig_InvalidDevices(t *testing.T) {
 	for name, yaml := range map[string]string{
 		"invalid uuid":    `devices: [{scrutiny_uuid: not-a-uuid}]`,

@@ -96,6 +96,7 @@ func (suite *ServerTestSuite) TestHealthRoute() {
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDeviceConfig(gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDevices().AnyTimes().Return(nil, nil)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
 	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
@@ -141,6 +142,7 @@ func (suite *ServerTestSuite) TestRegisterDevicesRoute() {
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDeviceConfig(gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDevices().AnyTimes().Return(nil, nil)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
 	fakeConfig.EXPECT().GetString("web.database.location").Return(path.Join(parentPath, "scrutiny_test.db")).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").Return(parentPath).AnyTimes()
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
@@ -185,6 +187,7 @@ func (suite *ServerTestSuite) TestUploadDeviceMetricsRoute() {
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDeviceConfig(gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDevices().AnyTimes().Return(nil, nil)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
@@ -241,6 +244,7 @@ func (suite *ServerTestSuite) TestPopulateMultiple() {
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDeviceConfig(gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDevices().AnyTimes().Return(nil, nil)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
 	//fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return("testdata/scrutiny_test.db")
 	fakeConfig.EXPECT().GetStringSlice("notify.urls").Return([]string{}).AnyTimes()
 	fakeConfig.EXPECT().GetInt(fmt.Sprintf("%s.metrics.notify_level", config.DB_USER_SETTINGS_SUBKEY)).AnyTimes().Return(int(pkg.MetricsNotifyLevelFail))
@@ -350,6 +354,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_WebhookFailure() {
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDeviceConfig(gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDevices().AnyTimes().Return(nil, nil)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
@@ -397,6 +402,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptFailure() {
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDeviceConfig(gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDevices().AnyTimes().Return(nil, nil)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
@@ -444,6 +450,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ScriptSuccess() {
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDeviceConfig(gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDevices().AnyTimes().Return(nil, nil)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
@@ -491,6 +498,7 @@ func (suite *ServerTestSuite) TestSendTestNotificationRoute_ShoutrrrFailure() {
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDeviceConfig(gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDevices().AnyTimes().Return(nil, nil)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
@@ -537,6 +545,7 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_Nvme() {
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDeviceConfig(gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDevices().AnyTimes().Return(nil, nil)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
@@ -609,6 +618,7 @@ func (suite *ServerTestSuite) TestGetDevicesSummaryRoute_DeviceStatusResetsToPas
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDeviceConfig(gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDevices().AnyTimes().Return(nil, nil)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
@@ -697,6 +707,7 @@ func (suite *ServerTestSuite) TestCollectorErrorRoute() {
 	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDeviceConfig(gomock.Any()).AnyTimes().Return(nil)
 	fakeConfig.EXPECT().GetDevices().AnyTimes().Return(nil, nil)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
 	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
 	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
 	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
@@ -753,70 +764,82 @@ func (suite *ServerTestSuite) TestCollectorErrorRoute() {
 	}
 }
 
-func (suite *ServerTestSuite) TestCollectorErrorRoute_DeviceNotifyDisabled() {
-	//setup
-	parentPath, _ := os.MkdirTemp("", "")
-	defer os.RemoveAll(parentPath)
-	mockCtrl := gomock.NewController(suite.T())
-	fakeConfig := mock_config.NewMockInterface(mockCtrl)
-	fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
-	fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
+func (suite *ServerTestSuite) TestCollectorErrorRoute_NotifyDisabled() {
 	const disabledUUID = "9a4d34b5-b2ee-51ef-8506-90eea09be417"
-	disabled := false
-	device := config.DeviceConfig{ScrutinyUUID: uuid.FromStringOrNil(disabledUUID)}
-	device.Notifications.OnSmartctlError = &disabled
-	fakeConfig.EXPECT().GetDeviceConfig(uuid.FromStringOrNil(disabledUUID)).AnyTimes().Return(&device)
-	fakeConfig.EXPECT().GetDevices().AnyTimes().Return([]config.DeviceConfig{device}, nil)
-	fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
-	fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
-	fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
-	fakeConfig.EXPECT().GetString("web.influxdb.scheme").Return("http").AnyTimes()
-	fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
-	fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
-	fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
-	fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
-	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
-	fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
-	fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
-	if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
-		// when running test suite in github actions, we run an influxdb service as a sidecar.
-		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
-	} else {
-		fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
-	}
+	for name, tc := range map[string]struct {
+		onSmartctlError bool
+		scrutinyUUID    string
+	}{
+		"device setting": {onSmartctlError: true, scrutinyUUID: disabledUUID},
+		// e.g. `smartctl --scan` failed, so there's no device
+		"global setting": {onSmartctlError: false},
+	} {
+		suite.Run(name, func() {
+			//setup
+			parentPath, _ := os.MkdirTemp("", "")
+			defer os.RemoveAll(parentPath)
+			mockCtrl := gomock.NewController(suite.T())
+			fakeConfig := mock_config.NewMockInterface(mockCtrl)
+			fakeConfig.EXPECT().SetDefault(gomock.Any(), gomock.Any()).AnyTimes()
+			fakeConfig.EXPECT().UnmarshalKey(gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
+			disabled := false
+			device := config.DeviceConfig{ScrutinyUUID: uuid.FromStringOrNil(disabledUUID)}
+			device.Notifications.OnSmartctlError = &disabled
+			fakeConfig.EXPECT().GetDeviceConfig(uuid.FromStringOrNil(disabledUUID)).AnyTimes().Return(&device)
+			fakeConfig.EXPECT().GetDevices().AnyTimes().Return([]config.DeviceConfig{device}, nil)
+			fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(tc.onSmartctlError)
+			fakeConfig.EXPECT().GetString("web.database.location").AnyTimes().Return(path.Join(parentPath, "scrutiny_test.db"))
+			fakeConfig.EXPECT().GetString("web.src.frontend.path").AnyTimes().Return(parentPath)
+			fakeConfig.EXPECT().GetString("web.listen.basepath").Return(suite.Basepath).AnyTimes()
+			fakeConfig.EXPECT().GetString("web.influxdb.scheme").Return("http").AnyTimes()
+			fakeConfig.EXPECT().GetString("web.influxdb.port").Return("8086").AnyTimes()
+			fakeConfig.EXPECT().IsSet("web.influxdb.token").Return(true).AnyTimes()
+			fakeConfig.EXPECT().GetString("web.influxdb.token").Return("my-super-secret-auth-token").AnyTimes()
+			fakeConfig.EXPECT().GetString("web.influxdb.org").Return("scrutiny").AnyTimes()
+			fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+			fakeConfig.EXPECT().GetBool("web.influxdb.tls.insecure_skip_verify").Return(false).AnyTimes()
+			fakeConfig.EXPECT().GetBool("web.influxdb.retention_policy").Return(false).AnyTimes()
+			if _, isGithubActions := os.LookupEnv("GITHUB_ACTIONS"); isGithubActions {
+				// when running test suite in github actions, we run an influxdb service as a sidecar.
+				fakeConfig.EXPECT().GetString("web.influxdb.host").Return("influxdb").AnyTimes()
+			} else {
+				fakeConfig.EXPECT().GetString("web.influxdb.host").Return("localhost").AnyTimes()
+			}
 
-	notified := make(chan notify.Payload, 1)
-	webhookServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var payload notify.Payload
-		require.NoError(suite.T(), json.NewDecoder(r.Body).Decode(&payload))
-		notified <- payload
-	}))
-	defer webhookServer.Close()
-	fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{webhookServer.URL})
+			notified := make(chan notify.Payload, 1)
+			webhookServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				var payload notify.Payload
+				require.NoError(suite.T(), json.NewDecoder(r.Body).Decode(&payload))
+				notified <- payload
+			}))
+			defer webhookServer.Close()
+			fakeConfig.EXPECT().GetStringSlice("notify.urls").AnyTimes().Return([]string{webhookServer.URL})
 
-	ae := web.AppEngine{
-		Config: fakeConfig,
-	}
-	router := ae.Setup(logrus.WithField("test", suite.T().Name()))
+			ae := web.AppEngine{
+				Config: fakeConfig,
+			}
+			router := ae.Setup(logrus.WithField("test", suite.T().Name()))
 
-	//test
-	errorPayload, err := json.Marshal(collector.CollectorError{
-		Error:        "smartctl could not open the device",
-		HostId:       "testhost",
-		DeviceName:   "/dev/sdb",
-		ScrutinyUUID: disabledUUID,
-	})
-	require.NoError(suite.T(), err)
+			//test
+			errorPayload, err := json.Marshal(collector.CollectorError{
+				Error:        "smartctl could not open the device",
+				HostId:       "testhost",
+				DeviceName:   "/dev/sdb",
+				ScrutinyUUID: tc.scrutinyUUID,
+			})
+			require.NoError(suite.T(), err)
 
-	er := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", suite.Basepath+"/api/collector/error", bytes.NewReader(errorPayload))
-	router.ServeHTTP(er, req)
+			er := httptest.NewRecorder()
+			req, _ := http.NewRequest("POST", suite.Basepath+"/api/collector/error", bytes.NewReader(errorPayload))
+			router.ServeHTTP(er, req)
 
-	//assert
-	require.Equal(suite.T(), 200, er.Code)
-	select {
-	case <-notified:
-		suite.T().Fatal("a device with on_smartctl_error disabled should not notify")
-	case <-time.After(500 * time.Millisecond):
+			//assert
+			require.Equal(suite.T(), 200, er.Code)
+			select {
+			case <-notified:
+				suite.T().Fatal("on_smartctl_error is disabled and should not notify")
+			case <-time.After(500 * time.Millisecond):
+			}
+		})
 	}
 }

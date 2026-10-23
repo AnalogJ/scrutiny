@@ -206,9 +206,12 @@ notify:
   on_smartctl_error: true
 ```
 
-To silence one device, set it in the `devices` section of `scrutiny.yaml`, keyed by its `scrutiny_uuid`:
+`scrutiny.yaml` has the same setting, for all devices or one device in the `devices` section, keyed by its `scrutiny_uuid`.
+The device's setting takes priority:
 
 ```yaml
+notify:
+  on_smartctl_error: true
 devices:
   - scrutiny_uuid: 9a4d34b5-b2ee-51ef-8506-90eea09be417
     notifications:
