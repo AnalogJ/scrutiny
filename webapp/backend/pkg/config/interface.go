@@ -1,6 +1,8 @@
 package config
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid/v5"
 	"github.com/spf13/viper"
 )
@@ -24,6 +26,7 @@ type Interface interface {
 	GetBool(key string) bool
 	GetInt(key string) int
 	GetInt64(key string) int64
+	GetDuration(key string) time.Duration
 	GetString(key string) string
 	GetStringSlice(key string) []string
 	UnmarshalKey(key string, rawVal interface{}, decoderOpts ...viper.DecoderConfigOption) error

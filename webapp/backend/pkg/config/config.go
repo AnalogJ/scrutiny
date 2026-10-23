@@ -21,13 +21,12 @@ type DeviceConfig struct {
 	ScrutinyUUID  uuid.UUID `mapstructure:"scrutiny_uuid"`
 	FriendlyName  string    `mapstructure:"friendly_name"`
 	Notifications struct {
-		// nil means not set, which defaults to true. A pointer is needed because viper defaults are
-		// per key and can't reach into list elements, so a bool couldn't tell unset from false.
-		OnMissedUpload *bool `mapstructure:"on_missed_upload"`
-		// nil defaults to `notify.on_smartctl_error`
+		// nil means not set, which defaults to the top level `notify` key. Pointers are needed because viper
+		// defaults are per key and can't reach into list elements, so they couldn't tell unset from false or 0.
+		OnMissedUpload  *bool `mapstructure:"on_missed_upload"`
 		OnSmartctlError *bool `mapstructure:"on_smartctl_error"`
 		// 0 means estimate it from the device's uploads
-		UploadPeriod time.Duration `mapstructure:"upload_period"`
+		UploadPeriod *time.Duration `mapstructure:"upload_period"`
 		// no notifications of any kind are sent for the device
 		Disabled bool `mapstructure:"disabled"`
 	} `mapstructure:"notifications"`
@@ -85,6 +84,8 @@ func (c *configuration) Init() error {
 
 	c.SetDefault("notify.urls", []string{})
 	c.SetDefault("notify.on_smartctl_error", true)
+	c.SetDefault("notify.on_missed_upload", true)
+	c.SetDefault("notify.upload_period", "0s")
 
 	c.SetDefault("web.influxdb.scheme", "http")
 	c.SetDefault("web.influxdb.host", "localhost")
@@ -178,6 +179,13 @@ func (c *configuration) ValidateConfig() error {
 		return errors.ConfigValidationError("`notify.level` configuration option is deprecated. Replaced by option in Dashboard Settings page")
 	}
 
+	// GetDuration would silently turn an invalid duration into 0
+	if period, err := time.ParseDuration(c.GetString("notify.upload_period")); err != nil {
+		return errors.ConfigValidationError(fmt.Sprintf("`notify.upload_period` is invalid: %v", err))
+	} else if period < 0 {
+		return errors.ConfigValidationError("`notify.upload_period` is negative")
+	}
+
 	devices, err := c.GetDevices()
 	if err != nil {
 		return errors.ConfigValidationError(fmt.Sprintf("`devices` is invalid: %v", err))
@@ -186,7 +194,7 @@ func (c *configuration) ValidateConfig() error {
 		if device.ScrutinyUUID.IsNil() {
 			return errors.ConfigValidationError("`scrutiny_uuid` is missing from a device")
 		}
-		if device.Notifications.UploadPeriod < 0 {
+		if device.Notifications.UploadPeriod != nil && *device.Notifications.UploadPeriod < 0 {
 			return errors.ConfigValidationError(fmt.Sprintf("`upload_period` of device %s is negative", device.ScrutinyUUID))
 		}
 	}

@@ -11,6 +11,7 @@ package mock_config
 
 import (
 	reflect "reflect"
+	time "time"
 
 	config "github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	uuid "github.com/gofrs/uuid/v5"
@@ -125,6 +126,20 @@ func (m *MockInterface) GetDevices() ([]config.DeviceConfig, error) {
 func (mr *MockInterfaceMockRecorder) GetDevices() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDevices", reflect.TypeOf((*MockInterface)(nil).GetDevices))
+}
+
+// GetDuration mocks base method.
+func (m *MockInterface) GetDuration(key string) time.Duration {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDuration", key)
+	ret0, _ := ret[0].(time.Duration)
+	return ret0
+}
+
+// GetDuration indicates an expected call of GetDuration.
+func (mr *MockInterfaceMockRecorder) GetDuration(key any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDuration", reflect.TypeOf((*MockInterface)(nil).GetDuration), key)
 }
 
 // GetInt mocks base method.
