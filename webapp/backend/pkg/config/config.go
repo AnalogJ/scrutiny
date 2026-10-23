@@ -24,6 +24,8 @@ type DeviceConfig struct {
 		// nil means not set, which defaults to true. A pointer is needed because viper defaults are
 		// per key and can't reach into list elements, so a bool couldn't tell unset from false.
 		OnMissedUpload *bool `mapstructure:"on_missed_upload"`
+		// nil defaults to `notify.on_smartctl_error`
+		OnSmartctlError *bool `mapstructure:"on_smartctl_error"`
 		// 0 means estimate it from the device's uploads
 		UploadPeriod time.Duration `mapstructure:"upload_period"`
 		// no notifications of any kind are sent for the device
@@ -82,6 +84,7 @@ func (c *configuration) Init() error {
 	c.SetDefault("log.file", "")
 
 	c.SetDefault("notify.urls", []string{})
+	c.SetDefault("notify.on_smartctl_error", true)
 
 	c.SetDefault("web.influxdb.scheme", "http")
 	c.SetDefault("web.influxdb.host", "localhost")

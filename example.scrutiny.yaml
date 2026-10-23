@@ -67,6 +67,8 @@ log:
 #      disabled: false
 #      # notify when the device's next upload is more than 10% later than upload_period. On for all devices by default.
 #      on_missed_upload: true
+#      # notify when the collector can't run smartctl for the device. Defaults to notify.on_smartctl_error.
+#      on_smartctl_error: true
 #      # optional time between the collector's uploads, eg. 24h or 1h30m. Unset or 0 (default) estimates it from the
 #      # device's last 3 uploads, once the 2 intervals between them are within 10% of each other.
 #      upload_period: 24h
@@ -80,6 +82,9 @@ log:
 # your shoutrrr url will look like: "smtp://myname%40example%2Ecom:124%4034%241@ms.my.domain.com:587"
 
 #notify:
+#  # default for the devices' `on_smartctl_error` above, and for devices that aren't listed there. Also covers
+#  # collector errors that aren't for a device, e.g. `smartctl --scan`
+#  on_smartctl_error: true
 #  urls:
 #    - discord://token@id[?thread_id=threadid]
 #    - googlechat://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz

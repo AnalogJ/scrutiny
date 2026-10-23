@@ -227,12 +227,7 @@ func (mc *MetricsCollector) Publish(scrutinyUuid uuid.UUID, payload []byte) erro
 }
 
 func (mc *MetricsCollector) ReportError(device models.Device, collectorErr error) {
-	// device name is empty for `smartctl --scan`
-	configDeviceName := ""
-	if len(device.DeviceName) > 0 {
-		configDeviceName = fmt.Sprintf("%s%s", detect.DevicePrefix(), device.DeviceName)
-	}
-	if !mc.config.GetNotifyOnSmartctlError(configDeviceName) {
+	if !mc.config.GetBool("notify.on_smartctl_error") {
 		mc.logger.Debugf("notify.on_smartctl_error is disabled for %q, not reporting: %v", device.DeviceName, collectorErr)
 		return
 	}
