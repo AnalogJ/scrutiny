@@ -496,6 +496,46 @@ Device Type: ATA
 Date: %s`, currentTime.Format(time.RFC3339)), payload.Message)
 }
 
+func TestNewPayload_FriendlyName(t *testing.T) {
+	t.Parallel()
+
+	device := models.Device{
+		SerialNumber: "FAKEWDDJ324KSO",
+		DeviceType:   pkg.DeviceProtocolAta,
+		DeviceName:   "sda",
+		DeviceStatus: pkg.DeviceStatusFailedScrutiny,
+		HostId:       "custom-host",
+		FriendlyName: "Backup",
+	}
+	currentTime := time.Now()
+
+	payload := NewPayload(device, false, currentTime)
+
+	require.Equal(t, "Scrutiny SMART error (ScrutinyFailure) detected on [host]device: [custom-host]Backup", payload.Subject)
+	require.Equal(t, fmt.Sprintf(`Scrutiny SMART error notification for device: Backup
+Host Id: custom-host
+Failure Type: ScrutinyFailure
+Friendly Name: Backup
+Device Name: sda
+Device Serial: FAKEWDDJ324KSO
+Device Type: ATA
+
+Date: %s`, currentTime.Format(time.RFC3339)), payload.Message)
+}
+
+func TestNewCollectorError_FriendlyName(t *testing.T) {
+	t.Parallel()
+
+	appConfig, err := config.Create()
+	require.NoError(t, err)
+	device := models.Device{HostId: "custom-host", DeviceName: "sda", FriendlyName: "Backup"}
+
+	payload := NewCollectorError(logrus.New(), appConfig, device, "boom").Payload
+
+	require.Equal(t, "Scrutiny collector error on [host]device: [custom-host]Backup", payload.Subject)
+	require.Contains(t, payload.Message, "Host Id: custom-host\nFriendly Name: Backup\nDevice Name: sda\n")
+}
+
 func TestSend_DeviceNotificationsDisabled(t *testing.T) {
 	disabledUUID := uuid.FromStringOrNil("ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c")
 	enabledUUID := uuid.FromStringOrNil("9a4d34b5-b2ee-51ef-8506-90eea09be417")

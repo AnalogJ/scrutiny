@@ -30,6 +30,7 @@ func newTestMissedUploadTracker(t *testing.T, devices ...map[string]interface{})
 	deviceRepo := mock_database.NewMockDeviceRepo(gomock.NewController(t))
 	deviceRepo.EXPECT().GetDevices(gomock.Any()).AnyTimes().Return(nil, nil)
 	deviceRepo.EXPECT().UpdateDeviceEstimatedUploadPeriod(gomock.Any(), gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
+	deviceRepo.EXPECT().GetDeviceDetails(gomock.Any(), gomock.Any()).AnyTimes().Return(models.Device{}, nil)
 	return newTestMissedUploadTrackerWithRepo(t, deviceRepo, devices...)
 }
 
@@ -83,11 +84,28 @@ func TestMissedUploadTracker_ConfiguredPeriod(t *testing.T) {
 
 	require.GreaterOrEqual(t, time.Since(upload), 110*time.Millisecond)
 	require.Equal(t, NotifyFailureTypeMissedUpload, payload.FailureType)
-	require.Equal(t, "Scrutiny missed upload for sda from host1", payload.Subject)
-	require.Contains(t, payload.Message, "Host Id: host1\nDevice Name: sda\n")
+	require.Equal(t, "Scrutiny missed upload for /dev/sda from host1", payload.Subject)
+	require.Contains(t, payload.Message, "Host Id: host1\nDevice Name: /dev/sda\n")
 	require.Contains(t, payload.Message, "Scrutiny UUID: "+missedUploadDevice.ScrutinyUUID.String())
 	require.Contains(t, payload.Message, "Last Upload: "+upload.Format(time.RFC3339))
 	require.Contains(t, payload.Message, "Upload Period: 100ms")
+}
+
+func TestMissedUploadTracker_UsesCurrentFriendlyName(t *testing.T) {
+	deviceRepo := mock_database.NewMockDeviceRepo(gomock.NewController(t))
+	deviceRepo.EXPECT().GetDevices(gomock.Any()).Return(nil, nil)
+	deviceRepo.EXPECT().GetDeviceDetails(gomock.Any(), missedUploadDevice.ScrutinyUUID).Return(models.Device{FriendlyName: "Backup"}, nil)
+	tracker, _, payloads := newTestMissedUploadTrackerWithRepo(t, deviceRepo, map[string]interface{}{
+		"scrutiny_uuid": missedUploadDevice.ScrutinyUUID.String(),
+		"notifications": map[string]interface{}{"upload_period": "10ms"},
+	})
+
+	// renamed after this upload
+	tracker.RecordUpload(missedUploadDevice, time.Now())
+	payload := requireNotification(t, payloads)
+
+	require.Equal(t, "Scrutiny missed upload for Backup from host1", payload.Subject)
+	require.Contains(t, payload.Message, "Host Id: host1\nFriendly Name: Backup\nDevice Name: /dev/sda\n")
 }
 
 func TestMissedUploadTracker_UploadRestartsTimer(t *testing.T) {

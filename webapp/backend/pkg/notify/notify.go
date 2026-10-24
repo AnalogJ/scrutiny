@@ -131,7 +131,8 @@ type Payload struct {
 	DeviceType   string `json:"device_type"`       //ATA/SCSI/NVMe
 	DeviceName   string `json:"device_name"`       //dev/sda
 	DeviceSerial string `json:"device_serial"`     //WDDJ324KSO
-	Test         bool   `json:"test"`              // false
+	FriendlyName string `json:"friendly_name,omitempty"`
+	Test         bool   `json:"test"` // false
 
 	//private, populated during init (marked as Public for JSON serialization)
 	Date        string `json:"date"`         //populated by Send function.
@@ -146,6 +147,7 @@ func NewPayload(device models.Device, test bool, currentTime ...time.Time) Paylo
 		DeviceType:   device.DeviceType,
 		DeviceName:   device.DeviceName,
 		DeviceSerial: device.SerialNumber,
+		FriendlyName: device.FriendlyName,
 		Test:         test,
 	}
 
@@ -182,9 +184,9 @@ func (p *Payload) GenerateSubject() string {
 	//generate a detailed failure message
 	var subject string
 	if len(p.HostId) > 0 {
-		subject = fmt.Sprintf("Scrutiny SMART error (%s) detected on [host]device: [%s]%s", p.FailureType, p.HostId, p.DeviceName)
+		subject = fmt.Sprintf("Scrutiny SMART error (%s) detected on [host]device: [%s]%s", p.FailureType, p.HostId, p.deviceLabel(p.DeviceName))
 	} else {
-		subject = fmt.Sprintf("Scrutiny SMART error (%s) detected on device: %s", p.FailureType, p.DeviceName)
+		subject = fmt.Sprintf("Scrutiny SMART error (%s) detected on device: %s", p.FailureType, p.deviceLabel(p.DeviceName))
 	}
 	return subject
 }
@@ -194,13 +196,16 @@ func (p *Payload) GenerateMessage() string {
 
 	messageParts := []string{}
 
-	messageParts = append(messageParts, fmt.Sprintf("Scrutiny SMART error notification for device: %s", p.DeviceName))
+	messageParts = append(messageParts, fmt.Sprintf("Scrutiny SMART error notification for device: %s", p.deviceLabel(p.DeviceName)))
 	if len(p.HostId) > 0 {
 		messageParts = append(messageParts, fmt.Sprintf("Host Id: %s", p.HostId))
 	}
 
+	messageParts = append(messageParts, fmt.Sprintf("Failure Type: %s", p.FailureType))
+	if len(p.FriendlyName) > 0 {
+		messageParts = append(messageParts, fmt.Sprintf("Friendly Name: %s", p.FriendlyName))
+	}
 	messageParts = append(messageParts,
-		fmt.Sprintf("Failure Type: %s", p.FailureType),
 		fmt.Sprintf("Device Name: %s", p.DeviceName),
 		fmt.Sprintf("Device Serial: %s", p.DeviceSerial),
 		fmt.Sprintf("Device Type: %s", p.DeviceType),
@@ -231,7 +236,7 @@ func NewCollectorError(logger logrus.FieldLogger, appconfig config.Interface, de
 }
 
 func (p *Payload) GenerateCollectorErrorSubject() string {
-	target := p.DeviceName
+	target := p.deviceLabel(p.DeviceName)
 	if len(target) == 0 {
 		target = "device scan"
 	}
@@ -239,6 +244,14 @@ func (p *Payload) GenerateCollectorErrorSubject() string {
 		return fmt.Sprintf("Scrutiny collector error on [host]device: [%s]%s", p.HostId, target)
 	}
 	return fmt.Sprintf("Scrutiny collector error on device: %s", target)
+}
+
+// deviceLabel names the device by its friendly name if it has one, otherwise by name
+func (p *Payload) deviceLabel(name string) string {
+	if len(p.FriendlyName) > 0 {
+		return p.FriendlyName
+	}
+	return name
 }
 
 func (p *Payload) GenerateCollectorErrorMessage(errorMessage string) string {
@@ -251,6 +264,9 @@ func (p *Payload) generateDeviceMessage(title string, details ...string) string 
 
 	if len(p.HostId) > 0 {
 		messageParts = append(messageParts, fmt.Sprintf("Host Id: %s", p.HostId))
+	}
+	if len(p.FriendlyName) > 0 {
+		messageParts = append(messageParts, fmt.Sprintf("Friendly Name: %s", p.FriendlyName))
 	}
 	if len(p.DeviceName) > 0 {
 		messageParts = append(messageParts, fmt.Sprintf("Device Name: %s", p.DeviceName))
@@ -391,6 +407,7 @@ func (n *Notify) SendScriptNotification(scriptUrl string) error {
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_DATE=%s", n.Payload.Date))
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_FAILURE_TYPE=%s", n.Payload.FailureType))
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_DEVICE_NAME=%s", n.Payload.DeviceName))
+	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_FRIENDLY_NAME=%s", n.Payload.FriendlyName))
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_DEVICE_TYPE=%s", n.Payload.DeviceType))
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_DEVICE_SERIAL=%s", n.Payload.DeviceSerial))
 	copyEnv = append(copyEnv, fmt.Sprintf("SCRUTINY_MESSAGE=%s", n.Payload.Message))
