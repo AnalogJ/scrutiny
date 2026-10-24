@@ -479,10 +479,17 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     openDialog(): void {
-        const dialogRef = this.dialog.open(DetailSettingsComponent);
+        const dialogRef = this.dialog.open(DetailSettingsComponent, {
+            width: '600px',
+            data: {scrutiny_uuid: this.device.scrutiny_uuid, friendly_name: this.device.friendly_name}
+        });
 
-        dialogRef.afterClosed().subscribe(result => {
-            console.log(`Dialog result: ${result}`);
+        dialogRef.afterClosed().subscribe((friendlyName: string | undefined) => {
+            // undefined when cancelled
+            if (friendlyName !== undefined) {
+                // new reference so the pure deviceTitle pipe re-runs
+                this.device = {...this.device, friendly_name: friendlyName};
+            }
         });
     }
 

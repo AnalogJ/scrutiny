@@ -19,7 +19,6 @@ const DB_USER_SETTINGS_SUBKEY = "user"
 // DeviceConfig is an entry in the `devices` list
 type DeviceConfig struct {
 	ScrutinyUUID  uuid.UUID `mapstructure:"scrutiny_uuid"`
-	FriendlyName  string    `mapstructure:"friendly_name"`
 	Notifications struct {
 		// nil means not set, which defaults to the top level `notify` key. Pointers are needed because viper
 		// defaults are per key and can't reach into list elements, so they couldn't tell unset from false or 0.

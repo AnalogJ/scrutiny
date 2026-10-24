@@ -42,10 +42,9 @@ type Device struct {
 	DeviceType     string `json:"device_type"`     //device type is used for querying with -d/t flag, should only be used by collector.
 
 	// User provided metadata
-	Label  string `json:"label"`
-	HostId string `json:"host_id"`
-	// from the `devices` config, so not stored
-	FriendlyName string `json:"friendly_name,omitempty" gorm:"-"`
+	Label        string `json:"label"`
+	HostId       string `json:"host_id"`
+	FriendlyName string `json:"friendly_name" gorm:"not null;default:''"`
 
 	// Data set by Scrutiny
 	DeviceStatus pkg.DeviceStatus `json:"device_status"`
