@@ -138,6 +138,24 @@ jobs:
         uses: actions/checkout@v6
       - name: Build
         run: make docker-omnibus
+      - name: Scan image
+        # Pinned by SHA: third-party scanner.
+        uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439 # v7.4.2
+        with:
+          image: ghcr.io/analogj/scrutiny-dev:omnibus
+          # Report only; findings must not block PRs.
+          fail-build: false
+          only-fixed: true
+          cache-db: true
+          output-format: table
+          output-file: grype.txt
+      - name: Add scan results to job summary
+        run: |
+          {
+            echo '```'
+            cat grype.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   makefile-docker-web:
     name: Build Docker Web From Makefile
@@ -147,6 +165,24 @@ jobs:
         uses: actions/checkout@v6
       - name: Build
         run: make docker-web
+      - name: Scan image
+        # Pinned by SHA: third-party scanner.
+        uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439 # v7.4.2
+        with:
+          image: ghcr.io/analogj/scrutiny-dev:web
+          # Report only; findings must not block PRs.
+          fail-build: false
+          only-fixed: true
+          cache-db: true
+          output-format: table
+          output-file: grype.txt
+      - name: Add scan results to job summary
+        run: |
+          {
+            echo '```'
+            cat grype.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   makefile-docker-collector:
     name: Build Docker Collector From Makefile
@@ -156,3 +192,21 @@ jobs:
         uses: actions/checkout@v6
       - name: Build
         run: make docker-collector
+      - name: Scan image
+        # Pinned by SHA: third-party scanner.
+        uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439 # v7.4.2
+        with:
+          image: ghcr.io/analogj/scrutiny-dev:collector
+          # Report only; findings must not block PRs.
+          fail-build: false
+          only-fixed: true
+          cache-db: true
+          output-format: table
+          output-file: grype.txt
+      - name: Add scan results to job summary
+        run: |
+          {
+            echo '```'
+            cat grype.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
