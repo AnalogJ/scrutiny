@@ -28,6 +28,8 @@ type MissedUploadTracker struct {
 type uploadHistory struct {
 	enabled bool          // `on_missed_upload`
 	period  time.Duration // 0 means estimate it from uploads
+	// the last settled estimate, kept while irregular uploads settle again
+	estimated time.Duration
 	// circular buffer of the latest upload times, uploads[next] is the oldest
 	uploads [3]time.Time
 	next    int
@@ -137,11 +139,18 @@ func (t *MissedUploadTracker) record(device models.Device, uploadedAt time.Time)
 		firstDelta, secondDelta := middle.Sub(oldest), uploadedAt.Sub(middle)
 		period = (firstDelta + secondDelta) / 2
 		if (firstDelta - secondDelta).Abs() > period/10 {
-			t.logger.Warnf("The last uploads from device %s were %s and %s apart, so its upload period is unknown until they settle. Set its `notifications.upload_period` to skip estimating it.",
-				device.ScrutinyUUID, firstDelta, secondDelta)
-			return 0
+			if history.estimated == 0 {
+				t.logger.Warnf("The last uploads from device %s were %s and %s apart, so its upload period is unknown until they settle. Set its `notifications.upload_period` to skip estimating it.",
+					device.ScrutinyUUID, firstDelta, secondDelta)
+				return 0
+			}
+			t.logger.Warnf("The last uploads from device %s were %s and %s apart, so its estimated upload period of %s is kept until they settle. Set its `notifications.upload_period` to skip estimating it.",
+				device.ScrutinyUUID, firstDelta, secondDelta, history.estimated)
+			period = history.estimated
+		} else {
+			history.estimated = period
+			estimated = period
 		}
-		estimated = period
 	}
 	// e.g. uploads with identical timestamps, which would notify immediately
 	if period <= 0 {

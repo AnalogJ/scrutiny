@@ -130,26 +130,26 @@ func TestMissedUploadTracker_EstimatesPeriodOnceUploadsSettle(t *testing.T) {
 	require.Contains(t, payload.Message, "Upload Period: 50ms")
 }
 
-func TestMissedUploadTracker_IrregularUploadStopsTimer(t *testing.T) {
-	tracker, hook, payloads := newTestMissedUploadTracker(t)
+func TestMissedUploadTracker_IrregularUploadKeepsEstimate(t *testing.T) {
+	deviceRepo := mock_database.NewMockDeviceRepo(gomock.NewController(t))
+	deviceRepo.EXPECT().GetDevices(gomock.Any()).Return(nil, nil)
+	// only the settled estimate is saved
+	deviceRepo.EXPECT().UpdateDeviceEstimatedUploadPeriod(gomock.Any(), gomock.Any(), 200*time.Millisecond).Return(nil)
+	tracker, hook, payloads := newTestMissedUploadTrackerWithRepo(t, deviceRepo)
 	now := time.Now()
 
 	tracker.RecordUpload(missedUploadDevice, now.Add(-400*time.Millisecond))
 	tracker.RecordUpload(missedUploadDevice, now.Add(-200*time.Millisecond))
 	tracker.RecordUpload(missedUploadDevice, now)
-	require.NotNil(t, tracker.devices[missedUploadDevice.ScrutinyUUID].timer)
+	require.Empty(t, warnings(hook))
 
 	// eg. a manual collector run
+	irregular := time.Now()
 	tracker.RecordUpload(missedUploadDevice, now.Add(50*time.Millisecond))
-	require.Nil(t, tracker.devices[missedUploadDevice.ScrutinyUUID].timer)
 	require.Len(t, warnings(hook), 1)
-
-	// the 200ms timer would fire 220ms after the third upload
-	select {
-	case <-payloads:
-		require.FailNow(t, "notified although the device uploaded")
-	case <-time.After(400 * time.Millisecond):
-	}
+	payload := requireNotification(t, payloads)
+	require.GreaterOrEqual(t, time.Since(irregular), 220*time.Millisecond)
+	require.Contains(t, payload.Message, "Upload Period: 200ms")
 }
 
 func TestMissedUploadTracker_SkipsDisabledDevices(t *testing.T) {
