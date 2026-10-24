@@ -3,6 +3,7 @@ package notify
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -149,6 +150,10 @@ func (t *MissedUploadTracker) record(device models.Device, uploadedAt time.Time)
 	}
 
 	history.timer = time.AfterFunc(period+period/10, func() {
+		// the friendly name may have changed since the upload
+		if stored, err := t.deviceRepo.GetDeviceDetails(context.Background(), device.ScrutinyUUID); err == nil {
+			device.FriendlyName = stored.FriendlyName
+		}
 		missedUpload := NewMissedUpload(t.logger, t.config, device, uploadedAt, period)
 		_ = missedUpload.Send() //we ignore error message when sending notifications.
 	})
@@ -157,6 +162,7 @@ func (t *MissedUploadTracker) record(device models.Device, uploadedAt time.Time)
 
 func NewMissedUpload(logger logrus.FieldLogger, appconfig config.Interface, device models.Device, lastUpload time.Time, uploadPeriod time.Duration) Notify {
 	payload := NewPayload(device, false)
+	payload.DeviceName = "/dev/" + strings.TrimPrefix(device.DeviceName, "/dev/")
 	payload.FailureType = NotifyFailureTypeMissedUpload
 	payload.Subject = payload.GenerateMissedUploadSubject()
 	payload.Message = payload.generateDeviceMessage("Scrutiny missed upload notification",
@@ -176,7 +182,7 @@ func NewMissedUpload(logger logrus.FieldLogger, appconfig config.Interface, devi
 
 func (p *Payload) GenerateMissedUploadSubject() string {
 	if len(p.HostId) > 0 {
-		return fmt.Sprintf("Scrutiny missed upload for %s from %s", p.DeviceName, p.HostId)
+		return fmt.Sprintf("Scrutiny missed upload for %s from %s", p.deviceLabel(p.DeviceName), p.HostId)
 	}
-	return fmt.Sprintf("Scrutiny missed upload from device: %s", p.DeviceName)
+	return fmt.Sprintf("Scrutiny missed upload from device: %s", p.deviceLabel(p.DeviceName))
 }

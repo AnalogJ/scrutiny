@@ -18,6 +18,7 @@ SCRUTINY_SUBJECT - 	eg. "Scrutiny SMART error (%s) detected on device: %s"
 SCRUTINY_DATE 
 SCRUTINY_FAILURE_TYPE - EmailTest, SmartFailure, ScrutinyFailure, CollectorError, MissedUpload
 SCRUTINY_DEVICE_NAME - eg. /dev/sda
+SCRUTINY_FRIENDLY_NAME - (optional) the device's friendly name, eg. "Backup"
 SCRUTINY_DEVICE_TYPE - ATA/SCSI/NVMe
 SCRUTINY_DEVICE_SERIAL - eg. WDDJ324KSO
 SCRUTINY_MESSAGE - eg. "Scrutiny SMART error notification for device: %s\nFailure Type: %s\nDevice Name: %s\nDevice Serial: %s\nDevice Type: %s\nDate: %s"
