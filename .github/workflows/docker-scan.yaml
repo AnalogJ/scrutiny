@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image: [latest-omnibus, latest-collector, latest-web]
+        image: [latest-omnibus, latest-collector, latest-web, nightly-omnibus, nightly-collector, nightly-web]
 
     steps:
       - name: Scan image
