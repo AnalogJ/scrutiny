@@ -9,6 +9,7 @@ import (
 	"github.com/analogj/go-util/utils"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/notify"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/handler"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/middleware"
 	"github.com/gin-gonic/gin"
@@ -24,8 +25,14 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 	r := gin.New()
 
 	r.Use(middleware.LoggerMiddleware(logger))
-	r.Use(middleware.RepositoryMiddleware(ae.Config, logger))
+	deviceRepo := middleware.NewRepository(ae.Config, logger)
+	r.Use(middleware.RepositoryMiddleware(deviceRepo))
 	r.Use(middleware.ConfigMiddleware(ae.Config))
+	missedUploadTracker := notify.NewMissedUploadTracker(logger, ae.Config, deviceRepo)
+	r.Use(func(c *gin.Context) {
+		c.Set("MISSED_UPLOAD_TRACKER", missedUploadTracker)
+		c.Next()
+	})
 	r.Use(gin.Recovery())
 
 	basePath := ae.Config.GetString("web.listen.basepath")
@@ -44,10 +51,11 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 			api.POST("/collector/error", handler.CollectorError)                  //used by Collector to report that it could not gather data
 			api.POST("/device/:scrutiny_uuid/smart", handler.UploadDeviceMetrics) //used by Collector to upload data
 			api.POST("/device/:scrutiny_uuid/selftest", handler.UploadDeviceSelfTests)
-			api.GET("/device/:scrutiny_uuid/details", handler.GetDeviceDetails)   //used by Details
-			api.POST("/device/:scrutiny_uuid/archive", handler.ArchiveDevice)     //used by UI to archive device
-			api.POST("/device/:scrutiny_uuid/unarchive", handler.UnarchiveDevice) //used by UI to unarchive device
-			api.DELETE("/device/:scrutiny_uuid", handler.DeleteDevice)            //used by UI to delete device
+			api.GET("/device/:scrutiny_uuid/details", handler.GetDeviceDetails)             //used by Details
+			api.POST("/device/:scrutiny_uuid/archive", handler.ArchiveDevice)               //used by UI to archive device
+			api.POST("/device/:scrutiny_uuid/unarchive", handler.UnarchiveDevice)           //used by UI to unarchive device
+			api.POST("/device/:scrutiny_uuid/friendly_name", handler.SetDeviceFriendlyName) //used by UI device settings
+			api.DELETE("/device/:scrutiny_uuid", handler.DeleteDevice)                      //used by UI to delete device
 
 			api.GET("/settings", handler.GetSettings)   //used to get settings
 			api.POST("/settings", handler.SaveSettings) //used to save settings

@@ -16,6 +16,8 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20220716214900"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20250221084400"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20260216155600"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20261021120000"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database/migrations/m20261021150000"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
@@ -487,7 +489,19 @@ func (sr *scrutinyRepository) Migrate(ctx context.Context) error {
 			},
 		},
 		{
-			ID: "m20261008150000", // add dashboard_temperature_duration setting.
+			ID: "m20261021120000", // add estimated_upload_period to device data
+			Migrate: func(tx *gorm.DB) error {
+				return tx.AutoMigrate(m20261021120000.Device{})
+			},
+		},
+		{
+			ID: "m20261021150000", // add friendly_name to device data
+			Migrate: func(tx *gorm.DB) error {
+				return tx.AutoMigrate(m20261021150000.Device{})
+			},
+		},
+		{
+			ID: "m20261025120000", // add dashboard_temperature_duration setting.
 			Migrate: func(tx *gorm.DB) error {
 				//add dashboard_temperature_duration setting default.
 				var defaultSettings = []m20220716214900.Setting{

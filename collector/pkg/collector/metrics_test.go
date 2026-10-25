@@ -93,7 +93,7 @@ func TestMetricsCollector_Collect_ConfiguredDeviceType(t *testing.T) {
 			//only consulted for a scsi/ata type; the argv below is what the test pins
 			fakeConfig.EXPECT().HasDeviceTypeOverride(fullDeviceName).AnyTimes().Return(tt.hasDeviceTypeOverride)
 			fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("testhost")
-			fakeConfig.EXPECT().GetNotifyOnSmartctlError(fullDeviceName).AnyTimes().Return(true)
+			fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
 
 			someLogger := logrus.WithFields(logrus.Fields{})
 
@@ -123,10 +123,9 @@ func TestMetricsCollector_ReportError_NotifyDisabled(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
 	const someDeviceName = "sda"
-	fullDeviceName := detect.DevicePrefix() + someDeviceName
 
 	fakeConfig := mock_config.NewMockInterface(ctrl)
-	fakeConfig.EXPECT().GetNotifyOnSmartctlError(fullDeviceName).Return(false)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").Return(false)
 
 	apiEndpoint, reported := helperCollectorErrorApi(t)
 
@@ -153,7 +152,7 @@ func TestMetricsCollector_Collect_SignalledSmartctl(t *testing.T) {
 	fakeConfig.EXPECT().GetString("commands.metrics_smartctl_bin").Return("smartctl")
 	fakeConfig.EXPECT().HasDeviceTypeOverride(fullDeviceName).AnyTimes().Return(false)
 	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("testhost")
-	fakeConfig.EXPECT().GetNotifyOnSmartctlError(fullDeviceName).AnyTimes().Return(true)
+	fakeConfig.EXPECT().GetBool("notify.on_smartctl_error").AnyTimes().Return(true)
 
 	someLogger := logrus.WithFields(logrus.Fields{})
 

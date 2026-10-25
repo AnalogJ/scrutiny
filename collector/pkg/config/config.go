@@ -119,6 +119,7 @@ func (c *configuration) ValidateConfig() error {
 	}
 
 	errorStrings := []string{}
+
 	for configKey, commandArgString := range commandArgStrings {
 		args := strings.Split(commandArgString, " ")
 		//ensure that the args string contains `--json` or `-j` flag
@@ -199,15 +200,6 @@ func (c *configuration) GetCommandMetricsSmartArgs(deviceName string) string {
 	}
 
 	return c.GetString("commands.metrics_smart_args")
-}
-
-// device-specific settings should win in case a single drive has an issue
-func (c *configuration) GetNotifyOnSmartctlError(deviceName string) bool {
-	if deviceOverride, found := c.getDeviceOverride(deviceName); found && deviceOverride.Notify.OnSmartctlError != nil {
-		return *deviceOverride.Notify.OnSmartctlError
-	}
-
-	return c.GetBool("notify.on_smartctl_error")
 }
 
 func (c *configuration) IsAllowlistedDevice(deviceName string) bool {

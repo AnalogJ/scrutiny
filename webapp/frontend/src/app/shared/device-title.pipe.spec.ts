@@ -61,6 +61,21 @@ describe('DeviceTitlePipe', () => {
                 },
                 'titleType': 'label',
                 'result': '/by-label/drive-volume-label'
+            },{
+                'device': {
+                    'device_name': 'sda',
+                    'model_name': 'Samsung',
+                    'friendly_name': 'Backup Disk',
+                },
+                'titleType': 'name',
+                'result': 'Backup Disk'
+            },{
+                'device': {
+                    'device_serial_id': 'ata-WDC_WD140EDFZ-11AXXXXX_9RXXXXXX',
+                    'friendly_name': 'Backup Disk',
+                },
+                'titleType': 'serial_id',
+                'result': 'Backup Disk'
             },
         ]
         testCases.forEach((test, index) => {
@@ -138,6 +153,22 @@ describe('DeviceTitlePipe', () => {
                 },
                 'titleType': 'label',
                 'result': '/by-label/drive-volume-label'
+            },{
+                'device': {
+                    'host_id': 'nas',
+                    'label': 'custom-device-label',
+                    'friendly_name': 'Backup Disk',
+                },
+                'titleType': 'label',
+                'result': 'nas - Backup Disk'
+            },{
+                'device': {
+                    'device_name': 'sda',
+                    'model_name': 'Samsung',
+                    'friendly_name': 'Backup Disk',
+                },
+                'titleType': 'name',
+                'result': 'Backup Disk'
             },
         ]
         testCases.forEach((test, index) => {

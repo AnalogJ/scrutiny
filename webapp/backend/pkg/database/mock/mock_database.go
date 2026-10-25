@@ -264,6 +264,34 @@ func (mr *MockDeviceRepoMockRecorder) UpdateDeviceArchived(ctx, scrutiny_uuid, a
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceArchived", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDeviceArchived), ctx, scrutiny_uuid, archived)
 }
 
+// UpdateDeviceEstimatedUploadPeriod mocks base method.
+func (m *MockDeviceRepo) UpdateDeviceEstimatedUploadPeriod(ctx context.Context, scrutiny_uuid uuid.UUID, period time.Duration) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateDeviceEstimatedUploadPeriod", ctx, scrutiny_uuid, period)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateDeviceEstimatedUploadPeriod indicates an expected call of UpdateDeviceEstimatedUploadPeriod.
+func (mr *MockDeviceRepoMockRecorder) UpdateDeviceEstimatedUploadPeriod(ctx, scrutiny_uuid, period any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceEstimatedUploadPeriod", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDeviceEstimatedUploadPeriod), ctx, scrutiny_uuid, period)
+}
+
+// UpdateDeviceFriendlyName mocks base method.
+func (m *MockDeviceRepo) UpdateDeviceFriendlyName(ctx context.Context, scrutiny_uuid uuid.UUID, friendlyName string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateDeviceFriendlyName", ctx, scrutiny_uuid, friendlyName)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateDeviceFriendlyName indicates an expected call of UpdateDeviceFriendlyName.
+func (mr *MockDeviceRepoMockRecorder) UpdateDeviceFriendlyName(ctx, scrutiny_uuid, friendlyName any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateDeviceFriendlyName", reflect.TypeOf((*MockDeviceRepo)(nil).UpdateDeviceFriendlyName), ctx, scrutiny_uuid, friendlyName)
+}
+
 // UpdateDeviceStatus mocks base method.
 func (m *MockDeviceRepo) UpdateDeviceStatus(ctx context.Context, scrutiny_uuid uuid.UUID, status pkg.DeviceStatus) (models.Device, error) {
 	m.ctrl.T.Helper()

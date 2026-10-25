@@ -42,12 +42,16 @@ type Device struct {
 	DeviceType     string `json:"device_type"`     //device type is used for querying with -d/t flag, should only be used by collector.
 
 	// User provided metadata
-	Label  string `json:"label"`
-	HostId string `json:"host_id"`
+	Label        string `json:"label"`
+	HostId       string `json:"host_id"`
+	FriendlyName string `json:"friendly_name" gorm:"not null;default:''"`
 
 	// Data set by Scrutiny
 	DeviceStatus pkg.DeviceStatus `json:"device_status"`
 	ScrutinyUUID uuid.UUID        `json:"scrutiny_uuid" gorm:"primaryKey;uniqueIndex"`
+
+	// time between uploads as estimated by the missed upload tracker, 0 if unknown
+	EstimatedUploadPeriod time.Duration `json:"-" gorm:"not null;default:0"`
 }
 
 func (dv *Device) IsAta() bool {

@@ -57,6 +57,19 @@ log:
   file: '' #absolute or relative paths allowed, eg. web.log
   level: INFO
 
+# Per-device settings. A device's scrutiny_uuid is the last part of its details page URL (/web/device/<scrutiny_uuid>).
+#devices:
+#  - scrutiny_uuid: 9a4d34b5-b2ee-51ef-8506-90eea09be417
+#    notifications:
+#      # send no notifications of any kind for the device
+#      disabled: false
+#      # notify when the device's next upload is more than 10% later than upload_period. Defaults to notify.on_missed_upload.
+#      on_missed_upload: true
+#      # notify when the collector can't run smartctl for the device. Defaults to notify.on_smartctl_error.
+#      on_smartctl_error: true
+#      # time between the collector's uploads, eg. 24h or 1h30m. Defaults to notify.upload_period.
+#      upload_period: 24h
+
 
 # Notification "urls" look like the following. For more information about service specific configuration see
 # Shoutrrr's documentation: https://shoutrrr.nickfedor.com/services/overview/
@@ -66,6 +79,13 @@ log:
 # your shoutrrr url will look like: "smtp://myname%40example%2Ecom:124%4034%241@ms.my.domain.com:587"
 
 #notify:
+#  # defaults for the devices' `notifications` settings above, and for devices that aren't listed there
+#  on_missed_upload: true
+#  # 0 (default) estimates it from the device's last 3 uploads, once the 2 intervals between them are within 10% of
+#  # each other
+#  upload_period: 0s
+#  # also covers collector errors that aren't for a device, e.g. `smartctl --scan`
+#  on_smartctl_error: true
 #  urls:
 #    - discord://token@id[?thread_id=threadid]
 #    - googlechat://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz

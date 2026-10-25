@@ -1,15 +1,57 @@
 package config
 
 import (
-	"github.com/analogj/go-util/utils"
-	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
-	"github.com/spf13/viper"
+	"fmt"
 	"log"
 	"os"
 	"strings"
+	"time"
+
+	"github.com/analogj/go-util/utils"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
+	"github.com/go-viper/mapstructure/v2"
+	"github.com/gofrs/uuid/v5"
+	"github.com/spf13/viper"
 )
 
 const DB_USER_SETTINGS_SUBKEY = "user"
+
+// DeviceConfig is an entry in the `devices` list
+type DeviceConfig struct {
+	ScrutinyUUID  uuid.UUID `mapstructure:"scrutiny_uuid"`
+	Notifications struct {
+		// nil means not set, which defaults to the top level `notify` key. Pointers are needed because viper
+		// defaults are per key and can't reach into list elements, so they couldn't tell unset from false or 0.
+		OnMissedUpload  *bool `mapstructure:"on_missed_upload"`
+		OnSmartctlError *bool `mapstructure:"on_smartctl_error"`
+		// 0 means estimate it from the device's uploads
+		UploadPeriod *time.Duration `mapstructure:"upload_period"`
+		// no notifications of any kind are sent for the device
+		Disabled bool `mapstructure:"disabled"`
+	} `mapstructure:"notifications"`
+}
+
+func (c *configuration) GetDevices() ([]DeviceConfig, error) {
+	var devices []DeviceConfig
+	// keep viper's default hooks, which parse durations
+	err := c.UnmarshalKey("devices", &devices, viper.DecodeHook(mapstructure.ComposeDecodeHookFunc(
+		mapstructure.TextUnmarshallerHookFunc(),
+		mapstructure.StringToTimeDurationHookFunc(),
+		mapstructure.StringToSliceHookFunc(","),
+	)))
+	return devices, err
+}
+
+func (c *configuration) GetDeviceConfig(scrutinyUUID uuid.UUID) *DeviceConfig {
+	// ValidateConfig already rejected invalid devices
+	devices, _ := c.GetDevices()
+	for i := range devices {
+		if devices[i].ScrutinyUUID == scrutinyUUID {
+			return &devices[i]
+		}
+	}
+	return nil
+}
 
 // When initializing this class the following methods must be called:
 // Config.New
@@ -40,6 +82,9 @@ func (c *configuration) Init() error {
 	c.SetDefault("log.file", "")
 
 	c.SetDefault("notify.urls", []string{})
+	c.SetDefault("notify.on_smartctl_error", true)
+	c.SetDefault("notify.on_missed_upload", true)
+	c.SetDefault("notify.upload_period", "0s")
 
 	c.SetDefault("web.influxdb.scheme", "http")
 	c.SetDefault("web.influxdb.host", "localhost")
@@ -131,6 +176,26 @@ func (c *configuration) ValidateConfig() error {
 	}
 	if c.IsSet("notify.level") {
 		return errors.ConfigValidationError("`notify.level` configuration option is deprecated. Replaced by option in Dashboard Settings page")
+	}
+
+	// GetDuration would silently turn an invalid duration into 0
+	if period, err := time.ParseDuration(c.GetString("notify.upload_period")); err != nil {
+		return errors.ConfigValidationError(fmt.Sprintf("`notify.upload_period` is invalid: %v", err))
+	} else if period < 0 {
+		return errors.ConfigValidationError("`notify.upload_period` is negative")
+	}
+
+	devices, err := c.GetDevices()
+	if err != nil {
+		return errors.ConfigValidationError(fmt.Sprintf("`devices` is invalid: %v", err))
+	}
+	for _, device := range devices {
+		if device.ScrutinyUUID.IsNil() {
+			return errors.ConfigValidationError("`scrutiny_uuid` is missing from a device")
+		}
+		if device.Notifications.UploadPeriod != nil && *device.Notifications.UploadPeriod < 0 {
+			return errors.ConfigValidationError(fmt.Sprintf("`upload_period` of device %s is negative", device.ScrutinyUUID))
+		}
 	}
 
 	return nil

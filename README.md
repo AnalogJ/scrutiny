@@ -198,21 +198,61 @@ For more information and troubleshooting, see the [TROUBLESHOOTING_NOTIFICATIONS
 ### Collector Errors
 
 Scrutiny will also notify you if the collector is unable to run `smartctl` successfully, preventing it from reporting data.
-This is on by default and can be configured in `collector.yaml`
+This is on by default. The global setting in `collector.yaml` also covers `smartctl --scan` and devices that failed
+before registering with Scrutiny:
 
 ```yaml
-# applies to `smartctl --scan` and any device without its own setting below
 notify:
   on_smartctl_error: true
+```
 
+`scrutiny.yaml` has the same setting, for all devices or one device in the `devices` section, keyed by its `scrutiny_uuid`.
+The device's setting takes priority:
+
+```yaml
+notify:
+  on_smartctl_error: true
 devices:
-  # device-specific settings take priority over the global one above
-  - device: /dev/sda
-    notify:
+  - scrutiny_uuid: 9a4d34b5-b2ee-51ef-8506-90eea09be417
+    notifications:
       on_smartctl_error: false
 ```
 
 A drive that `-n`/`--nocheck` found in a low power mode is not a failure, and is never reported.
+
+### Missed Uploads
+
+Scrutiny will also notify you when a device stops uploading data. This is on for every device, and can be configured
+globally in `notify`, or per device in the `devices` section of `scrutiny.yaml`, which takes priority. A device's
+`scrutiny_uuid` is the last part of its details page URL.
+
+```yaml
+notify:
+  on_missed_upload: true # optional, default true
+  upload_period: 24h     # optional, default 0 (estimate)
+devices:
+  - scrutiny_uuid: 9a4d34b5-b2ee-51ef-8506-90eea09be417
+    notifications:
+      on_missed_upload: true # optional, default notify.on_missed_upload
+      upload_period: 0       # optional, default notify.upload_period
+```
+
+A notification is sent when the next upload is more than 10% later than `upload_period`. When `upload_period` is 0,
+Scrutiny uses the average time between the device's last 3 uploads. If those intervals differ by more than 10%, it logs
+a warning and waits for them to settle before notifying. Scrutiny saves the estimated period, and uses it again after a restart unless `upload_period` is not 0. Drives that `-n`/`--nocheck` skips in a low power mode don't upload, so set `on_missed_upload: false`
+for them.
+
+### Disabling Notifications for a Device
+
+Set `notifications.disabled: true` on a device in the `devices` section of `scrutiny.yaml` to stop all of its
+notifications (SMART failures, collector errors and missed uploads). Default `false`.
+
+```yaml
+devices:
+  - scrutiny_uuid: 9a4d34b5-b2ee-51ef-8506-90eea09be417
+    notifications:
+      disabled: true
+```
 
 ### Testing Notifications
 
