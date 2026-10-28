@@ -1,0 +1,77 @@
+.TH SCRUTINY-COLLECTOR-METRICS 8 "" "Scrutiny" "System Administration"
+.SH NAME
+scrutiny-collector-metrics \- smartctl data collector for scrutiny
+.SH SYNOPSIS
+.B scrutiny-collector-metrics
+.RB [ \-\-help | \-\-version ]
+.br
+.B scrutiny-collector-metrics run
+.RI [ options ]
+.SH DESCRIPTION
+.B scrutiny-collector-metrics
+detects the drives on the local host with
+.BR smartctl (8),
+collects their S.M.A.R.T. data and sends it to a Scrutiny web/API server.
+.SH COMMANDS
+.TP
+.B run
+Run the scrutiny smartctl metrics collector.
+.TP
+.BR help ", " h
+Show a list of commands or help for one command.
+.SH GLOBAL OPTIONS
+.TP
+.BR \-\-help ", " \-h
+Show help.
+.TP
+.BR \-\-version ", " \-v
+Print the version.
+.SH RUN OPTIONS
+.TP
+.BI \-\-config " path"
+Path to the collector configuration file.
+.TP
+.BI \-\-api\-endpoint " url"
+The API server endpoint, e.g. http://localhost:8080.
+.TP
+.BI \-\-log\-file " path"
+Path to file for logging. Leave empty to use stdout.
+.TP
+.B \-\-debug
+Enable debug logging.
+.TP
+.BI \-\-host\-id " id"
+Host identifier/label, used for grouping devices.
+.SH ENVIRONMENT
+.TP
+.BR COLLECTOR_API_ENDPOINT ", " SCRUTINY_API_ENDPOINT
+Same as
+.BR \-\-api\-endpoint .
+.TP
+.B COLLECTOR_LOG_FILE
+Same as
+.BR \-\-log\-file .
+.TP
+.BR COLLECTOR_DEBUG ", " DEBUG
+Same as
+.BR \-\-debug .
+.TP
+.B COLLECTOR_HOST_ID
+Same as
+.BR \-\-host\-id .
+.SH FILES
+.TP
+.I /etc/scrutiny/collector.yml
+Configuration file used by the packaged
+.B scrutiny-collector.service
+systemd unit.
+.TP
+.I /opt/scrutiny/config/collector.yaml
+Configuration file read when
+.B \-\-config
+is not given.
+.SH SEE ALSO
+.BR smartctl (8),
+.BR systemd.timer (5)
+.PP
+https://github.com/AnalogJ/scrutiny

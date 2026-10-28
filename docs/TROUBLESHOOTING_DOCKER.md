@@ -5,7 +5,7 @@
 
 The CD scripts used to orchestrate the docker image builds can be found here:
 * https://github.com/AnalogJ/scrutiny/blob/master/.github/workflows/docker-build.yaml
-* https://github.com/AnalogJ/scrutiny/blob/master/.github/workflows/docker-nightly.yaml
+* https://github.com/AnalogJ/scrutiny/blob/master/.github/workflows/nightly.yaml
 
 In general scrutiny follows a feature branch development process, which means that the `master` branch should ideally always be free of bugs 
 This is driven by the requirement that every PR be reviewed and pass all tests.  Unfortunately, bugs do make it through, especially because of the

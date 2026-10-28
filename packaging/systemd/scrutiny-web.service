@@ -1,0 +1,14 @@
+[Unit]
+Description=Scrutiny Web
+Documentation=man:scrutiny-web(8)
+Wants=network-online.target
+After=network-online.target influxdb.service
+
+[Service]
+ExecStart=/usr/bin/scrutiny-web start --config /etc/scrutiny/scrutiny.yaml
+DynamicUser=yes
+StateDirectory=scrutiny
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,7 @@
+[Unit]
+Description=Scrutiny Collector
+Documentation=man:scrutiny-collector-metrics(8)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/scrutiny-collector-metrics run --config /etc/scrutiny/collector.yml
