@@ -205,20 +205,31 @@ sudo crontab -e
 
 Alternatively you can run `scrutiny-collector-metrics` as non-root so long as the relevant capabilities and permissions are granted.
 
+You have two options for running the collector rootless. An easy setup as well as a more advanced one that thoroughly locks everything down. In both approaches you will need to create a group and udev rule:
 
-#### Creating a Restricted Service Account
 
-This is the account that will run `scrutiny-collector-metrics`. Note this isn't strictly needed for all setups, but is useful from a logging/auditing perspective.
+#### Setting Up Permissions
+
+This is the group that will be used when running `scrutiny-collector-metrics`. Note this isn't strictly needed for all setups, but is useful from a logging/auditing perspective. Also if you are running your web and influxdb instances via rootless podman, you can skip this as the group was already created when with the podman user.
 
 - Debian-based distros:
-    - `sudo adduser --system scrutiny-svc --group --home /opt/scrutiny-svc`
+    - `sudo addgroup --system scrutiny-svc`
 - RHEL-based distros:
-    - `sudo useradd --system --home-dir /opt/scrutiny-svc --shell /sbin/nologin scrutiny-svc`
+    - `sudo groupadd --system scrutiny-svc`
 
-Next, add the user to the `disk` group:
+Next, for nvme drives you may need to create a udev rule on many systems, as /dev/nvme* are often owned only by root:
+
+##### add udev rule `/etc/udev/rules.d/99-nvme.rules` with contents:
+
+```
+KERNEL=="nvme[0-9]*", GROUP="disk", MODE="0640"
+```
+
+then run the following commands to load the udev rule:
 
 ```sh
-sudo usermod -aG disk scrutiny-svc
+sudo udevadm control --reload-rules
+sudo udevadm trigger --subsystem-match=nvme --action=add
 ```
 
 
@@ -242,8 +253,8 @@ After=network.target
 
 [Service]
 Type=oneshot
-User=scrutiny-svc
-Group=disk
+DynamicUser=yes
+SupplementaryGroups=scrutiny-svc disk
 ExecStart=/opt/scrutiny/bin/scrutiny-collector-metrics run --api-endpoint "http://localhost:8080"
 
 # --- PRIVILEGE LOCKDOWN ---
@@ -253,7 +264,7 @@ CapabilityBoundingSet=CAP_SYS_RAWIO
 ## unfortunately nvme drives require CAP_SYS_ADMIN
 ## if you want nvme drives you must do the following:
 #AmbientCapabilities=CAP_SYS_RAWIO CAP_SYS_ADMIN
-#CapabilityBoundingSet=
+#CapabilityBoundingSet=CAP_SYS_RAWIO CAP_SYS_ADMIN
 
 NoNewPrivileges=yes
 
@@ -290,21 +301,6 @@ WantedBy=multi-user.target
 
 ```
 
-Additionally, for nvme drives you may need to create a udev rule on many systems, as /dev/nvme* is often owned only by root:
-
-##### add udev rule `/etc/udev/rules.d/99-nvme.rules` with contents:
-
-```
-KERNEL=="nvme[0-9]*", GROUP="disk", MODE="0640"
-```
-
-then run the following commands to load the udev rule:
-
-```sh
-sudo udevadm control --reload-rules
-sudo udevadm trigger --subsystem-match=nvme --action=add
-```
-
 
 ##### Pros:
 
@@ -319,105 +315,402 @@ NOTE: These cons basically only apply if a major supply-chain attack happens aga
 
 - CAP_SYS_RAWIO allows for data exfiltration/modification from SATA drives (ssh keys, /etc/shadow, etc)
 - CAP_SYS_ADMIN would theoretically allow for significant system compromise
-- nvme drives requires a udev rule for reliable access
 
 
 If you are happy with that, you can jump to [Create a Systemd Timer to run scrutiny-collector.service](#create-a-systemd-timer-to-run-scrutiny-collectorservice)
 
 
-#### Creating a Restricted Systemd Service using sudo and Shim Script
+#### Creating a Restricted Systemd Service using smartctl Proxy Via Unix Socket (advanced)
 
-If granting scrutiny `CAP_SYS_RAWIO` and/or `CAP_SYS_ADMIN` exceeds your risk appetite, you have another option, though one more complicated and with its own set of pros/cons
+If granting scrutiny `CAP_SYS_RAWIO` and/or `CAP_SYS_ADMIN` exceeds your risk appetite, you have another option, though one more complicated. The payoff, though, is a hardened setup where scrutiny's collector is completely unprivileged.
 
-1. run `sudo mkdir -p /opt/smartctl-shim/bin`
-2. edit `/opt/smartctl-shim/bin/smartctl` with the following content:
+1. install `socat` via your package manager. This is needed by the smartctl-shim
+    * Debian-based distros: `sudo apt install socat`
+    * RHEL-based distros: `sudo dnf install socat`
+2. run `sudo mkdir -p /opt/smartctl-shim/bin`
+3. edit `/opt/smartctl-shim/bin/smartctl` with the following content:
 
-```sh
-#!/bin/bash
-# Shim for accounts to use smartctl without being root
-# for automation requires the account be in sudoers
-exec /usr/bin/sudo /usr/sbin/smartctl "$@"
+```bash
+#!/usr/bin/env bash
+
+# Shim for accounts to use smartctl without being root via unix socket
+
+# don't send json, so it won't be processed by scrutiny
+# but make the error informative for logs
+send_smartctl_shim_error() {
+    local MSG="$1" ARGS="$2" EXIT_CODE="${3:-3}"
+
+    cat <<EOF
+smartctl-shim 0.3
+=======> ERROR <=======
+Args: "${ARGS}"
+Message: ${MSG}
+Please check journald for proxy errors
+and review the docs: https://github.com/AnalogJ/scrutiny/blob/master/docs/INSTALL_MANUAL.md
+EOF
+    exit $EXIT_CODE
+}
+
+
+# request the smartctl data
+RESPONSE=$(echo "$*" | socat -t 10 - UNIX-CONNECT:/run/scrutiny/smartctl.sock 2>/dev/null)
+
+if [[ -z "$RESPONSE" ]]; then
+    send_smartctl_shim_error "Shim: Failed to connect to proxy socket" "$*" "3"
+fi
+
+# if no exit_status, assume bad.
+# If you run into issues with grepping, switch to jq
+#EXIT_STATUS=$(echo "$RESPONSE" | jq ".smartctl.exit_status // 2" 2>/dev/null)
+EXIT_STATUS=$(echo "$RESPONSE" | grep -m 1 -oP $'[\'"]exit_status[\'"]:\s*\K\d+')
+PARSE_STATUS=$?
+
+# Invalid JSON (smartctl-proxy error) or smartctl error that shouldn't be reported up as json
+if [[ ($PARSE_STATUS -gt 0) || ($EXIT_STATUS -gt 0 && $EXIT_STATUS -lt 4) ]]; then
+    send_smartctl_shim_error "$RESPONSE" "$*" "${EXIT_STATUS:-3}"
+else
+    echo "$RESPONSE"
+    exit $EXIT_STATUS
+fi
+
 ```
 
-3. create a new `scrutiny-collector` file in `/etc/sudoers.d/`
-4. inside `/etc/sudoers.d/scrutiny-collector` add the following:
+4. make the shim executable `sudo chmod +x /opt/smartctl-shim/bin/smartctl`
+5. create a new directory `sudo mkdir -p /opt/smartctl-proxy/bin`
+6. create inside there a proxy script. See below examples using a bash script and python script
 
-```sh
-scrutiny-svc ALL=(root) NOPASSWD: /usr/sbin/smartctl *
+
+<details><summary>Click to expand: smartctl-proxy.sh</summary>
+
+```bash
+#!/usr/bin/env bash
+SMARTCTL="/usr/sbin/smartctl"
+
+send_smartctl_proxy_error() {
+    local EXIT_CODE="${3:-3}"
+    printf "%s\n" "=======> PROXYERR <=======" "'exit_status': $EXIT_CODE" "MSG: $1" "ARGS: $2"
+    # for logging
+    printf "%s\n" "=======> PROXYERR <=======" "'exit_status': $EXIT_CODE" "MSG: $1" "ARGS: $2" >&2
+    # still should exit with status code zero so systemd doesn't consider the service failed
+    exit 0
+}
+
+# Get Args
+if ! read -t 2 -r -a ARGS_ARRAY; then
+    send_smartctl_proxy_error "No Args... Did you send a newline?"
+fi
+FULL_LINE="${ARGS_ARRAY[*]}"
+
+# Prevent malicoius forking/chaining to prevent attacks to the privileged socket
+# only allow alphanumeric, spaces, dots, underscores, and dashes
+if [[ "$FULL_LINE" =~ [^a-zA-Z0-9\ ./\_-] ]]; then
+    send_smartctl_proxy_error "Security violation: Illegal characters detected" "$FULL_LINE"
+fi
+
+# Must be a scan, info, or xall smartctl action
+ACTION="${ARGS_ARRAY[0]}"
+if [[ "$ACTION" == "--scan" || "$ACTION" == "--info" || "$ACTION" == "--xall" ]]; then
+    # We good
+    : 
+else
+    send_smartctl_proxy_error "Forbidden command action: $ACTION" "$FULL_LINE"
+fi
+
+# and confirm json
+if [[ "$FULL_LINE" != *"--json"* ]]; then
+    send_smartctl_proxy_error "Protocol error: --json flag is mandatory" "$FULL_LINE"
+fi
+
+COMMAND_OUTPUT=$($SMARTCTL "${ARGS_ARRAY[@]}")
+SMARTCTL_EXIT=$?
+
+# keep json for exit codes for SMART errors, but 
+if [[ $SMARTCTL_EXIT -eq 0 || $SMARTCTL_EXIT -gt 3 ]]; then
+    echo "$COMMAND_OUTPUT"
+    exit 0
+else
+    send_smartctl_proxy_error "$COMMAND_OUTPUT" "$FULL_LINE" "$SMARTCTL_EXIT"
+fi
+
 ```
 
-5. go to `/etc/systemd/system`
-6. create scrutiny-collector.service with the following contents:
+7. make it executable `sudo chmod +x /opt/smartctl-proxy/bin/smartctl-proxy.sh`
+
+</details>
+
+<details><summary>Click to expand: smartctl-proxy.py</summary>
+
+```py
+#!/usr/bin/env python3
+import sys, subprocess, re, select, shlex
+
+smartctl_bin = '/usr/sbin/smartctl'
+
+smartctl_proxy_err_template = """
+=======> PROXYERR <=======
+"exit_status": {}
+MSG: {}
+ARGS: {}
+"""
+
+def smartctl_proxy_err(msg, cmd_args, exit_code = 3):
+    err = smartctl_proxy_err_template.format(exit_code, msg, cmd_args)
+    sys.stderr.write(err)
+    sys.stderr.flush()
+    print(err, flush=True)
+    sys.exit()
+
+def main():
+    command_args = [smartctl_bin]
+    has_json = False
+    allowed_args = ['--scan', '--info', '--xall', '--device', '--json']
+    # only allow alphanumeric, underscore, and slashes, if it's not an allowed arg
+    allowed_arg_rex = re.compile(r'^[\w/]+$')
+
+    def is_valid(arg: str):
+        nonlocal has_json
+        if arg == "--json":
+            has_json = True
+        return arg in allowed_args or allowed_arg_rex.match(arg)
+    
+    # wait a maximum of 2 seconds for input
+    readable, _, _ = select.select([sys.stdin], [], [], 2)
+    if (not readable):
+        smartctl_proxy_err("No Args... Did you send a newline?", [])
+
+    try:
+        raw_input = sys.stdin.readline()
+        args = shlex.split(raw_input)
+        command_args.extend(args)
+        if (len(args) == 0):
+            smartctl_proxy_err("No Args... Did you send a newline?", command_args)
+        elif all(is_valid(arg) for arg in args):
+            if has_json:
+                # shim has socat a timeout of 10s, change accordingly, just some clean up stuff
+                smartctl_result = subprocess.run(command_args, capture_output=True, check=False, text=True, timeout=10)
+                if (smartctl_result.returncode == 0 or smartctl_result.returncode > 3):
+                    print(smartctl_result.stdout, flush=True)
+                else:
+                    smartctl_proxy_err(smartctl_result.stdout, command_args, smartctl_result.returncode)
+            else:
+                smartctl_proxy_err("Protocol error: --json flag is mandatory", command_args)
+        else:
+            smartctl_proxy_err("Security violation: Illegal arguments and/or characters detected", command_args)
+    except Exception as e:
+        smartctl_proxy_err(f"smartctl Proxy Internal Error: {str(e)}", command_args)
+
+
+if __name__ == "__main__":
+    main()
+
+
+```
+
+7. make it executable `sudo chmod +x /opt/smartctl-proxy/bin/smartctl-proxy.py`
+
+</details>
+
+8. go to `/etc/systemd/system`
+9. create `scrutiny-collector.service` with the following contents:
 
 
 ```ini
 [Unit]
-Description=Daily Restricted Scrutiny Collector
-After=network.target
+Description=Scrutiny Collector Service
+After=network.target smartctl-proxy.socket
 
 [Service]
-Type=oneshot
-User=scrutiny-svc
-Environment="PATH=/opt/smartctl-shim/bin:/usr/bin:/bin"
+Environment="PATH=/opt/smartctl-shim/bin:/usr/bin"
 ExecStart=/opt/scrutiny/bin/scrutiny-collector-metrics run --api-endpoint "http://localhost:8080"
 
-# --- PRIVILEGE LOCKDOWN ---
-## we use sudo to elevate privileges for smartctl only, so no Ambient Capabilities are needed
-AmbientCapabilities=
-## CAP_SYS_RAWIO is needed for SATA drives
-CapabilityBoundingSet=CAP_SETUID CAP_SETGID CAP_AUDIT_WRITE CAP_SYS_RAWIO CAP_SYS_RESOURCE
-## unfortunately nvme drives require CAP_SYS_ADMIN
-## if you want nvme drives you must do the following:
-# CapabilityBoundingSet=CAP_SETUID CAP_SETGID CAP_AUDIT_WRITE CAP_SYS_RAWIO CAP_SYS_ADMIN CAP_SYS_RESOURCE
+DynamicUser=yes
+SupplementaryGroups=scrutiny-svc
+CapabilityBoundingSet=
 
-## since sudo needs to be used to elevate permissions in this setup, we need to allow new privileges
-NoNewPrivileges=no
-
-# Security/sandboxing settings
-KeyringMode=private
-LockPersonality=yes
-MemoryDenyWriteExecute=yes
-ProtectSystem=strict
-ProtectHome=yes
-PrivateDevices=no
-ProtectKernelModules=yes
-ProtectKernelTunables=yes
-ProtectControlGroups=yes
-ProtectClock=yes
-ProtectHostname=yes
-ProtectKernelLogs=yes
-RemoveIPC=yes
-RestrictSUIDSGID=true
-
-
-# --- NETWORK LOCKDOWN
-## use these to restrict what scrutiny can talk to over the network
-## if using a hub on a different host you will need to change the values accordingly
 RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
 IPAddressDeny=any
 IPAddressAllow=localhost
 
+ProtectProc=invisible
+ProcSubset=pid
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+RestrictRealtime=yes
+
+InaccessiblePaths=/root /boot /home /etc/shadow /etc/ssh /etc/sudoers /etc/sudoers.d
+## NOTE: SELinux users should use the below instead since SELinux will already protect /etc/shadow
+# InaccessiblePaths=/root /boot /home /etc/ssh /etc/sudoers /etc/sudoers.d
+ReadOnlyPaths=/usr /bin
+
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+DevicePolicy=closed
+NoNewPrivileges=yes
+
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
+RestrictSUIDSGID=true
+RemoveIPC=yes
+
+```
+
+10. create `smartctl-proxy.socket` with the following contents:
+
+
+```ini
+[Unit]
+Description=smartctl proxy socket
+
+[Socket]
+ListenStream=/run/scrutiny/smartctl.sock
+SocketGroup=scrutiny-svc
+SocketMode=0660
+Accept=yes
+
+MaxConnections=20
+Backlog=10
+
+RemoveOnStop=yes
+FlushPending=yes
+TriggerLimitIntervalSec=10s
+TriggerLimitBurst=30
+
+RuntimeDirectory=smartctl
+RuntimeDirectoryMode=0755
+
 [Install]
-WantedBy=multi-user.target
+WantedBy=sockets.target
+
+```
+
+11. create `smartctl-proxy@.service` with the following contents:
+
+```ini
+[Unit]
+Description=smartctl Proxy Service
+Requires=smartctl-proxy.socket
+After=smartctl-proxy.socket
+CollectMode=inactive-or-failed
+
+[Service]
+ExecStart=/opt/smartctl-proxy/bin/smartctl-proxy.sh
+## If you prefer the python script:
+# Environment="PYTHONUNBUFFERED=1"
+# ExecStart=/opt/smartctl-proxy/bin/smartctl-proxy.py
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+
+DynamicUser=yes
+SupplementaryGroups=scrutiny-svc disk
+
+## CAP_SYS_RAWIO is needed for SATA drives
+AmbientCapabilities=CAP_SYS_RAWIO
+CapabilityBoundingSet=CAP_SYS_RAWIO
+## unfortunately nvme drives require CAP_SYS_ADMIN
+## if you want nvme drives you must do the following:
+#AmbientCapabilities=CAP_SYS_RAWIO CAP_SYS_ADMIN
+#CapabilityBoundingSet=CAP_SYS_RAWIO CAP_SYS_ADMIN
+
+# --- LOCKDOWN ---
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+
+PrivateDevices=no
+DeviceAllow=block-sd r
+DeviceAllow=char-nvme r
+InaccessiblePaths=/root /boot /home /etc/shadow /etc/ssh /etc/sudoers /etc/sudoers.d
+## NOTE: SELinux users should use the below instead since SELinux will already protect /etc/shadow
+# InaccessiblePaths=/root /boot /home /etc/ssh /etc/sudoers /etc/sudoers.d
+
+IPAddressDeny=any
+RestrictAddressFamilies=AF_UNIX
+
+ProtectControlGroups=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectClock=yes
+ProtectHostname=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+ProtectKernelLogs=yes
+RemoveIPC=yes
+RestrictSUIDSGID=true
+
+MemoryMax=64M
+TasksMax=5
+TimeoutStopSec=15s
+
+```
+
+Note the at-sign is on purpose. That instructs systemd that it's a template unit file and allows spawning multiple instances as-needed for each socket activation.
+
+12. enable the proxy socket:
+
+```sh
+# reload changes for systemd services
+sudo systemctl daemon-reload
+
+# enable the proxy socket
+sudo systemctl enable smartctl-proxy.socket
+
+# start the socket
+sudo systemctl start smartctl-proxy.socket
+sudo systemctl status smartctl-proxy.socket
+
+```
+
+13. Test the proxy:
+
+```sh
+# should be successful and output json
+/opt/smartctl-shim/bin/smartctl --scan --json
+
+# should fail due to proxy error for illegal arguments
+/opt/smartctl-shim/bin/smartctl --~xall --json /dev/sda
+```
+
+##### Additiona SELinux Considerations
+
+if you are using SELinux, you may need to also do the following:
+
+```sh
+# tell SELinux to allow these binaries
+sudo semanage fcontext -a -t bin_t "/opt/smartctl-proxy/bin(/.*)?"
+sudo semanage fcontext -a -t bin_t "/opt/smartctl-shim/bin(/.*)?"
+# update labels
+sudo restorecon -Rv /opt/smartctl-proxy/bin
+sudo restorecon -Rv /opt/smartctl-shim/bin
 ```
 
 
 ##### Pros:
 
-- the scrutiny binary itself will not have permissions like CAP_SYS_ADMIN
-- much better than running as root (especially if you don't need nvme drives)
-- `sudo` restricts privilege escalation to just `smartctl`
-- no udev rule needed
+- the scrutiny binary itself is extremely locked down with virtually zero privileges
+- almost completely immune to the threat of supply-chain attacks
+- only smartctl itself runs with elevated privileges (but still non-root)
+- the proxy script allows you to restrict what smartctl capabilities are exposed, further limiting the attack surface
 
 
 ##### Cons:
 
 NOTE: These cons basically only apply if a major supply-chain attack happens against scrutiny, and reflect a worst-case scenario that is unlikely to ever occur:
 
-- Any sort of privilege escalation attack in sudo could theoretically allow a compromised scrutiny to gain additional privileges, since the process has permission to escelate privileges in general
-- Even though sudo only allows `smartctl`, it still has `CAP_SYS_RAWIO` and `CAP_SYS_ADMIN` so in theory the same attacks from the first method are possible, though now only with an exploit using smartctl instead of scrutiny directly
-- even though you don't need a udev rule, this adds a lot of additional administrative overhead
-- while the scrutiny binary itself isn't elevated, it has a sub-process that is running as root (systemctl)
+- Much more involved to set up, which increases the risk of something breaking (socket can fail and need to be manually restarted, for example)
+- You are responsible for validating and maintaining the proxy scripts. The above examples are a good starting place but may need to be expanded in the future
 
 #### Create a Systemd Timer to run scrutiny-collector.service
 
@@ -470,5 +763,4 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now scrutiny-collector.timer
 ```
 
-That's it! you're done. You can check the status of the timer using `sudo systemctl status scrutiny-collector.timer
-`
+That's it! you're done. You can check the status of the timer using `sudo systemctl status scrutiny-collector.timer`
