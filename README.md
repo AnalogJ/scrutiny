@@ -165,11 +165,22 @@ There are two configuration files available:
 Neither file is required, however if provided, it allows you to configure how Scrutiny functions.
 
 ## Cron Schedule
-Unfortunately the Cron schedule cannot be configured via the `collector.yaml` (as the collector binary needs to be trigged by a scheduler/cron).
-However, if you are using the official `ghcr.io/analogj/scrutiny:latest-collector` or `ghcr.io/analogj/scrutiny:latest-omnibus` docker images,
+If you are using the official `ghcr.io/analogj/scrutiny:latest-collector` or `ghcr.io/analogj/scrutiny:latest-omnibus` docker images,
 you can use the `COLLECTOR_CRON_SCHEDULE` environmental variable to override the default cron schedule (daily @ midnight - `0 0 * * *`).
 
 `docker run -e COLLECTOR_CRON_SCHEDULE="0 0 * * *" ...`
+
+If you run the collector binary yourself, you can use its built-in scheduler instead of cron. With `--cron`, the collector keeps
+running and collects metrics on a schedule, rather than running once and exiting:
+
+```bash
+scrutiny-collector-metrics run --cron --cron-schedule "0 */6 * * *" --run-startup
+```
+
+The schedule accepts a standard 5 field cron expression, or a descriptor such as `@daily` or `@every 6h`.
+It can also be set with the same environmental variables as the docker images (`COLLECTOR_CRON_SCHEDULE`, `COLLECTOR_RUN_STARTUP`,
+`COLLECTOR_RUN_STARTUP_SLEEP`), or in the `cron` section of `collector.yaml`. Only `--cron` enables the scheduler, so these settings
+have no effect on a plain `run`.
 
 ## Notifications
 
