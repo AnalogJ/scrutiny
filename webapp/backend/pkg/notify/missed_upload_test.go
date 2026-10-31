@@ -151,6 +151,7 @@ func TestMissedUploadTracker_EstimatesPeriodOnceUploadsSettle(t *testing.T) {
 func TestMissedUploadTracker_IrregularUploadKeepsEstimate(t *testing.T) {
 	deviceRepo := mock_database.NewMockDeviceRepo(gomock.NewController(t))
 	deviceRepo.EXPECT().GetDevices(gomock.Any()).Return(nil, nil)
+	deviceRepo.EXPECT().GetDeviceDetails(gomock.Any(), gomock.Any()).AnyTimes().Return(models.Device{}, nil)
 	// only the settled estimate is saved
 	deviceRepo.EXPECT().UpdateDeviceEstimatedUploadPeriod(gomock.Any(), gomock.Any(), 200*time.Millisecond).Return(nil)
 	tracker, hook, payloads := newTestMissedUploadTrackerWithRepo(t, deviceRepo)
