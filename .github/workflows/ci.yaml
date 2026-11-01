@@ -138,6 +138,10 @@ jobs:
         uses: actions/checkout@v6
       - name: Build
         run: make docker-omnibus
+      - name: Scan image
+        uses: ./.github/actions/grype-scan
+        with:
+          image: ghcr.io/analogj/scrutiny-dev:omnibus
 
   makefile-docker-web:
     name: Build Docker Web From Makefile
@@ -147,6 +151,10 @@ jobs:
         uses: actions/checkout@v6
       - name: Build
         run: make docker-web
+      - name: Scan image
+        uses: ./.github/actions/grype-scan
+        with:
+          image: ghcr.io/analogj/scrutiny-dev:web
 
   makefile-docker-collector:
     name: Build Docker Collector From Makefile
@@ -156,3 +164,7 @@ jobs:
         uses: actions/checkout@v6
       - name: Build
         run: make docker-collector
+      - name: Scan image
+        uses: ./.github/actions/grype-scan
+        with:
+          image: ghcr.io/analogj/scrutiny-dev:collector
