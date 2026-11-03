@@ -12,11 +12,12 @@ Note: These instructions are written with Podman 4.9 in mind, as that's what's a
 
 ### Creating a Service Account
 
-See [Creating a Restricted Service Account](INSTALL_MANUAL.md#creating-a-restricted-service-account) for instructions.
+- Debian-based distros:
+    - `sudo adduser --system scrutiny-svc --group --home /opt/scrutiny-svc`
+- RHEL-based distros:
+    - `sudo useradd --system --home-dir /opt/scrutiny-svc --shell /sbin/nologin scrutiny-svc`
 
-While you do not need to use the same account as the collector, this guide will assume you will be for all its examples.
-
-In addition to those steps, you will need to create sub ids and enable lingering for the user:
+You will need to create sub ids and enable lingering for the user:
 
 ```sh
 # add sub-uids and sub-gids, you may need to adjust numbers if you have other rootless quadlets running for other users already
