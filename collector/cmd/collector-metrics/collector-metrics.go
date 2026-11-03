@@ -121,6 +121,18 @@ OPTIONS:
 						config.Set("log.file", c.String("log-file"))
 					}
 
+					if c.IsSet("cron-schedule") {
+						config.Set("cron.schedule", c.String("cron-schedule"))
+					}
+
+					if c.IsSet("run-startup") {
+						config.Set("cron.run_startup", c.Bool("run-startup"))
+					}
+
+					if c.IsSet("run-startup-sleep") {
+						config.Set("cron.run_startup_sleep", c.Int("run-startup-sleep"))
+					}
+
 					if c.IsSet("api-endpoint") {
 						//if the user is providing an api-endpoint with a basepath (eg. http://localhost:8080/scrutiny),
 						//we need to ensure the basepath has a trailing slash, otherwise the url.Parse() path concatenation doesnt work.
@@ -146,6 +158,17 @@ OPTIONS:
 
 					if err != nil {
 						return err
+					}
+
+					if c.Bool("cron") {
+						schedule, err := collector.ParseCronSchedule(config.GetString("cron.schedule"))
+						if err != nil {
+							return fmt.Errorf("invalid cron schedule %q: %w", config.GetString("cron.schedule"), err)
+						}
+						startupSleep := time.Duration(config.GetInt("cron.run_startup_sleep")) * time.Second
+						// runs until the process is stopped
+						collector.RunOnSchedule(collectorLogger, schedule, config.GetBool("cron.run_startup"), startupSleep, nil, metricCollector.Run)
+						return nil
 					}
 
 					return metricCollector.Run()
@@ -180,6 +203,31 @@ OPTIONS:
 						Usage:   "Host identifier/label, used for grouping devices",
 						Value:   "",
 						EnvVars: []string{"COLLECTOR_HOST_ID"},
+					},
+
+					&cli.BoolFlag{
+						Name:  "cron",
+						Usage: "Keep running and collect metrics on a schedule, instead of running once",
+					},
+
+					&cli.StringFlag{
+						Name:    "cron-schedule",
+						Usage:   "Cron expression used with --cron",
+						Value:   "0 0 * * *",
+						EnvVars: []string{"COLLECTOR_CRON_SCHEDULE"},
+					},
+
+					&cli.BoolFlag{
+						Name:    "run-startup",
+						Usage:   "With --cron, also collect metrics once on startup",
+						EnvVars: []string{"COLLECTOR_RUN_STARTUP"},
+					},
+
+					&cli.IntFlag{
+						Name:    "run-startup-sleep",
+						Usage:   "With --run-startup, seconds to wait before the startup run",
+						Value:   1,
+						EnvVars: []string{"COLLECTOR_RUN_STARTUP_SLEEP"},
 					},
 				},
 			},
