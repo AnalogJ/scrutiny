@@ -82,10 +82,7 @@ func (sa *SmartNvmeAttribute) PopulateAttributeStatus(override *pkg.AttributeOve
 	// A user override replaces the recommended-threshold comparison entirely, including the
 	// -1 "no threshold" sentinel.
 	if override != nil {
-		idealLow := idealIsLow(thresholds.NmveMetadata[sa.AttributeId].Ideal)
-		status, reason := evaluateAttributeOverride(sa.GetComparableValue(), idealLow, override)
-		sa.Status = pkg.AttributeStatusSet(sa.Status, status)
-		sa.StatusReason += reason
+		applyAttributeOverride(&sa.Status, &sa.StatusReason, sa.GetComparableValue(), thresholds.LargerIsWorse(pkg.DeviceProtocolNvme, sa.AttributeId), override)
 		return sa
 	}
 

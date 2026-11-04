@@ -1,4 +1,4 @@
-import {DeviceStatusPipe, deviceStatusHasOverride} from './device-status.pipe';
+import {DeviceStatusPipe} from './device-status.pipe';
 import {MetricsStatusThreshold} from '../core/config/app.config';
 import {DeviceModel} from '../core/models/device-model';
 
@@ -187,19 +187,5 @@ describe('DeviceStatusPipe', () => {
                 )).toBe(test.result)
             });
         });
-    });
-});
-
-describe('deviceStatusHasOverride', () => {
-    it('is false when no override bits are set', () => {
-        expect(deviceStatusHasOverride(0)).toBe(false);
-        expect(deviceStatusHasOverride(1)).toBe(false);
-        expect(deviceStatusHasOverride(3)).toBe(false);
-    });
-
-    it('is true when an override decided the verdict', () => {
-        expect(deviceStatusHasOverride(4)).toBe(true);  // failed by override
-        expect(deviceStatusHasOverride(8)).toBe(true);  // passed by override
-        expect(deviceStatusHasOverride(6)).toBe(true);  // scrutiny failure, via override
     });
 });

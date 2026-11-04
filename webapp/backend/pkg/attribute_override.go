@@ -11,9 +11,9 @@ import "strings"
 //
 // A threshold is crossed when the value is strictly worse than it -- matching the
 // existing NVMe/SCSI threshold convention. Whether "worse" means larger or smaller depends
-// on the attribute's Ideal (low/high) in the thresholds metadata, so the direction is
-// resolved per attribute rather than assumed. Without that, an override on an ideal-high
-// attribute such as NVMe available_spare would compare backwards.
+// on the attribute (see thresholds.LargerIsWorse), so the direction is resolved per attribute
+// rather than assumed. Without that, an override on an attribute where lower is worse, such as
+// NVMe available_spare, would compare backwards.
 type AttributeOverride struct {
 	Protocol      string `mapstructure:"protocol"`
 	AttributeID   string `mapstructure:"attribute_id"`

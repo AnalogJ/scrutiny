@@ -118,6 +118,56 @@ devices:
 			expectErr: "scrutiny_uuid",
 		},
 		{
+			name: "non-numeric ATA attribute_id is rejected",
+			yaml: `
+devices:
+  - scrutiny_uuid: 106089ed-2273-54e0-b498-ec4bdfc8ca6c
+    attribute_overrides:
+      - protocol: ATA
+        attribute_id: devstat_7_8
+        fail_threshold: 200
+`,
+			expectErr: "attribute_id",
+		},
+		{
+			name: "warn above fail is rejected when larger is worse",
+			yaml: `
+devices:
+  - scrutiny_uuid: 106089ed-2273-54e0-b498-ec4bdfc8ca6c
+    attribute_overrides:
+      - protocol: ATA
+        attribute_id: "199"
+        warn_threshold: 500
+        fail_threshold: 100
+`,
+			expectErr: "warn_threshold",
+		},
+		{
+			name: "warn below fail is rejected when smaller is worse",
+			yaml: `
+devices:
+  - scrutiny_uuid: 106089ed-2273-54e0-b498-ec4bdfc8ca6c
+    attribute_overrides:
+      - protocol: NVMe
+        attribute_id: available_spare
+        warn_threshold: 10
+        fail_threshold: 20
+`,
+			expectErr: "warn_threshold",
+		},
+		{
+			name: "warn above fail is valid when smaller is worse",
+			yaml: `
+devices:
+  - scrutiny_uuid: 106089ed-2273-54e0-b498-ec4bdfc8ca6c
+    attribute_overrides:
+      - protocol: NVMe
+        attribute_id: available_spare
+        warn_threshold: 20
+        fail_threshold: 10
+`,
+		},
+		{
 			name:      "a devices block that isn't a list is rejected",
 			yaml:      "devices: \"not a list\"\n",
 			expectErr: "devices",

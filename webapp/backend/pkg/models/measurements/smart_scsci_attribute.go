@@ -76,10 +76,7 @@ func (sa *SmartScsiAttribute) Inflate(key string, val interface{}) {
 func (sa *SmartScsiAttribute) PopulateAttributeStatus(override *pkg.AttributeOverride) *SmartScsiAttribute {
 
 	if override != nil {
-		idealLow := idealIsLow(thresholds.ScsiMetadata[sa.AttributeId].Ideal)
-		status, reason := evaluateAttributeOverride(sa.GetComparableValue(), idealLow, override)
-		sa.Status = pkg.AttributeStatusSet(sa.Status, status)
-		sa.StatusReason += reason
+		applyAttributeOverride(&sa.Status, &sa.StatusReason, sa.GetComparableValue(), thresholds.LargerIsWorse(pkg.DeviceProtocolScsi, sa.AttributeId), override)
 		return sa
 	}
 

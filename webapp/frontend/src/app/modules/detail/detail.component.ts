@@ -24,8 +24,6 @@ const AttributeStatusFailedSmart = 1
 const AttributeStatusWarningScrutiny = 2
 const AttributeStatusFailedScrutiny = 4
 const AttributeStatusPassedOverride = 8
-const AttributeStatusWarningOverride = 16
-const AttributeStatusFailedOverride = 32
 
 
 @Component({
@@ -191,13 +189,6 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // @ Private methods
     // -----------------------------------------------------------------------------------------------------
 
-    // True when a user-configured override, rather than Scrutiny's own analysis, decided
-    // this attribute's status. Used to badge the row so an unexpected pass/fail is traceable.
-    isAttributeOverridden(attributeStatus: number): boolean {
-        // tslint:disable-next-line:no-bitwise
-        return (attributeStatus & (AttributeStatusPassedOverride | AttributeStatusWarningOverride | AttributeStatusFailedOverride)) !== 0
-    }
-
     getAttributeStatusName(attributeStatus: number): string {
         // tslint:disable:no-bitwise
 
@@ -215,9 +206,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     getAttributeScrutinyStatusName(attributeStatus: number): string {
         // tslint:disable:no-bitwise
-        if ((attributeStatus & AttributeStatusPassedOverride) !== 0) {
-            return 'passed'
-        } else if ((attributeStatus & AttributeStatusFailedScrutiny) !== 0) {
+        if ((attributeStatus & AttributeStatusFailedScrutiny) !== 0) {
             return 'failed'
         } else if ((attributeStatus & AttributeStatusWarningScrutiny) !== 0) {
             return 'warn'
