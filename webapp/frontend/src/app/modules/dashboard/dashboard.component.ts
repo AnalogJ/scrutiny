@@ -13,7 +13,7 @@ import {ApexOptions, ChartComponent} from 'ng-apexcharts';
 import {DashboardService} from 'app/modules/dashboard/dashboard.service';
 import {MatDialog} from '@angular/material/dialog';
 import {DashboardSettingsComponent} from 'app/layout/common/dashboard-settings/dashboard-settings.component';
-import {AppConfig} from 'app/core/config/app.config';
+import {AppConfig, normalizeTemperatureDuration} from 'app/core/config/app.config';
 import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
 import {Router} from '@angular/router';
 import {TemperaturePipe} from 'app/shared/temperature.pipe';
@@ -83,11 +83,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy
                     console.log(`Configuration updated: ${newConfig} vs ${oldConfig}`)
                     // Store the config
                     this.config = config;
-                    this.tempDurationKey = config.dashboard_temperature_duration || 'week';
 
                     if(oldConfig){
                         console.log('reloading component...')
                         this.refreshComponent()
+                    } else {
+                        // not on reload: if it fails, the label must keep matching the chart
+                        this.tempDurationKey = normalizeTemperatureDuration(config.dashboard_temperature_duration);
                     }
                 }
             });

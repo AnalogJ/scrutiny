@@ -14,6 +14,11 @@ export type LineStroke = 'smooth' | 'straight' | 'stepline'
 
 export type TemperatureDuration = 'day' | 'week' | 'month' | 'year' | 'forever'
 
+// matches the backend, which queries a week for unknown durations
+export function normalizeTemperatureDuration(duration?: string): TemperatureDuration {
+    return ['day', 'week', 'month', 'year', 'forever'].includes(duration) ? duration as TemperatureDuration : 'week';
+}
+
 export type DevicePoweredOnUnit = 'humanize' | 'device_hours'
 
 

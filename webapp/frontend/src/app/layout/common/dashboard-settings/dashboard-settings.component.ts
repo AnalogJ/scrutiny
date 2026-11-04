@@ -9,7 +9,8 @@ import {
     LineStroke,
     TemperatureDuration,
     Theme,
-    DevicePoweredOnUnit
+    DevicePoweredOnUnit,
+    normalizeTemperatureDuration
 } from 'app/core/config/app.config';
 import {ScrutinyConfigService} from 'app/core/config/scrutiny-config.service';
 import {Subject} from 'rxjs';
@@ -58,7 +59,7 @@ export class DashboardSettingsComponent implements OnInit {
                 this.fileSizeSIUnits = config.file_size_si_units;
                 this.poweredOnHoursUnit = config.powered_on_hours_unit;
                 this.lineStroke = config.line_stroke;
-                this.temperatureDuration = config.dashboard_temperature_duration;
+                this.temperatureDuration = normalizeTemperatureDuration(config.dashboard_temperature_duration);
                 this.theme = config.theme;
 
                 this.discardSCTTempHistory = config.collector.discard_sct_temp_history;
