@@ -154,7 +154,7 @@ func (sm *Smart) FromCollectorSmartInfo(scrutiny_uuid uuid.UUID, info collector.
 	sm.Date = time.Unix(info.LocalTime.TimeT, 0)
 
 	//smart metrics
-	sm.Temp = info.CurrentTemperature()
+	sm.Temp, _ = info.CurrentTemperature()
 	sm.PowerCycleCount = info.PowerCycleCount
 	sm.PowerOnHours = info.PowerOnTime.Hours
 	if !info.SmartStatus.Passed {
