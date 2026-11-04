@@ -310,18 +310,18 @@ func (s *SmartInfo) Capacity() int64 {
 	return 0
 }
 
-// CurrentTemperature returns the drive temperature in Celsius, or 0 if unknown.
+// CurrentTemperature returns the drive temperature in Celsius, and false if unknown.
 // It uses smartctl's top-level temperature when present, and only falls back to
 // the SCSI Environmental Reporting log when that object is null or missing, which
 // is the case for some SAS drives (e.g. SPC-5).
-func (s *SmartInfo) CurrentTemperature() int64 {
+func (s *SmartInfo) CurrentTemperature() (int64, bool) {
 	if s.Temperature != nil {
-		return s.Temperature.Current
+		return s.Temperature.Current, true
 	}
 	if report, ok := s.ScsiEnvironmentalReports["temperature_1"]; ok && report.Current != nil {
-		return *report.Current
+		return *report.Current, true
 	}
-	return 0
+	return 0, false
 }
 
 type UserCapacity struct {
