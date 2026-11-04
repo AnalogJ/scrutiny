@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/analogj/go-util/utils"
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/gofrs/uuid/v5"
@@ -29,6 +30,7 @@ type DeviceConfig struct {
 		// no notifications of any kind are sent for the device
 		Disabled bool `mapstructure:"disabled"`
 	} `mapstructure:"notifications"`
+	AttributeOverrides pkg.AttributeOverrideSet `mapstructure:"attribute_overrides"`
 }
 
 func (c *configuration) GetDevices() ([]DeviceConfig, error) {
@@ -196,10 +198,9 @@ func (c *configuration) ValidateConfig() error {
 		if device.Notifications.UploadPeriod != nil && *device.Notifications.UploadPeriod < 0 {
 			return errors.ConfigValidationError(fmt.Sprintf("`upload_period` of device %s is negative", device.ScrutinyUUID))
 		}
-	}
-
-	if err := validateDeviceOverrides(c); err != nil {
-		return err
+		if err := validateAttributeOverrides(device); err != nil {
+			return err
+		}
 	}
 
 	return nil
