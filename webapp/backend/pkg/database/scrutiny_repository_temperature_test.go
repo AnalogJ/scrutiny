@@ -81,6 +81,22 @@ weekData
 |> yield()`, influxDbScript)
 }
 
+func Test_aggregateTempQuery_UnknownDurationUsesWeek(t *testing.T) {
+	t.Parallel()
+
+	mockCtrl := gomock.NewController(t)
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetString("web.influxdb.bucket").Return("metrics").AnyTimes()
+
+	deviceRepo := scrutinyRepository{
+		appConfig: fakeConfig,
+	}
+
+	week := deviceRepo.aggregateTempQuery(DURATION_KEY_WEEK)
+	require.Equal(t, week, deviceRepo.aggregateTempQuery("bogus"))
+	require.Equal(t, week, deviceRepo.aggregateTempQuery(""))
+}
+
 func Test_aggregateTempQuery_Month(t *testing.T) {
 	t.Parallel()
 
