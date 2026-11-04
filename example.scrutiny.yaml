@@ -63,7 +63,8 @@ log:
 #    notifications:
 #      # send no notifications of any kind for the device
 #      disabled: false
-#      # notify when the device's next upload is more than 10% later than upload_period. Defaults to notify.on_missed_upload.
+#      # notify when the device's next upload is more than 10% later than upload_period. A collector error reported for
+#      # the device counts as an upload. Defaults to notify.on_missed_upload.
 #      on_missed_upload: true
 #      # notify when the collector can't run smartctl for the device. Defaults to notify.on_smartctl_error.
 #      on_smartctl_error: true
