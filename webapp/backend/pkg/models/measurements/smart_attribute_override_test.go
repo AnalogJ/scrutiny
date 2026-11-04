@@ -33,6 +33,18 @@ func TestSmartAtaAttribute_PopulateAttributeStatus_Override(t *testing.T) {
 			expected: pkg.AttributeStatusFailedScrutiny,
 		},
 		{
+			name:     "normalized attribute within its threshold passes",
+			attr:     measurements.SmartAtaAttribute{AttributeId: 1, Value: 100, RawValue: 12345},
+			override: &pkg.AttributeOverride{FailThreshold: i64(50)},
+			expected: pkg.AttributeStatusPassedOverride,
+		},
+		{
+			name:     "normalized attribute fails when it falls below its threshold",
+			attr:     measurements.SmartAtaAttribute{AttributeId: 1, Value: 40, RawValue: 12345},
+			override: &pkg.AttributeOverride{FailThreshold: i64(50)},
+			expected: pkg.AttributeStatusFailedScrutiny | pkg.AttributeStatusFailedOverride,
+		},
+		{
 			name:     "fail threshold above the value clears the failure",
 			attr:     measurements.SmartAtaAttribute{AttributeId: 199, Value: 200, RawValue: 116},
 			override: &pkg.AttributeOverride{FailThreshold: i64(200)},
@@ -265,4 +277,24 @@ func TestSmartScsiAttribute_PopulateAttributeStatus_Override(t *testing.T) {
 			require.Equal(t, tc.expected, result.Status, "status mismatch (reason: %q)", result.StatusReason)
 		})
 	}
+}
+
+func TestSmartAtaAttribute_Override_KeepsPastFailureReason(t *testing.T) {
+	attr := measurements.SmartAtaAttribute{AttributeId: 199, RawValue: 5, WhenFailed: pkg.AttributeWhenFailedInThePast}
+	attr.PopulateAttributeStatus(&pkg.AttributeOverride{FailThreshold: i64(100)})
+	require.Equal(t, pkg.AttributeStatusWarningScrutiny|pkg.AttributeStatusPassedOverride, attr.Status)
+	require.Equal(t, "Attribute has previously failed manufacturer SMART threshold; Attribute is within the configured override thresholds", attr.StatusReason)
+}
+
+func TestSmart_UnmatchedOverrides(t *testing.T) {
+	sm := measurements.Smart{
+		DeviceProtocol: pkg.DeviceProtocolAta,
+		Attributes:     map[string]measurements.SmartAttribute{"199": &measurements.SmartAtaAttribute{AttributeId: 199}},
+	}
+	matched := pkg.AttributeOverride{Protocol: "ata", AttributeID: "199"}
+	missingAttribute := pkg.AttributeOverride{Protocol: pkg.DeviceProtocolAta, AttributeID: "5"}
+	wrongProtocol := pkg.AttributeOverride{Protocol: pkg.DeviceProtocolNvme, AttributeID: "199"}
+
+	require.Equal(t, []pkg.AttributeOverride{missingAttribute, wrongProtocol},
+		sm.UnmatchedOverrides(pkg.AttributeOverrideSet{matched, missingAttribute, wrongProtocol}))
 }

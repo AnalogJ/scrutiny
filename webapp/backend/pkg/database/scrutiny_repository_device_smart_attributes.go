@@ -30,6 +30,9 @@ func (sr *scrutinyRepository) SaveSmartAttributes(ctx context.Context, scrutiny_
 		sr.logger.Errorln("Could not process SMART metrics", err)
 		return measurements.Smart{}, err
 	}
+	for _, override := range deviceSmartData.UnmatchedOverrides(overrides) {
+		sr.logger.Warnf("Attribute override %s/%s matches nothing on device %s (%s)", override.Protocol, override.AttributeID, scrutiny_uuid, deviceSmartData.DeviceProtocol)
+	}
 
 	tags, fields := deviceSmartData.Flatten()
 

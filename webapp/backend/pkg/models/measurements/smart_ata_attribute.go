@@ -131,10 +131,7 @@ func (sa *SmartAtaAttribute) PopulateAttributeStatus(override *pkg.AttributeOver
 	// flags set above are left alone: an override tunes Scrutiny's heuristics, it does not
 	// suppress the drive reporting itself as failing.
 	if override != nil {
-		idealLow := idealIsLow(thresholds.AtaMetadata[sa.AttributeId].Ideal)
-		status, reason := evaluateAttributeOverride(sa.GetComparableValue(), idealLow, override)
-		sa.Status = pkg.AttributeStatusSet(sa.Status, status)
-		sa.StatusReason += reason
+		applyAttributeOverride(&sa.Status, &sa.StatusReason, sa.GetComparableValue(), thresholds.LargerIsWorse(pkg.DeviceProtocolAta, strconv.Itoa(sa.AttributeId)), override)
 		return sa
 	}
 

@@ -102,9 +102,14 @@ log:
 # override matches, the observed failure-rate buckets are not consulted at all -- your
 # thresholds are the only thing that decides the attribute's status.
 #
-# A threshold is crossed when the value is strictly *worse* than it. For most attributes
-# worse means larger, but for attributes whose ideal is "high" (NVMe available_spare, for
-# example) worse means smaller; Scrutiny picks the right direction per attribute.
+# A threshold applies to the value Scrutiny grades the attribute on: for ATA that is the raw,
+# normalized or transformed value depending on the attribute (the Value column of the device
+# details page), and the raw value for attributes Scrutiny has no metadata for. It is crossed
+# when the value is strictly *worse* than it. For most attributes worse means larger, but for
+# normalized ATA values and attributes whose ideal is "high" (NVMe available_spare, for example)
+# worse means smaller; Scrutiny picks the direction per attribute.
+#
+# Changes apply from each device's next upload. Existing history keeps its original status.
 #
 # Overrides never suppress the drive's own SMART verdict: if the drive reports an
 # attribute as failing, it stays failed.

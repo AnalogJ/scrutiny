@@ -312,6 +312,19 @@ func (sm *Smart) ProcessScsiSmartInfo(defectGrownList int64, scsiErrorCounterLog
 	sm.finalizeDeviceStatus()
 }
 
+// UnmatchedOverrides returns the overrides that matched no attribute of this device, because of
+// a wrong protocol or an attribute_id the device doesn't report.
+func (sm *Smart) UnmatchedOverrides(overrides pkg.AttributeOverrideSet) []pkg.AttributeOverride {
+	var unmatched []pkg.AttributeOverride
+	for _, override := range overrides {
+		_, ok := sm.Attributes[override.AttributeID]
+		if !ok || !strings.EqualFold(override.Protocol, sm.DeviceProtocol) {
+			unmatched = append(unmatched, override)
+		}
+	}
+	return unmatched
+}
+
 // applyAttributeStatusToDevice rolls a single attribute's status up into the device status,
 // recording when an override was responsible for the verdict so the frontend can show it.
 //

@@ -2,8 +2,10 @@ package notify
 
 import (
 	"testing"
+	"time"
 
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
 	mock_database "github.com/analogj/scrutiny/webapp/backend/pkg/database/mock"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
@@ -29,8 +31,9 @@ func TestShouldNotify_PassedByOverride_IsSilent(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
 
+	// repeat notifications off, so with no expectations on the mock any history lookup fails this
 	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, uuid.Must(uuid.NewV4()),
-		pkg.MetricsStatusThresholdBoth, pkg.MetricsStatusFilterAttributesAll, true, &gin.Context{}, fakeDatabase))
+		pkg.MetricsStatusThresholdBoth, pkg.MetricsStatusFilterAttributesAll, false, &gin.Context{}, fakeDatabase))
 }
 
 // An override that *causes* a failure must still notify.
@@ -53,21 +56,42 @@ func TestShouldNotify_FailedByOverride_Notifies(t *testing.T) {
 		pkg.MetricsStatusThresholdBoth, pkg.MetricsStatusFilterAttributesAll, true, &gin.Context{}, fakeDatabase))
 }
 
-// With the critical-attributes filter on, an attribute that an override marked as passing must
-// not be collected as a failing attribute. 199 is non-critical, so the clearest probe is a
-// critical attribute (5) that an override cleared: nothing should be reported.
+// An attribute an override marked as passing must not be looked up as a failing attribute.
 func TestShouldNotify_PassedByOverride_NotCountedAsFailingAttribute(t *testing.T) {
 	t.Parallel()
-	device := models.Device{DeviceStatus: pkg.DeviceStatusPassedOverride, DeviceProtocol: pkg.DeviceProtocolAta}
+	device := models.Device{DeviceStatus: pkg.DeviceStatusFailedScrutiny, DeviceProtocol: pkg.DeviceProtocolAta}
 	smartAttrs := measurements.Smart{
 		Attributes: map[string]measurements.SmartAttribute{
-			"5": &measurements.SmartAtaAttribute{AttributeId: 5, Status: pkg.AttributeStatusPassedOverride},
+			"5":   &measurements.SmartAtaAttribute{AttributeId: 5, Status: pkg.AttributeStatusPassedOverride},
+			"199": &measurements.SmartAtaAttribute{AttributeId: 199, Status: pkg.AttributeStatusFailedScrutiny},
 		},
 	}
+	scrutinyUUID := uuid.Must(uuid.NewV4())
 
 	mockCtrl := gomock.NewController(t)
 	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
+	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, scrutinyUUID, database.DURATION_KEY_FOREVER, time.Duration(0), 1, 1, []string{"199"}).Return(nil, nil).Times(1)
 
-	require.False(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, uuid.Must(uuid.NewV4()),
-		pkg.MetricsStatusThresholdBoth, pkg.MetricsStatusFilterAttributesCritical, true, &gin.Context{}, fakeDatabase))
+	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, scrutinyUUID,
+		pkg.MetricsStatusThresholdBoth, pkg.MetricsStatusFilterAttributesAll, false, &gin.Context{}, fakeDatabase))
+}
+
+// Editing an override can fail an attribute whose value hasn't changed.
+func TestShouldNotify_FailedByEditedOverride_SameValue_Notifies(t *testing.T) {
+	t.Parallel()
+	device := models.Device{DeviceStatus: pkg.DeviceStatusFailedScrutiny, DeviceProtocol: pkg.DeviceProtocolAta}
+	previous := measurements.Smart{Attributes: map[string]measurements.SmartAttribute{
+		"199": &measurements.SmartAtaAttribute{AttributeId: 199, RawValue: 118, Status: pkg.AttributeStatusPassedOverride},
+	}}
+	smartAttrs := measurements.Smart{Attributes: map[string]measurements.SmartAttribute{
+		"199": &measurements.SmartAtaAttribute{AttributeId: 199, RawValue: 118, Status: pkg.AttributeStatusFailedScrutiny | pkg.AttributeStatusFailedOverride},
+	}}
+	scrutinyUUID := uuid.Must(uuid.NewV4())
+
+	mockCtrl := gomock.NewController(t)
+	fakeDatabase := mock_database.NewMockDeviceRepo(mockCtrl)
+	fakeDatabase.EXPECT().GetSmartAttributeHistory(&gin.Context{}, scrutinyUUID, database.DURATION_KEY_FOREVER, time.Duration(0), 1, 1, []string{"199"}).Return([]measurements.Smart{previous}, nil).Times(1)
+
+	require.True(t, ShouldNotify(logrus.StandardLogger(), device, smartAttrs, scrutinyUUID,
+		pkg.MetricsStatusThresholdBoth, pkg.MetricsStatusFilterAttributesAll, false, &gin.Context{}, fakeDatabase))
 }
