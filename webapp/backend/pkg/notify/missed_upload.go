@@ -2,6 +2,7 @@ package notify
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -12,6 +13,7 @@ import (
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
 	"github.com/gofrs/uuid/v5"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // MissedUploadTracker notifies when a device misses an upload
@@ -159,9 +161,16 @@ func (t *MissedUploadTracker) record(device models.Device, uploadedAt time.Time)
 	}
 
 	history.timer = time.AfterFunc(period+period/10, func() {
-		// the friendly name may have changed since the upload
-		if stored, err := t.deviceRepo.GetDeviceDetails(context.Background(), device.ScrutinyUUID); err == nil {
-			device.FriendlyName = stored.FriendlyName
+		// the device may have changed since the upload
+		stored, err := t.deviceRepo.GetDeviceDetails(context.Background(), device.ScrutinyUUID)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			t.logger.Debugf("Device %s is not registered, skipping its missed upload notification", device.ScrutinyUUID)
+			return
+		}
+		if err == nil {
+			device = stored
+		} else {
+			t.logger.Warnf("Could not look up device %s: %v", device.ScrutinyUUID, err)
 		}
 		missedUpload := NewMissedUpload(t.logger, t.config, device, uploadedAt, period)
 		_ = missedUpload.Send() //we ignore error message when sending notifications.
