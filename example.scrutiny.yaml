@@ -70,6 +70,54 @@ log:
 #      on_smartctl_error: true
 #      # time between the collector's uploads, eg. 24h or 1h30m. Defaults to notify.upload_period.
 #      upload_period: 24h
+#    # see "Device Attribute Overrides" below
+#    attribute_overrides:
+#      # Warn once CRC errors start climbing, but do not fail this drive until they are
+#      # genuinely high -- a static count usually means one past cable/link event.
+#      - protocol: ATA          # ATA, NVMe or SCSI
+#        attribute_id: "199"
+#        warn_threshold: 100
+#        fail_threshold: 500
+#      # Only fail on Command Timeout once it is unmistakably bad.
+#      - protocol: ATA
+#        attribute_id: "188"
+#        fail_threshold: 1000
+#  - scrutiny_uuid: 8301e652-2817-5df7-8bd4-49fe76de25b0
+#    attribute_overrides:
+#      - protocol: NVMe
+#        attribute_id: media_errors
+#        warn_threshold: 0
+#        fail_threshold: 10
+
+
+######################################################################
+# Device Attribute Overrides
+#
+# Scrutiny grades most attributes against observed failure rates collected from a large
+# fleet of drives. Those rates do not always match your hardware -- a counter can be
+# elevated for reasons unrelated to drive health (a marginal SATA cable, a controller
+# reset, a vendor-specific encoding), leaving a healthy drive permanently flagged.
+#
+# An override replaces Scrutiny's analysis for one attribute on one device. When an
+# override matches, the observed failure-rate buckets are not consulted at all -- your
+# thresholds are the only thing that decides the attribute's status.
+#
+# A threshold applies to the value Scrutiny grades the attribute on: for ATA that is the raw,
+# normalized or transformed value depending on the attribute (the Value column of the device
+# details page), and the raw value for attributes Scrutiny has no metadata for. It is crossed
+# when the value is strictly *worse* than it. For most attributes worse means larger, but for
+# normalized ATA values and attributes whose ideal is "high" (NVMe available_spare, for example)
+# worse means smaller; Scrutiny picks the direction per attribute.
+#
+# Changes apply from each device's next upload. Existing history keeps its original status.
+#
+# Overrides never suppress the drive's own SMART verdict: if the drive reports an
+# attribute as failing, it stays failed.
+#
+# Overrides are set per device, in the `devices` list above.
+# `attribute_id` is the ATA attribute number as a string ("5", "199"), or the NVMe/SCSI
+# attribute name ("media_errors", "scsi_grown_defect_list").
+######################################################################
 
 
 # Notification "urls" look like the following. For more information about service specific configuration see

@@ -73,7 +73,18 @@ func (sa *SmartNvmeAttribute) Inflate(key string, val interface{}) {
 
 // populate attribute status, using SMART Thresholds & Observed Metadata
 // Chainable
-func (sa *SmartNvmeAttribute) PopulateAttributeStatus() *SmartNvmeAttribute {
+func (sa *SmartNvmeAttribute) PopulateAttributeStatus(override *pkg.AttributeOverride) *SmartNvmeAttribute {
+	// set before the override branch: an override must not mask the drive's own verdict
+	if sa.AttributeId == "critical_warning" && sa.Value != 0 {
+		sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedSmart)
+	}
+
+	// A user override replaces the recommended-threshold comparison entirely, including the
+	// -1 "no threshold" sentinel.
+	if override != nil {
+		applyAttributeOverride(&sa.Status, &sa.StatusReason, sa.GetComparableValue(), thresholds.LargerIsWorse(pkg.DeviceProtocolNvme, sa.AttributeId), override)
+		return sa
+	}
 
 	//-1 is a special number meaning no threshold.
 	if sa.Threshold != -1 {
@@ -86,9 +97,6 @@ func (sa *SmartNvmeAttribute) PopulateAttributeStatus() *SmartNvmeAttribute {
 				sa.StatusReason += "Attribute is failing recommended SMART threshold"
 			}
 		}
-	}
-	if sa.AttributeId == "critical_warning" && sa.Value != 0 {
-		sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedSmart)
 	}
 	//TODO: eventually figure out the critical_warning bits and determine correct error messages here.
 

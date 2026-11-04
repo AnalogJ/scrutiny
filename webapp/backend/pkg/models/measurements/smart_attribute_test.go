@@ -83,7 +83,7 @@ func TestSmartNvmeAttribute_PopulateAttributeStatus(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			require.Equal(t, tc.expected, tc.attr.PopulateAttributeStatus().Status)
+			require.Equal(t, tc.expected, tc.attr.PopulateAttributeStatus(nil).Status)
 		})
 	}
 }
@@ -126,7 +126,7 @@ func TestSmartScsiAttribute_PopulateAttributeStatus(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			require.Equal(t, tc.expected, tc.attr.PopulateAttributeStatus().Status)
+			require.Equal(t, tc.expected, tc.attr.PopulateAttributeStatus(nil).Status)
 		})
 	}
 }
@@ -148,7 +148,7 @@ func TestSmartAtaAttribute_PopulateAttributeStatus_WhenFailed(t *testing.T) {
 		t.Run(tc.whenFailed, func(t *testing.T) {
 			// attr 5 with raw 0 passes Scrutiny's observed thresholds, so only when_failed affects the status
 			attr := measurements.SmartAtaAttribute{AttributeId: 5, Value: 5, Threshold: 10, RawValue: 0, WhenFailed: tc.whenFailed}
-			attr.PopulateAttributeStatus()
+			attr.PopulateAttributeStatus(nil)
 
 			require.Equal(t, tc.failedSmart, pkg.AttributeStatusHas(attr.Status, pkg.AttributeStatusFailedSmart))
 			require.Equal(t, tc.warningScrutiny, pkg.AttributeStatusHas(attr.Status, pkg.AttributeStatusWarningScrutiny))
