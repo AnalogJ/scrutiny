@@ -1,6 +1,7 @@
 package notify
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
+	"gorm.io/gorm"
 )
 
 var missedUploadDevice = models.Device{
@@ -30,7 +32,7 @@ func newTestMissedUploadTracker(t *testing.T, devices ...map[string]interface{})
 	deviceRepo := mock_database.NewMockDeviceRepo(gomock.NewController(t))
 	deviceRepo.EXPECT().GetDevices(gomock.Any()).AnyTimes().Return(nil, nil)
 	deviceRepo.EXPECT().UpdateDeviceEstimatedUploadPeriod(gomock.Any(), gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
-	deviceRepo.EXPECT().GetDeviceDetails(gomock.Any(), gomock.Any()).AnyTimes().Return(models.Device{}, nil)
+	deviceRepo.EXPECT().GetDeviceDetails(gomock.Any(), gomock.Any()).AnyTimes().Return(missedUploadDevice, nil)
 	return newTestMissedUploadTrackerWithRepo(t, deviceRepo, devices...)
 }
 
@@ -94,7 +96,9 @@ func TestMissedUploadTracker_ConfiguredPeriod(t *testing.T) {
 func TestMissedUploadTracker_UsesCurrentFriendlyName(t *testing.T) {
 	deviceRepo := mock_database.NewMockDeviceRepo(gomock.NewController(t))
 	deviceRepo.EXPECT().GetDevices(gomock.Any()).Return(nil, nil)
-	deviceRepo.EXPECT().GetDeviceDetails(gomock.Any(), missedUploadDevice.ScrutinyUUID).Return(models.Device{FriendlyName: "Backup"}, nil)
+	renamedDevice := missedUploadDevice
+	renamedDevice.FriendlyName = "Backup"
+	deviceRepo.EXPECT().GetDeviceDetails(gomock.Any(), missedUploadDevice.ScrutinyUUID).Return(renamedDevice, nil)
 	tracker, _, payloads := newTestMissedUploadTrackerWithRepo(t, deviceRepo, map[string]interface{}{
 		"scrutiny_uuid": missedUploadDevice.ScrutinyUUID.String(),
 		"notifications": map[string]interface{}{"upload_period": "10ms"},
@@ -106,6 +110,46 @@ func TestMissedUploadTracker_UsesCurrentFriendlyName(t *testing.T) {
 
 	require.Equal(t, "Scrutiny missed upload for Backup from host1", payload.Subject)
 	require.Contains(t, payload.Message, "Host Id: host1\nFriendly Name: Backup\nDevice Name: /dev/sda\n")
+}
+
+func TestMissedUploadTracker_LookupFailureUsesRecordedDevice(t *testing.T) {
+	deviceRepo := mock_database.NewMockDeviceRepo(gomock.NewController(t))
+	deviceRepo.EXPECT().GetDevices(gomock.Any()).Return(nil, nil)
+	deviceRepo.EXPECT().GetDeviceDetails(gomock.Any(), missedUploadDevice.ScrutinyUUID).Return(models.Device{}, errors.New("database is locked"))
+	tracker, _, payloads := newTestMissedUploadTrackerWithRepo(t, deviceRepo, map[string]interface{}{
+		"scrutiny_uuid": missedUploadDevice.ScrutinyUUID.String(),
+		"notifications": map[string]interface{}{"upload_period": "10ms"},
+	})
+
+	tracker.RecordUpload(missedUploadDevice, time.Now())
+	payload := requireNotification(t, payloads)
+
+	require.Equal(t, "Scrutiny missed upload for /dev/sda from host1", payload.Subject)
+	require.Contains(t, payload.Message, "Scrutiny UUID: "+missedUploadDevice.ScrutinyUUID.String())
+}
+
+func TestMissedUploadTracker_SkipsUnregisteredDevice(t *testing.T) {
+	deviceRepo := mock_database.NewMockDeviceRepo(gomock.NewController(t))
+	deviceRepo.EXPECT().GetDevices(gomock.Any()).Return(nil, nil)
+	lookedUp := make(chan struct{})
+	deviceRepo.EXPECT().GetDeviceDetails(gomock.Any(), missedUploadDevice.ScrutinyUUID).DoAndReturn(
+		func(context.Context, uuid.UUID) (models.Device, error) {
+			close(lookedUp)
+			return models.Device{}, gorm.ErrRecordNotFound
+		})
+	tracker, _, payloads := newTestMissedUploadTrackerWithRepo(t, deviceRepo, map[string]interface{}{
+		"scrutiny_uuid": missedUploadDevice.ScrutinyUUID.String(),
+		"notifications": map[string]interface{}{"upload_period": "10ms"},
+	})
+
+	tracker.RecordUpload(missedUploadDevice, time.Now())
+	<-lookedUp
+
+	select {
+	case payload := <-payloads:
+		require.FailNow(t, "unexpected notification", payload.Subject)
+	case <-time.After(100 * time.Millisecond):
+	}
 }
 
 func TestMissedUploadTracker_UploadRestartsTimer(t *testing.T) {
@@ -151,7 +195,7 @@ func TestMissedUploadTracker_EstimatesPeriodOnceUploadsSettle(t *testing.T) {
 func TestMissedUploadTracker_IrregularUploadKeepsEstimate(t *testing.T) {
 	deviceRepo := mock_database.NewMockDeviceRepo(gomock.NewController(t))
 	deviceRepo.EXPECT().GetDevices(gomock.Any()).Return(nil, nil)
-	deviceRepo.EXPECT().GetDeviceDetails(gomock.Any(), gomock.Any()).AnyTimes().Return(models.Device{}, nil)
+	deviceRepo.EXPECT().GetDeviceDetails(gomock.Any(), gomock.Any()).AnyTimes().Return(missedUploadDevice, nil)
 	// only the settled estimate is saved
 	deviceRepo.EXPECT().UpdateDeviceEstimatedUploadPeriod(gomock.Any(), gomock.Any(), 200*time.Millisecond).Return(nil)
 	tracker, hook, payloads := newTestMissedUploadTrackerWithRepo(t, deviceRepo)
