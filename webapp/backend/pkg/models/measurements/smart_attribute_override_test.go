@@ -65,14 +65,10 @@ func TestSmartAtaAttribute_PopulateAttributeStatus_Override(t *testing.T) {
 			expected: pkg.AttributeStatusFailedScrutiny | pkg.AttributeStatusFailedOverride,
 		},
 		{
-			// Attribute 188 is Critical with a first bucket of Low=0,High=100. The bucket
-			// test is exclusive on Low, so a *healthy* value of exactly 0 matches nothing
-			// and falls through to the "could not determine failure rate" warning. This
-			// documents that upstream quirk; the next case shows an override fixing it.
-			name:     "no override, healthy 188 of 0 still warns (upstream off-by-one)",
+			name:     "no override, healthy 188 of 0 passes",
 			attr:     measurements.SmartAtaAttribute{AttributeId: 188, Value: 100, RawValue: 0, TransformedValue: 0},
 			override: nil,
-			expected: pkg.AttributeStatusWarningScrutiny,
+			expected: pkg.AttributeStatusPassed,
 		},
 		{
 			name:     "override replaces the bucket lookup entirely for 188",
@@ -127,6 +123,12 @@ func TestSmartNvmeAttribute_PopulateAttributeStatus_Override_IdealHigh(t *testin
 			attr:     measurements.SmartNvmeAttribute{AttributeId: "available_spare", Value: 5, Threshold: -1},
 			override: &pkg.AttributeOverride{FailThreshold: i64(10)},
 			expected: pkg.AttributeStatusFailedScrutiny | pkg.AttributeStatusFailedOverride,
+		},
+		{
+			name:     "an override never masks a non-zero critical_warning",
+			attr:     measurements.SmartNvmeAttribute{AttributeId: "critical_warning", Value: 1, Threshold: 0},
+			override: &pkg.AttributeOverride{FailThreshold: i64(10)},
+			expected: pkg.AttributeStatusFailedSmart | pkg.AttributeStatusPassedOverride,
 		},
 		{
 			name:     "ideal-low NVMe attribute still compares upwards",
@@ -225,15 +227,10 @@ func TestSmartScsiAttribute_PopulateAttributeStatus_Override(t *testing.T) {
 		expected pkg.AttributeStatus
 	}{
 		{
-			// Documents existing upstream behaviour rather than endorsing it: the non-override
-			// path looks SCSI attributes up in thresholds.NmveMetadata, so a SCSI-only id such
-			// as scsi_grown_defect_list matches nothing and the recommended-threshold check is
-			// skipped entirely -- even with a value past its threshold. Left as-is here to keep
-			// this change focused; the override path below uses ScsiMetadata, which is correct.
-			name:     "no override, value past its threshold is not flagged (upstream metadata mismatch)",
+			name:     "no override, value past its threshold fails",
 			attr:     measurements.SmartScsiAttribute{AttributeId: "scsi_grown_defect_list", Value: 5, Threshold: 0},
 			override: nil,
-			expected: pkg.AttributeStatusPassed,
+			expected: pkg.AttributeStatusFailedScrutiny,
 		},
 		{
 			name:     "override passes when the value is within it",

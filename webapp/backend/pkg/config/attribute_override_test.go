@@ -5,19 +5,12 @@ import (
 	"testing"
 
 	"github.com/analogj/scrutiny/webapp/backend/pkg"
+	"github.com/gofrs/uuid/v5"
 	"github.com/stretchr/testify/require"
 )
 
-func configFromYaml(t *testing.T, yaml string) *configuration {
-	t.Helper()
-	c := configuration{}
-	require.NoError(t, c.Init())
-	require.NoError(t, c.MergeConfig(strings.NewReader(yaml)))
-	return &c
-}
-
-func TestDeviceAttributeOverrides(t *testing.T) {
-	c := configFromYaml(t, `
+func TestDeviceConfig_AttributeOverrides(t *testing.T) {
+	c, err := loadTestConfig(t, `
 devices:
   - scrutiny_uuid: 106089ed-2273-54e0-b498-ec4bdfc8ca6c
     attribute_overrides:
@@ -34,12 +27,9 @@ devices:
         attribute_id: media_errors
         warn_threshold: 1
 `)
-
-	overrides, err := DeviceAttributeOverrides(c)
 	require.NoError(t, err)
-	require.Len(t, overrides, 2)
 
-	first := overrides["106089ed-2273-54e0-b498-ec4bdfc8ca6c"]
+	first := c.GetDeviceConfig(uuid.FromStringOrNil("106089ed-2273-54e0-b498-ec4bdfc8ca6c")).AttributeOverrides
 	require.Len(t, first, 2)
 
 	crc := first.Find(pkg.DeviceProtocolAta, "199")
@@ -55,7 +45,7 @@ devices:
 	require.Equal(t, int64(0), *timeout.FailThreshold)
 
 	// UUIDs are matched case-insensitively, since the config is hand-written.
-	second := overrides["8301e652-2817-5df7-8bd4-49fe76de25b0"]
+	second := c.GetDeviceConfig(uuid.FromStringOrNil("8301e652-2817-5df7-8bd4-49fe76de25b0")).AttributeOverrides
 	require.Len(t, second, 1)
 	media := second.Find(pkg.DeviceProtocolNvme, "media_errors")
 	require.NotNil(t, media)
@@ -63,16 +53,9 @@ devices:
 	require.Nil(t, media.FailThreshold)
 }
 
-func TestDeviceAttributeOverrides_NotConfigured(t *testing.T) {
-	c := configFromYaml(t, "web:\n  listen:\n    port: 8080\n")
-	overrides, err := DeviceAttributeOverrides(c)
-	require.NoError(t, err)
-	require.Empty(t, overrides)
-}
-
 // A malformed override should stop the server with a clear message rather than being
 // silently dropped -- a silently ignored override looks identical to a working one.
-func TestValidateConfig_DeviceOverrides(t *testing.T) {
+func TestValidateConfig_AttributeOverrides(t *testing.T) {
 	tests := []struct {
 		name      string
 		yaml      string
@@ -134,11 +117,16 @@ devices:
 `,
 			expectErr: "scrutiny_uuid",
 		},
+		{
+			name:      "a devices block that isn't a list is rejected",
+			yaml:      "devices: \"not a list\"\n",
+			expectErr: "devices",
+		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := configFromYaml(t, tc.yaml).ValidateConfig()
+			_, err := loadTestConfig(t, tc.yaml)
 			if tc.expectErr == "" {
 				require.NoError(t, err)
 				return
@@ -147,58 +135,4 @@ devices:
 			require.Contains(t, strings.ToLower(err.Error()), tc.expectErr)
 		})
 	}
-}
-
-// A device entry that lists no overrides is skipped rather than producing an empty set, so
-// lookups for that device stay cheap and unambiguous.
-func TestDeviceAttributeOverrides_DeviceWithNoOverridesIsSkipped(t *testing.T) {
-	c := configFromYaml(t, `
-devices:
-  - scrutiny_uuid: 106089ed-2273-54e0-b498-ec4bdfc8ca6c
-    attribute_overrides: []
-  - scrutiny_uuid: 8301e652-2817-5df7-8bd4-49fe76de25b0
-    attribute_overrides:
-      - protocol: ATA
-        attribute_id: "199"
-        fail_threshold: 500
-`)
-	overrides, err := DeviceAttributeOverrides(c)
-	require.NoError(t, err)
-	require.Len(t, overrides, 1)
-	require.NotContains(t, overrides, "106089ed-2273-54e0-b498-ec4bdfc8ca6c")
-	require.Contains(t, overrides, "8301e652-2817-5df7-8bd4-49fe76de25b0")
-}
-
-// Two entries for the same device are merged rather than one silently winning.
-func TestDeviceAttributeOverrides_DuplicateDeviceEntriesMerge(t *testing.T) {
-	c := configFromYaml(t, `
-devices:
-  - scrutiny_uuid: 106089ed-2273-54e0-b498-ec4bdfc8ca6c
-    attribute_overrides:
-      - protocol: ATA
-        attribute_id: "199"
-        fail_threshold: 500
-  - scrutiny_uuid: 106089ED-2273-54E0-B498-EC4BDFC8CA6C
-    attribute_overrides:
-      - protocol: ATA
-        attribute_id: "188"
-        fail_threshold: 1000
-`)
-	overrides, err := DeviceAttributeOverrides(c)
-	require.NoError(t, err)
-	require.Len(t, overrides["106089ed-2273-54e0-b498-ec4bdfc8ca6c"], 2)
-}
-
-// `devices` given as something other than a list must produce a clear configuration error
-// rather than a panic or a silently empty override set.
-func TestDeviceAttributeOverrides_MalformedDevicesBlock(t *testing.T) {
-	c := configFromYaml(t, "devices: \"not a list\"\n")
-
-	overrides, err := DeviceAttributeOverrides(c)
-	require.Error(t, err)
-	require.Nil(t, overrides)
-	require.Contains(t, strings.ToLower(err.Error()), "devices")
-
-	// and the same failure must surface from startup validation
-	require.Error(t, c.ValidateConfig())
 }

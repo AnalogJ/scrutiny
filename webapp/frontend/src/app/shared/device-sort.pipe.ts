@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import {DeviceTitlePipe} from 'app/shared/device-title.pipe';
+import {deviceStatusFailureBits} from 'app/shared/device-status.pipe';
 
 @Pipe({
   name: 'deviceSort'
@@ -8,12 +9,13 @@ export class DeviceSortPipe implements PipeTransform {
 
     statusCompareFn(a: any, b: any): number {
         function deviceStatus(deviceSummary): number {
+            const failureBits = deviceStatusFailureBits(deviceSummary.device.device_status)
             if(!deviceSummary.smart){
                 return 0
-            } else if (deviceSummary.device.device_status === 0){
+            } else if (failureBits === 0){
                 return 1
             } else {
-                return deviceSummary.device.device_status * -1 // will return range from -1, -2, -3
+                return failureBits * -1 // will return range from -1, -2, -3
             }
         }
 

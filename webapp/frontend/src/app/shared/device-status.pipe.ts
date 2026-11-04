@@ -44,14 +44,9 @@ export class DeviceStatusPipe implements PipeTransform {
         if (includeReason) {
             statusNameLookup = DEVICE_STATUS_NAMES_WITH_REASON
         }
-        // determine the device status, by comparing it against the allowed threshold.
-        // The override bits are masked out first: they explain *why* a status was reached
-        // and are not themselves failures, so leaving them in would push the value outside
-        // the lookup table and render "undefined".
+        // determine the device status, by comparing it against the allowed threshold
         // tslint:disable-next-line:no-bitwise
-        const failureBits = deviceModel.device_status & ~(DeviceStatusFailedOverride | DeviceStatusPassedOverride)
-        // tslint:disable-next-line:no-bitwise
-        const deviceStatus = failureBits & threshold
+        const deviceStatus = deviceModel.device_status & threshold
         return statusNameLookup[deviceStatus]
     }
 
@@ -79,6 +74,12 @@ export class DeviceStatusPipe implements PipeTransform {
         return DeviceStatusPipe.deviceStatusForModelWithThreshold(deviceModel, hasSmartResults, threshold, includeReason)
     }
 
+}
+
+// A non-zero device_status doesn't imply a failure, since it also carries the override bits.
+export function deviceStatusFailureBits(deviceStatus: number): number {
+    // tslint:disable-next-line:no-bitwise
+    return deviceStatus & MetricsStatusThreshold.Both
 }
 
 // True when a user-configured override decided this device's status, so the UI can explain
