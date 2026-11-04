@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
@@ -18,6 +19,7 @@ func CollectorError(c *gin.Context) {
 	logger := c.MustGet("LOGGER").(*logrus.Entry)
 	appConfig := c.MustGet("CONFIG").(config.Interface)
 	deviceRepo := c.MustGet("DEVICE_REPOSITORY").(database.DeviceRepo)
+	missedUploadTracker := c.MustGet("MISSED_UPLOAD_TRACKER").(*notify.MissedUploadTracker)
 
 	var errorPayload collector.CollectorError
 	if err := c.BindJSON(&errorPayload); err != nil {
@@ -39,6 +41,9 @@ func CollectorError(c *gin.Context) {
 	scrutinyUUID, err := uuid.FromString(errorPayload.ScrutinyUUID)
 	hasUUID := err == nil && !scrutinyUUID.IsNil()
 	if hasUUID {
+		device.ScrutinyUUID = scrutinyUUID
+		// the collector ran, so a missed upload notification would only repeat this error
+		missedUploadTracker.RecordUpload(device, time.Now())
 		if deviceConfig := appConfig.GetDeviceConfig(scrutinyUUID); deviceConfig != nil && deviceConfig.Notifications.OnSmartctlError != nil {
 			onSmartctlError = *deviceConfig.Notifications.OnSmartctlError
 		}
