@@ -1,0 +1,11 @@
+[Unit]
+Description=Scrutiny Collector Timer
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+RandomizedDelaySec=1min
+AccuracySec=15s
+
+[Install]
+WantedBy=timers.target
