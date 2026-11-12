@@ -127,17 +127,7 @@ OPTIONS:
 						return err
 					}
 
-					settings := config.AllSettings()
-					// notify urls can contain secrets, so only their labels may be logged
-					if notifySettings, ok := settings["notify"].(map[string]interface{}); ok {
-						notifyUrls := config.GetStringSlice("notify.urls")
-						notifyLabels := make([]string, len(notifyUrls))
-						for ndx := range notifyUrls {
-							notifyLabels[ndx] = notify.NotifyURLLabel(ndx, len(notifyUrls), notifyUrls[ndx])
-						}
-						notifySettings["urls"] = notifyLabels
-					}
-					settingsData, err := json.Marshal(settings)
+					settingsData, err := json.Marshal(loggableSettings(config))
 					webLogger.Debug(string(settingsData), err)
 
 					webServer := web.AppEngine{Config: config, Logger: webLogger}
@@ -172,6 +162,33 @@ OPTIONS:
 		log.Fatal(color.HiRedString("ERROR: %v", err))
 	}
 
+}
+
+// loggableSettings returns all settings of appConfig with the secrets removed, for the debug log
+func loggableSettings(appConfig config.Interface) map[string]interface{} {
+	settings := appConfig.AllSettings()
+
+	// notify urls can contain secrets, so only their labels may be logged
+	if notifySettings, ok := settings["notify"].(map[string]interface{}); ok {
+		notifyUrls := appConfig.GetStringSlice("notify.urls")
+		notifyLabels := make([]string, len(notifyUrls))
+		for ndx := range notifyUrls {
+			notifyLabels[ndx] = notify.NotifyURLLabel(ndx, len(notifyUrls), notifyUrls[ndx])
+		}
+		notifySettings["urls"] = notifyLabels
+	}
+
+	if webSettings, ok := settings["web"].(map[string]interface{}); ok {
+		if influxdbSettings, ok := webSettings["influxdb"].(map[string]interface{}); ok {
+			for _, key := range []string{"token", "init_password"} {
+				if _, ok := influxdbSettings[key]; ok {
+					influxdbSettings[key] = "[redacted]"
+				}
+			}
+		}
+	}
+
+	return settings
 }
 
 func CreateLogger(appConfig config.Interface) (*logrus.Entry, *os.File, error) {
