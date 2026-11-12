@@ -55,7 +55,8 @@ func (sr *scrutinyRepository) SaveSettings(ctx context.Context, settings models.
 	if err != nil {
 		return err
 	}
-	sr.logger.Debugf("after merge settings: %v", sr.appConfig.AllSettings())
+	// only the user settings, the rest of the config contains secrets like notify urls
+	sr.logger.Debugf("after merge settings: %v", sr.appConfig.Get(config.DB_USER_SETTINGS_SUBKEY))
 	//retrieve current settings from the database
 	settingsEntries := []models.SettingEntry{}
 	if err := sr.gormClient.WithContext(ctx).Find(&settingsEntries).Error; err != nil {

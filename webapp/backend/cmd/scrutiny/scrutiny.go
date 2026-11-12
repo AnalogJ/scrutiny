@@ -10,6 +10,7 @@ import (
 
 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
+	"github.com/analogj/scrutiny/webapp/backend/pkg/notify"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/version"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/web"
 	"github.com/sirupsen/logrus"
@@ -126,7 +127,17 @@ OPTIONS:
 						return err
 					}
 
-					settingsData, err := json.Marshal(config.AllSettings())
+					settings := config.AllSettings()
+					// notify urls can contain secrets, so only their labels may be logged
+					if notifySettings, ok := settings["notify"].(map[string]interface{}); ok {
+						notifyUrls := config.GetStringSlice("notify.urls")
+						notifyLabels := make([]string, len(notifyUrls))
+						for ndx := range notifyUrls {
+							notifyLabels[ndx] = notify.NotifyURLLabel(ndx, len(notifyUrls), notifyUrls[ndx])
+						}
+						notifySettings["urls"] = notifyLabels
+					}
+					settingsData, err := json.Marshal(settings)
 					webLogger.Debug(string(settingsData), err)
 
 					webServer := web.AppEngine{Config: config, Logger: webLogger}

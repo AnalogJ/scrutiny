@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -310,50 +311,33 @@ func (n *Notify) Send() error {
 
 	//retrieve list of notification endpoints from config file
 	configUrls := n.Config.GetStringSlice("notify.urls")
-	n.Logger.Debugf("Configured notification services: %v", configUrls)
 
 	if len(configUrls) == 0 {
 		n.Logger.Infof("No notification endpoints configured. Skipping failure notification.")
 		return nil
 	}
 
-	//remove http:// https:// and script:// prefixed urls
-	notifyWebhooks := []string{}
-	notifyScripts := []string{}
-	notifyShoutrrr := []string{}
-
+	// notify urls can contain secrets, so only their labels may be logged
+	labels := make([]string, len(configUrls))
 	for ndx := range configUrls {
-		if strings.HasPrefix(configUrls[ndx], "https://") || strings.HasPrefix(configUrls[ndx], "http://") {
-			notifyWebhooks = append(notifyWebhooks, configUrls[ndx])
-		} else if strings.HasPrefix(configUrls[ndx], "script://") {
-			notifyScripts = append(notifyScripts, configUrls[ndx])
-		} else {
-			notifyShoutrrr = append(notifyShoutrrr, configUrls[ndx])
-		}
+		labels[ndx] = NotifyURLLabel(ndx, len(configUrls), configUrls[ndx])
 	}
-
-	n.Logger.Debugf("Configured scripts: %v", notifyScripts)
-	n.Logger.Debugf("Configured webhooks: %v", notifyWebhooks)
-	n.Logger.Debugf("Configured shoutrrr: %v", notifyShoutrrr)
+	n.Logger.Debugf("Configured notification services: %v", labels)
 
 	//run all scripts, webhooks and shoutrr commands in parallel
 	//var wg sync.WaitGroup
 	var eg errgroup.Group
 
-	for _, url := range notifyWebhooks {
+	for ndx, configUrl := range configUrls {
 		// execute collection in parallel go-routines
-		_url := url
-		eg.Go(func() error { return n.SendWebhookNotification(_url) })
-	}
-	for _, url := range notifyScripts {
-		// execute collection in parallel go-routines
-		_url := url
-		eg.Go(func() error { return n.SendScriptNotification(_url) })
-	}
-	for _, url := range notifyShoutrrr {
-		// execute collection in parallel go-routines
-		_url := url
-		eg.Go(func() error { return n.SendShoutrrrNotification(_url) })
+		label := labels[ndx]
+		if strings.HasPrefix(configUrl, "https://") || strings.HasPrefix(configUrl, "http://") {
+			eg.Go(func() error { return n.SendWebhookNotification(label, configUrl) })
+		} else if strings.HasPrefix(configUrl, "script://") {
+			eg.Go(func() error { return n.SendScriptNotification(configUrl) })
+		} else {
+			eg.Go(func() error { return n.SendShoutrrrNotification(label, configUrl) })
+		}
 	}
 
 	//and wait for completion, error or timeout.
@@ -374,17 +358,19 @@ func (n *Notify) Send() error {
 	//return nil
 }
 
-func (n *Notify) SendWebhookNotification(webhookUrl string) error {
-	n.Logger.Infof("Sending Webhook to %s", webhookUrl)
+func (n *Notify) SendWebhookNotification(label string, webhookUrl string) error {
+	n.Logger.Infof("Sending %s", label)
 	requestBody, err := json.Marshal(n.Payload)
 	if err != nil {
-		n.Logger.Errorf("An error occurred while sending Webhook to %s: %v", webhookUrl, err)
+		err = fmt.Errorf("%s: %w", label, err)
+		n.Logger.Errorf("An error occurred while sending %v", err)
 		return err
 	}
 
 	resp, err := http.Post(webhookUrl, "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
-		n.Logger.Errorf("An error occurred while sending Webhook to %s: %v", webhookUrl, err)
+		err = fmt.Errorf("%s: %w", label, withoutURL(err))
+		n.Logger.Errorf("An error occurred while sending %v", err)
 		return err
 	}
 	defer resp.Body.Close()
@@ -422,25 +408,24 @@ func (n *Notify) SendScriptNotification(scriptUrl string) error {
 	return nil
 }
 
-func (n *Notify) SendShoutrrrNotification(shoutrrrUrl string) error {
-
-	fmt.Printf("Sending Notifications to %v", shoutrrrUrl)
-	n.Logger.Infof("Sending notifications to %v", shoutrrrUrl)
+func (n *Notify) SendShoutrrrNotification(label string, shoutrrrUrl string) error {
+	n.Logger.Infof("Sending %s", label)
 
 	sender, err := shoutrrr.CreateSender(shoutrrrUrl)
 	if err != nil {
-		n.Logger.Errorf("An error occurred while sending notifications %v: %v", shoutrrrUrl, err)
+		err = fmt.Errorf("%s: %w", label, err)
+		n.Logger.Errorf("An error occurred while sending %v", err)
 		return err
 	}
 
 	//sender.SetLogger(n.Logger.)
-	serviceName, params, err := n.GenShoutrrrNotificationParams(shoutrrrUrl)
-	n.Logger.Debugf("notification data for %s: (%s)\n%v", serviceName, shoutrrrUrl, params)
-
+	_, params, err := n.GenShoutrrrNotificationParams(shoutrrrUrl)
 	if err != nil {
-		n.Logger.Errorf("An error occurred  occurred while generating notification payload for %s:\n %v", serviceName, shoutrrrUrl, err)
+		err = fmt.Errorf("%s: %w", label, withoutURL(err))
+		n.Logger.Errorf("An error occurred while generating the notification payload for %v", err)
 		return err
 	}
+	n.Logger.Debugf("notification data for %s:\n%v", label, params)
 
 	errs := sender.Send(n.Payload.Message, params)
 	if len(errs) > 0 {
@@ -456,9 +441,9 @@ func (n *Notify) SendShoutrrrNotification(shoutrrrUrl string) error {
 		if len(errstrings) == 0 {
 			return nil
 		} else {
-			n.Logger.Errorf("One or more errors occurred while sending notifications for %s:", shoutrrrUrl)
-			n.Logger.Error(errs)
-			return errors.New(strings.Join(errstrings, "\n"))
+			err := fmt.Errorf("%s: %s", label, strings.Join(errstrings, "\n"))
+			n.Logger.Errorf("One or more errors occurred while sending %v", err)
+			return err
 		}
 	}
 	return nil
@@ -521,4 +506,27 @@ func (n *Notify) GenShoutrrrNotificationParams(shoutrrrUrl string) (string, *sho
 	}
 
 	return serviceName, params, nil
+}
+
+// NotifyURLLabel returns a label for the notify url at position index (0-based) of total that is safe to log or
+// return to clients. Shoutrrr services keep secrets in different parts of the url (userinfo, host, path or query),
+// so the label only contains the service scheme and the url's position in the list.
+func NotifyURLLabel(index int, total int, notifyUrl string) string {
+	scheme := "unknown"
+	if prefix, _, found := strings.Cut(notifyUrl, "://"); found && notifyURLSchemePattern.MatchString(prefix) {
+		scheme = strings.ToLower(prefix)
+	}
+	return fmt.Sprintf("notification %d/%d via %s", index+1, total, scheme)
+}
+
+var notifyURLSchemePattern = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9+.-]*$`)
+
+// withoutURL returns the error a *url.Error wraps, dropping the url (which can contain secrets) that url.Parse and Go's
+// http client add to their errors
+func withoutURL(err error) error {
+	var urlErr *url.Error
+	if errors.As(err, &urlErr) {
+		return urlErr.Err
+	}
+	return err
 }
