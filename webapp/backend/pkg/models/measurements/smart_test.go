@@ -352,7 +352,7 @@ func TestFromCollectorSmartInfo(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -388,7 +388,7 @@ func TestFromCollectorSmartInfo_AtaDeviceStatistics(t *testing.T) {
 
 	//test
 	smartMdl := measurements.Smart{}
-	err = smartMdl.FromCollectorSmartInfo(uuid.Must(uuid.NewV4()), smartJson)
+	err = smartMdl.FromCollectorSmartInfo(uuid.Must(uuid.NewV4()), smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -397,7 +397,7 @@ func TestFromCollectorSmartInfo_AtaDeviceStatistics(t *testing.T) {
 
 	//an unknown logical block size makes the totals unknown
 	smartJson.LogicalBlockSize = 0
-	err = smartMdl.FromCollectorSmartInfo(uuid.Must(uuid.NewV4()), smartJson)
+	err = smartMdl.FromCollectorSmartInfo(uuid.Must(uuid.NewV4()), smartJson, nil)
 	require.NoError(t, err)
 	require.Nil(t, smartMdl.TotalBytesRead)
 	require.Nil(t, smartMdl.TotalBytesWritten)
@@ -419,7 +419,7 @@ func TestFromCollectorSmartInfo_Fail_Smart(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -444,7 +444,7 @@ func TestFromCollectorSmartInfo_Fail_ScrutinySmart(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -471,7 +471,7 @@ func TestFromCollectorSmartInfo_Fail_ScrutinyNonCriticalFailed(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -505,7 +505,7 @@ func TestFromCollectorSmartInfo_NVMe_Fail_Scrutiny(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -537,7 +537,7 @@ func TestFromCollectorSmartInfo_Nvme(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -569,7 +569,7 @@ func TestFromCollectorSmartInfo_Scsi(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)
@@ -605,7 +605,7 @@ func TestFromCollectorSmartInfo_Scsi_EnvironmentalTemperature(t *testing.T) {
 	//test
 	smartMdl := measurements.Smart{}
 	smartUUID := uuid.Must(uuid.NewV4())
-	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson)
+	err = smartMdl.FromCollectorSmartInfo(smartUUID, smartJson, nil)
 
 	//assert
 	require.NoError(t, err)

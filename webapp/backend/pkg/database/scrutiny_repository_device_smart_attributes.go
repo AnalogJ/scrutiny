@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/analogj/scrutiny/webapp/backend/pkg"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
 	"github.com/gofrs/uuid/v5"
@@ -18,11 +19,19 @@ import (
 // SMART
 // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 func (sr *scrutinyRepository) SaveSmartAttributes(ctx context.Context, scrutiny_uuid uuid.UUID, collectorSmartData collector.SmartInfo) (measurements.Smart, error) {
+	var overrides pkg.AttributeOverrideSet
+	if deviceConfig := sr.appConfig.GetDeviceConfig(scrutiny_uuid); deviceConfig != nil {
+		overrides = deviceConfig.AttributeOverrides
+	}
+
 	deviceSmartData := measurements.Smart{}
-	err := deviceSmartData.FromCollectorSmartInfo(scrutiny_uuid, collectorSmartData)
+	err := deviceSmartData.FromCollectorSmartInfo(scrutiny_uuid, collectorSmartData, overrides)
 	if err != nil {
 		sr.logger.Errorln("Could not process SMART metrics", err)
 		return measurements.Smart{}, err
+	}
+	for _, override := range deviceSmartData.UnmatchedOverrides(overrides) {
+		sr.logger.Warnf("Attribute override %s/%s matches nothing on device %s (%s)", override.Protocol, override.AttributeID, scrutiny_uuid, deviceSmartData.DeviceProtocol)
 	}
 
 	tags, fields := deviceSmartData.Flatten()

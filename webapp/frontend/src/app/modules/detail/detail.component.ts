@@ -16,13 +16,14 @@ import {DeviceModel} from 'app/core/models/device-model';
 import {SmartModel} from 'app/core/models/measurements/smart-model';
 import {SmartAttributeModel} from 'app/core/models/measurements/smart-attribute-model';
 import {AttributeMetadataModel} from 'app/core/models/thresholds/attribute-metadata-model';
-import {DeviceStatusPipe} from 'app/shared/device-status.pipe';
+import {DeviceStatusPipe, deviceStatusFailureBits} from 'app/shared/device-status.pipe';
 
 // from Constants.go - these must match
 const AttributeStatusPassed = 0
 const AttributeStatusFailedSmart = 1
 const AttributeStatusWarningScrutiny = 2
 const AttributeStatusFailedScrutiny = 4
+const AttributeStatusPassedOverride = 8
 
 
 @Component({
@@ -91,6 +92,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     readonly humanizeDuration = humanizeDuration;
 
     deviceStatusForModelWithThreshold = DeviceStatusPipe.deviceStatusForModelWithThreshold
+    deviceStatusFailureBits = deviceStatusFailureBits
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
     // -----------------------------------------------------------------------------------------------------
@@ -190,7 +192,7 @@ export class DetailComponent implements OnInit, AfterViewInit, OnDestroy {
     getAttributeStatusName(attributeStatus: number): string {
         // tslint:disable:no-bitwise
 
-        if (attributeStatus === AttributeStatusPassed) {
+        if (attributeStatus === AttributeStatusPassed || attributeStatus === AttributeStatusPassedOverride) {
             return 'passed'
 
         } else if ((attributeStatus & AttributeStatusFailedScrutiny) !== 0 || (attributeStatus & AttributeStatusFailedSmart) !== 0) {
