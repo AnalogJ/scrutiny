@@ -2,6 +2,7 @@ package config
 
 import (
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -105,4 +106,43 @@ func Test_MergeConfigMap(t *testing.T) {
 	require.Equal(t, "hello", testConfig.GetString("user.dashboard_display"))
 	require.Equal(t, "layout", testConfig.GetString("user.layout"))
 
+}
+
+// The web server shares one config between requests: GET /api/settings calls SetDefault, POST /api/settings
+// calls MergeConfigMap, and collector uploads read the user settings. Run with -race.
+func Test_ConcurrentReadsAndWrites(t *testing.T) {
+	testConfig, err := loadTestConfig(t, ``)
+	require.NoError(t, err)
+
+	const iterations = 2000
+	var wg sync.WaitGroup
+	wg.Add(3)
+	go func() {
+		defer wg.Done()
+		for i := 0; i < iterations; i++ {
+			testConfig.SetDefault("user.line_stroke", "smooth")
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		for i := 0; i < iterations; i++ {
+			if err := testConfig.MergeConfigMap(map[string]interface{}{
+				"user": map[string]interface{}{"line_stroke": "straight"},
+			}); err != nil {
+				t.Error(err)
+				return
+			}
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		for i := 0; i < iterations; i++ {
+			testConfig.GetString("user.line_stroke")
+			testConfig.GetString("web.influxdb.bucket")
+			testConfig.AllSettings()
+		}
+	}()
+	wg.Wait()
+
+	require.Equal(t, "straight", testConfig.GetString("user.line_stroke"))
 }
