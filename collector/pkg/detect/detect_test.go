@@ -2,6 +2,7 @@ package detect_test
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -284,6 +285,34 @@ func TestDetect_TransformDetectedDevices_PreservesOverrideDeviceFileCase(t *test
 	require.Equal(t, 2, len(transformedDevices))
 	require.Equal(t, "sat", deviceTypes["disk/by-id/ata-Samsung_SSD_850_EVO_1TB_S2RFNX0J"])
 	require.Equal(t, "sat+megaraid", deviceTypes["sda"])
+}
+
+func TestDetect_TransformDetectedDevices_SymlinkedOverrideReplacesScannedDevice(t *testing.T) {
+	// setup
+	dir, err := filepath.EvalSymlinks(t.TempDir())
+	require.NoError(t, err)
+	deviceFile := filepath.Join(dir, "sda")
+	byPathFile := filepath.Join(dir, "pci-0000:00:17.0-ata-1")
+	require.NoError(t, os.WriteFile(deviceFile, nil, 0o600))
+	require.NoError(t, os.Symlink(deviceFile, byPathFile))
+
+	mockCtrl := gomock.NewController(t)
+	fakeConfig := mock_config.NewMockInterface(mockCtrl)
+	fakeConfig.EXPECT().GetString("host.id").AnyTimes().Return("")
+	fakeConfig.EXPECT().GetDeviceOverrides().AnyTimes().Return([]models.ScanOverride{{Device: byPathFile, DeviceType: []string{"sat"}}})
+	fakeConfig.EXPECT().IsAllowlistedDevice(gomock.Any()).AnyTimes().Return(true)
+	detectedDevices := models.Scan{Devices: []models.ScanDevice{{Name: deviceFile, Type: "ata"}}}
+
+	d := detect.Detect{
+		Config: fakeConfig,
+	}
+
+	// test
+	transformedDevices := d.TransformDetectedDevices(detectedDevices)
+
+	// assert
+	require.Equal(t, 1, len(transformedDevices))
+	require.Equal(t, "sat", transformedDevices[0].DeviceType)
 }
 
 // test https://github.com/AnalogJ/scrutiny/issues/255#issuecomment-1164024126
