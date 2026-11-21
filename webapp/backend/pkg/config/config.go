@@ -189,10 +189,15 @@ func (c *configuration) ValidateConfig() error {
 	if err != nil {
 		return errors.ConfigValidationError(fmt.Sprintf("`devices` is invalid: %v", err))
 	}
+	seen := map[uuid.UUID]bool{}
 	for _, device := range devices {
 		if device.ScrutinyUUID.IsNil() {
 			return errors.ConfigValidationError("`scrutiny_uuid` is missing from a device")
 		}
+		if seen[device.ScrutinyUUID] {
+			return errors.ConfigValidationError(fmt.Sprintf("`scrutiny_uuid` %s is listed more than once", device.ScrutinyUUID))
+		}
+		seen[device.ScrutinyUUID] = true
 		if device.Notifications.UploadPeriod != nil && *device.Notifications.UploadPeriod < 0 {
 			return errors.ConfigValidationError(fmt.Sprintf("`upload_period` of device %s is negative", device.ScrutinyUUID))
 		}
