@@ -72,6 +72,7 @@ func Test_ValidateConfig_InvalidDevices(t *testing.T) {
 		"negative period":        `devices: [{scrutiny_uuid: ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c, notifications: {upload_period: -1h}}]`,
 		"invalid global period":  `notify: {upload_period: daily}`,
 		"negative global period": `notify: {upload_period: -1h}`,
+		"duplicate uuid":         `devices: [{scrutiny_uuid: ecfaaf20-d1f6-558b-b33a-3e8db19a6c2c}, {scrutiny_uuid: ECFAAF20-D1F6-558B-B33A-3E8DB19A6C2C}]`,
 	} {
 		t.Run(name, func(t *testing.T) {
 			_, err := loadTestConfig(t, yaml)
