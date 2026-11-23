@@ -37,7 +37,7 @@ const NotifyFailureTypeMissedUpload = "MissedUpload"
 // ShouldNotify check if the error Message should be filtered (level mismatch or filtered_attributes)
 func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs measurements.Smart, scrutiny_uuid uuid.UUID, statusThreshold pkg.MetricsStatusThreshold, statusFilterAttributes pkg.MetricsStatusFilterAttributes, repeatNotifications bool, c *gin.Context, deviceRepo database.DeviceRepo) bool {
 	// 1. check if the device is healthy
-	if device.DeviceStatus == pkg.DeviceStatusPassed {
+	if !pkg.DeviceStatusHas(device.DeviceStatus, pkg.DeviceStatusSet(pkg.DeviceStatusFailedSmart, pkg.DeviceStatusFailedScrutiny)) {
 		return false
 	}
 
@@ -70,7 +70,7 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 	for attrId, attrData := range smartAttrs.Attributes {
 		var status = attrData.GetStatus()
 		// Skip over passing attributes
-		if status == pkg.AttributeStatusPassed {
+		if status == pkg.AttributeStatusPassed || status == pkg.AttributeStatusPassedOverride {
 			continue
 		}
 
@@ -117,7 +117,10 @@ func ShouldNotify(logger logrus.FieldLogger, device models.Device, smartAttrs me
 			}
 			// This is checked again here to avoid repeating the entire for loop in the check above.
 			// Probably unnoticeably worse performance, but cleaner code.
-			if err != nil || len(lastPoints) < 1 || lastPoints[0].Attributes[attrId].GetComparableValue() != smartAttrs.Attributes[attrId].GetComparableValue() {
+			// the status can change with the same value when an override's thresholds are edited
+			if err != nil || len(lastPoints) < 1 ||
+				!pkg.AttributeStatusHas(lastPoints[0].Attributes[attrId].GetStatus(), requiredAttrStatus) ||
+				lastPoints[0].Attributes[attrId].GetComparableValue() != smartAttrs.Attributes[attrId].GetComparableValue() {
 				return true
 			}
 		}

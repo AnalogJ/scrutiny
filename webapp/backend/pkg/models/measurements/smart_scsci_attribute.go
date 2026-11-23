@@ -73,7 +73,12 @@ func (sa *SmartScsiAttribute) Inflate(key string, val interface{}) {
 
 // populate attribute status, using SMART Thresholds & Observed Metadata
 // Chainable
-func (sa *SmartScsiAttribute) PopulateAttributeStatus() *SmartScsiAttribute {
+func (sa *SmartScsiAttribute) PopulateAttributeStatus(override *pkg.AttributeOverride) *SmartScsiAttribute {
+
+	if override != nil {
+		applyAttributeOverride(&sa.Status, &sa.StatusReason, sa.GetComparableValue(), thresholds.LargerIsWorse(pkg.DeviceProtocolScsi, sa.AttributeId), override)
+		return sa
+	}
 
 	//-1 is a special number meaning no threshold.
 	if sa.Threshold != -1 {

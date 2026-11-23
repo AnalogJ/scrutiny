@@ -69,3 +69,10 @@ export class DeviceStatusPipe implements PipeTransform {
     }
 
 }
+
+// A non-zero device_status doesn't imply a failure, since it also carries the override bits
+// (see constants.go).
+export function deviceStatusFailureBits(deviceStatus: number): number {
+    // tslint:disable-next-line:no-bitwise
+    return deviceStatus & MetricsStatusThreshold.Both
+}

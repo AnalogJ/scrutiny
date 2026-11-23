@@ -114,7 +114,7 @@ func (sa *SmartAtaAttribute) Inflate(key string, val interface{}) {
 
 // populate attribute status, using SMART Thresholds & Observed Metadata
 // Chainable
-func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
+func (sa *SmartAtaAttribute) PopulateAttributeStatus(override *pkg.AttributeOverride) *SmartAtaAttribute {
 	if sa.isFailingNow() {
 		//this attribute has previously failed
 		sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusFailedSmart)
@@ -125,6 +125,14 @@ func (sa *SmartAtaAttribute) PopulateAttributeStatus() *SmartAtaAttribute {
 	} else if strings.EqualFold(sa.WhenFailed, pkg.AttributeWhenFailedInThePast) {
 		sa.Status = pkg.AttributeStatusSet(sa.Status, pkg.AttributeStatusWarningScrutiny)
 		sa.StatusReason += "Attribute has previously failed manufacturer SMART threshold"
+	}
+
+	// A user override replaces the observed-threshold analysis entirely. The SMART-derived
+	// flags set above are left alone: an override tunes Scrutiny's heuristics, it does not
+	// suppress the drive reporting itself as failing.
+	if override != nil {
+		applyAttributeOverride(&sa.Status, &sa.StatusReason, sa.GetComparableValue(), thresholds.LargerIsWorse(pkg.DeviceProtocolAta, strconv.Itoa(sa.AttributeId)), override)
+		return sa
 	}
 
 	sa.ValidateThreshold()
