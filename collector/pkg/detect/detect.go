@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/analogj/scrutiny/collector/pkg/common/shell"
@@ -161,6 +162,13 @@ func (d *Detect) TransformDetectedDevices(detectedDeviceConns models.Scan) []mod
 	for _, overrideDevice := range d.Config.GetDeviceOverrides() {
 		// lowercase for lookups only; the device file itself is a case-sensitive path
 		overrideDeviceKey := strings.ToLower(overrideDevice.Device)
+		if _, found := groupedDevices[overrideDeviceKey]; !found {
+			if resolvedDevice, err := filepath.EvalSymlinks(overrideDevice.Device); err == nil {
+				if _, found := groupedDevices[strings.ToLower(resolvedDevice)]; found {
+					overrideDeviceKey = strings.ToLower(resolvedDevice)
+				}
+			}
+		}
 		scannedGroup, foundScannedDevice := groupedDevices[overrideDeviceKey]
 
 		// prefer the file smartctl reported; the configured one is only authoritative
