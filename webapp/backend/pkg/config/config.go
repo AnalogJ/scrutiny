@@ -2,9 +2,11 @@ package config
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/analogj/go-util/utils"
@@ -59,6 +61,10 @@ func (c *configuration) GetDeviceConfig(scrutinyUUID uuid.UUID) *DeviceConfig {
 // This is done automatically when created via the Factory.
 type configuration struct {
 	*viper.Viper
+
+	// viper isn't safe for concurrent use, and request handlers read and write the config at runtime
+	// (e.g. GET /api/settings calls SetDefault). Methods taking the lock must not call each other.
+	mu sync.RWMutex
 }
 
 //Viper uses the following precedence order. Each item takes precedence over the item below it:
@@ -115,10 +121,15 @@ func (c *configuration) Init() error {
 }
 
 func (c *configuration) SubKeys(key string) []string {
-	return c.Sub(key).AllKeys()
+	// the sub config shares maps with this one, so hold the lock while reading it
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Viper.Sub(key).AllKeys()
 }
 
 func (c *configuration) Sub(key string) Interface {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	config := configuration{
 		Viper: c.Viper.Sub(key),
 	}
@@ -204,4 +215,102 @@ func (c *configuration) ValidateConfig() error {
 	}
 
 	return nil
+}
+
+// The methods below wrap viper's so they can be used concurrently.
+
+func (c *configuration) MergeConfig(in io.Reader) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.Viper.MergeConfig(in)
+}
+
+func (c *configuration) MergeConfigMap(cfg map[string]interface{}) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.Viper.MergeConfigMap(cfg)
+}
+
+func (c *configuration) WriteConfig() error {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Viper.WriteConfig()
+}
+
+func (c *configuration) Set(key string, value interface{}) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.Viper.Set(key, value)
+}
+
+func (c *configuration) SetDefault(key string, value interface{}) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.Viper.SetDefault(key, value)
+}
+
+func (c *configuration) AllSettings() map[string]interface{} {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Viper.AllSettings()
+}
+
+func (c *configuration) AllKeys() []string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Viper.AllKeys()
+}
+
+func (c *configuration) IsSet(key string) bool {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Viper.IsSet(key)
+}
+
+func (c *configuration) Get(key string) interface{} {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Viper.Get(key)
+}
+
+func (c *configuration) GetBool(key string) bool {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Viper.GetBool(key)
+}
+
+func (c *configuration) GetInt(key string) int {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Viper.GetInt(key)
+}
+
+func (c *configuration) GetInt64(key string) int64 {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Viper.GetInt64(key)
+}
+
+func (c *configuration) GetDuration(key string) time.Duration {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Viper.GetDuration(key)
+}
+
+func (c *configuration) GetString(key string) string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Viper.GetString(key)
+}
+
+func (c *configuration) GetStringSlice(key string) []string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Viper.GetStringSlice(key)
+}
+
+func (c *configuration) UnmarshalKey(key string, rawVal interface{}, decoderOpts ...viper.DecoderConfigOption) error {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Viper.UnmarshalKey(key, rawVal, decoderOpts...)
 }
