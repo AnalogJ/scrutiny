@@ -46,6 +46,11 @@ func (c *configuration) Init() error {
 
 	c.SetDefault("notify.on_smartctl_error", true)
 
+	// only used when the collector is started with `run --cron`
+	c.SetDefault("cron.schedule", "0 0 * * *")
+	c.SetDefault("cron.run_startup", false)
+	c.SetDefault("cron.run_startup_sleep", 1)
+
 	c.SetDefault("commands.metrics_smartctl_bin", "smartctl")
 	c.SetDefault("commands.metrics_scan_args", "--scan --json")
 	c.SetDefault("commands.metrics_info_args", "--info --json")
