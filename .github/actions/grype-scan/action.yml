@@ -1,0 +1,53 @@
+name: Grype scan
+description: Scan an image and list its fixable vulnerabilities in an annotation and the job summary
+inputs:
+  image:
+    description: Image to scan
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Scan image
+      # Pinned by SHA: third-party scanner.
+      uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439 # v7.4.2
+      with:
+        image: ${{ inputs.image }}
+        # Report only; findings must not block PRs.
+        fail-build: false
+        only-fixed: true
+        output-format: json
+        output-file: grype.json
+    - name: Report vulnerabilities
+      shell: bash
+      env:
+        IMAGE: ${{ inputs.image }}
+      run: |
+        vulns=$(jq '
+          def rank: {"Critical": 0, "High": 1, "Medium": 2, "Low": 3, "Negligible": 4}[.] // 5;
+          [.matches[] | {
+            severity: .vulnerability.severity,
+            id: .vulnerability.id,
+            url: .vulnerability.dataSource,
+            name: .artifact.name,
+            version: .artifact.version,
+            fix: (.vulnerability.fix.versions | join(", "))
+          }] | unique | sort_by(.severity | rank)' grype.json)
+        count=$(jq length <<<"$vulns")
+
+        {
+          echo "### $count fixable vulnerabilities in \`$IMAGE\`"
+          if [ "$count" -gt 0 ]; then
+            echo '| Severity | Vulnerability | Package | Installed | Fixed in |'
+            echo '| --- | --- | --- | --- | --- |'
+            jq -r '.[] | "| \(.severity) | [\(.id)](\(.url)) | \(.name) | \(.version) | \(.fix) |"' <<<"$vulns"
+          fi
+        } >> "$GITHUB_STEP_SUMMARY"
+
+        if [ "$count" -gt 0 ]; then
+          message=$(jq -r '.[] | "\(.severity) \(.id): \(.name) \(.version) (fixed in \(.fix))"' <<<"$vulns")
+          # workflow commands need %, CR and LF escaped
+          message=${message//'%'/'%25'}
+          message=${message//$'\r'/'%0D'}
+          message=${message//$'\n'/'%0A'}
+          echo "::warning title=$count fixable vulnerabilities in ${IMAGE//:/%3A}::$message"
+        fi

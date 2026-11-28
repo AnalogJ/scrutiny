@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image: [latest-omnibus, latest-collector, latest-web]
+        image: [latest-omnibus, latest-collector, latest-web, nightly-omnibus, nightly-collector, nightly-web]
 
     steps:
       - name: Scan image
@@ -27,7 +27,6 @@ jobs:
           fail-build: false
           # Debian carries many CVEs with no fix available; report only actionable ones.
           only-fixed: true
-          cache-db: true
       - name: Upload results to code scanning
         uses: github/codeql-action/upload-sarif@v4
         with:
