@@ -38,6 +38,14 @@ ifdef GOARM
 COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME)-$(GOARM)
 WEB_BINARY_NAME := $(WEB_BINARY_NAME)-$(GOARM)
 endif
+# the version the web API reports and the collector checks against it. Docker builds have no .git, so
+# CI passes it in; left empty, the binaries fall back to version.go
+ifndef VERSION_INFO
+VERSION_INFO := $(shell cd webapp/frontend 2>/dev/null && ./git.version.sh --print 2>/dev/null)
+endif
+ifneq ($(VERSION_INFO),)
+LD_FLAGS := $(LD_FLAGS) -X github.com/analogj/scrutiny/webapp/backend/pkg/version.BuildVersion=$(VERSION_INFO)
+endif
 ifeq ($(OS),Windows_NT)
 COLLECTOR_BINARY_NAME := $(COLLECTOR_BINARY_NAME).exe
 WEB_BINARY_NAME := $(WEB_BINARY_NAME).exe

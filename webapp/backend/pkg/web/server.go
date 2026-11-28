@@ -44,6 +44,7 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
 		{
 			api.GET("/health", handler.HealthCheck)
 			api.POST("/health/notify", handler.SendTestNotification) //check if notifications are configured correctly
+			api.GET("/version", handler.GetVersion)                  //used by Collector to detect a version mismatch
 
 			api.POST("/devices/register", handler.RegisterDevices)                //used by Collector to register new devices and retrieve filtered list
 			api.GET("/summary", handler.GetDevicesSummary)                        //used by Dashboard

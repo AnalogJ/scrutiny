@@ -7,6 +7,7 @@
 FROM golang:1.27-trixie AS backendbuild
 ARG TARGETOS
 ARG TARGETARCH
+ARG VERSION_INFO
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 

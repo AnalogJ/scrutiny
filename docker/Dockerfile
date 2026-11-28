@@ -16,6 +16,7 @@ RUN make binary-frontend
 FROM golang:1.27-trixie as backendbuild
 ARG TARGETOS
 ARG TARGETARCH
+ARG VERSION_INFO
 
 WORKDIR /go/src/github.com/analogj/scrutiny
 COPY --link Makefile /go/src/github.com/analogj/scrutiny/

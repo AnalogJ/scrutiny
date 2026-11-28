@@ -18,6 +18,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+      - name: "Populate version information"
+        id: version
+        run: "cd webapp/frontend && ./git.version.sh"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
@@ -56,6 +59,7 @@ jobs:
           context: .
           file: docker/Dockerfile.collector
           push: true
+          build-args: VERSION_INFO=${{ steps.version.outputs.version }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -71,6 +75,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: "Populate frontend version information"
+        id: version
         run: "cd webapp/frontend && ./git.version.sh"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -110,6 +115,7 @@ jobs:
           context: .
           file: docker/Dockerfile.web
           push: true
+          build-args: VERSION_INFO=${{ steps.version.outputs.version }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -125,6 +131,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: "Populate frontend version information"
+        id: version
         run: "cd webapp/frontend && ./git.version.sh"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -166,6 +173,7 @@ jobs:
           context: .
           file: docker/Dockerfile
           push: true
+          build-args: VERSION_INFO=${{ steps.version.outputs.version }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
